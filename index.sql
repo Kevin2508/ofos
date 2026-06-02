@@ -74,7 +74,7 @@ CREATE TABLE customers (
     loyalty_points_balance INT UNSIGNED NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_customer_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    CONSTRAINT fk_customer_user FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE customer_addresses (
@@ -161,6 +161,8 @@ CREATE TABLE customer_loyalty_transactions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id)
         REFERENCES customers(user_id),
+    FOREIGN KEY (applied_coupon_id)
+REFERENCES coupons(id),
     INDEX idx_customer(customer_id),
     INDEX idx_order(order_id),
     INDEX idx_created(created_at)
@@ -186,6 +188,7 @@ CREATE TABLE customer_referrals (
         REFERENCES customers(user_id),
     FOREIGN KEY (referred_customer_id)
         REFERENCES customers(user_id),
+    FOREIGN KEY (first_order_id) REFERENCES orders(id),
     UNIQUE KEY uk_referred_customer(
         referred_customer_id
     ),
@@ -211,16 +214,6 @@ CREATE TABLE restaurant_owners (
     CONSTRAINT fk_profile_restaurant_owner FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE restaurant_staff_profiles (
-    user_id BIGINT UNSIGNED PRIMARY KEY,
-    assigned_branch_id BIGINT UNSIGNED NOT NULL,
-    staff_code VARCHAR(30) UNIQUE NOT NULL,
-    employment_status ENUM('active', 'on_leave', 'terminated') NOT NULL DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_staff_branch (assigned_branch_id),
-    CONSTRAINT fk_profile_staff FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE admin_profiles (
     user_id BIGINT UNSIGNED PRIMARY KEY,
@@ -273,6 +266,19 @@ CREATE TABLE restaurant_branches (
     CONSTRAINT fk_branch_restaurant FOREIGN KEY (restaurant_id) REFERENCES restaurants (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE restaurant_staff_profiles (
+    user_id BIGINT UNSIGNED PRIMARY KEY,
+    assigned_branch_id BIGINT UNSIGNED NOT NULL,
+    staff_code VARCHAR(30) UNIQUE NOT NULL,
+    employment_status ENUM('active', 'on_leave', 'terminated') NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_staff_branch (assigned_branch_id),
+    CONSTRAINT fk_profile_staff FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (assigned_branch_id)
+REFERENCES restaurant_branches(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE restaurant_operating_hours (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     branch_id BIGINT UNSIGNED NOT NULL,
@@ -312,6 +318,14 @@ CREATE TABLE menu_items (
     CONSTRAINT fk_item_category FOREIGN KEY (category_id) REFERENCES menu_categories (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE menu_item_modifier_groups (
+    menu_item_id BIGINT UNSIGNED NOT NULL,
+    modifier_group_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (menu_item_id, modifier_group_id),
+    CONSTRAINT fk_mimg_item FOREIGN KEY (menu_item_id) REFERENCES menu_items (id) ON DELETE CASCADE,
+    CONSTRAINT fk_mimg_group FOREIGN KEY (modifier_group_id) REFERENCES modifier_groups (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE modifier_groups (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     branch_id BIGINT UNSIGNED NOT NULL,
@@ -322,13 +336,6 @@ CREATE TABLE modifier_groups (
     CONSTRAINT fk_modifier_group_branch FOREIGN KEY (branch_id) REFERENCES restaurant_branches (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE menu_item_modifier_groups (
-    menu_item_id BIGINT UNSIGNED NOT NULL,
-    modifier_group_id BIGINT UNSIGNED NOT NULL,
-    PRIMARY KEY (menu_item_id, modifier_group_id),
-    CONSTRAINT fk_mimg_item FOREIGN KEY (menu_item_id) REFERENCES menu_items (id) ON DELETE CASCADE,
-    CONSTRAINT fk_mimg_group FOREIGN KEY (modifier_group_id) REFERENCES modifier_groups (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE modifiers (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -361,7 +368,9 @@ CREATE TABLE orders (
     INDEX idx_order_status (order_status),
     CONSTRAINT fk_order_customer FOREIGN KEY (customer_id) REFERENCES customers (user_id),
     CONSTRAINT fk_order_branch FOREIGN KEY (branch_id) REFERENCES restaurant_branches (id),
-    CONSTRAINT fk_order_address FOREIGN KEY (delivery_address_id) REFERENCES customer_addresses (id)
+    CONSTRAINT fk_order_address FOREIGN KEY (delivery_address_id) REFERENCES customer_addresses (id),
+    FOREIGN KEY (applied_coupon_id)
+REFERENCES coupons(id),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE order_items (
@@ -373,7 +382,7 @@ CREATE TABLE order_items (
     item_subtotal DECIMAL(10,2) NOT NULL,
     special_instructions VARCHAR(150) NULL,
     is_available_mid_order BOOLEAN NOT NULL DEFAULT TRUE, -- Handles real-time item drops (REST-FR-021)
-    CONSTRAINT fk_oi_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    CONSTRAINT fk_oi_order FOREIGN KEY (order_id) REFERENCES orders (id),
     CONSTRAINT fk_oi_item FOREIGN KEY (menu_item_id) REFERENCES menu_items (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -397,6 +406,7 @@ CREATE TABLE delivery_partners (
     performance_rating DECIMAL(3,2) NOT NULL DEFAULT 5.00,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     SPATIAL INDEX idx_partner_location (current_coordinates),
     CONSTRAINT fk_driver_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -481,7 +491,7 @@ CREATE TABLE dispute_tickets (
     INDEX idx_dispute_status (status, priority),
     CONSTRAINT fk_dispute_order FOREIGN KEY (order_id) REFERENCES orders (id),
     CONSTRAINT fk_dispute_customer FOREIGN KEY (customer_id) REFERENCES customers (user_id),
-    CONSTRAINT fk_dispute_admin FOREIGN KEY (assigned_admin_id) REFERENCES users (id)
+    CONSTRAINT fk_dispute_admin FOREIGN KEY (assigned_admin_id) REFERENCES admin_profiles(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE dispute_messages (

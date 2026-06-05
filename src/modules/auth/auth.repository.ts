@@ -1,6 +1,7 @@
 import { OtpPurpose } from '@prisma/client';
 import { prisma } from '../../config/prisma.ts';
 
+
 async function saveOtp({
   email,
   otpCode,

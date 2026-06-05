@@ -1,20 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+import "dotenv/config";
+import { defineConfig, env } from "prisma/config";
+import { PrismaClient } from "@prisma/client";
 
-declare global {
-  var prisma: PrismaClient | undefined;
-}
+defineConfig({
+  schema: "prisma/schema.prisma",
 
-const prisma =
-  global.prisma ||
-  new PrismaClient({
-    log:
-      process.env.NODE_ENV === 'development'
-        ? ['query', 'error', 'warn']
-        : ['error'],
-  });
+  datasource: {
+    url: env("DATABASE_URL"),
+  },
+});
 
-if (process.env.NODE_ENV !== 'production') {
-  global.prisma = prisma;
-}
+// src/config/prisma.ts
 
-export { prisma };
+const prisma = new PrismaClient();
+
+export { prisma};

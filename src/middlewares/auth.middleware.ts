@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { env } from "../config/env.ts";
 import jwt from "jsonwebtoken";
-import { IjwtUser } from "../modules/auth/auth.interface.ts";
+// import { IjwtUser } from "../modules/auth/auth.interface.ts";
 
 const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const token = req.signedCookies.token;
@@ -11,7 +11,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
   try {
     const secret = env.JWT_SECRET as string;
     const result = jwt.verify(token, secret);
-    req.user = result as IjwtUser;
+    req.user = result ;
     next();
   } catch (err) {
     if (err instanceof Error) {

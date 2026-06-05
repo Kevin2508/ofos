@@ -1,5 +1,5 @@
-import { prisma } from '../../config/prisma.ts';
 import { Prisma } from '@prisma/client';
+import { prisma } from '../../config/prisma.ts';
 
 async function findUserByEmailOrContact(email: string, phone: string) {
   return prisma.user.findFirst({

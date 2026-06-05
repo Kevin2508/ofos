@@ -4,7 +4,6 @@ import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 
 import { authRouter } from './modules/auth/auth.routes.js';
-import { userRouter } from './modules/user/user.routes.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +22,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/auth', authRouter);
-app.use('/user', userRouter);
 
 app.use(errorMiddleware);
 

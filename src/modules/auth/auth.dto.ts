@@ -1,13 +1,7 @@
 interface registerDto {
-  userName: string;
-  fullName: string;
-  bio: string;
+  firstName: string;
   email: string;
-  contact: string;
-  website: string;
-  birthDate: string;
-  location: string;
-  timeZone: string;
+  phone: string;
   password: string;
   confirmPassword: string;
 }

@@ -1,6 +1,20 @@
 import Joi from 'joi';
 
 const registerSchema = Joi.object({
+  firstName: Joi.string()
+    .trim()
+    .min(2)
+    .max(50)
+    .pattern(/^[A-Za-z]+$/)
+    .required()
+    .messages({
+      'string.empty': 'First name is required',
+      'string.min': 'First name must be at least 2 characters',
+      'string.max': 'First name cannot exceed 100 characters',
+      'string.pattern.base': 'First name can only contain letters',
+      'any.required': 'First name is required',
+    }),
+
   email: Joi.string()
     .email({
       minDomainSegments: 2,
@@ -8,7 +22,7 @@ const registerSchema = Joi.object({
     .required()
     .messages({ 'string.email': 'Please enter valid email address' }),
 
-  contact: Joi.string()
+  phone: Joi.string()
     .length(10)
     .pattern(/^[0-9]+$/)
     .allow('')

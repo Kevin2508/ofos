@@ -166,10 +166,6 @@ CREATE TABLE otp_verifications (
 
     INDEX idx_otp_user(user_id),
 
-    CONSTRAINT fk_otp_user
-        FOREIGN KEY(user_id)
-        REFERENCES users(id)
-
 ) ENGINE=InnoDB;
 
 CREATE TABLE restaurants (

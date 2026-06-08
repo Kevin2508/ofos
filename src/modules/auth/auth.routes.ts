@@ -9,6 +9,7 @@ import {
   register,
   registerAdmin,
   registerDeliveryPartner,
+  registerFleetManager,
   resetPassword,
   sendOtp,
   verigyOtp,
@@ -18,6 +19,7 @@ import {
   loginSchema,
   registerAdminSchema,
   registerDeliveryPartnerSchema,
+  registerFleetManagerSchema,
   registerSchema,
   resetPasswordSchema,
   sendOtpSchema,
@@ -79,11 +81,11 @@ authRouter.post(
 );
 
 // // Fleet Manager
-// authRouter.post(
-//   '/register/fleet-manager',
-//   validate(registerSchema),
-//   registerFleetManager
-// );
+authRouter.post(
+  '/register/fleet-manager',
+  validate(registerFleetManagerSchema),
+  registerFleetManager
+);
 
 // // Finance Manager
 // authRouter.post(

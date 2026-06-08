@@ -178,6 +178,28 @@ const registerAdminSchema = Joi.object({
   confirmPassword: Joi.string().valid(Joi.ref('password')).min(8).required(),
 });
 
+const registerFleetManagerSchema = Joi.object({
+  firstName: Joi.string().max(100).required(),
+  lastName: Joi.string().max(100).allow('', null).optional(),
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ['com', 'net', 'org', 'io'] },
+    })
+    .required()
+    .messages({ 'string.email': 'Please enter a valid email address' }),
+  phone: Joi.string()
+    .length(10)
+    .pattern(/^[0-9]+$/)
+    .required()
+    .messages({
+      'string.length': 'Contact number must be exactly 10 digits',
+      'string.pattern.base': 'Contact number must only contain digits',
+    }),
+  password: Joi.string().min(8).required(),
+  confirmPassword: Joi.string().valid(Joi.ref('password')).min(8).required(),
+});
+
 const registerDeliveryPartnerSchema = Joi.object({
   firstName: Joi.string()
     .trim()
@@ -226,4 +248,5 @@ export {
   registerDeliveryPartnerSchema,
   verifyOtpSchema,
   registerAdminSchema,
+  registerFleetManagerSchema,
 };

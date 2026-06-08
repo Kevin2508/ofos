@@ -470,6 +470,53 @@ async function registerAdminService(data: any) {
   };
 }
 
+async function registerFleetManagerService(data: any) {
+  let user = await findUserByIdentifier(data.email);
+  if (!user) {
+    user = await findUserByIdentifier(data.phone);
+  }
+
+  const isExistingUser = !!user;
+
+  if (isExistingUser) {
+    const role = await getRoleIdByRole({ role: 'Fleet_manager' });
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
+  } else {
+    const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
+    const user = await createUser({
+      firstName: data.firstName,
+      // lastName: data.lastName,
+      email: data.email,
+      phone: data.phone,
+      passwordHash: hashedPassword,
+    });
+
+    const role = await getRoleIdByRole({ role: 'Fleet_manager' });
+
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
+  }
+
+  return {
+    message: isExistingUser
+      ? 'Account found. Your request for Fleet manager privileges has been sent to administrators for review.'
+      : 'Account created. Your request for Fleet manager privileges has been sent to administrators for review.',
+  };
+}
+
 async function registerDeliveryPartnerService(data: any) {
   let user = await findUserByIdentifier(data.email);
   if (!user) {
@@ -538,6 +585,7 @@ export {
   registerService,
   resetPasswordService,
   registerAdminService,
+  registerFleetManagerService,
   sendOtpService,
   verifyOtpService,
   registerDeliveryPartnerService,

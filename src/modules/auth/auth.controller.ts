@@ -17,6 +17,7 @@ import {
   refreshTokenService,
   registerAdminService,
   registerDeliveryPartnerService,
+  registerFleetManagerService,
   registerService,
   resetPasswordService,
   sendOtpService,
@@ -198,6 +199,15 @@ const registerDeliveryPartner = catchAsync(
   }
 );
 
+const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
+  const data = await registerFleetManagerService(req.body);
+
+  res.status(200).json({
+    status: 'success',
+    message: data.message,
+  });
+});
+
 export {
   forgotPassword,
   login,
@@ -207,6 +217,7 @@ export {
   register,
   resetPassword,
   sendOtp,
+  registerFleetManager,
   verigyOtp,
   refresh,
 };

@@ -120,6 +120,10 @@ async function findUserForAuth(identifier: string) {
     },
     include: {
       userRoles: {
+        where: {
+          // Fetches roles matching either condition
+          status: { in: ['ASSIGNED', 'REQUESTED'] },
+        },
         include: {
           role: {
             include: {

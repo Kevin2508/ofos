@@ -3,13 +3,11 @@ import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
 const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies.accessToken;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!token) {
     throw new Error('Not authenticated. No access token provided.');
   }
-
-  const token = authHeader.split(' ')[1];
 
   if (!token) throw new Error('Not authenticated');
   // if (!token) res.redirect('/not-authenticated');
@@ -25,7 +23,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
 
     const decoded = jwt.verify(token, secret);
 
-    req.user = decoded;
+    req.user = decoded as any;
 
     next();
   } catch (err) {
@@ -43,4 +41,34 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { authenticate };
+const authorize = (requiredRole: string) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !req.user.roles) {
+      res.status(401).json({ message: 'Unauthorized: No user or roles found' });
+      return;
+    }
+
+    const hasPendingRole = req.user.pendingRoles.some(
+      (role: string) => role === requiredRole
+    );
+
+    if (hasPendingRole) {
+      // res.status(403).json({ message: 'Verification Pending' });
+      res.redirect('/pendingVerificationPage');
+      return;
+    }
+
+    const hasRole = req.user.roles.some(
+      (role: string) => role === requiredRole
+    );
+
+    if (!hasRole) {
+      res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+      return;
+    }
+
+    next();
+  };
+};
+
+export { authenticate, authorize };

@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import ms from 'ms';
 import { Request, Response } from 'express';
 import { catchAsync } from '../../middlewares/catch.async.ts';
 import {
@@ -49,12 +50,20 @@ const login = catchAsync(
       path: '/',
     });
 
+    const accessTokenLifeMs = ms(data.tokens.expiresIn);
+
+    res.cookie('accessToken', data.tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: accessTokenLifeMs,
+      path: '/',
+    });
+
     res.status(200).json({
       status: 'success',
       message: data.message,
       data: {
-        accessToken: data.tokens.accessToken,
-        expiresIn: data.tokens.expiresIn,
         user: data.user,
       },
     });
@@ -117,6 +126,13 @@ const logout = catchAsync(async (req: Request, res: Response) => {
 
   res.clearCookie('refreshToken', {
     signed: true,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+  });
+
+  res.clearCookie('accessToken', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',

@@ -46,7 +46,6 @@ async function loginService(
   if (!user) {
     throw new Error(GENERIC_AUTH_ERROR);
   }
-
   if (user.status !== 'ACTIVE') {
     throw new Error('Account is not active. Please contact support.');
   }
@@ -70,13 +69,19 @@ async function loginService(
 
   // Flatten Roles and Permissions for JWT Payload
   const roles = new Set<string>();
+  const pendingRoles = new Set<string>();
   const permissions = new Set<string>();
 
   user.userRoles.forEach((ur) => {
-    roles.add(ur.role.name);
-    ur.role.rolePermissions.forEach((rp) => {
-      permissions.add(rp.permission.code);
-    });
+    if (ur.status === 'ASSIGNED') {
+      roles.add(ur.role.name);
+
+      ur.role.rolePermissions.forEach((rp) => {
+        permissions.add(rp.permission.code);
+      });
+    } else if (ur.status === 'REQUESTED') {
+      pendingRoles.add(ur.role.name);
+    }
   });
 
   // Generate Short-Lived Access Token
@@ -87,6 +92,7 @@ async function loginService(
       id: String(user.id),
       email: user.email,
       roles: Array.from(roles),
+      pendingRoles: Array.from(pendingRoles),
       permissions: Array.from(permissions),
     },
     process.env.JWT_ACCESS_SECRET!,

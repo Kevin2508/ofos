@@ -9,7 +9,6 @@ import { fileURLToPath } from 'url';
 
 import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { authRouter } from './modules/auth/auth.routes.ts';
-import { customerRouter } from './modules/customer/customer.routes.ts';
 import { modifierRouter } from './modules/modifierGroupsAndOptions/modifier.routes.ts';
 
 import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
@@ -19,6 +18,9 @@ import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.t
 
 import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
 import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
+import { customerRouter } from './modules/customer/customer.routes.ts';
+
+
 
 import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
@@ -58,6 +60,10 @@ app.use('/restaurants', restaurantRoter);
 app.use('/fleet-manager', fleetManagerRouter);
 
 app.use('/restaurants/:restaurantId/branches', branchRouter);
+app.use('/restaurants', restaurantRouter);
+app.use(customerRouter);
+app.use('/auth', authRouter);
+app.use('/customer', customerRouter);
 
 app.use(errorMiddleware);
 

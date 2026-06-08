@@ -1,7 +1,11 @@
 import { catchAsync } from "../../middlewares/catch.async.ts";
 import { Request, Response } from "express-serve-static-core";
 import { addAddressService, getAddressesByIdService, getAddressesService,
+<<<<<<< HEAD
     updateAdressService, deleteAddressService, setDefaultAddressService
+=======
+    updateAdressService, deleteAddressService
+>>>>>>> 6cc4dc7 (customer address module is done)
  } from "./customer.service.ts";
 import { customerDto, CreateAddressDto } from "./customer.dto.ts";
 import { createAddressSchema } from "./customer.valication.ts";
@@ -196,6 +200,7 @@ const deleteCustomerAddress = catchAsync(
             
     }
 )
+<<<<<<< HEAD
 
 const setDefaultAddress = catchAsync(
   async(req:Request, res:Response) =>{
@@ -243,3 +248,6 @@ const setDefaultAddress = catchAsync(
 
   })
 export {getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, deleteCustomerAddress, setDefaultAddress}
+=======
+export {getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, deleteCustomerAddress}
+>>>>>>> 6cc4dc7 (customer address module is done)

@@ -1,8 +1,12 @@
 import { prisma } from '../../config/prisma.ts';
 import { CreateAddressDto, customerDto } from './customer.dto.ts';
 import { createAddress, findAddressesByCustomerID, findAddressesByID, findAddressesById,
+<<<<<<< HEAD
     updateCustomerAddress, findAddressById1, deleteAddressById, removeDefaultAddresses,
     setAddressAsDefault
+=======
+    updateCustomerAddress, findAddressById1, deleteAddressById
+>>>>>>> 6cc4dc7 (customer address module is done)
 } from './customer.repository.ts';
 
 
@@ -102,6 +106,7 @@ async function deleteAddressService(addressId: number) {
     data: deletedAddress,
   };
 }
+<<<<<<< HEAD
 
 async function setDefaultAddressService(customer:customerDto, addressID:number) {
   
@@ -131,3 +136,6 @@ async function setDefaultAddressService(customer:customerDto, addressID:number) 
        };
 }
 export { getAddressesService, addAddressService, getAddressesByIdService, updateAdressService, deleteAddressService, setDefaultAddressService}
+=======
+export { getAddressesService, addAddressService, getAddressesByIdService, updateAdressService, deleteAddressService}
+>>>>>>> 6cc4dc7 (customer address module is done)

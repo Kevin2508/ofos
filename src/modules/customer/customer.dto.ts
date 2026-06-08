@@ -2,7 +2,10 @@ interface customerDto {
   id: string;
   email?: string;
   roles: string[];
+<<<<<<< HEAD
   pendingRoles: string[];
+=======
+>>>>>>> 6cc4dc7 (customer address module is done)
   permissions: string[];
   iat: number;
   exp: number

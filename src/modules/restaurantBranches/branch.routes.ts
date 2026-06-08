@@ -7,11 +7,14 @@ import {
   getBranch,
   getBranches,
   updateBranch,
+<<<<<<< HEAD
   getOperatingHours,
   replaceOperatingHours,
   updateOperatingHour,
   upsertDeliveryZone,
   getDeliveryZone,
+=======
+>>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)
 } from "./branch.controller.ts";
 import {
   createBranchSchema,
@@ -40,6 +43,7 @@ branchRouter.patch(
 
 branchRouter.delete("/:id", authenticate, deactivateBranch);
 
+<<<<<<< HEAD
 branchRouter.get("/:branchId/hours", getOperatingHours); 
 
 branchRouter.put(
@@ -62,4 +66,6 @@ branchRouter.put(
   upsertDeliveryZone
 );
 
+=======
+>>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)
 export { branchRouter };

@@ -1,8 +1,11 @@
 export type branchParamsDto = {
   restaurantId: string;
   id: string;
+<<<<<<< HEAD
   branchId: string;
   dayOfWeek: string;
+=======
+>>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)
 };
 
 export type createBranchDto = {

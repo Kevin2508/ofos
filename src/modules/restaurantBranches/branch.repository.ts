@@ -66,6 +66,7 @@ async function deactivateBranch(id: bigint) {
   });
 }
 
+<<<<<<< HEAD
 async function getOperatingHours(branchId: bigint) {
   return prisma.restaurantOperatingHour.findMany({
     where: {
@@ -182,6 +183,8 @@ async function upsertDeliveryZone(
   });
 }
 
+=======
+>>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)
 export {
   createBranch,
   deactivateBranch,
@@ -189,9 +192,12 @@ export {
   findBranchByIdAndRestaurant,
   findBranchesByRestaurant,
   updateBranch,
+<<<<<<< HEAD
   getOperatingHours,
   replaceOperatingHours,
   updateOperatingHour,
   getDeliveryZone,
   upsertDeliveryZone
+=======
+>>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)
 };

@@ -7,14 +7,13 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { errorMiddleware } from './middlewares/error.middleware.ts';
-import { authRouter } from './modules/auth/auth.routes.ts';
+
 import { modifierRouter } from './modules/modifierGroupsAndOptions/modifier.routes.ts';
 
-import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
+import { authRouter } from './modules/auth/auth.routes.ts';
+import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
 
-import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';
 
 import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
 import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';

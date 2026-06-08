@@ -20,6 +20,8 @@ import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner
 import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
 import { customerRouter } from './modules/customer/customer.routes.ts';
 
+import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
+import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';
 
 
 import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
@@ -64,6 +66,8 @@ app.use('/restaurants', restaurantRouter);
 app.use(customerRouter);
 app.use('/auth', authRouter);
 app.use('/customer', customerRouter);
+app.use('/restaurant', restaurantStaffRouter);
+app.use(menuCategoryRouter);
 
 app.use(errorMiddleware);
 

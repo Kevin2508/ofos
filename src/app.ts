@@ -6,6 +6,9 @@ import cookieParser from 'cookie-parser';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
+import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
+import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +27,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(authPageRouter);
 app.use('/auth', authRouter);
+app.use('/restaurant', restaurantStaffRouter);
+app.use(menuCategoryRouter);
 
 app.use(errorMiddleware);
 

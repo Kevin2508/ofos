@@ -9,6 +9,8 @@ import { authPageRouter } from './routes/auth.pages.routes.ts';
 import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
 import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
+import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
+import { defaultPageRouter } from './routes/default.pages.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +35,9 @@ app.use(restaurantRouter);
 
 app.use('/auth', authRouter);
 app.use('/restaurants', restaurantRouter);
+app.use(defaultPageRouter);
+app.use('/auth', authRouter);
+app.use('/delivery-partner', deliveryPartnerRouter);
 
 app.use(errorMiddleware);
 

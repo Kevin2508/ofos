@@ -3,8 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 
-import { authRouter } from './modules/auth/auth.routes.js';
-import { errorMiddleware } from './middlewares/error.middleware.js';
+import { authRouter } from './modules/auth/auth.routes.ts';
+import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
 import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
 import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';

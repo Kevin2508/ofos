@@ -14,6 +14,12 @@ enum UserStatus {
   SUSPENDED
 }
 
+enum UserRoleStatus{
+  REQUESTED
+  ASSIGNED
+  REJECTED
+} 
+
 enum OtpPurpose {
   PHONE_VERIFICATION
   EMAIL_VERIFICATION
@@ -295,6 +301,7 @@ model Permission {
 model UserRole {
   userId     BigInt   @map("user_id") @db.UnsignedBigInt
   roleId     BigInt   @map("role_id") @db.UnsignedBigInt
+  status     UserRoleStatus @default(REQUESTED)
   assignedAt DateTime @default(now()) @map("assigned_at")
 
   user User @relation(fields: [userId], references: [id])

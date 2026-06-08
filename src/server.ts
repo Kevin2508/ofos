@@ -1,6 +1,6 @@
 import './config/bigint.ts';
-import { app } from './app.js';
-import { env } from './config/env.js';
+import { app } from './app.ts';
+import { env } from './config/env.ts';
 
 const port = env.PORT || 3999;
 

@@ -16,6 +16,8 @@ import {
   loginService,
   refreshTokenService,
   registerAdminService,
+  registerDeliveryPartnerService,
+  registerFleetManagerService,
   registerService,
   resetPasswordService,
   sendOtpService,
@@ -186,14 +188,36 @@ const registerAdmin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const registerDeliveryPartner = catchAsync(
+  async (req: Request, res: Response) => {
+    const data = await registerDeliveryPartnerService(req.body);
+
+    res.status(200).json({
+      status: 'success',
+      message: data.message,
+    });
+  }
+);
+
+const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
+  const data = await registerFleetManagerService(req.body);
+
+  res.status(200).json({
+    status: 'success',
+    message: data.message,
+  });
+});
+
 export {
   forgotPassword,
   login,
   registerAdmin,
   logout,
+  registerDeliveryPartner,
   register,
   resetPassword,
   sendOtp,
+  registerFleetManager,
   verigyOtp,
   refresh,
 };

@@ -1,5 +1,6 @@
 import { prisma } from '../../config/prisma.ts';
 import { Prisma } from '../../generated/prisma/client.ts';
+import { UserRoleStatus } from '../../generated/prisma/enums.ts';
 
 async function findUserByEmailOrContact(email: string, phone: string) {
   return prisma.user.findFirst({
@@ -56,6 +57,34 @@ async function createUser(data: {
       email: data.email,
       phone: data.phone,
       passwordHash: data.passwordHash,
+    },
+    select: {
+      id: true,
+    },
+  });
+}
+
+async function getRoleIdByRole(data: { role: string }) {
+  return await prisma.role.findUnique({
+    where: {
+      name: data.role,
+    },
+    select: {
+      id: true,
+    },
+  });
+}
+
+async function assignRole(data: {
+  userId: bigint;
+  roleId: bigint;
+  status: UserRoleStatus;
+}) {
+  return await prisma.userRole.create({
+    data: {
+      userId: data.userId,
+      roleId: data.roleId,
+      status: data.status,
     },
   });
 }
@@ -163,18 +192,20 @@ async function assignRoleToUser(userId: bigint, roleId: bigint) {
 }
 
 export {
+  assignRole,
+  assignRoleToUser,
   createUser,
+  findUserByContact,
   findUserByEmail,
   findUserByEmailOrContact,
   findUserById,
   findUserByIdentifier,
   findUserForAuth,
+  getRoleIdByRole,
   handleSuccessfulLogin,
   incrementFailedLoginAttempts,
-  findUserByContact,
   lockUserAccount,
   markUserIsVerified,
-  assignRoleToUser,
   revokeAllUserSessions,
   updateUser,
 };

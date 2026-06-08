@@ -59,6 +59,11 @@ const storage = multer.diskStorage({
       fileName = date.getTime() + '_' + req.body.userName + ext;
     } else {
       fileName = 'post_' + date.getTime() + ext;
+    if (file.fieldname == 'delivery-partner-document') {
+      cb(null, './uploads/deliveryPartners/documents');
+      fileName = date.getTime() + '_' + 'document' + ext;
+    } else {
+      fileName = 'any_' + date.getTime() + ext;
     }
 
     if (file.fieldname == 'delivery-partner-document') {

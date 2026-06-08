@@ -3,10 +3,12 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { StringValue } from 'ms';
 import {
+  assignRole,
   createUser,
   findUserByContact,
   findUserByIdentifier,
   findUserForAuth,
+  getRoleIdByRole,
   handleSuccessfulLogin,
   incrementFailedLoginAttempts,
   lockUserAccount,
@@ -28,6 +30,7 @@ import {
   saveOtp,
   storeResetToken,
 } from './auth.repository.ts';
+import { createDeliveryPartner } from '../deliveryPartner/deliveryPartner.repository.ts';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const GENERIC_AUTH_ERROR = 'Invalid credentials provided';
@@ -400,11 +403,19 @@ async function registerService(data: registerDto) {
   const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
   const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-  await createUser({
+  const user = await createUser({
     firstName: data.firstName,
     email: data.email || '',
     phone: data.phone,
     passwordHash: hashedPassword,
+  });
+
+  const role = await getRoleIdByRole({ role: 'Customer' });
+
+  await assignRole({
+    userId: user.id,
+    roleId: role?.id || BigInt(1),
+    status: 'ASSIGNED',
   });
 
   return {
@@ -421,32 +432,103 @@ async function registerAdminService(data: any) {
   const isExistingUser = !!user;
 
   if (isExistingUser) {
-    // SECURITY: If they exist, we do NOT update their password here.
-    // They are just requesting an escalation of privileges.
-    // We should check if they are already an admin to prevent spam.
-    // const platformAdminRole = await getRoleByName(ADMIN_ROLE_NAME);
-    // if (!platformAdminRole)
-    //   throw new Error('System Configuration Error: Admin role missing');
-    // Note: In a fully fleshed out repo, you'd fetch user with userRoles here
-    // If they already have the role, we could optionally throw an error,
-    // but returning a generic success message prevents user enumeration.
+    const role = await getRoleIdByRole({ role: 'Admin' });
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
   } else {
     const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    user = await createUser({
+    const user = await createUser({
       firstName: data.firstName,
       // lastName: data.lastName,
       email: data.email,
       phone: data.phone,
       passwordHash: hashedPassword,
     });
+
+    const role = await getRoleIdByRole({ role: 'Admin' });
+
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
   }
 
   return {
     message: isExistingUser
       ? 'Account found. Your request for admin privileges has been sent to existing administrators for review.'
       : 'Account created. Your request for admin privileges has been sent to existing administrators for review.',
+  };
+}
+
+async function registerDeliveryPartnerService(data: any) {
+  let user = await findUserByIdentifier(data.email);
+  if (!user) {
+    user = await findUserByIdentifier(data.phone);
+  }
+
+  const isExistingUser = !!user;
+
+  if (isExistingUser) {
+    if (user) {
+      await createDeliveryPartner({
+        userId: user.id,
+        vehicleType: data.vehicleType,
+        vehicleRegistrationNumber: data.vehicleRegistrationNumber,
+      });
+    }
+
+    const role = await getRoleIdByRole({ role: 'Delivery_partner' });
+
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
+  } else {
+    const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
+    const user = await createUser({
+      firstName: data.firstName,
+      // lastName: data.lastName,
+      email: data.email,
+      phone: data.phone,
+      passwordHash: hashedPassword,
+    });
+
+    await createDeliveryPartner({
+      userId: user.id,
+      vehicleType: data.vehicleType,
+      vehicleRegistrationNumber: data.vehicleRegistrationNumber,
+    });
+
+    const role = await getRoleIdByRole({ role: 'Delivery_partner' });
+
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
+  }
+
+  return {
+    message: isExistingUser
+      ? 'Account found. Your request for delivery partner privileges has been sent to administrators for review.'
+      : 'Account created. Your request for delivery partner privileges has been sent to administrators for review.',
   };
 }
 
@@ -458,5 +540,6 @@ export {
   registerAdminService,
   sendOtpService,
   verifyOtpService,
+  registerDeliveryPartnerService,
   refreshTokenService,
 };

@@ -8,6 +8,7 @@ import {
   refresh,
   register,
   registerAdmin,
+  registerDeliveryPartner,
   resetPassword,
   sendOtp,
   verigyOtp,
@@ -16,6 +17,7 @@ import {
   forgotPasswordSchema,
   loginSchema,
   registerAdminSchema,
+  registerDeliveryPartnerSchema,
   registerSchema,
   resetPasswordSchema,
   sendOtpSchema,
@@ -69,12 +71,12 @@ authRouter.post(
 //   registerRestaurantStaff
 // );
 
-// // Delivery Partner
-// authRouter.post(
-//   '/register/delivery-partner',
-//   validate(registerSchema),
-//   registerDeliveryPartner
-// );
+// Delivery Partner
+authRouter.post(
+  '/register/delivery-partner',
+  validate(registerDeliveryPartnerSchema),
+  registerDeliveryPartner
+);
 
 // // Fleet Manager
 // authRouter.post(

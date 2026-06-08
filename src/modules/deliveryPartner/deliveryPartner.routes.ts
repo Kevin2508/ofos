@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+<<<<<<< HEAD
   acceptAssignment,
   declineAssignment,
   getAllAssignments,
@@ -28,6 +29,18 @@ import {
   uploadDocumentSchema,
 } from './deliveryPartner.validation.ts';
 import { upload } from '../../middlewares/upload.middleware.ts';
+=======
+  getProfile,
+  updateProfile,
+  updateStatus,
+} from './deliveryPartner.controller.ts';
+import { authenticate, authorize } from '../../middlewares/auth.middleware.ts';
+import { validate } from '../../middlewares/validation.middleware.ts';
+import {
+  updateProfileSchema,
+  updateStatusSchema,
+} from './deliveryPartner.validation.ts';
+>>>>>>> a20beab (Delivery Partner Module v1)
 
 const deliveryPartnerRouter = Router();
 
@@ -43,12 +56,18 @@ deliveryPartnerRouter.patch(
   updateProfile
 );
 
+<<<<<<< HEAD
+=======
+// deliveryPartnerRouter.post('/documents', uploadDocuments)
+
+>>>>>>> a20beab (Delivery Partner Module v1)
 deliveryPartnerRouter.patch(
   '/update/status',
   validate(updateStatusSchema),
   updateStatus
 );
 
+<<<<<<< HEAD
 deliveryPartnerRouter.post(
   '/documents',
   upload.single('delivery-partner-document'),
@@ -80,6 +99,16 @@ deliveryPartnerRouter.patch(
   validateParams(assignmentIdSchema),
   declineAssignment
 );
+=======
+// deliveryPartnerRouter.get('/assignments/all', getAllAssignments)
+
+// deliveryPartnerRouter.get('/assignments/:assignmentId', getAssignmentById)
+
+// deliveryPartnerRouter.patch('/assignments/:assignmentId/accept', acceptAssignment)
+
+// decline with reason
+// deliveryPartnerRouter.patch('/assignments/:assignmentId/decline', declineAssignment)
+>>>>>>> a20beab (Delivery Partner Module v1)
 
 // deliveryPartnerRouter.patch('/assignments/:assignmentId/pickup', pickupAssignment)
 
@@ -88,6 +117,7 @@ deliveryPartnerRouter.patch(
 
 // deliveryPartnerRouter.post('/assignments/:assignmentId/report-issue', reportDeliveryIssue)
 
+<<<<<<< HEAD
 deliveryPartnerRouter.get(
   '/earnings',
   validateQuery(getEarningsSchema),
@@ -101,5 +131,15 @@ deliveryPartnerRouter.get(
 );
 
 deliveryPartnerRouter.get('/performance', getMyPerformance);
+=======
+// today, weekly, monthly
+// deliveryPartnerRouter.get('/earnings', getMyEarnings);
+
+// Get itemised earning history per delivery
+// deliveryPartnerRouter.get('/earnings/history', getMyEarnings);
+
+// Get performance metrics (acceptance rate, on-time rate, rating)
+// deliveryPartnerRouter.get('/performance', getMyPerformance);
+>>>>>>> a20beab (Delivery Partner Module v1)
 
 export { deliveryPartnerRouter };

@@ -17,8 +17,17 @@ const storage = multer.diskStorage({
     } else if (file.fieldname === 'document') {
       cb(null, './uploads/restaurants/documents');
     } else {
-      cb(null, './uploads/any');
+    if (file.fieldname == 'delivery-partner-document') {
+      cb(null, './uploads/deliveryPartners/documents');
     }
+    // else if (file.fieldname == "coverPicture") {
+    //   cb(null, "./uploads/users/covers");
+    // } else if (file.fieldname == "postPictures") {
+    //   cb(null, "./uploads/posts");
+    // }
+    else {
+      cb(null, './uploads/any');
+    }}
   },
   filename: (req, file, cb) => {
     const ext: string = path.extname(file.originalname);
@@ -28,6 +37,11 @@ const storage = multer.diskStorage({
       fileName = date.getTime() + '_' + req.body.userName + ext;
     } else {
       fileName = 'post_' + date.getTime() + ext;
+    if (file.fieldname == 'delivery-partner-document') {
+      cb(null, './uploads/deliveryPartners/documents');
+      fileName = date.getTime() + '_' + 'document' + ext;
+    } else {
+      fileName = 'any_' + date.getTime() + ext;
     }
 
     if (file.fieldname == 'delivery-partner-document') {
@@ -45,7 +59,7 @@ const storage = multer.diskStorage({
     }
 
     cb(null, fileName);
-  },
+  }},
   
   },
 

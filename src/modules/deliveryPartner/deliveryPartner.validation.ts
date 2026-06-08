@@ -18,6 +18,7 @@ const updateStatusSchema = Joi.object({
   }),
 });
 
+<<<<<<< HEAD
 const uploadDocumentSchema = Joi.object({
   documentType: Joi.string()
     .valid('AADHAR', ' PAN', 'DRIVING_LICENSE', 'VEHICLE_RC')
@@ -74,3 +75,6 @@ export {
   getEarningsHistorySchema,
   getEarningsSchema,
 };
+=======
+export { updateProfileSchema, updateStatusSchema };
+>>>>>>> a20beab (Delivery Partner Module v1)

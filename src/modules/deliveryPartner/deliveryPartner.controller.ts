@@ -1,6 +1,7 @@
 import { catchAsync } from '../../middlewares/catch.async.ts';
 import { Request, Response } from 'express';
 import {
+<<<<<<< HEAD
   acceptAssignmentService,
   declineAssignmentService,
   getAllAssignmentsService,
@@ -12,6 +13,11 @@ import {
   updateProfileService,
   updateStatusService,
   uploadDocumentService,
+=======
+  getProfileService,
+  updateProfileService,
+  updateStatusService,
+>>>>>>> a20beab (Delivery Partner Module v1)
 } from './deliveryPartner.service.ts';
 
 const getProfile = catchAsync(async (req: Request, res: Response) => {
@@ -41,6 +47,11 @@ const updateProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+<<<<<<< HEAD
+=======
+// Route: deliveryPartnerRouter.patch('/update/status', validate(updateStatusSchema), updateStatus);
+
+>>>>>>> a20beab (Delivery Partner Module v1)
 const updateStatus = catchAsync(async (req: Request, res: Response) => {
   let data;
 
@@ -57,6 +68,7 @@ const updateStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+<<<<<<< HEAD
 const uploadDocuments = catchAsync(async (req: Request, res: Response) => {
   if (!req.user?.id) {
     throw new Error('Unauthorized');
@@ -192,3 +204,6 @@ export {
   getMyEarningsHistory,
   getMyPerformance,
 };
+=======
+export { getProfile, updateProfile, updateStatus };
+>>>>>>> a20beab (Delivery Partner Module v1)

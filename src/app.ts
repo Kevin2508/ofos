@@ -24,6 +24,7 @@ import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.t
 
 import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
+import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
 
 import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
@@ -72,6 +73,10 @@ app.use(menuCategoryRouter);
 app.use(defaultPageRouter);
 app.use('/auth', authRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
+app.use(restaurantRouter);
+
+app.use('/auth', authRouter);
+app.use('/restaurants', restaurantRouter);
 
 app.use(errorMiddleware);
 

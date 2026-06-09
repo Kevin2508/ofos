@@ -10,6 +10,9 @@ import cookieParser from 'cookie-parser';
 import { authRouter } from './modules/auth/auth.routes.ts';
 import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
+import { customerRouter } from './modules/customer/customer.routes.ts';
+
+
 import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
 import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';
 
@@ -35,6 +38,9 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(authPageRouter);
+app.use(customerRouter);
+app.use('/auth', authRouter);
+app.use('/customer', customerRouter);
 app.use(defaultPageRouter);
 app.use('/auth', authRouter);
 app.use('/restaurant', restaurantStaffRouter);

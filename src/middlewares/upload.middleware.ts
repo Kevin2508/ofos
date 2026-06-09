@@ -49,7 +49,7 @@ const storage = multer.diskStorage({
       fileName = 'any_' + date.getTime() + ext;
     }
     cb(null, fileName);
-  }},
+  }}},
 });
 
 const fileFilter = (

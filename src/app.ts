@@ -1,3 +1,7 @@
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -13,6 +17,7 @@ import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
 import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
 
+import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +47,7 @@ app.use('/restaurants', restaurantRouter);
 app.use(defaultPageRouter);
 app.use('/auth', authRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
+app.use("/restaurants", restaurantRoter);
 
 app.use(errorMiddleware);
 

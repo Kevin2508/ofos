@@ -18,6 +18,7 @@ import { defaultPageRouter } from './routes/default.pages.routes.ts';
 import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
 
 import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
+import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,6 +49,10 @@ app.use(defaultPageRouter);
 app.use('/auth', authRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
 app.use("/restaurants", restaurantRoter);
+
+app.use(branchRouter);
+app.use('/restaurants/:restaurantId/branches',branchRouter);
+
 
 app.use(errorMiddleware);
 

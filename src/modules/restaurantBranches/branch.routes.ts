@@ -7,6 +7,11 @@ import {
   getBranch,
   getBranches,
   updateBranch,
+  getOperatingHours,
+  replaceOperatingHours,
+  updateOperatingHour,
+  upsertDeliveryZone,
+  getDeliveryZone,
 } from "./branch.controller.ts";
 import {
   createBranchSchema,
@@ -34,5 +39,27 @@ branchRouter.patch(
 );
 
 branchRouter.delete("/:id", authenticate, deactivateBranch);
+
+branchRouter.get("/:branchId/hours", getOperatingHours); 
+
+branchRouter.put(
+  "/:branchId/hours",
+  replaceOperatingHours
+);
+
+branchRouter.patch(
+  "/:branchId/hours/:dayOfWeek",
+  updateOperatingHour
+);
+
+branchRouter.get(
+  "/:branchId/delivery-zone",
+  getDeliveryZone
+);
+
+branchRouter.put(
+  "/:branchId/delivery-zone",
+  upsertDeliveryZone
+);
 
 export { branchRouter };

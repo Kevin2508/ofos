@@ -28,9 +28,13 @@ import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner
 import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
+<<<<<<< HEAD
 import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
 import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
 import { adminRouter } from './modules/admin/admin.routes.ts';
+=======
+import cartRouter from './modules/cart/cart.routes.ts';
+>>>>>>> 4308db9 (created cart)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -86,6 +90,8 @@ app.use(restaurantRouter);
 
 app.use('/auth', authRouter);
 app.use('/restaurants', restaurantRouter);
+app.use(cartRouter);
+app.use('/cart',cartRouter)
 
 app.use(errorMiddleware);
 

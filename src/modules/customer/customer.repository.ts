@@ -54,23 +54,12 @@ async function findAddressesByCustomerID(id:number){
 
 async function findAddressesById(addressId:number){
 
-<<<<<<< HEAD
-  console.log('Repository Start');
-=======
-  console.log('Repository Start', addressId);
->>>>>>> 6cc4dc7 (customer address module is done)
-
     const result = await prisma.customerAddress.findUnique({
         where: {
             id: BigInt(addressId)
         },
     });
 
-<<<<<<< HEAD
-    console.log('Repository End');
-=======
-    console.log('Repository End', result);
->>>>>>> 6cc4dc7 (customer address module is done)
 
     return result;
 }
@@ -114,7 +103,6 @@ async function deleteAddressById(addressId: number) {
     },
   });
 }
-<<<<<<< HEAD
 
 async function removeDefaultAddresses(customerUserId:number) {
   
@@ -138,17 +126,15 @@ async function setAddressAsDefault(addressId: number) {
        },
      });
 }
-=======
->>>>>>> 6cc4dc7 (customer address module is done)
+
 export {
     findAddressesByID,
     createAddress,
     findAddressesByCustomerID,
     findAddressesById, updateCustomerAddress,
-<<<<<<< HEAD
+
     findAddressById1, deleteAddressById, removeDefaultAddresses,
     setAddressAsDefault
-=======
-    findAddressById1, deleteAddressById
->>>>>>> 6cc4dc7 (customer address module is done)
+ 
+
 }

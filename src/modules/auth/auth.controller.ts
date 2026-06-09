@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import ms from 'ms';
 import { Request, Response } from 'express';
 import { catchAsync } from '../../middlewares/catch.async.ts';
 import {
@@ -16,6 +17,8 @@ import {
   loginService,
   refreshTokenService,
   registerAdminService,
+  registerDeliveryPartnerService,
+  registerFleetManagerService,
   registerService,
   resetPasswordService,
   sendOtpService,
@@ -47,12 +50,20 @@ const login = catchAsync(
       path: '/',
     });
 
+    const accessTokenLifeMs = ms(data.tokens.expiresIn);
+
+    res.cookie('accessToken', data.tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: accessTokenLifeMs,
+      path: '/',
+    });
+
     res.status(200).json({
       status: 'success',
       message: data.message,
       data: {
-        accessToken: data.tokens.accessToken,
-        expiresIn: data.tokens.expiresIn,
         user: data.user,
       },
     });
@@ -115,6 +126,13 @@ const logout = catchAsync(async (req: Request, res: Response) => {
 
   res.clearCookie('refreshToken', {
     signed: true,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+  });
+
+  res.clearCookie('accessToken', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
@@ -186,14 +204,36 @@ const registerAdmin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const registerDeliveryPartner = catchAsync(
+  async (req: Request, res: Response) => {
+    const data = await registerDeliveryPartnerService(req.body);
+
+    res.status(200).json({
+      status: 'success',
+      message: data.message,
+    });
+  }
+);
+
+const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
+  const data = await registerFleetManagerService(req.body);
+
+  res.status(200).json({
+    status: 'success',
+    message: data.message,
+  });
+});
+
 export {
   forgotPassword,
   login,
   registerAdmin,
   logout,
+  registerDeliveryPartner,
   register,
   resetPassword,
   sendOtp,
+  registerFleetManager,
   verigyOtp,
   refresh,
 };

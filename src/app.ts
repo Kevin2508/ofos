@@ -1,14 +1,26 @@
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 
-import { authRouter } from './modules/auth/auth.routes.js';
-import { errorMiddleware } from './middlewares/error.middleware.js';
+import { authRouter } from './modules/auth/auth.routes.ts';
+import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
 import { customerRouter } from './modules/customer/customer.routes.ts';
 
 
+import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
+import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';
+
+import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
+import { defaultPageRouter } from './routes/default.pages.routes.ts';
+import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
+
+import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +41,19 @@ app.use(authPageRouter);
 app.use(customerRouter);
 app.use('/auth', authRouter);
 app.use('/customer', customerRouter);
+app.use(defaultPageRouter);
+app.use('/auth', authRouter);
+app.use('/restaurant', restaurantStaffRouter);
+app.use(menuCategoryRouter);
+app.use('/delivery-partner', deliveryPartnerRouter);
+app.use(restaurantRouter);
+
+app.use('/auth', authRouter);
+app.use('/restaurants', restaurantRouter);
+app.use(defaultPageRouter);
+app.use('/auth', authRouter);
+app.use('/delivery-partner', deliveryPartnerRouter);
+app.use("/restaurants", restaurantRoter);
 
 app.use(errorMiddleware);
 

@@ -1,7 +1,8 @@
 import { prisma } from '../../config/prisma.ts';
 import { CreateAddressDto, customerDto } from './customer.dto.ts';
 import { createAddress, findAddressesByCustomerID, findAddressesByID, findAddressesById,
-    updateCustomerAddress, findAddressById1, deleteAddressById
+    updateCustomerAddress, findAddressById1, deleteAddressById, removeDefaultAddresses,
+    setAddressAsDefault
 } from './customer.repository.ts';
 
 
@@ -101,4 +102,32 @@ async function deleteAddressService(addressId: number) {
     data: deletedAddress,
   };
 }
-export { getAddressesService, addAddressService, getAddressesByIdService, updateAdressService, deleteAddressService}
+
+async function setDefaultAddressService(customer:customerDto, addressID:number) {
+  
+   const address = await findAddressesById(addressID);
+
+   if (!address) {
+    return {
+      message: 'Address not found',
+      data: null,
+    };
+  }
+
+      if ( Number(address.customerUserId) !== Number(customer.id) ) {
+       return {
+         message: 'Unauthorized access',
+         data: null,
+       };
+     }
+
+      await removeDefaultAddresses( Number(customer.id) );
+
+      const updatedAddress = await setAddressAsDefault(addressID);
+
+       return {
+         message: 'Default address updated successfully',
+         data: updatedAddress,
+       };
+}
+export { getAddressesService, addAddressService, getAddressesByIdService, updateAdressService, deleteAddressService, setDefaultAddressService}

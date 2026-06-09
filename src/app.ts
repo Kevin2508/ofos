@@ -82,6 +82,10 @@ app.use('/delivery-partner', deliveryPartnerRouter);
 app.use("/restaurants", restaurantRoter);
 app.use(branchRouter);
 app.use('/restaurants/:restaurantId/branches',branchRouter);
+app.use(restaurantRouter);
+
+app.use('/auth', authRouter);
+app.use('/restaurants', restaurantRouter);
 
 app.use(errorMiddleware);
 

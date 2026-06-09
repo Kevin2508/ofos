@@ -41,10 +41,14 @@ const storage = multer.diskStorage({
       fileName = 'post_' + date.getTime() + ext;
     } else {
       fileName = 'any_' + date.getTime() + ext;
+    if (req.body.userName) {
+      fileName = date.getTime() + '_' + req.body.userName + ext;
+    } else {
+      fileName = 'post_' + date.getTime() + ext;
     }
 
     cb(null, fileName);
-  },
+  }},
 });
 
 const fileFilter = (

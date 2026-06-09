@@ -68,6 +68,9 @@ app.use('/fleet-manager', fleetManagerRouter);
 app.use(branchRouter);
 app.use('/restaurants/:restaurantId/branches',branchRouter);
 
+app.use(branchRouter);
+app.use('/restaurants/:restaurantId/branches',branchRouter);
+
 
 app.use(errorMiddleware);
 

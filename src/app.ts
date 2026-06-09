@@ -80,6 +80,8 @@ app.use(defaultPageRouter);
 app.use('/auth', authRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
 app.use("/restaurants", restaurantRoter);
+app.use(branchRouter);
+app.use('/restaurants/:restaurantId/branches',branchRouter);
 
 app.use(errorMiddleware);
 

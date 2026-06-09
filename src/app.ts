@@ -46,6 +46,13 @@ app.use('/auth', authRouter);
 app.use('/customer', customerRouter);
 app.use(modifierRouter);
 app.use('/modifier',modifierRouter);
+app.use(defaultPageRouter);
+app.use('/auth', authRouter);
+app.use('/restaurant', restaurantStaffRouter);
+app.use(menuCategoryRouter);
+app.use(menuItemRouter);
+app.use('/delivery-partner', deliveryPartnerRouter);
+app.use(restaurantRouter);
 
 app.use('/auth', authRouter);
 

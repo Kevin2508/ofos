@@ -6,11 +6,13 @@ import cookieParser from 'cookie-parser';
 import { authRouter } from './modules/auth/auth.routes.ts';
 import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
+import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
+import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';
+
 import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
 import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
-import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
-import { defaultPageRouter } from './routes/default.pages.routes.ts';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +32,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(authPageRouter);
 app.use(defaultPageRouter);
 app.use('/auth', authRouter);
+app.use('/restaurant', restaurantStaffRouter);
+app.use(menuCategoryRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
 app.use(restaurantRouter);
 

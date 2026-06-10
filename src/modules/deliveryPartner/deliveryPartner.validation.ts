@@ -18,4 +18,59 @@ const updateStatusSchema = Joi.object({
   }),
 });
 
-export { updateProfileSchema, updateStatusSchema };
+const uploadDocumentSchema = Joi.object({
+  documentType: Joi.string()
+    .valid('AADHAR', ' PAN', 'DRIVING_LICENSE', 'VEHICLE_RC')
+    .required()
+    .messages({
+      'any.required': 'Document type is required',
+      'any.only': 'Invalid document type',
+    }),
+});
+
+const getAssignmentsQuerySchema = Joi.object({
+  status: Joi.string()
+    .valid(
+      'PENDING',
+      'ASSIGNED',
+      'ACCEPTED',
+      'DECLINED',
+      'REASSIGNED',
+      'COMPLETED'
+    )
+    .optional()
+    .messages({
+      'any.only': 'Invalid assignment status filter',
+    }),
+});
+
+const assignmentIdSchema = Joi.object({
+  assignmentId: Joi.string().pattern(/^\d+$/).required().messages({
+    'string.pattern.base': 'Assignment ID must be a valid number',
+    'any.required': 'Assignment ID is required',
+  }),
+});
+
+const getEarningsSchema = Joi.object({
+  period: Joi.string()
+    .valid('today', 'weekly', 'monthly')
+    .default('today')
+    .messages({
+      'any.only': 'Period must be today, weekly, or monthly',
+    }),
+});
+
+const getEarningsHistorySchema = Joi.object({
+  limit: Joi.number().integer().min(1).max(100).default(20),
+  page: Joi.number().integer().min(1).default(1),
+});
+
+export {
+  getAssignmentsQuerySchema,
+  updateProfileSchema,
+  updateStatusSchema,
+  uploadDocumentSchema,
+  assignmentIdSchema,
+  getEarningsHistorySchema,
+  getEarningsSchema,
+};

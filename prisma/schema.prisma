@@ -18,6 +18,7 @@ enum UserRoleStatus{
   REQUESTED
   ASSIGNED
   REJECTED
+  SUSPENDED
 } 
 
 enum OtpPurpose {
@@ -173,6 +174,7 @@ enum AssignmentType {
 }
 
 enum AssignmentStatus {
+  PENDING
   ASSIGNED
   ACCEPTED
   DECLINED
@@ -813,7 +815,7 @@ model Order {
   estimatedDeliveryAt DateTime?     @map("estimated_delivery_at")
   deliveredAt         DateTime?     @map("delivered_at")
   createdAt           DateTime      @default(now()) @map("created_at")
-  updatedAt           DateTime      @updatedAt @map("updated_at")
+  updatedAt           DateTime?      @updatedAt @map("updated_at")
 
   customer   User             @relation(fields: [customerUserId], references: [id])
   restaurant Restaurant       @relation(fields: [restaurantId], references: [id])

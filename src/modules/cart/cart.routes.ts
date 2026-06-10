@@ -1,31 +1,52 @@
-import { Router } from "express";
-import { authenticate } from "../../middlewares/auth.middleware.ts";
-import cartController from "./cart.controller.ts";
-import { addCartItemSchema, updateCartItemSchema } from "./cart.validation.ts";
-import { validate } from "../../middlewares/validation.middleware.ts";
+// src/modules/cart/cart.routes.ts
 
+import { Router } from 'express';
+import { authenticate } from '../../middlewares/auth.middleware.ts';
+import { validate } from '../../middlewares/validation.middleware.ts';
+import {
+  getCart,
+  addCartItem,
+  updateCartItem,
+  removeCartItem,
+  clearCartHandler,
+  applyCoupon,
+  removeCoupon,
+  getPriceBreakdown,
+} from './cart.controller.ts';
+import {
+  getCartSchema,
+  addCartItemSchema,
+  updateCartItemSchema,
+  applyCouponSchema,
+} from './cart.validation.ts';
 
 const cartRouter = Router();
 
 // All cart routes require authentication
 cartRouter.use(authenticate);
 
-// GET    /cart                  — get current user's active cart
-cartRouter.get("/", cartController.getCart);
+// GET /cart - retrieve active cart
+cartRouter.get('/', validate(getCartSchema), getCart);
 
-// POST   /cart/items            — add an item to cart
-cartRouter.post("/items", validate(addCartItemSchema), cartController.addItem);
+// POST /cart/items - add item to cart
+cartRouter.post('/items', validate(addCartItemSchema), addCartItem);
 
-// PATCH  /cart/items/:itemId    — update quantity / special instructions
-cartRouter.patch("/items/:itemId", validate(updateCartItemSchema), cartController.updateItem);
+// PATCH /cart/items/:itemId - update cart item
+cartRouter.patch('/items/:itemId', validate(updateCartItemSchema), updateCartItem);
 
-// DELETE /cart/items/:itemId    — remove a single item
-cartRouter.delete("/items/:itemId", cartController.removeItem);
+// DELETE /cart/items/:itemId - remove item from cart
+cartRouter.delete('/items/:itemId', removeCartItem);
 
-// DELETE /cart                  — clear entire cart
-cartRouter.delete("/", cartController.clearCart);
+// DELETE /cart - clear entire cart
+cartRouter.delete('/', clearCartHandler);
 
-// GET    /cart/price-breakdown  — fetch latest price breakdown
-cartRouter.get("/price-breakdown", cartController.getPriceBreakdown);
+// POST /cart/apply-coupon - apply coupon code
+cartRouter.post('/apply-coupon', validate(applyCouponSchema), applyCoupon);
+
+// DELETE /cart/coupon - remove applied coupon
+cartRouter.delete('/coupon', removeCoupon);
+
+// GET /cart/price-breakdown - get live price breakdown
+cartRouter.get('/price-breakdown', getPriceBreakdown);
 
 export default cartRouter;

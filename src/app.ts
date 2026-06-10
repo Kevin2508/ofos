@@ -24,9 +24,12 @@ import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.t
 
 import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
 
+<<<<<<< HEAD
 
 import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
+=======
+>>>>>>> 7eeaa2a (fixed cart)
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
 <<<<<<< HEAD
 import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
@@ -52,7 +55,13 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(authPageRouter);
+<<<<<<< HEAD
 app.use(defaultPageRouter);
+=======
+app.use(restaurantRouter);
+app.use('/cart',cartRouter)
+
+>>>>>>> 7eeaa2a (fixed cart)
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 app.use('/customer', customerRouter);
@@ -69,31 +78,20 @@ app.use('/fleet-manager', fleetManagerRouter);
 app.use('/restaurants/:restaurantId/branches', branchRouter);
 app.use('/restaurants', restaurantRouter);
 app.use(customerRouter);
-app.use('/auth', authRouter);
 app.use('/customer', customerRouter);
 app.use('/restaurant', restaurantStaffRouter);
 app.use(menuCategoryRouter);
-app.use(defaultPageRouter);
-app.use('/auth', authRouter);
-app.use('/delivery-partner', deliveryPartnerRouter);
-app.use(restaurantRouter);
 
-app.use('/auth', authRouter);
-app.use('/restaurants', restaurantRouter);
 app.use(defaultPageRouter);
-app.use('/auth', authRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
-app.use("/restaurants", restaurantRoter);
 app.use(branchRouter);
 app.use('/restaurants/:restaurantId/branches',branchRouter);
 app.use(restaurantRouter);
 
-app.use('/auth', authRouter);
 app.use('/restaurants', restaurantRouter);
-app.use(cartRouter);
-app.use('/cart',cartRouter)
 
-app.use(errorMiddleware);
+
+// app.use(errorMiddleware);
 
 // app.use((req, res) => {
 //   res.render('default/notFound');

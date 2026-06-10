@@ -1,165 +1,262 @@
-import { prisma } from "../../config/prisma.ts";
+// src/modules/cart/cart.repository.ts
 
-const cartInclude = {
-  items: {
+import { prisma } from '../../config/prisma.ts';
+
+// Get active cart with all relations
+async function getActiveCartByUser(userId: bigint) {
+  return prisma.cart.findFirst({
+    where: {
+      customerUserId: userId,
+      status: 'ACTIVE',
+    },
     include: {
-      modifiers: true,
-      menuItem: true,
+      items: {
+        include: {
+          modifiers: {
+            include: {
+              modifierOption: {
+                include: {
+                  modifierGroup: true,
+                },
+              },
+            },
+          },
+          menuItem: true,
+        },
+      },
+      priceBreakdowns: {
+        orderBy: { calculatedAt: 'desc' },
+        take: 1,
+      },
     },
-  },
-  priceBreakdowns: {
-    orderBy: { calculatedAt: "desc" as const },
-    take: 1,
-  },
-};
-
-// ── Cart ──────────────────────────────────────────────────────────────────────
-
-async function findActiveCart(customerUserId: bigint) {
-  return prisma.cart.findFirst({
-    where: { customerUserId, status: "ACTIVE" },
-    include: cartInclude,
   });
 }
 
-async function findActiveCart_ById(cartId: bigint) {
-  return prisma.cart.findFirst({
-    where: { id: cartId, status: "ACTIVE" },
-    include: cartInclude,
-  });
-}
-
-async function createCart(data: {
-  customerUserId: bigint;
-  restaurantBranchId: bigint;
-}) {
+// Create new cart
+async function createCart(userId: bigint, branchId: bigint) {
   return prisma.cart.create({
-    data,
-    include: cartInclude,
-  });
-}
-
-async function updateCartTotals(
-  cartId: bigint,
-  subtotalAmount: number,
-  totalAmount: number
-) {
-  return prisma.cart.update({
-    where: { id: cartId },
     data: {
-      subtotalAmount,
-      totalAmount,
-      lastActivityAt: new Date(),
+      customerUserId: userId,
+      restaurantBranchId: branchId,
+      status: 'ACTIVE',
+      subtotalAmount: 0,
+      totalAmount: 0,
+    },
+    include: {
+      items: {
+        include: {
+          modifiers: {
+            include: {
+              modifierOption: {
+                include: {
+                  modifierGroup: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      priceBreakdowns: true,
     },
   });
 }
 
-async function deleteCart(cartId: bigint) {
-  return prisma.cart.delete({ where: { id: cartId } });
-}
-
-// ── Cart Items ────────────────────────────────────────────────────────────────
-
-async function findCartItem(cartItemId: bigint, cartId: bigint) {
-  return prisma.cartItem.findFirst({
-    where: { id: cartItemId, cartId },
-    include: { modifiers: true, menuItem: true },
+// Check if cart exists for user
+async function cartExistsByUserAndBranch(
+  userId: bigint,
+  branchId: bigint
+) {
+  return prisma.cart.findFirst({
+    where: {
+      customerUserId: userId,
+      restaurantBranchId: branchId,
+      status: 'ACTIVE',
+    },
+    select: { id: true },
   });
 }
 
-async function createCartItem(data: {
-  cartId: bigint;
-  menuItemId: bigint;
-  quantity: number;
-  unitPrice: number;
-  lineTotal: number;
-  specialInstructions?: string | null;
-}) {
+// Add item to cart
+async function addItemToCart(
+  cartId: bigint,
+  menuItemId: bigint,
+  quantity: number,
+  unitPrice: number,
+  specialInstructions?: string
+) {
+  const lineTotal = unitPrice * quantity;
   return prisma.cartItem.create({
-    data,
-    include: { modifiers: true, menuItem: true },
+    data: {
+      cartId,
+      menuItemId,
+      quantity,
+      unitPrice: unitPrice,
+      lineTotal: lineTotal,
+      specialInstructions: specialInstructions || null,
+    },
   });
 }
 
+// Add modifier to cart item
+async function addModifierToCartItem(
+  cartItemId: bigint,
+  modifierOptionId: bigint,
+  additionalPrice: number
+) {
+  return prisma.cartItemModifier.create({
+    data: {
+      cartItemId,
+      modifierOptionId,
+      additionalPrice,
+    },
+  });
+}
+
+// Update cart item
 async function updateCartItem(
   cartItemId: bigint,
-  data: { quantity?: number; lineTotal?: number; specialInstructions?: string | null }
+  data: {
+    quantity?: number;
+    specialInstructions?: string;
+  }
 ) {
   return prisma.cartItem.update({
     where: { id: cartItemId },
     data,
-    include: { modifiers: true, menuItem: true },
   });
 }
 
+// Delete cart item
 async function deleteCartItem(cartItemId: bigint) {
-  return prisma.cartItem.delete({ where: { id: cartItemId } });
-}
-
-async function deleteAllCartItems(cartId: bigint) {
-  return prisma.cartItem.deleteMany({ where: { cartId } });
-}
-
-// ── Cart Item Modifiers ───────────────────────────────────────────────────────
-
-async function addModifiers(
-  cartItemId: bigint,
-  modifiers: { modifierOptionId: bigint; additionalPrice: number }[]
-) {
-  return prisma.cartItemModifier.createMany({
-    data: modifiers.map((m) => ({ cartItemId, ...m })),
+  await prisma.cartItemModifier.deleteMany({
+    where: { cartItemId },
+  });
+  return prisma.cartItem.delete({
+    where: { id: cartItemId },
   });
 }
 
-async function removeModifiers(cartItemId: bigint) {
-  return prisma.cartItemModifier.deleteMany({ where: { cartItemId } });
-}
-
-// ── Price Breakdown ───────────────────────────────────────────────────────────
-
-async function savePriceBreakdown(data: {
-  cartId: bigint;
-  subtotal: number;
-  discountAmount: number;
-  deliveryFee: number;
-  taxAmount: number;
-  totalAmount: number;
-}) {
-  return prisma.cartPriceBreakdown.create({ data });
-}
-
-async function getLatestPriceBreakdown(cartId: bigint) {
-  return prisma.cartPriceBreakdown.findFirst({
+// Clear cart (delete all items)
+async function clearCart(cartId: bigint) {
+  const cartItems = await prisma.cartItem.findMany({
     where: { cartId },
-    orderBy: { calculatedAt: "desc" },
+    select: { id: true },
+  });
+
+  for (const item of cartItems) {
+    await deleteCartItem(item.id);
+  }
+
+  return prisma.cart.update({
+    where: { id: cartId },
+    data: {
+      subtotalAmount: 0,
+      totalAmount: 0,
+    },
   });
 }
 
-// ── MenuItem lookup (for price) ───────────────────────────────────────────────
-
-async function findMenuItem(menuItemId: bigint) {
-  return prisma.menuItem.findUnique({ where: { id: menuItemId } });
+// Get coupon by code
+async function getCouponByCode(code: string) {
+  return prisma.coupon.findUnique({
+    where: { code },
+  });
 }
 
-async function findModifierOption(modifierOptionId: bigint) {
-  return prisma.modifierOption.findUnique({ where: { id: modifierOptionId } });
+// Calculate cart totals
+async function calculateCartTotals(
+  cartId: bigint,
+  discountAmount: number = 0
+) {
+  const cart = await prisma.cart.findUnique({
+    where: { id: cartId },
+    include: {
+      items: true,
+      branch: true,
+    },
+  });
+
+  if (!cart) throw new Error('Cart not found');
+
+  const subtotal = cart.items.reduce(
+    (sum, item) => sum + Number(item.lineTotal),
+    0
+  );
+  const deliveryFee = Number(cart.branch.deliveryFee) || 0;
+  const taxAmount = (subtotal - discountAmount) * 0.05; // 5% tax
+  const totalAmount = subtotal + deliveryFee + taxAmount - discountAmount;
+
+  return {
+    subtotal: subtotal.toFixed(2),
+    discountAmount: discountAmount.toFixed(2),
+    deliveryFee: deliveryFee.toFixed(2),
+    taxAmount: taxAmount.toFixed(2),
+    totalAmount: totalAmount.toFixed(2),
+  };
 }
 
-export default {
-  findActiveCart,
-  findActiveCart_ById,
+// Create price breakdown record
+async function createPriceBreakdown(
+  cartId: bigint,
+  breakdown: {
+    subtotal: number;
+    discountAmount: number;
+    deliveryFee: number;
+    taxAmount: number;
+    totalAmount: number;
+  }
+) {
+  return prisma.cartPriceBreakdown.create({
+    data: {
+      cartId,
+      ...breakdown,
+    },
+  });
+}
+
+// Get cart item by id
+async function getCartItemById(cartItemId: bigint) {
+  return prisma.cartItem.findUnique({
+    where: { id: cartItemId },
+    include: {
+      modifiers: {
+        include: {
+          modifierOption: true,
+        },
+      },
+    },
+  });
+}
+
+// Get menu item with price
+async function getMenuItemWithPrice(menuItemId: bigint) {
+  return prisma.menuItem.findUnique({
+    where: { id: menuItemId },
+    select: {
+      id: true,
+      name: true,
+      basePrice: true,
+      category: {
+        select: {
+          branchId: true,
+        },
+      },
+    },
+  });
+}
+
+export {
   createCart,
-  updateCartTotals,
-  deleteCart,
-  findCartItem,
-  createCartItem,
+  cartExistsByUserAndBranch,
+  getActiveCartByUser,
+  addItemToCart,
+  addModifierToCartItem,
   updateCartItem,
   deleteCartItem,
-  deleteAllCartItems,
-  addModifiers,
-  removeModifiers,
-  savePriceBreakdown,
-  getLatestPriceBreakdown,
-  findMenuItem,
-  findModifierOption,
+  clearCart,
+  getCouponByCode,
+  calculateCartTotals,
+  createPriceBreakdown,
+  getCartItemById,
+  getMenuItemWithPrice,
 };

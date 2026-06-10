@@ -1,174 +1,346 @@
-import cartRepository from "./cart.repository.ts";
 import redisService from "../../services/redisService.ts";
-import { AddCartItemDto, UpdateCartItemDto } from "./cart.dto.ts";
+import { CartResponseDTO, PriceBreakdownResponseDTO } from "./cart.dto.ts";
+import {
+  createCart,
+  getActiveCartByUser,
+  addItemToCart,
+  addModifierToCartItem,
+  updateCartItem,
+  deleteCartItem,
+  clearCart,
+  getCouponByCode,
+  calculateCartTotals,
+  createPriceBreakdown,
+  getCartItemById,
+  getMenuItemWithPrice,
+} from "./cart.repository.ts";
 
-const CART_TTL = 60 * 60 * 24; // 24 hours
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function getCacheKey(userId: bigint): string {
+const getCartCacheKey = (userId: bigint) => {
   return `cart:${userId}`;
+};
+
+const CART_CACHE_TTL = 3600;
+
+function formatCartResponse(cart: any): CartResponseDTO {
+  return {
+    id: cart.id,
+    customerUserId: cart.customerUserId,
+    restaurantBranchId: cart.restaurantBranchId,
+    status: cart.status,
+    items: (cart.items || []).map((item: any) => ({
+      id: item.id,
+      menuItemId: item.menuItemId,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice.toString(),
+      lineTotal: item.lineTotal.toString(),
+      specialInstructions: item.specialInstructions,
+      modifiers: (item.modifiers || []).map((mod: any) => ({
+        id: mod.id,
+        modifierOptionId: mod.modifierOptionId,
+        modifierName: '',
+        optionName: mod.modifierOption.optionName,
+        additionalPrice: mod.additionalPrice.toString(),
+      })),
+    })),
+    priceBreakdown: cart.priceBreakdowns?.[0]
+      ? {
+          subtotal: cart.priceBreakdowns[0].subtotal.toString(),
+          discountAmount: cart.priceBreakdowns[0].discountAmount.toString(),
+          deliveryFee: cart.priceBreakdowns[0].deliveryFee.toString(),
+          taxAmount: cart.priceBreakdowns[0].taxAmount.toString(),
+          totalAmount: cart.priceBreakdowns[0].totalAmount.toString(),
+          calculatedAt: cart.priceBreakdowns[0].calculatedAt,
+        }
+      : {
+          subtotal: '0',
+          discountAmount: '0',
+          deliveryFee: '0',
+          taxAmount: '0',
+          totalAmount: '0',
+          calculatedAt: new Date(),
+        },
+    lastActivityAt: cart.lastActivityAt,
+    createdAt: cart.createdAt,
+    updatedAt: cart.updatedAt,
+  };
 }
 
-async function invalidateCache(userId: bigint): Promise<void> {
-  await redisService.del(getCacheKey(userId));
+async function getCartService(userId: bigint) {
+  const cacheKey = getCartCacheKey(userId);
+
+  try {
+    const cachedCart = await redisService.get<CartResponseDTO>(cacheKey);
+
+    if (cachedCart) {
+      console.log(`[Cache HIT] Cart loaded from Redis: ${cacheKey}`);
+      return cachedCart;
+    }
+
+    console.log(`[Cache MISS] Cart not in Redis: ${cacheKey}`);
+  } catch (error) {
+    console.error(`Redis get error: ${error}. Falling back to DB.`);
+  }
+
+  let cart = await getActiveCartByUser(userId);
+
+  if (!cart) {
+    throw new Error('No active cart found');
+  }
+
+  const cartResponse: CartResponseDTO = formatCartResponse(cart);
+
+  try {
+    await redisService.set(cacheKey, cartResponse, CART_CACHE_TTL);
+    console.log(`[Cache SET] Cart cached in Redis: ${cacheKey}`);
+  } catch (error) {
+    console.error(`Redis set error: ${error}. Cart will not be cached.`);
+  }
+
+  return cartResponse;
 }
 
-async function recalcTotals(cartId: bigint): Promise<void> {
-  const cart = await cartRepository.findActiveCart_ById(cartId);
-  if (!cart) return;
+async function addItemToCartService(
+  userId: bigint,
+  data: {
+    menuItemId: bigint;
+    restaurantBranchId: bigint;
+    quantity: number;
+    specialInstructions?: string;
+    modifiers?: { modifierOptionId: bigint; additionalPrice: number }[];
+  }
+) {
+  // Get or create cart
+  let cart = await getActiveCartByUser(userId);
+
+  if (!cart) {
+    cart = await createCart(userId, data.restaurantBranchId);
+  }
+
+  // Verify menu item and get price
+  const menuItem = await getMenuItemWithPrice(data.menuItemId);
+  if (!menuItem) throw new Error('Menu item not found');
+
+  // Add item to cart
+  const cartItem = await addItemToCart(
+    cart.id,
+    data.menuItemId,
+    data.quantity,
+    Number(menuItem.basePrice),
+    data.specialInstructions
+  );
+
+  // Add modifiers if provided
+  if (data.modifiers && data.modifiers.length > 0) {
+    for (const modifier of data.modifiers) {
+      await addModifierToCartItem(
+        cartItem.id,
+        modifier.modifierOptionId,
+        modifier.additionalPrice
+      );
+    }
+  }
+
+  // Invalidate cache
+  await invalidateCartCache(userId);
+
+  // Fetch and return updated cart
+  const updatedCart = await getActiveCartByUser(userId);
+  return formatCartResponse(updatedCart!);
+}
+
+async function updateCartItemService(
+  userId: bigint,
+  cartItemId: bigint,
+  data: {
+    quantity?: number;
+    specialInstructions?: string;
+  }
+) {
+  // Verify item belongs to user's cart
+  const cartItem = await getCartItemById(cartItemId);
+  if (!cartItem) throw new Error('Cart item not found');
+
+  const cart = await getActiveCartByUser(userId);
+  if (!cart || !cart.items.some((item: any) => item.id === cartItemId)) {
+    throw new Error('Cart item does not belong to user cart');
+  }
+
+  // Update item
+  await updateCartItem(cartItemId, data);
+
+  // Invalidate cache
+  await invalidateCartCache(userId);
+
+  // Fetch and return updated cart
+  const updatedCart = await getActiveCartByUser(userId);
+  return formatCartResponse(updatedCart!);
+}
+
+async function removeCartItemService(userId: bigint, cartItemId: bigint) {
+  // Verify item belongs to user's cart
+  const cart = await getActiveCartByUser(userId);
+  if (!cart || !cart.items.some((item: any) => item.id === cartItemId)) {
+    throw new Error('Cart item does not belong to user cart');
+  }
+
+  // Delete item
+  await deleteCartItem(cartItemId);
+
+  // Invalidate cache
+  await invalidateCartCache(userId);
+
+  // Fetch and return updated cart
+  const updatedCart = await getActiveCartByUser(userId);
+  return formatCartResponse(updatedCart!);
+}
+
+async function clearCartService(userId: bigint) {
+  const cart = await getActiveCartByUser(userId);
+  if (!cart) throw new Error('No active cart found');
+
+  await clearCart(cart.id);
+
+  // Invalidate cache
+  await invalidateCartCache(userId);
+
+  // Return empty cart response
+  const updatedCart = await getActiveCartByUser(userId);
+  return formatCartResponse(updatedCart!);
+}
+
+async function applyCouponService(
+  userId: bigint,
+  couponCode: string
+): Promise<PriceBreakdownResponseDTO> {
+  const cart = await getActiveCartByUser(userId);
+  if (!cart) throw new Error('No active cart found');
+
+  // Get coupon
+  const coupon = await getCouponByCode(couponCode);
+  if (!coupon) throw new Error('Coupon not found');
+
+  // Validate coupon
+  const now = new Date();
+  if (!coupon.isActive) throw new Error('Coupon is not active');
+  if (coupon.validFrom > now) throw new Error('Coupon is not yet valid');
+  if (coupon.validUntil < now) throw new Error('Coupon has expired');
 
   const subtotal = cart.items.reduce(
     (sum, item) => sum + Number(item.lineTotal),
     0
   );
-
-  const taxAmount = parseFloat((subtotal * 0.05).toFixed(2));
-  const totalAmount = parseFloat((subtotal + taxAmount).toFixed(2));
-
-  await cartRepository.updateCartTotals(cartId, subtotal, totalAmount);
-}
-
-// ── Public Service Methods ────────────────────────────────────────────────────
-
-async function getCart(userId: bigint) {
-  const cacheKey = getCacheKey(userId);
-
-  const cached = await redisService.get(cacheKey);
-  if (cached) return cached;
-
-  const cart = await cartRepository.findActiveCart(userId);
-  if (!cart) return null;
-
-  await redisService.set(cacheKey, cart, CART_TTL);
-  return cart;
-}
-
-async function addItem(userId: bigint, payload: AddCartItemDto) {
-  const { restaurantBranchId, menuItemId, quantity, specialInstructions, modifiers } = payload;
-
-  const menuItem = await cartRepository.findMenuItem(menuItemId);
-  if (!menuItem) throw new Error("Menu item not found");
-  if (!menuItem.isAvailable) throw new Error("Menu item is not available");
-
-  const unitPrice = Number(menuItem.basePrice);
-
-  let cart = await cartRepository.findActiveCart(userId);
-
-  if (cart && cart.restaurantBranchId !== restaurantBranchId) {
-    await cartRepository.deleteAllCartItems(cart.id);
-    await cartRepository.deleteCart(cart.id);
-    cart = null;
-  }
-
-  if (!cart) {
-    cart = await cartRepository.createCart({ customerUserId: userId, restaurantBranchId });
-  }
-
-  let modifierTotal = 0;
-  const resolvedModifiers: { modifierOptionId: bigint; additionalPrice: number }[] = [];
-
-  if (modifiers && modifiers.length > 0) {
-    for (const mod of modifiers) {
-      const option = await cartRepository.findModifierOption(mod.modifierOptionId);
-      if (!option) throw new Error(`Modifier option ${mod.modifierOptionId} not found`);
-      const price = Number(option.additionalPrice ?? 0);
-      modifierTotal += price;
-      resolvedModifiers.push({ modifierOptionId: mod.modifierOptionId, additionalPrice: price });
-    }
-  }
-
-  const lineTotal = parseFloat(((unitPrice + modifierTotal) * quantity).toFixed(2));
-
-  const cartItem = await cartRepository.createCartItem({
-    cartId: cart.id,
-    menuItemId,
-    quantity,
-    unitPrice,
-    lineTotal,
-    specialInstructions: specialInstructions ?? null,
-  });
-
-  if (resolvedModifiers.length > 0) {
-    await cartRepository.addModifiers(cartItem.id, resolvedModifiers);
-  }
-
-  await recalcTotals(cart.id);
-  await invalidateCache(userId);
-
-  return cartRepository.findActiveCart(userId);
-}
-
-async function updateItem(userId: bigint, itemId: bigint, payload: UpdateCartItemDto) {
-  const cart = await cartRepository.findActiveCart(userId);
-  if (!cart) throw new Error("No active cart found");
-
-  const cartItem = await cartRepository.findCartItem(itemId, cart.id);
-  if (!cartItem) throw new Error("Cart item not found");
-
-  const updates: { quantity?: number; lineTotal?: number; specialInstructions?: string | null } = {};
-
-  if (payload.quantity !== undefined) {
-    const modifierTotal = cartItem.modifiers.reduce(
-      (sum, m) => sum + Number(m.additionalPrice),
-      0
+  if (coupon.minimumOrderAmount && subtotal < Number(coupon.minimumOrderAmount)) {
+    throw new Error(
+      `Minimum order amount of ${coupon.minimumOrderAmount} not met`
     );
-    const unitPrice = Number(cartItem.unitPrice);
-    updates.quantity = payload.quantity;
-    updates.lineTotal = parseFloat(((unitPrice + modifierTotal) * payload.quantity).toFixed(2));
   }
 
-  if (payload.specialInstructions !== undefined) {
-    updates.specialInstructions = payload.specialInstructions;
+  // Calculate discount
+  let discountAmount = 0;
+  if (coupon.couponType === 'PERCENTAGE') {
+    discountAmount = (subtotal * Number(coupon.value)) / 100;
+    if (
+      coupon.maximumDiscountAmount &&
+      discountAmount > Number(coupon.maximumDiscountAmount)
+    ) {
+      discountAmount = Number(coupon.maximumDiscountAmount);
+    }
+  } else if (coupon.couponType === 'FLAT') {
+    discountAmount = Math.min(Number(coupon.value), subtotal);
+  } else if (coupon.couponType === 'FREE_DELIVERY') {
+    discountAmount = Number(cart.branch.deliveryFee);
   }
 
-  await cartRepository.updateCartItem(itemId, updates);
-  await recalcTotals(cart.id);
-  await invalidateCache(userId);
+  // Calculate totals
+  const breakdown = await calculateCartTotals(cart.id, discountAmount);
 
-  return cartRepository.findActiveCart(userId);
-}
-
-async function removeItem(userId: bigint, itemId: bigint) {
-  const cart = await cartRepository.findActiveCart(userId);
-  if (!cart) throw new Error("No active cart found");
-
-  const cartItem = await cartRepository.findCartItem(itemId, cart.id);
-  if (!cartItem) throw new Error("Cart item not found");
-
-  await cartRepository.removeModifiers(itemId);
-  await cartRepository.deleteCartItem(itemId);
-  await recalcTotals(cart.id);
-  await invalidateCache(userId);
-}
-
-async function clearCart(userId: bigint) {
-  const cart = await cartRepository.findActiveCart(userId);
-  if (!cart) throw new Error("No active cart found");
-
-  await cartRepository.deleteAllCartItems(cart.id);
-  await cartRepository.deleteCart(cart.id);
-  await invalidateCache(userId);
-}
-
-async function getPriceBreakdown(userId: bigint) {
-  const cart = await cartRepository.findActiveCart(userId);
-  if (!cart) throw new Error("No active cart found");
-
-  const subtotal = Number(cart.subtotalAmount);
-  const discountAmount = 0;
-  const deliveryFee = 30;
-  const taxAmount = parseFloat((subtotal * 0.05).toFixed(2));
-  const totalAmount = parseFloat((subtotal - discountAmount + deliveryFee + taxAmount).toFixed(2));
-
-  return cartRepository.savePriceBreakdown({
-    cartId: cart.id,
-    subtotal,
-    discountAmount,
-    deliveryFee,
-    taxAmount,
-    totalAmount,
+  // Save price breakdown
+  await createPriceBreakdown(cart.id, {
+    subtotal: Number(breakdown.subtotal),
+    discountAmount: Number(breakdown.discountAmount),
+    deliveryFee: Number(breakdown.deliveryFee),
+    taxAmount: Number(breakdown.taxAmount),
+    totalAmount: Number(breakdown.totalAmount),
   });
+
+  // Invalidate cache
+  await invalidateCartCache(userId);
+
+  return {
+    ...breakdown,
+    appliedCoupon: {
+      code: coupon.code,
+      discountAmount: breakdown.discountAmount,
+    },
+    calculatedAt: new Date(),
+  };
 }
 
-export default { getCart, addItem, updateItem, removeItem, clearCart, getPriceBreakdown };
+async function removeCouponService(userId: bigint) {
+  const cart = await getActiveCartByUser(userId);
+  if (!cart) throw new Error('No active cart found');
+
+  // Recalculate without discount
+  const breakdown = await calculateCartTotals(cart.id, 0);
+
+  // Create new price breakdown
+  await createPriceBreakdown(cart.id, {
+    subtotal: Number(breakdown.subtotal),
+    discountAmount: Number(breakdown.discountAmount),
+    deliveryFee: Number(breakdown.deliveryFee),
+    taxAmount: Number(breakdown.taxAmount),
+    totalAmount: Number(breakdown.totalAmount),
+  });
+
+  // Invalidate cache
+  await invalidateCartCache(userId);
+
+  return breakdown;
+}
+
+async function getPriceBreakdownService(
+  userId: bigint
+): Promise<PriceBreakdownResponseDTO> {
+  const cart = await getActiveCartByUser(userId);
+  if (!cart) throw new Error('No active cart found');
+
+  const breakdown = await calculateCartTotals(cart.id);
+
+  const appliedDiscount = cart.priceBreakdowns?.[0]?.discountAmount || 0;
+  const appliedCoupon = appliedDiscount > 0 ? true : false;
+
+  return {
+    ...breakdown,
+    appliedCoupon: appliedCoupon
+      ? {
+          code: 'APPLIED',
+          discountAmount: breakdown.discountAmount,
+        }
+      : undefined,
+    calculatedAt: new Date(),
+  };
+}
+
+async function invalidateCartCache(userId: bigint) {
+  const cacheKey = getCartCacheKey(userId);
+
+  try {
+    await redisService.del(cacheKey);
+    console.log(`[Cache INVALIDATE] Cart removed from Redis: ${cacheKey}`);
+  } catch (error) {
+    console.error(`Redis delete error: ${error}`);
+  }
+}
+
+export {
+  getCartService,
+  invalidateCartCache,
+  getCartCacheKey,
+  addItemToCartService,
+  updateCartItemService,
+  removeCartItemService,
+  clearCartService,
+  applyCouponService,
+  removeCouponService,
+  getPriceBreakdownService,
+};

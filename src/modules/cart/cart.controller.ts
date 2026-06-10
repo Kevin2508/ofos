@@ -1,84 +1,155 @@
-import { Request, Response } from "express";
-import { catchAsync } from "../../middlewares/catch.async.ts";
-import cartService from "./cart.service.ts";
+// src/modules/cart/cart.controller.ts
 
-// Helper function to safely convert to BigInt
-function toBigInt(value: string | number | bigint | null | undefined): bigint {
-  if (!value) throw new Error("Invalid ID");
-  return BigInt(value);
-}
+import { Request, Response } from 'express';
+import { catchAsync } from '../../middlewares/catch.async.ts';
+import {
+  getCartService,
+  addItemToCartService,
+  updateCartItemService,
+  removeCartItemService,
+  clearCartService,
+  applyCouponService,
+  removeCouponService,
+  getPriceBreakdownService,
+} from './cart.service.ts';
 
-const getCart = catchAsync(async (req: Request, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ status: "error", message: "Unauthorized: User not authenticated" });
-  }
-  
-  const cart = await cartService.getCart(toBigInt(req.user.id));
-  return res.status(200).json({ status: "success", data: { cart } });
+export const getCart = catchAsync(async (req: Request, res: Response) => {
+  const user: any = req.user;
+  if (!user) throw new Error('User not found');
+
+  const userId = BigInt(user.id);
+  const cart = await getCartService(userId);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Cart retrieved successfully',
+    data: cart,
+  });
 });
 
-const addItem = catchAsync(async (req: Request, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ status: "error", message: "Unauthorized" });
-  }
-  
-  const cart = await cartService.addItem(toBigInt(req.user.id), {
-    ...req.body,
-    restaurantBranchId: BigInt(req.body.restaurantBranchId),
-    menuItemId: BigInt(req.body.menuItemId),
-    modifiers: req.body.modifiers?.map((m: any) => ({
+export const addCartItem = catchAsync(async (req: Request, res: Response) => {
+  const user: any = req.user;
+  if (!user) throw new Error('User not found');
+
+  const userId = BigInt(user.id);
+  const { menuItemId, restaurantBranchId, quantity, specialInstructions, modifiers } = req.body;
+
+  const cart = await addItemToCartService(userId, {
+    menuItemId: BigInt(menuItemId),
+    restaurantBranchId: BigInt(restaurantBranchId),
+    quantity,
+    specialInstructions,
+    modifiers: modifiers?.map((m: any) => ({
       modifierOptionId: BigInt(m.modifierOptionId),
+      additionalPrice: m.additionalPrice,
     })),
   });
-  return res.status(201).json({ status: "success", data: { cart } });
+
+  res.status(201).json({
+    status: 'success',
+    message: 'Item added to cart successfully',
+    data: cart,
+  });
 });
 
-const updateItem = catchAsync(async (req: Request, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ status: "error", message: "Unauthorized" });
+export const updateCartItem = catchAsync(
+  async (req: Request, res: Response) => {
+    const user: any = req.user;
+    if (!user) throw new Error('User not found');
+
+    const userId = BigInt(user.id);
+    const cartItemId = BigInt(req.params.itemId);
+    const { quantity, specialInstructions } = req.body;
+
+    const cart = await updateCartItemService(userId, cartItemId, {
+      quantity,
+      specialInstructions,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Cart item updated successfully',
+      data: cart,
+    });
   }
-  
-  if (!req.params.itemId || Array.isArray(req.params.itemId)) {
-    return res.status(400).json({ status: "error", message: "Invalid item ID" });
+);
+
+export const removeCartItem = catchAsync(
+  async (req: Request, res: Response) => {
+    const user: any = req.user;
+    if (!user) throw new Error('User not found');
+
+    const userId = BigInt(user.id);
+    const cartItemId = BigInt(req.params.itemId);
+
+    const cart = await removeCartItemService(userId, cartItemId);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Item removed from cart',
+      data: cart,
+    });
   }
-  
-  const cart = await cartService.updateItem(
-    toBigInt(req.user.id),
-    toBigInt(req.params.itemId),
-    req.body
-  );
-  return res.status(200).json({ status: "success", data: { cart } });
+);
+
+export const clearCartHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const user: any = req.user;
+    if (!user) throw new Error('User not found');
+
+    const userId = BigInt(user.id);
+    const cart = await clearCartService(userId);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Cart cleared successfully',
+      data: cart,
+    });
+  }
+);
+
+export const applyCoupon = catchAsync(async (req: Request, res: Response) => {
+  const user: any = req.user;
+  if (!user) throw new Error('User not found');
+
+  const userId = BigInt(user.id);
+  const { couponCode } = req.body;
+
+  const breakdown = await applyCouponService(userId, couponCode);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Coupon applied successfully',
+    data: breakdown,
+  });
 });
 
-const removeItem = catchAsync(async (req: Request, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ status: "error", message: "Unauthorized" });
-  }
-  
-  if (!req.params.itemId || Array.isArray(req.params.itemId)) {
-    return res.status(400).json({ status: "error", message: "Invalid item ID" });
-  }
-  
-  await cartService.removeItem(toBigInt(req.user.id), toBigInt(req.params.itemId));
-  return res.status(200).json({ status: "success", data: null });
+export const removeCoupon = catchAsync(async (req: Request, res: Response) => {
+  const user: any = req.user;
+  if (!user) throw new Error('User not found');
+
+  const userId = BigInt(user.id);
+  const breakdown = await removeCouponService(userId);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Coupon removed successfully',
+    data: breakdown,
+  });
 });
 
-const clearCart = catchAsync(async (req: Request, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ status: "error", message: "Unauthorized" });
-  }
-  
-  await cartService.clearCart(toBigInt(req.user.id));
-  return res.status(200).json({ status: "success", data: null });
-});
+export const getPriceBreakdown = catchAsync(
+  async (req: Request, res: Response) => {
+    const user: any = req.user;
+    if (!user) throw new Error('User not found');
 
-const getPriceBreakdown = catchAsync(async (req: Request, res: Response) => {
-  if (!req.user?.id) {
-    return res.status(401).json({ status: "error", message: "Unauthorized" });
-  }
-  
-  const breakdown = await cartService.getPriceBreakdown(toBigInt(req.user.id));
-  return res.status(200).json({ status: "success", data: { breakdown } });
-});
+    const userId = BigInt(user.id);
+    const breakdown = await getPriceBreakdownService(userId);
 
-export default { getCart, addItem, updateItem, removeItem, clearCart, getPriceBreakdown };
+    res.status(200).json({
+      status: 'success',
+      message: 'Price breakdown retrieved successfully',
+      data: breakdown,
+    });
+  }
+);

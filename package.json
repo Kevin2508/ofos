@@ -15,7 +15,7 @@
     "build": "tsc",
     "start": "node src/server.js",
     "build:css": "postcss public/styles/styles.css -o public/styles/build.css --watch",
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx --watch src/server.ts"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.8.0",

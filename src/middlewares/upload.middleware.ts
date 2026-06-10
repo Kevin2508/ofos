@@ -113,6 +113,8 @@ const storage = multer.diskStorage({
         cb(null, './uploads/users/covers');
       } else if (file.fieldname == 'postPictures') {
         cb(null, './uploads/posts');
+      } else if (file.fieldname == 'profilePicture') {
+        cb(null, './uploads/users/profiles');
       } else if (file.fieldname === 'logo') {
         cb(null, './uploads/restaurants/logos');
       } else if (file.fieldname === 'cover') {
@@ -129,7 +131,6 @@ const storage = multer.diskStorage({
     const date = new Date();
     let fileName;
     if (file.fieldname == 'delivery-partner-document') {
-      cb(null, './uploads/deliveryPartners/documents');
       fileName = date.getTime() + '_' + 'document' + ext;
     } else {
       fileName = 'any_' + date.getTime() + ext;
@@ -140,6 +141,13 @@ const storage = multer.diskStorage({
       }
       if (file.fieldname == 'delivery-partner-document') {
         cb(null, './uploads/deliveryPartners/documents');
+      } else if (file.fieldname == 'profilePicture') {
+        fileName = date.getTime() + '_' + 'profile' + ext;
+      } else if (file.fieldname === 'logo') {
+        fileName = date.getTime() + '_' + 'logo' + ext;
+      } else if (file.fieldname === 'cover') {
+        fileName = date.getTime() + '_' + 'cover' + ext;
+      } else if (file.fieldname === 'document') {
         fileName = date.getTime() + '_' + 'document' + ext;
       } else {
         fileName = 'any_' + date.getTime() + ext;
@@ -162,7 +170,12 @@ const storage = multer.diskStorage({
 
     cb(null, fileName);
   },
-});
+  
+  },
+
+  
+    
+);
 
 const fileFilter = (
   req: Request,

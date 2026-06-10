@@ -10,6 +10,9 @@ import { fileURLToPath } from 'url';
 import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { authRouter } from './modules/auth/auth.routes.ts';
 import { customerRouter } from './modules/customer/customer.routes.ts';
+import { modifierRouter } from './modules/modifierGroupsAndOptions/modifier.routes.ts';
+
+
 import { authPageRouter } from './routes/auth.pages.routes.ts';
 
 import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';
@@ -38,13 +41,16 @@ app.use(authPageRouter);
 app.use(defaultPageRouter);
 app.use('/auth', authRouter);
 app.use('/customer', customerRouter);
+app.use(modifierRouter);
+app.use('/modifier',modifierRouter);
+
+app.use('/auth', authRouter);
+
 app.use('/restaurant', restaurantStaffRouter);
 app.use(menuCategoryRouter);
 app.use(menuItemRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
 app.use('/restaurant-management', restaurantRouter);
-app.use('/restaurants', restaurantRoter);
-app.use('/restaurants/:restaurantId/branches', branchRouter);
 app.use('/fleet-manager', fleetManagerRouter);
 
 app.use(branchRouter);

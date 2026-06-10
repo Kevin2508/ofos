@@ -11,7 +11,7 @@ import { authRouter } from './modules/auth/auth.routes.ts';
 import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
 import { customerRouter } from './modules/customer/customer.routes.ts';
-
+import { modifierRouter } from './modules/modifierGroupsAndOptions/modifier.routes.ts';
 
 import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
 import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';
@@ -42,6 +42,8 @@ app.use(authPageRouter);
 app.use(customerRouter);
 app.use('/auth', authRouter);
 app.use('/customer', customerRouter);
+app.use(modifierRouter);
+app.use('/modifier',modifierRouter);
 app.use(defaultPageRouter);
 app.use('/auth', authRouter);
 app.use('/restaurant', restaurantStaffRouter);

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `delivery_assignments` MODIFY `status` ENUM('PENDING', 'ASSIGNED', 'ACCEPTED', 'DECLINED', 'REASSIGNED', 'COMPLETED') NOT NULL;

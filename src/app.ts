@@ -20,9 +20,9 @@ import { restaurantRouter } from './modules/restaurantManagement/management.rout
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
 
 import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
-import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
 import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
+import orderRoutes from './modules/orders/order.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +42,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(authPageRouter);
 app.use(defaultPageRouter);
 app.use('/auth', authRouter);
+app.use('/orders', orderRoutes);
 app.use('/customer', customerRouter);
 app.use('/restaurant', restaurantStaffRouter);
 app.use(menuCategoryRouter);
@@ -53,6 +54,9 @@ app.use('/fleet-manager', fleetManagerRouter);
 
 app.use(branchRouter);
 app.use('/restaurants/:restaurantId/branches',branchRouter);
+
+
+
 
 
 app.use(errorMiddleware);

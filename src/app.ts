@@ -48,31 +48,20 @@ app.use('/customer', customerRouter);
 app.use(modifierRouter);
 app.use('/modifier',modifierRouter);
 app.use(defaultPageRouter);
-app.use('/restaurant', restaurantStaffRouter);
-app.use(menuCategoryRouter);
-app.use(menuItemRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
 app.use(restaurantRouter);
 
-app.use('/auth', authRouter);
 
 app.use('/restaurant', restaurantStaffRouter);
 app.use(menuCategoryRouter);
 app.use(menuItemRouter);
-app.use('/delivery-partner', deliveryPartnerRouter);
 app.use('/restaurant-management', restaurantRouter);
 app.use('/restaurants', restaurantRouter);
-app.use('/restaurants/:restaurantId/branches', branchRouter);
 app.use('/fleet-manager', fleetManagerRouter);
 
 app.use(branchRouter);
 app.use('/restaurants/:restaurantId/branches',branchRouter);
-app.use('/restaurant-management', restaurantRouter);
-app.use('/restaurants', restaurantRouter);
-app.use('/restaurants/:restaurantId/branches', branchRouter);
-app.use('/fleet-manager', fleetManagerRouter);
 
-app.use(branchRouter);
 
 
 app.use(errorMiddleware);

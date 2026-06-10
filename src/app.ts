@@ -34,6 +34,7 @@ import { couponsRouter } from './modules/coupons/coupons.routes.ts';
 import { paymentRouter } from './modules/payment/payment.routes.ts';
 import checkoutRouter from './modules/checkout/checkout.routes.ts';
 import { adminRouter } from './modules/admin/admin.routes.ts';
+import orderRoutes from './modules/orders/order.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,6 +66,7 @@ app.use(restaurantRouter);
 
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
+app.use('/orders', orderRoutes);
 app.use('/customer', customerRouter);
 app.use('/modifier', modifierRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
@@ -87,6 +89,9 @@ app.use('/restaurants', restaurantRouter);
 
 
 // app.use(errorMiddleware);
+
+
+
 
 // app.use((req, res) => {
 //   res.render('default/notFound');

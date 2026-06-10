@@ -1,0 +1,69 @@
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import cookieParser from 'cookie-parser';
+
+import { authRouter } from './modules/auth/auth.routes.ts';
+import { errorMiddleware } from './middlewares/error.middleware.ts';
+import { authPageRouter } from './routes/auth.pages.routes.ts';
+import { customerRouter } from './modules/customer/customer.routes.ts';
+import { modifierRouter } from './modules/modifierGroupsAndOptions/modifier.routes.ts';
+
+import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
+import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.ts';
+
+import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
+import { defaultPageRouter } from './routes/default.pages.routes.ts';
+import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
+
+import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
+import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+app.use(cookieParser('secret'));
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../views'));
+
+app.use(express.static(path.join(__dirname, '../public')));
+
+app.use(authPageRouter);
+app.use(customerRouter);
+app.use('/auth', authRouter);
+app.use('/customer', customerRouter);
+app.use(modifierRouter);
+app.use('/modifier',modifierRouter);
+app.use(defaultPageRouter);
+app.use('/auth', authRouter);
+app.use('/restaurant', restaurantStaffRouter);
+app.use(menuCategoryRouter);
+app.use('/delivery-partner', deliveryPartnerRouter);
+app.use(restaurantRouter);
+
+app.use('/auth', authRouter);
+app.use('/restaurants', restaurantRouter);
+app.use(defaultPageRouter);
+app.use('/auth', authRouter);
+app.use('/delivery-partner', deliveryPartnerRouter);
+app.use("/restaurants", restaurantRoter);
+app.use(branchRouter);
+app.use('/restaurants/:restaurantId/branches',branchRouter);
+
+app.use(errorMiddleware);
+
+// app.use((req, res) => {
+//   res.render('default/notFound');
+// });
+
+export { app };

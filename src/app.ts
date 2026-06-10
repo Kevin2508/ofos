@@ -22,10 +22,10 @@ import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner
 import { restaurantRouter } from './modules/restaurantManagement/management.routes.ts';
 
 
-import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
-import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
 import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
+import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
+import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,8 +48,6 @@ app.use('/customer', customerRouter);
 app.use(modifierRouter);
 app.use('/modifier',modifierRouter);
 app.use(defaultPageRouter);
-app.use('/auth', authRouter);
-app.use('/customer', customerRouter);
 app.use('/restaurant', restaurantStaffRouter);
 app.use(menuCategoryRouter);
 app.use(menuItemRouter);
@@ -70,11 +68,11 @@ app.use('/fleet-manager', fleetManagerRouter);
 app.use(branchRouter);
 app.use('/restaurants/:restaurantId/branches',branchRouter);
 app.use('/restaurant-management', restaurantRouter);
+app.use('/restaurants', restaurantRouter);
 app.use('/restaurants/:restaurantId/branches', branchRouter);
 app.use('/fleet-manager', fleetManagerRouter);
 
 app.use(branchRouter);
-app.use('/restaurants/:restaurantId/branches',branchRouter);
 
 
 app.use(errorMiddleware);

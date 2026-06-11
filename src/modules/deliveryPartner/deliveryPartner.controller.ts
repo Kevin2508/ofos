@@ -8,7 +8,6 @@ import {
   getEarningsHistoryService,
   getEarningsService,
   getPerformanceService,
-
   uploadDocumentService,
   getProfileService,
   updateProfileService,

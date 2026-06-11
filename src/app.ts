@@ -29,6 +29,7 @@ import { defaultPageRouter } from './routes/default.pages.routes.ts';
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
 
 import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
+import { refundRouter } from './modules/refund/refund.routes.ts';
 import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
 import { adminRouter } from './modules/admin/admin.routes.ts';
 import checkoutRouter from './modules/checkout/checkout.routes.ts';
@@ -50,6 +51,10 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(authPageRouter);
 app.use(defaultPageRouter);
+app.use('/refund', refundRouter)
+app.use(refundRouter);
+app.use('/delivery-partner', deliveryPartnerRouter);
+
 app.use(restaurantRouter);
 
 

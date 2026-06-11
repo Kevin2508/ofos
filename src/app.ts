@@ -23,7 +23,6 @@ import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.t
 
 import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
 
-
 import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
@@ -35,6 +34,7 @@ import { paymentRouter } from './modules/payment/payment.routes.ts';
 import checkoutRouter from './modules/checkout/checkout.routes.ts';
 import { adminRouter } from './modules/admin/admin.routes.ts';
 import orderRoutes from './modules/orders/order.routes.ts';
+import { prisma } from './config/prisma.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,6 +52,17 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(authPageRouter);
+app.use(customerRouter);
+app.use('/auth', authRouter);
+app.use('/customer', customerRouter);
+app.use(modifierRouter);
+app.use('/modifier', modifierRouter);
+app.use(defaultPageRouter);
+app.use('/auth', authRouter);
+app.use('/orders', orderRoutes);
+app.use('/customer', customerRouter);
+app.use(modifierRouter);
+app.use('/modifier', modifierRouter);
 app.use(defaultPageRouter);
 app.use('/refund', refundRouter)
 app.use(refundRouter);
@@ -92,9 +103,20 @@ app.use('/restaurants', restaurantRouter);
 
 
 
+app.use('/restaurants/:restaurantId/branches', branchRouter);
+
 
 // app.use((req, res) => {
 //   res.render('default/notFound');
 // });
+
+    // import prisma from "../config/prisma"; // adjust to your prisma instance
+    // import bcrypt from "bcrypt";
+
+// ─────────────────────────────────────────────────────────────
+// Run:  npx ts-node prisma/seed.ts
+// ─────────────────────────────────────────────────────────────
+
+
 
 export { app };

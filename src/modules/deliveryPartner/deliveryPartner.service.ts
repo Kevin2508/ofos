@@ -1,6 +1,5 @@
 import { IupdateProfilePayload } from './deliveryPartner.interface.ts';
 import {
-<<<<<<< HEAD
   acceptAssignmentRepo,
   declineAssignmentRepo,
   getAllAssignmentsRepo,
@@ -12,11 +11,6 @@ import {
   updateProfileRepo,
   updateStatusRepo,
   uploadDocumentRepo,
-=======
-  getProfile,
-  updateProfileRepo,
-  updateStatusRepo,
->>>>>>> a20beab (Delivery Partner Module v1)
 } from './deliveryPartner.repository.ts';
 
 async function getProfileService(userId: string) {
@@ -49,7 +43,6 @@ async function updateStatusService(userId: string, isOnline: boolean) {
   };
 }
 
-<<<<<<< HEAD
 async function uploadDocumentService(
   userId: string,
   documentType: any,
@@ -225,6 +218,3 @@ export {
   getPerformanceService,
   getEarningsService,
 };
-=======
-export { getProfileService, updateProfileService, updateStatusService };
->>>>>>> a20beab (Delivery Partner Module v1)

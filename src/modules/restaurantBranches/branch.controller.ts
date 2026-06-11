@@ -11,14 +11,11 @@ import {
   getBranchService,
   getBranchesService,
   updateBranchService,
-<<<<<<< HEAD
   getOperatingHours as getOperatingHoursService,
   replaceOperatingHours as replaceOperatingHoursService,
   updateOperatingHour as updateOperatingHourService,
   getDeliveryZone as getDeliveryZoneService,
     upsertDeliveryZone as upsertDeliveryZoneService,
-=======
->>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)
 } from "./branch.service.ts";
 
 // GET /restaurants/:restaurantId/branches
@@ -80,7 +77,6 @@ const deactivateBranch = catchAsync(
   }
 );
 
-<<<<<<< HEAD
 const getOperatingHours = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
     const branchId = BigInt(req.params.branchId);
@@ -173,12 +169,3 @@ export {
   upsertDeliveryZone
 };
 
-=======
-export {
-  createBranch,
-  deactivateBranch,
-  getBranch,
-  getBranches,
-  updateBranch,
-};
->>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)

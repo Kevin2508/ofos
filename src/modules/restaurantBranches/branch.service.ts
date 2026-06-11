@@ -5,14 +5,11 @@ import {
   findBranchByIdAndRestaurant,
   findBranchesByRestaurant,
   updateBranch,
-<<<<<<< HEAD
   getOperatingHours as getOperatingHoursRepo,
   replaceOperatingHours as replaceOperatingHoursRepo,
   updateOperatingHour as updateOperatingHourRepo,
   getDeliveryZone as getDeliveryZoneRepo,
   upsertDeliveryZone as upsertDeliveryZoneRepo
-=======
->>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)
 } from "./branch.repository.ts";
 
 async function getBranchesService(restaurantId: bigint) {
@@ -67,7 +64,6 @@ async function deactivateBranchService(
   return { branch };
 }
 
-<<<<<<< HEAD
 async function getOperatingHours(branchId: bigint) {
   const operatingHours : any = await getOperatingHoursRepo(branchId);
   return { operatingHours };
@@ -120,20 +116,15 @@ async function upsertDeliveryZone(
 
 
 
-=======
->>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)
 export {
   createBranchService,
   deactivateBranchService,
   getBranchService,
   getBranchesService,
   updateBranchService,
-<<<<<<< HEAD
   getOperatingHours,
   replaceOperatingHours,
   updateOperatingHour,
   getDeliveryZone,
   upsertDeliveryZone
-=======
->>>>>>> 69b2b43 (completed restaurant management and restaurant branches modules)
 };

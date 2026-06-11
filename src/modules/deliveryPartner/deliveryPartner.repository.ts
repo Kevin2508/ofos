@@ -1,13 +1,10 @@
 import { prisma } from '../../config/prisma.ts';
-<<<<<<< HEAD
 import {
   AssignmentStatus,
   DeliveryPartnerStatus,
-  VehicleType,
+  
 } from '../../generated/prisma/enums.ts';
-=======
 import { VehicleType } from '../../generated/prisma/enums.ts';
->>>>>>> a20beab (Delivery Partner Module v1)
 import { IupdateProfilePayload } from './deliveryPartner.interface.ts';
 
 async function createDeliveryPartner(data: {
@@ -123,7 +120,6 @@ async function updateStatusRepo(userId: bigint, isOnline: boolean) {
   return deliveryPartner;
 }
 
-<<<<<<< HEAD
 async function uploadDocumentRepo(
   partnerUserId: bigint,
   documentType: any,
@@ -443,11 +439,4 @@ export {
   getEarningsHistoryRepo,
   getEarningsRepo,
   getPerformanceRepo,
-=======
-export {
-  createDeliveryPartner,
-  getProfile,
-  updateProfileRepo,
-  updateStatusRepo,
->>>>>>> a20beab (Delivery Partner Module v1)
 };

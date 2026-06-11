@@ -2,6 +2,7 @@ interface customerDto {
   id: string;
   email?: string;
   roles: string[];
+  pendingRoles: string[];
   permissions: string[];
   iat: number;
   exp: number

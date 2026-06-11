@@ -2,8 +2,11 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware.ts";
 
 import { getAddresses, getAddressesById, insertAddresses,
-         updateCustomerAddress, deleteCustomerAddress, setDefaultAddress
+
+         updateCustomerAddress, deleteCustomerAddress
+
  } from "./customer.controller.ts";
+import { setDefaultAddressService } from "./customer.service.ts";
 const customerRouter = Router();
 
 //To get the all addresses of the customer.
@@ -21,6 +24,10 @@ customerRouter.patch('/addresses/:id', updateCustomerAddress);
 //To delete the One Of Customer Address.
 customerRouter.delete('/addresses/:id', deleteCustomerAddress);
 
+
 //to see the customer address default if its not set.
-customerRouter.patch('/address/:id', authenticate, setDefaultAddress);
+customerRouter.patch('/address/:id', authenticate, setDefaultAddressService);
+
+
+//to see the customer address default if its not set.
 export {customerRouter}

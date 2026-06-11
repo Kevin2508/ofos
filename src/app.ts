@@ -26,6 +26,7 @@ import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
 import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
+import { refundRouter } from './modules/refund/refund.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,6 +49,8 @@ app.use('/customer', customerRouter);
 app.use(modifierRouter);
 app.use('/modifier',modifierRouter);
 app.use(defaultPageRouter);
+app.use('/refund', refundRouter)
+app.use(refundRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
 app.use(restaurantRouter);
 

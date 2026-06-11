@@ -17,7 +17,7 @@ import {
 const getProfile = catchAsync(async (req: Request, res: Response) => {
   let data;
   if (req.user?.id) {
-    data = await getProfileService(req.user?.id);
+    data = await getProfileService(req.user?.id as string);
   }
 
   res.status(200).json({

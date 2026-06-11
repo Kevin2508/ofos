@@ -11,7 +11,6 @@ import { fileURLToPath } from 'url';
 import { modifierRouter } from './modules/modifierGroupsAndOptions/modifier.routes.ts';
 
 import { authRouter } from './modules/auth/auth.routes.ts';
-import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
 
 
@@ -32,6 +31,7 @@ import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
 import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
 import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
 import { adminRouter } from './modules/admin/admin.routes.ts';
+import checkoutRouter from './modules/checkout/checkout.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,7 +58,7 @@ app.use('/admin', adminRouter);
 app.use('/customer', customerRouter);
 app.use('/modifier', modifierRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
-
+app.use('/checkout', checkoutRouter);
 app.use('/restaurant', restaurantStaffRouter);
 app.use(menuCategoryRouter);
 app.use(menuItemRouter);
@@ -67,14 +67,8 @@ app.use('/restaurants', restaurantRoter);
 app.use('/fleet-manager', fleetManagerRouter);
 
 app.use('/restaurants/:restaurantId/branches', branchRouter);
-app.use('/restaurants', restaurantRouter);
-app.use(customerRouter);
-app.use('/customer', customerRouter);
-app.use('/restaurant', restaurantStaffRouter);
-app.use(menuCategoryRouter);
 
 app.use(defaultPageRouter);
-app.use('/delivery-partner', deliveryPartnerRouter);
 app.use(branchRouter);
 app.use('/restaurants/:restaurantId/branches',branchRouter);
 app.use(restaurantRouter);

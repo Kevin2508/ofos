@@ -46,6 +46,12 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(authPageRouter);
+app.use(customerRouter);
+app.use('/auth', authRouter);
+app.use('/customer', customerRouter);
+app.use(modifierRouter);
+app.use('/modifier',modifierRouter);
+app.use(defaultPageRouter);
 app.use('/auth', authRouter);
 app.use('/orders', orderRoutes);
 app.use('/customer', customerRouter);

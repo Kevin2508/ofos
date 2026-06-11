@@ -1,7 +1,7 @@
 // src/modules/cart/cart.controller.ts
 
 import { Request, Response } from 'express';
-import { catchAsync } from '../src/middlewares/catch.async.ts';
+import { catchAsync } from '../../middlewares/catch.async.ts';
 import {
   getCartService,
   addItemToCartService,

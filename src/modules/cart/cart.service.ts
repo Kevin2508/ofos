@@ -1,4 +1,4 @@
-import redisService from "../src/services/redisService.ts";
+import redisService from "../../services/redisService.ts";
 import { CartResponseDTO, PriceBreakdownResponseDTO } from "./cart.dto.ts";
 import {
   createCart,

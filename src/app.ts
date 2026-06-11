@@ -33,8 +33,6 @@ import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.t
 import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
 import { adminRouter } from './modules/admin/admin.routes.ts';
 
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

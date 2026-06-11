@@ -1,8 +1,8 @@
 // src/modules/cart/cart.routes.ts
 
 import { Router } from 'express';
-import { authenticate } from '../src/middlewares/auth.middleware.ts';
-import { validate } from '../src/middlewares/validation.middleware.ts';
+import { authenticate } from '../../middlewares/auth.middleware.ts';
+import { validate } from '../../middlewares/validation.middleware.ts';
 import {
   getCart,
   addCartItem,

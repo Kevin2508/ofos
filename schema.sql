@@ -89,6 +89,7 @@ CREATE TABLE otp_verifications (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     INDEX idx_otp_user (user_id),
+    CONSTRAINT fk_otp_user FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = InnoDB;
 
 CREATE TABLE restaurants (
@@ -126,6 +127,8 @@ CREATE TABLE restaurant_branches (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     restaurant_id BIGINT UNSIGNED NOT NULL,
     branch_name VARCHAR(255) NOT NULL,
+    gstin VARCHAR(20) NOT NULL,
+    fssai_license_number VARCHAR(50) NOT NULL,
     contact_phone VARCHAR(20) NOT NULL,
     address_line_1 VARCHAR(255) NOT NULL,
     address_line_2 VARCHAR(255) NULL,

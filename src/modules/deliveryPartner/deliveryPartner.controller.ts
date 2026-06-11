@@ -8,16 +8,16 @@ import {
   getEarningsHistoryService,
   getEarningsService,
   getPerformanceService,
+  uploadDocumentService,
   getProfileService,
   updateProfileService,
   updateStatusService,
-  uploadDocumentService,
 } from './deliveryPartner.service.ts';
 
 const getProfile = catchAsync(async (req: Request, res: Response) => {
   let data;
   if (req.user?.id) {
-    data = await getProfileService(req.user?.id);
+    data = await getProfileService(req.user?.id as string);
   }
 
   res.status(200).json({
@@ -40,6 +40,8 @@ const updateProfile = catchAsync(async (req: Request, res: Response) => {
     user: data?.user,
   });
 });
+
+// Route: deliveryPartnerRouter.patch('/update/status', validate(updateStatusSchema), updateStatus);
 
 const updateStatus = catchAsync(async (req: Request, res: Response) => {
   let data;

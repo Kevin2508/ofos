@@ -1,12 +1,11 @@
 import { catchAsync } from "../../middlewares/catch.async.ts";
 import { Request, Response } from "express-serve-static-core";
 import { addAddressService, getAddressesByIdService, getAddressesService,
-    updateAdressService, deleteAddressService, setDefaultAddressService
- } from "./customer.service.ts";
-import { customerDto, CreateAddressDto } from "./customer.dto.ts";
-import { createAddressSchema } from "./customer.valication.ts";
-import { json } from "node:stream/consumers";
+    updateAdressService, deleteAddressService, 
 
+ } from "./customer.service.ts";
+import { customerDto } from "./customer.dto.ts";
+import { createAddressSchema } from "./customer.valication.ts";
 
 
 const getAddresses = catchAsync(
@@ -196,50 +195,4 @@ const deleteCustomerAddress = catchAsync(
             
     }
 )
-
-const setDefaultAddress = catchAsync(
-  async(req:Request, res:Response) =>{
-
-    console.log("Address ID = ", req.params.id);
-    const addressID = Number(req.params.id);
-
-    if (isNaN(addressID)) {
-      return res.status(400).json({
-        status: 'fail',
-        message: 'Invalid address id',
-      });
-    }
-
-    console.log("Customer Data==========================", req.user);
-
-    const result = await setDefaultAddressService(
-        req.user as customerDto, addressID
-      );
-
-      
-
-      const serializedResult = JSON.parse(
-      JSON.stringify(
-        result,
-        (_, value) =>
-          typeof value === 'bigint'
-            ? value.toString()
-            : value
-      )
-    );
-
-    if (!serializedResult.data) {
-      return res.status(404).json({
-        status: 'fail',
-        message: serializedResult.message,
-      });
-    }
-
-    return res.status(200).json({
-      status: 'success',
-      message: serializedResult.message,
-      data: serializedResult.data,
-    });
-
-  })
-export {getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, deleteCustomerAddress, setDefaultAddress}
+export {getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, deleteCustomerAddress}

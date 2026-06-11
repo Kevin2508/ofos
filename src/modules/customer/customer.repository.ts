@@ -54,15 +54,12 @@ async function findAddressesByCustomerID(id:number){
 
 async function findAddressesById(addressId:number){
 
-  console.log('Repository Start');
-
     const result = await prisma.customerAddress.findUnique({
         where: {
             id: BigInt(addressId)
         },
     });
 
-    console.log('Repository End');
 
     return result;
 }
@@ -129,11 +126,15 @@ async function setAddressAsDefault(addressId: number) {
        },
      });
 }
+
 export {
     findAddressesByID,
     createAddress,
     findAddressesByCustomerID,
     findAddressesById, updateCustomerAddress,
+
     findAddressById1, deleteAddressById, removeDefaultAddresses,
     setAddressAsDefault
+ 
+
 }

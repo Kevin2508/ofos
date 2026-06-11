@@ -97,6 +97,8 @@ CREATE TABLE restaurants (
     owner_user_id BIGINT UNSIGNED NOT NULL,
     business_name VARCHAR(255) NOT NULL,
     legal_business_name VARCHAR(255) NOT NULL,
+    gstin VARCHAR(20) NOT NULL,
+    fssai_license_number VARCHAR(50) NOT NULL,
     primary_phone VARCHAR(20) NOT NULL,
     primary_email VARCHAR(255) NOT NULL,
     logo_url VARCHAR(500) NULL,

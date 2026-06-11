@@ -13,6 +13,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
   // if (!token) res.redirect('/not-authenticated');
 
   try {
+    
     const secret = process.env.JWT_ACCESS_SECRET as string;
 
     if (!secret) {
@@ -25,6 +26,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
 
     req.user = decoded as any;
     // console.log('Authenticated user:', req.user);
+    
 
     next();
   } catch (err) {

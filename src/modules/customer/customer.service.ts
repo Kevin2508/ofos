@@ -1,8 +1,13 @@
 import { prisma } from '../../config/prisma.ts';
 import { CreateAddressDto, customerDto } from './customer.dto.ts';
 import { createAddress, findAddressesByCustomerID, findAddressesByID, findAddressesById,
+
     updateCustomerAddress, findAddressById1, deleteAddressById, removeDefaultAddresses,
     setAddressAsDefault
+
+
+
+
 } from './customer.repository.ts';
 
 
@@ -131,3 +136,4 @@ async function setDefaultAddressService(customer:customerDto, addressID:number) 
        };
 }
 export { getAddressesService, addAddressService, getAddressesByIdService, updateAdressService, deleteAddressService, setDefaultAddressService}
+

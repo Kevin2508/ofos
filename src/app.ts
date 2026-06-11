@@ -24,20 +24,16 @@ import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.t
 
 import { deliveryPartnerRouter } from './modules/deliveryPartner/deliveryPartner.routes.ts';
 
-<<<<<<< HEAD
 
 import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
-=======
->>>>>>> 7eeaa2a (fixed cart)
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
-<<<<<<< HEAD
+
 import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
 import restaurantRoter from './modules/restuarant/restaurant.routes.ts';
 import { adminRouter } from './modules/admin/admin.routes.ts';
-=======
-import cartRouter from './modules/cart/cart.routes.ts';
->>>>>>> 4308db9 (created cart)
+
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,13 +51,10 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(authPageRouter);
-<<<<<<< HEAD
 app.use(defaultPageRouter);
-=======
 app.use(restaurantRouter);
-app.use('/cart',cartRouter)
 
->>>>>>> 7eeaa2a (fixed cart)
+
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 app.use('/customer', customerRouter);

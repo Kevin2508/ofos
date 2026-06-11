@@ -1,6 +1,6 @@
 // src/modules/cart/cart.repository.ts
 
-import { prisma } from '../../config/prisma.ts';
+import { prisma } from '../src/config/prisma.ts';
 
 // Get active cart with all relations
 async function getActiveCartByUser(userId: bigint) {

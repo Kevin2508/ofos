@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.accessToken;
-
+  console.log('Access Token from Cookie:', token);
   if (!token) {
     throw new Error('Not authenticated. No access token provided.');
   }
@@ -25,6 +25,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     const decoded = jwt.verify(token, secret);
 
     req.user = decoded as any;
+    // console.log('Authenticated user:', req.user);
     
 
     next();

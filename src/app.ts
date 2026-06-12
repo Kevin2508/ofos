@@ -20,15 +20,14 @@ import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { defaultPageRouter } from './routes/default.pages.routes.ts';
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
 import { fleetManagerRouter } from './modules/fleetManager/fleetManager.routes.ts';
-import { couponsRouter } from './modules/coupons/coupons.routes.ts';
-import { paymentRouter } from './modules/payment/payment.routes.ts';
 import orderRoutes from './modules/orders/order.routes.ts';
 import { refundRouter } from './modules/refund/refund.routes.ts';
-import { adminRouter } from './modules/admin/admin.routes.ts';
+import { couponsRouter } from './modules/coupons/coupons.routes.ts';
+import { paymentRouter } from './modules/payment/payment.routes.ts';
 import checkoutRouter from './modules/checkout/checkout.routes.ts';
+import { adminRouter } from './modules/admin/admin.routes.ts';
 import { customerPageRouter } from './routes/customer.pages.routes.ts';
 import { adminPageRouter } from './routes/admin.pages.routes.ts';
-import restrouter from './modules/restuarant/restaurant.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,6 +46,16 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Routes
 app.use(authPageRouter);
 app.use(defaultPageRouter);
+app.use('/refund', refundRouter)
+app.use(refundRouter);
+app.use('/payments', paymentRouter)
+app.use(paymentRouter);
+app.use('/coupons', couponsRouter)
+app.use(couponsRouter);
+app.use('/delivery-partner', deliveryPartnerRouter);
+
+app.use(restaurantRouter);
+
 
 app.use(customerPageRouter);
 app.use(adminPageRouter);
@@ -65,7 +74,7 @@ app.use('/checkout', checkoutRouter);
 app.use('/restaurant', restaurantStaffRouter);
 app.use('/restaurant-staff', restaurantStaffRouter);
 app.use('/restaurant-management', restaurantRouter);
-
+app.use('/restaurants', restaurantRouter);
 app.use('/fleet-manager', fleetManagerRouter);
 
 app.use(menuCategoryRouter);

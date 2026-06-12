@@ -52,21 +52,21 @@ authRouter.post('/refresh', refresh);
 // Customer
 authRouter.post('/register', validate(registerSchema), register);
 
-// // Platform Admin
+// Platform Admin
 authRouter.post(
   '/register/admin',
   validate(registerAdminSchema),
   registerAdmin
 );
 
-// // Restaurant Owner
+// Restaurant Owner
 // authRouter.post(
 //   '/register/restaurant-owner',
 //   validate(registerSchema),
 //   registerRestaurantOwner
 // );
 
-// // Restaurant Staff
+// Restaurant Staff
 // authRouter.post(
 //   '/register/restaurant-staff',
 //   validate(registerSchema),
@@ -87,7 +87,7 @@ authRouter.post(
   registerFleetManager
 );
 
-// // Finance Manager
+// Finance Manager
 // authRouter.post(
 //   '/register/finance-manager',
 //   validate(registerSchema),

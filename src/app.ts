@@ -26,6 +26,8 @@ import orderRoutes from './modules/orders/order.routes.ts';
 import { refundRouter } from './modules/refund/refund.routes.ts';
 import { adminRouter } from './modules/admin/admin.routes.ts';
 import checkoutRouter from './modules/checkout/checkout.routes.ts';
+import { customerPageRouter } from './routes/customer.pages.routes.ts';
+import { adminPageRouter } from './routes/admin.pages.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,6 +63,8 @@ app.use('/delivery-partner', deliveryPartnerRouter);
 app.use(restaurantRouter);
 
 
+app.use(customerPageRouter);
+app.use(adminPageRouter);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 app.use('/orders', orderRoutes);
@@ -74,6 +78,9 @@ app.use('/delivery-partner', deliveryPartnerRouter);
 app.use('/checkout', checkoutRouter);
 
 app.use('/restaurant', restaurantStaffRouter);
+app.use('/restaurant-staff', restaurantStaffRouter);
+app.use(menuCategoryRouter);
+app.use(menuItemRouter);
 app.use('/restaurant-management', restaurantRouter);
 app.use('/restaurants', restaurantRouter);
 app.use('/fleet-manager', fleetManagerRouter);

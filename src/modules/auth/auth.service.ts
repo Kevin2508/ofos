@@ -171,7 +171,7 @@ async function forgotPasswordService(
 
     return {
       message: GENERIC_RESET_MSG,
-      link: `http://localhost:${process.env.PORT}/resetPasswordPage/${resetToken}`,
+      link: `http://localhost:${process.env.PORT}/resetPasswordPage?resetToken=${resetToken}`,
     };
   } else {
     const otp = crypto.randomInt(100000, 999999).toString();

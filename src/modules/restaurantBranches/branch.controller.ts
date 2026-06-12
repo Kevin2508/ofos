@@ -44,6 +44,7 @@ const createBranch = catchAsync(
 // GET /restaurants/:restaurantId/branches/:id
 const getBranch = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
+    console.log(req.params.restaurantId)
     const restaurantId = BigInt(req.params.restaurantId);
     const id = BigInt(req.params.id);
     const data = await getBranchService(restaurantId, id);

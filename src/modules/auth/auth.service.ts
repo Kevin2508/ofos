@@ -31,6 +31,7 @@ import {
   storeResetToken,
 } from './auth.repository.ts';
 import { createDeliveryPartner } from '../deliveryPartner/deliveryPartner.repository.ts';
+import { createRestaurantOwner } from '../restaurantManagement/management.repository.ts';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const GENERIC_AUTH_ERROR = 'Invalid credentials provided';
@@ -585,6 +586,46 @@ async function registerDeliveryPartnerService(data: any) {
   };
 }
 
+async function registerRestaurantOwnerService(data: any) {
+  let user = await findUserByIdentifier(data.email);
+  if (!user) {
+    user = await findUserByIdentifier(data.phone);
+  }
+
+  const isExistingUser = !!user;
+
+  if (!isExistingUser) {
+    const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
+    user = await createUser({
+      firstName: data.firstName,
+      email: data.email,
+      phone: data.phone,
+      passwordHash: hashedPassword,
+    });
+  }
+
+  await createRestaurantOwner({
+    userId: user.id,
+  });
+
+  const role = await getRoleIdByRole({ role: 'Restaurant_owner' });
+  if (role) {
+    await assignRole({
+      userId: user.id,
+      roleId: role.id,
+      status: 'REQUESTED',
+    });
+  }
+
+  return {
+    message: isExistingUser
+      ? 'Account found. Your request for Restaurant owner has been sent to administrators for review.'
+      : 'Account created. Your request for Restaurant owner has been sent to administrators for review.',
+  };
+}
+
 export {
   forgotPasswordService,
   loginService,
@@ -596,4 +637,5 @@ export {
   verifyOtpService,
   registerDeliveryPartnerService,
   refreshTokenService,
+  registerRestaurantOwnerService
 };

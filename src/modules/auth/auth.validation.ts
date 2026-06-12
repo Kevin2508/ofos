@@ -178,6 +178,8 @@ const registerAdminSchema = Joi.object({
   confirmPassword: Joi.string().valid(Joi.ref('password')).min(8).required(),
 });
 
+
+
 const registerFleetManagerSchema = Joi.object({
   firstName: Joi.string().max(100).required(),
   lastName: Joi.string().max(100).allow('', null).optional(),

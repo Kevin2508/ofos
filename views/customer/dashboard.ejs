@@ -180,10 +180,10 @@
           }
         });
 
-      fetchRestaurants();
+     
       async function fetchRestaurants() {
         try {
-          const res = await fetch(`/restaurants/`);
+          const res = await fetch(`/restaurant/`);
           const { data } = await res.json();
 
           renderRestaurants(data.data);
@@ -191,6 +191,7 @@
           console.log('Search error', err);
         }
       }
+       fetchRestaurants();
 
       function renderRestaurants(restaurants) {
         const grid = document.getElementById('restaurantGrid');

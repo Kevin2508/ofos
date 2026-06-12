@@ -5,10 +5,12 @@ import {
     findRefundByOrderId,
     createRefundRecord,
     findRefundDetailsByOrderId,
-    findAllRefunds
+    findAllRefunds,
+    findRefundById,
+    updateRefundStatus
 } from './refund.repository.ts';
 
-import { CreateRefundDto, GetAllRefundsDto } from './refund.dto.ts';
+import { CreateRefundDto, GetAllRefundsDto, UpdateRefundStatusDto } from './refund.dto.ts';
 
 async function createRefundService(payload: CreateRefundDto) {
 
@@ -123,4 +125,51 @@ async function getAllRefundsService(filters:GetAllRefundsDto) {
         };
     
 }
-export {createRefundService, getRefundByOrderIdService, getAllRefundsService}
+
+async function updateRefundStatusService(refundId:number, payload:UpdateRefundStatusDto){
+
+    const refund = await findRefundById(refundId);
+
+    if(!refund){
+        throw new Error('Refund Not Found');
+    }
+
+    const currentStatus = refund.status;
+    const newStatus = payload.status;
+
+    if(currentStatus === 'COMPLETED'){
+        return {
+            status: 'fail',
+            message: 'Sorry! Completed Status Cannot Be Modified!'
+        }
+    }
+
+    if(currentStatus === 'FAILED'){
+        return {
+            status: 'fail',
+            message: 'Sorry! Failed Refund Cannot Be Modified!'
+        }
+    }
+
+    if(currentStatus === 'INITIATED' && newStatus === 'COMPLETED'){
+        return {
+            status: 'fail',
+            message: 'Sorry! Refund Must Move To Processing Before Completed!'
+        }
+    }
+
+    const result = updateRefundStatus(refundId,
+                                      refund.paymentId,
+                                      refund.orderId,
+                                      newStatus
+    )
+
+    return {
+        message: 'Refund Status Updated Successfully!',
+        data: result
+    }
+
+}
+export {createRefundService, getRefundByOrderIdService, getAllRefundsService,
+        updateRefundStatusService
+}

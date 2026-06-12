@@ -10,6 +10,7 @@ import {
   registerAdmin,
   registerDeliveryPartner,
   registerFleetManager,
+  registerRestaurantOwner,
   resetPassword,
   sendOtp,
   verigyOtp,
@@ -60,11 +61,11 @@ authRouter.post(
 );
 
 // Restaurant Owner
-// authRouter.post(
-//   '/register/restaurant-owner',
-//   validate(registerSchema),
-//   registerRestaurantOwner
-// );
+authRouter.post(
+  '/register/restaurant-owner',
+  validate(registerSchema),
+  registerRestaurantOwner
+);
 
 // Restaurant Staff
 // authRouter.post(

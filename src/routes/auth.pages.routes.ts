@@ -22,4 +22,7 @@ authPageRouter.get('/registerPage/admin', (req, res) => {
   res.render('auth/register/admin');
 });
 
+authPageRouter.get('/registerPage/owner', (req, res) => {
+  res.render('auth/register/restaurant-owner');
+});
 export { authPageRouter };

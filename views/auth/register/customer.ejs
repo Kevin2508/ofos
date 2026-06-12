@@ -1,223 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register | ofos</title>
+    <link rel="stylesheet" href="/styles/build.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
-  <link rel="stylesheet" href="/styles/build.css">
-</head>
+  <body
+    class="min-h-screen bg-orange-50 flex items-center justify-center px-4 py-10"
+  >
+    <div class="w-full max-w-md">
+      <!-- Logo / Heading -->
+      <div class="text-center mb-8">
+        <h1 class="text-5xl font-extrabold text-orange-500">ofos</h1>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center font-sans py-10">
+        <p class="text-gray-600 mt-2">
+          Create your account and start ordering food
+        </p>
+      </div>
 
-  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-bold text-center text-white bg-red-500 py-2 rounded mb-6">Create an Account</h2>
+      <!-- Card -->
+      <div class="bg-white rounded-3xl shadow-xl p-8 border border-orange-100">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Create Account</h2>
 
-    <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm"
-      role="alert"></div>
+        <form id="registerForm" class="space-y-5">
+          <!-- First Name -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              First Name
+            </label>
 
-    <div id="successMessage"
-      class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 text-sm" role="alert">
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              placeholder="Enter your first name"
+              class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+
+            <p id="firstNameError" class="text-red-500 text-sm mt-1"></p>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Email Address
+            </label>
+
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+
+            <p id="emailError" class="text-red-500 text-sm mt-1"></p>
+          </div>
+
+          <!-- Phone -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Phone Number
+            </label>
+
+            <input
+              type="text"
+              id="phone"
+              name="phone"
+              placeholder="Enter your 10 digit phone number"
+              class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+
+            <p id="phoneError" class="text-red-500 text-sm mt-1"></p>
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Password
+            </label>
+
+            <div class="relative">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter password"
+                class="w-full px-4 py-3 pr-16 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+
+              <button
+                type="button"
+                id="togglePassword"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 font-medium"
+              >
+                Show
+              </button>
+            </div>
+
+            <p id="passwordError" class="text-red-500 text-sm mt-1"></p>
+          </div>
+
+          <!-- Confirm Password -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Confirm Password
+            </label>
+
+            <div class="relative">
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Confirm password"
+                class="w-full px-4 py-3 pr-16 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+
+              <button
+                type="button"
+                id="toggleConfirmPassword"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 font-medium"
+              >
+                Show
+              </button>
+            </div>
+
+            <p id="confirmPasswordError" class="text-red-500 text-sm mt-1"></p>
+          </div>
+
+          <!-- API Message -->
+          <div
+            id="apiMessage"
+            class="hidden px-4 py-3 rounded-xl text-sm"
+          ></div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            id="registerBtn"
+            class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition duration-200"
+          >
+            Create Account
+          </button>
+        </form>
+
+        <!-- Login Link -->
+        <div class="mt-6 text-center text-gray-600">
+          Already have an account?
+
+          <a
+            href="/loginPage"
+            class="font-semibold text-orange-500 hover:text-orange-600"
+          >
+            Login
+          </a>
+        </div>
+      </div>
     </div>
 
-    <form id="registerForm" class="space-y-4">
+    <script>
+      const registerForm = document.getElementById('registerForm');
+      const registerBtn = document.getElementById('registerBtn');
 
-      <div>
-        <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-        <input type="text" id="firstName" name="firstName" placeholder="John"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-          required>
-      </div>
+      const firstName = document.getElementById('firstName');
+      const email = document.getElementById('email');
+      const phone = document.getElementById('phone');
+      const password = document.getElementById('password');
+      const confirmPassword = document.getElementById('confirmPassword');
 
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-        <input type="email" id="email" name="email" placeholder="john@example.com"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-      </div>
+      const firstNameError = document.getElementById('firstNameError');
+      const emailError = document.getElementById('emailError');
+      const phoneError = document.getElementById('phoneError');
+      const passwordError = document.getElementById('passwordError');
+      const confirmPasswordError = document.getElementById(
+        'confirmPasswordError'
+      );
 
-      <div>
-        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span
-            class="text-gray-400 text-xs">(Optional)</span></label>
-        <input type="tel" id="phone" name="phone" placeholder="10-digit number"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-      </div>
+      const apiMessage = document.getElementById('apiMessage');
 
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <div class="relative">
-          <input type="password" id="password" name="password" placeholder="Min. 8 characters"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 pr-10"
-            required>
-          <button type="button" id="togglePassword"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-red-500 focus:outline-none">
-            <svg id="eyeIcon1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-            <svg id="eyeSlashIcon1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-              stroke-width="1.5" stroke="currentColor" class="hidden w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-            </svg>
-          </button>
-        </div>
-      </div>
+      /* Show / Hide Password */
 
-      <div>
-        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-        <div class="relative">
-          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 pr-10"
-            required>
-          <button type="button" id="toggleConfirmPassword"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-red-500 focus:outline-none">
-            <svg id="eyeIcon2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-            <svg id="eyeSlashIcon2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-              stroke-width="1.5" stroke="currentColor" class="hidden w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <button type="submit" id="submitBtn"
-        class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out mt-2">
-        Sign Up
-      </button>
-
-    </form>
-
-    <p class="mt-6 text-center text-sm text-gray-600">
-      Already have an account?
-      <a href="/loginPage" class="font-medium text-red-600 hover:text-red-500 transition duration-150 ease-in-out">
-        Log in
-      </a>
-    </p>
-
-  </div>
-
-  <script>
-    function setupPasswordToggle(toggleBtnId, inputId, eyeIconId, eyeSlashIconId) {
-      const toggleBtn = document.getElementById(toggleBtnId);
-      const input = document.getElementById(inputId);
-      const eyeIcon = document.getElementById(eyeIconId);
-      const eyeSlashIcon = document.getElementById(eyeSlashIconId);
-
-      toggleBtn.addEventListener('click', function () {
-        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-        input.setAttribute('type', type);
-        eyeIcon.classList.toggle('hidden');
-        eyeSlashIcon.classList.toggle('hidden');
-      });
-    }
-
-    setupPasswordToggle('togglePassword', 'password', 'eyeIcon1', 'eyeSlashIcon1');
-    setupPasswordToggle('toggleConfirmPassword', 'confirmPassword', 'eyeIcon2', 'eyeSlashIcon2');
-
-    document.getElementById('registerForm').addEventListener('submit', async function (event) {
-      event.preventDefault();
-
-      const errorMessageDiv = document.getElementById('errorMessage');
-      const successMessageDiv = document.getElementById('successMessage');
-      const submitBtn = document.getElementById('submitBtn');
-
-      errorMessageDiv.classList.add('hidden');
-      successMessageDiv.classList.add('hidden');
-      errorMessageDiv.textContent = '';
-
-      const firstName = document.getElementById('firstName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-
-      const nameRegex = /^[A-Za-z]+$/;
-      const phoneRegex = /^[0-9]{10}$/;
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (firstName.length < 2 || firstName.length > 50 || !nameRegex.test(firstName)) {
-        showError('First name must be between 2 and 50 characters and contain only letters.');
-        return;
-      }
-
-      if (email && !emailRegex.test(email)) {
-        showError('Please enter a valid email address.');
-        return;
-      }
-
-      if (phone && !phoneRegex.test(phone)) {
-        showError('Contact number must be exactly 10 digits and contain only numbers.');
-        return;
-      }
-
-      if (!email && !phone) {
-        showError('Please provide an email address or a phone number.');
-        return;
-      }
-
-      if (password.length < 8) {
-        showError('Password must be at least 8 characters long.');
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        showError('Passwords do not match.');
-        return;
-      }
-
-      try {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating Account...';
-
-        const response = await fetch('/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            firstName,
-            email,
-            phone,
-            password,
-            confirmPassword
-          })
+      function togglePassword(buttonId, input) {
+        document.getElementById(buttonId).addEventListener('click', () => {
+          if (input.type === 'password') {
+            input.type = 'text';
+            document.getElementById(buttonId).textContent = 'Hide';
+          } else {
+            input.type = 'password';
+            document.getElementById(buttonId).textContent = 'Show';
+          }
         });
+      }
 
-        const data = await response.json();
+      togglePassword('togglePassword', password);
+      togglePassword('toggleConfirmPassword', confirmPassword);
 
-        if (!response.ok) {
-          throw new Error(data.message || 'Registration failed. Please try again.');
+      /* Validation */
+
+      function clearErrors() {
+        firstNameError.textContent = '';
+        emailError.textContent = '';
+        phoneError.textContent = '';
+        passwordError.textContent = '';
+        confirmPasswordError.textContent = '';
+
+        apiMessage.textContent = '';
+
+        apiMessage.classList.add('hidden');
+
+        apiMessage.classList.remove(
+          'bg-red-50',
+          'text-red-600',
+          'border',
+          'border-red-200',
+          'bg-green-50',
+          'text-green-600',
+          'border-green-200'
+        );
+      }
+
+      function validate() {
+        let hasError = false;
+
+        const nameValue = firstName.value.trim();
+
+        if (!nameValue) {
+          firstNameError.textContent = 'First name is required';
+          hasError = true;
+        } else if (nameValue.length < 2) {
+          firstNameError.textContent =
+            'First name must be at least 2 characters';
+          hasError = true;
+        } else if (!/^[A-Za-z]+$/.test(nameValue)) {
+          firstNameError.textContent = 'First name can only contain letters';
+          hasError = true;
         }
 
-        successMessageDiv.textContent = 'Account created successfully! Redirecting to login...';
-        successMessageDiv.classList.remove('hidden');
+        const emailValue = email.value.trim();
 
-        setTimeout(() => {
-          window.location.href = '/loginPage';
-        }, 2000);
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
 
-      } catch (error) {
-        showError(error.message);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Sign Up';
+        if (!emailValue) {
+          emailError.textContent = 'Email is required';
+          hasError = true;
+        } else if (!emailRegex.test(emailValue)) {
+          emailError.textContent = 'Please enter valid email address';
+          hasError = true;
+        }
+
+        const phoneValue = phone.value.trim();
+
+        if (phoneValue.length !== 10) {
+          phoneError.textContent = 'Contact number must be exactly 10 digits';
+          hasError = true;
+        } else if (!/^[0-9]+$/.test(phoneValue)) {
+          phoneError.textContent = 'Contact number must only contain digits';
+          hasError = true;
+        }
+
+        if (password.value.length < 8) {
+          passwordError.textContent = 'Password must be at least 8 characters';
+          hasError = true;
+        }
+
+        if (confirmPassword.value !== password.value) {
+          confirmPasswordError.textContent = 'Passwords do not match';
+          hasError = true;
+        }
+
+        return !hasError;
       }
-    });
 
-    function showError(message) {
-      const errorMessageDiv = document.getElementById('errorMessage');
-      errorMessageDiv.textContent = message;
-      errorMessageDiv.classList.remove('hidden');
-    }
-  </script>
-</body>
+      /* Submit */
 
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        clearErrors();
+
+        if (!validate()) return;
+
+        registerBtn.disabled = true;
+        registerBtn.textContent = 'Creating Account...';
+
+        try {
+          const response = await fetch('/auth/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              firstName: firstName.value.trim(),
+              email: email.value.trim(),
+              phone: phone.value.trim(),
+              password: password.value,
+              confirmPassword: confirmPassword.value,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            apiMessage.classList.remove('hidden');
+
+            apiMessage.classList.add(
+              'bg-red-50',
+              'text-red-600',
+              'border',
+              'border-red-200'
+            );
+
+            apiMessage.textContent = data.message || 'Registration failed';
+
+            return;
+          }
+
+          apiMessage.classList.remove('hidden');
+
+          apiMessage.classList.add(
+            'bg-green-50',
+            'text-green-600',
+            'border',
+            'border-green-200'
+          );
+
+          apiMessage.textContent =
+            data.message || 'Account created successfully';
+
+          setTimeout(() => {
+            window.location.href = '/loginPage';
+          }, 2000);
+        } catch (error) {
+          apiMessage.classList.remove('hidden');
+
+          apiMessage.classList.add(
+            'bg-red-50',
+            'text-red-600',
+            'border',
+            'border-red-200'
+          );
+
+          apiMessage.textContent = 'Something went wrong. Please try again.';
+        } finally {
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Create Account';
+        }
+      });
+    </script>
+  </body>
 </html>

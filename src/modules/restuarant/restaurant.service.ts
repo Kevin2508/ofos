@@ -127,77 +127,57 @@ export const getRestaurantMenu = async (restaurantId: string) => {
       })),
     })),
   };
-}
+};
 
-export async function getFeaturedRestaurants(
-  userId?: string
-) {
-  const topPicks =
-    await restaurantRepository.getTopPickRestaurants();
+export async function getFeaturedRestaurants(userId?: string) {
+  const topPicks = await restaurantRepository.getTopPickRestaurants();
 
-  const trending =
-    await restaurantRepository.getTrendingRestaurants();
+  const trending = await restaurantRepository.getTrendingRestaurants();
 
   let orderAgain: any[] = [];
 
   if (userId) {
-    orderAgain =
-      await restaurantRepository.getOrderAgainRestaurants(
-        BigInt(userId)
-      );
+    orderAgain = await restaurantRepository.getOrderAgainRestaurants(
+      BigInt(userId)
+    );
   }
 
   return {
     topPicks: topPicks
       .map((restaurant) => {
-        const ratings =
-          restaurant.reviews.map((review) =>
-            Number(review.overallRating)
-          );
+        const ratings = restaurant.reviews.map((review) =>
+          Number(review.overallRating)
+        );
 
         const averageRating =
           ratings.length > 0
-            ? ratings.reduce((a, b) => a + b, 0) /
-              ratings.length
+            ? ratings.reduce((a, b) => a + b, 0) / ratings.length
             : 0;
 
         return {
           id: restaurant.id.toString(),
-          businessName:
-            restaurant.businessName,
+          businessName: restaurant.businessName,
           logoUrl: restaurant.logoUrl,
-          averageRating: Number(
-            averageRating.toFixed(1)
-          ),
+          averageRating: Number(averageRating.toFixed(1)),
         };
       })
-      .sort(
-        (a, b) =>
-          b.averageRating - a.averageRating
-      )
+      .sort((a, b) => b.averageRating - a.averageRating)
       .slice(0, 10),
 
     trending: trending
       .map((restaurant) => ({
         id: restaurant.id.toString(),
-        businessName:
-          restaurant.businessName,
+        businessName: restaurant.businessName,
         logoUrl: restaurant.logoUrl,
-        totalOrders:
-          restaurant.orders.length,
+        totalOrders: restaurant.orders.length,
       }))
-      .sort(
-        (a, b) =>
-          b.totalOrders - a.totalOrders
-      )
+      .sort((a, b) => b.totalOrders - a.totalOrders)
       .slice(0, 10),
 
     orderAgain: orderAgain.map((order) => ({
       id: order.restaurant.id.toString(),
-      businessName:
-        order.restaurant.businessName,
-      logoUrl:
-        order.restaurant.logoUrl,
+      businessName: order.restaurant.businessName,
+      logoUrl: order.restaurant.logoUrl,
     })),
   };
 }

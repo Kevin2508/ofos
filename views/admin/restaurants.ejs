@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Restaurant Approval | ofos Admin</title>
+    <link rel="stylesheet" href="/styles/build.css" />
+  </head>
+
+  <body class="min-h-screen bg-orange-50">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-white border-r border-orange-100 shadow-md">
+        <div class="p-6">
+          <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
+        </div>
+
+        <nav class="px-4 space-y-2">
+          <a
+            href="/admin/dashboard"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            Dashboard
+          </a>
+
+          <a
+            href="/admin/users"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            User Management
+          </a>
+
+          <a
+            href="/admin/restaurants"
+            class="block px-4 py-2 rounded-xl bg-orange-100 text-orange-600 font-semibold"
+          >
+            Restaurants
+          </a>
+
+          <a
+            href="/admin/orders"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            Orders
+          </a>
+
+          <a
+            href="/admin/config"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            System Config
+          </a>
+
+          <a
+            href="/admin/audit-logs"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            Audit Logs
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 p-8">
+        <!-- Header -->
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-800">Restaurant Approvals</h2>
+
+          <p class="text-gray-600 mt-1">
+            Review and manage restaurant registration requests
+          </p>
+        </div>
+
+        <!-- API Message -->
+        <div
+          id="message"
+          class="hidden mb-5 px-4 py-3 rounded-xl text-sm"
+        ></div>
+
+        <!-- Restaurant Grid -->
+        <div
+          id="restaurantContainer"
+          class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+        >
+          <!-- Loading -->
+          <div class="bg-white rounded-2xl shadow border border-orange-100 p-6">
+            Loading pending restaurants...
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div
+      id="confirmModal"
+      class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4"
+    >
+      <div class="bg-white rounded-3xl w-full max-w-md p-6">
+        <h3 class="text-xl font-bold text-gray-800">Confirm Action</h3>
+
+        <p class="text-gray-600 mt-3">
+          Are you sure you want to update this restaurant status?
+        </p>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button onclick="closeModal()" class="px-4 py-2 border rounded-xl">
+            Cancel
+          </button>
+
+          <button
+            id="confirmBtn"
+            class="px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let selectedRestaurantId = null;
+      let selectedStatus = null;
+
+      const message = document.getElementById('message');
+
+      /*
+  Fetch Pending Restaurants
+*/
+      async function fetchRestaurants() {
+        const container = document.getElementById('restaurantContainer');
+
+        try {
+          const response = await fetch('/admin/restaurants/pending');
+
+          const restaurants = await response.json();
+
+          if (!restaurants.length) {
+            container.innerHTML = `
+        <div
+          class="bg-white rounded-2xl border border-orange-100 p-6">
+          No pending restaurants found
+        </div>
+      `;
+
+            return;
+          }
+
+          container.innerHTML = restaurants
+            .map(
+              (restaurant) => `
+
+        <div
+          class="bg-white rounded-2xl shadow border border-orange-100 p-6">
+
+          <h3 class="text-xl font-bold text-gray-800">
+            ${restaurant.name}
+          </h3>
+
+
+          <div class="mt-4 space-y-2 text-gray-600">
+
+            <p>
+              <strong>Owner:</strong>
+              ${restaurant.ownerName}
+            </p>
+
+
+            <p>
+              <strong>Email:</strong>
+              ${restaurant.email}
+            </p>
+
+
+            <p>
+              <strong>Phone:</strong>
+              ${restaurant.phone}
+            </p>
+
+
+            <p>
+              <strong>Address:</strong>
+              ${restaurant.address}
+            </p>
+
+
+            <p>
+              <strong>Cuisine:</strong>
+              ${restaurant.cuisine}
+            </p>
+
+          </div>
+
+
+          <div class="mt-6 flex gap-2">
+
+            <button
+              onclick="openModal('${restaurant.id}','approved')"
+              class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl">
+
+              Approve
+
+            </button>
+
+
+            <button
+              onclick="openModal('${restaurant.id}','rejected')"
+              class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl">
+
+              Reject
+
+            </button>
+
+
+            <button
+              onclick="openModal('${restaurant.id}','suspended')"
+              class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-xl">
+
+              Suspend
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `
+            )
+            .join('');
+        } catch (error) {
+          container.innerHTML = `
+      <div
+        class="bg-red-50 text-red-600 border border-red-200 rounded-xl p-4">
+
+        Failed to load restaurants
+
+      </div>
+    `;
+        }
+      }
+
+      /*
+  Open Confirmation Modal
+*/
+      function openModal(id, status) {
+        selectedRestaurantId = id;
+        selectedStatus = status;
+
+        document.getElementById('confirmModal').classList.remove('hidden');
+      }
+
+      /*
+  Close Modal
+*/
+      function closeModal() {
+        document.getElementById('confirmModal').classList.add('hidden');
+      }
+
+      /*
+  Update Restaurant Status
+*/
+      document
+        .getElementById('confirmBtn')
+        .addEventListener('click', async function () {
+          const button = this;
+
+          button.disabled = true;
+          button.textContent = 'Updating...';
+
+          try {
+            const response = await fetch(
+              `/admin/restaurants/${selectedRestaurantId}/status`,
+              {
+                method: 'PATCH',
+
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+
+                body: JSON.stringify({
+                  status: selectedStatus,
+                }),
+              }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              showMessage(data.message || 'Failed to update restaurant', false);
+
+              return;
+            }
+
+            showMessage(
+              data.message || 'Restaurant updated successfully',
+              true
+            );
+
+            closeModal();
+
+            fetchRestaurants();
+          } catch (error) {
+            showMessage('Something went wrong. Please try again.', false);
+          } finally {
+            button.disabled = false;
+            button.textContent = 'Confirm';
+          }
+        });
+
+      /*
+  Success / Error Message
+*/
+      function showMessage(text, success) {
+        message.classList.remove('hidden');
+
+        message.className = `mb-5 px-4 py-3 rounded-xl text-sm border ${
+          success
+            ? 'bg-green-50 text-green-600 border-green-200'
+            : 'bg-red-50 text-red-600 border-red-200'
+        }`;
+
+        message.textContent = text;
+      }
+
+      /*
+  Initial Load
+*/
+      fetchRestaurants();
+    </script>
+  </body>
+</html>

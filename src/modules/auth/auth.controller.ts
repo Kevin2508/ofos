@@ -50,7 +50,7 @@ const login = catchAsync(
       path: '/',
     });
 
-    const accessTokenLifeMs = ms(data.tokens.expiresIn);
+    const accessTokenLifeMs = ms(data.tokens.expiresIn);                                             
 
     res.cookie('accessToken', data.tokens.accessToken, {
       httpOnly: true,

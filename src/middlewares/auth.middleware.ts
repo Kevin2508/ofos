@@ -23,11 +23,11 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     }
 
     const decoded = jwt.verify(token, secret);
-
     req.user = decoded as any;
     // console.log('Authenticated user:', req.user);
 
     next();
+
   } catch (err) {
     if (err instanceof Error) {
       if (err.name === 'TokenExpiredError') {
@@ -42,7 +42,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     throw new Error('Not authenticated.');
   }
 };
-
+ 
 const authorize = (requiredRole: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !req.user.roles) {
@@ -68,7 +68,7 @@ const authorize = (requiredRole: string) => {
       res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
       return;
     }
-
+                       
     next();
   };
 };

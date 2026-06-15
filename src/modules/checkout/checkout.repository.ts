@@ -1,8 +1,5 @@
-// src/modules/checkout/checkout.repository.ts
-
 import { prisma } from '../../config/prisma.ts';
 
-// Create checkout session
 async function createCheckoutSession(
   cartId: bigint,
   userId: bigint,
@@ -15,7 +12,7 @@ async function createCheckoutSession(
   }
 ) {
   const expiresAt = new Date();
-  expiresAt.setHours(expiresAt.getHours() + 1); // 1 hour expiry
+  expiresAt.setHours(expiresAt.getHours() + 1); 
 
   return prisma.checkoutSession.create({
     data: {
@@ -47,7 +44,7 @@ async function createCheckoutSession(
   });
 }
 
-// Get checkout session
+
 async function getCheckoutSession(sessionId: bigint, userId: bigint) {
   return prisma.checkoutSession.findFirst({
     where: {
@@ -74,7 +71,6 @@ async function getCheckoutSession(sessionId: bigint, userId: bigint) {
   });
 }
 
-// Update checkout session
 async function updateCheckoutSession(
   sessionId: bigint,
   data: {
@@ -88,7 +84,6 @@ async function updateCheckoutSession(
   });
 }
 
-// Create order from checkout session
 async function createOrder(
   userId: bigint,
   sessionId: bigint,
@@ -131,7 +126,6 @@ async function createOrder(
   });
 }
 
-// Create order items from cart items
 async function createOrderItems(
   orderId: bigint,
   cartId: bigint
@@ -157,13 +151,12 @@ async function createOrderItems(
       },
     });
 
-    // Create order item modifiers
     for (const modifier of item.modifiers) {
       await prisma.orderItemModifier.create({
         data: {
           orderItemId: orderItem.id,
-          modifierName: 'Unknown', // You might need to fetch from modifier group
-          optionName: '', // Fetch from modifierOption
+          modifierName: 'Unknown',
+          optionName: '', 
           additionalPrice: modifier.additionalPrice,
         },
       });
@@ -171,7 +164,6 @@ async function createOrderItems(
   }
 }
 
-// Create order address
 async function createOrderAddress(
   orderId: bigint,
   addressId: bigint
@@ -199,7 +191,6 @@ async function createOrderAddress(
   });
 }
 
-// Create payment record
 async function createPayment(
   orderId: bigint,
   data: {
@@ -218,7 +209,6 @@ async function createPayment(
   });
 }
 
-// Update cart status
 async function updateCartStatus(cartId: bigint, status: string) {
   return prisma.cart.update({
     where: { id: cartId },
@@ -226,7 +216,6 @@ async function updateCartStatus(cartId: bigint, status: string) {
   });
 }
 
-// Get cart with branch info
 async function getCartWithBranch(cartId: bigint) {
   return prisma.cart.findUnique({
     where: { id: cartId },

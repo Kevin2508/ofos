@@ -19,7 +19,6 @@ import {
   uploadLogoService,
 } from './management.service.ts';
 
-// POST /restaurants
 export const registerRestaurant = catchAsync(
   async (req: Request<{}, {}, createRestaurantDto>, res: Response) => {
     const ownerUserId = BigInt((req as any).user.id);
@@ -29,7 +28,6 @@ export const registerRestaurant = catchAsync(
   }
 );
 
-// GET /restaurants/mine
 export const getMyRestaurants = catchAsync(async (req: Request, res: Response) => {
   const ownerUserId = BigInt((req as any).user.id);
   const data = await getMyRestaurantsService(ownerUserId);
@@ -37,7 +35,6 @@ export const getMyRestaurants = catchAsync(async (req: Request, res: Response) =
   res.status(200).json({ status: 'success', ...data });
 });
 
-// PATCH /restaurants/:id
 export const updateRestaurant = catchAsync(
   async (
     req: Request<restaurantParamsDto, {}, updateRestaurantDto>,
@@ -51,7 +48,6 @@ export const updateRestaurant = catchAsync(
   }
 );
 
-// POST /restaurants/:id/logo
 export const uploadLogo = catchAsync(
   async (req: Request<restaurantParamsDto>, res: Response) => {
     const ownerUserId = BigInt((req as any).user.id);
@@ -69,7 +65,6 @@ export const uploadLogo = catchAsync(
   }
 );
 
-// POST /restaurants/:id/cover
 export const uploadCover = catchAsync(
   async (req: Request<restaurantParamsDto>, res: Response) => {
     const ownerUserId = BigInt((req as any).user.id);
@@ -87,7 +82,6 @@ export const uploadCover = catchAsync(
   }
 );
 
-// POST /restaurants/:id/documents
 export const uploadDocument = catchAsync(
   async (
     req: Request<restaurantParamsDto, {}, uploadDocumentDto>,
@@ -113,7 +107,6 @@ export const uploadDocument = catchAsync(
   }
 );
 
-// PATCH /restaurants/:id/pause
 export const pauseRestaurant = catchAsync(
   async (
     req: Request<restaurantParamsDto, {}, pauseRestaurantDto>,
@@ -127,7 +120,6 @@ export const pauseRestaurant = catchAsync(
   }
 );
 
-// PATCH /restaurants/:id/resume
 export const resumeRestaurant = catchAsync(
   async (req: Request<restaurantParamsDto>, res: Response) => {
     const ownerUserId = BigInt((req as any).user.id);
@@ -138,7 +130,6 @@ export const resumeRestaurant = catchAsync(
   }
 );
 
-// DELETE /restaurants/:id  — admin only
 export const deactivateRestaurant = catchAsync(
   async (req: Request<restaurantParamsDto>, res: Response) => {
     const id = BigInt(req.params.id);

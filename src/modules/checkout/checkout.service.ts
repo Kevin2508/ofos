@@ -20,16 +20,15 @@ const getCheckoutCacheKey = (sessionId: bigint) => {
   return `checkout:${sessionId}`;
 };
 
-const CHECKOUT_CACHE_TTL = 900; // 15 minutes
+const CHECKOUT_CACHE_TTL = 900; 
 
-// Haversine formula: Calculate distance between two coordinates
 function calculateHaversineDistance(
   lat1: number,
   lon1: number,
   lat2: number,
   lon2: number
 ): number {
-  const R = 6371; // Earth radius in km
+  const R = 6371; 
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -42,11 +41,10 @@ function calculateHaversineDistance(
   return R * c;
 }
 
-// Calculate ETA: distance / speed + buffer
 function calculateEstimateFromDistance(distanceKm: number): number {
-  const speedKmPerHour = 30; // Average delivery speed
+  const speedKmPerHour = 30; 
   const travelTimeMinutes = (distanceKm / speedKmPerHour) * 60;
-  const bufferMinutes = 5; // Add 5 minute buffer
+  const bufferMinutes = 5; 
   return Math.ceil(travelTimeMinutes + bufferMinutes);
 }
 
@@ -61,7 +59,6 @@ async function estimateDeliveryService(
   const session = await getCheckoutSession(sessionId, userId);
   if (!session) throw new Error('Checkout session not found');
 
-  // Check cache first
   const cacheKey = `delivery:estimate:${sessionId}`;
   const cached = await redisService.get(cacheKey);
   if (cached) {
@@ -73,10 +70,8 @@ async function estimateDeliveryService(
   let estimationMethod = 'unknown';
 
   try {
-    // Method 1: Try Redis GEODIST (fastest if data exists)
     const redisGeoKey = 'delivery:locations';
     
-    // Add both locations to same Redis key
     await redisService.geoAdd(
       redisGeoKey,
       restaurantLongitude,
@@ -108,7 +103,6 @@ async function estimateDeliveryService(
       throw new Error('Redis GEO returned no result');
     }
   } catch (error) {
-    // Fallback to Method 2: Haversine formula
     console.warn(`Redis GEO failed, falling back to Haversine: ${error}`);
     distanceKm = calculateHaversineDistance(
       restaurantLatitude,
@@ -122,10 +116,8 @@ async function estimateDeliveryService(
     );
   }
 
-  // Calculate ETA from distance
   const estimatedDeliveryMinutes = calculateEstimateFromDistance(distanceKm);
 
-  // Update session in database
   await updateCheckoutSession(sessionId, {
     estimatedDeliveryMinutes,
   });
@@ -137,7 +129,6 @@ async function estimateDeliveryService(
     method: estimationMethod,
   };
 
-  // Cache the result for 30 minutes
   await redisService.set(cacheKey, result, 1800);
 
   return result;
@@ -153,7 +144,6 @@ async function initiateCheckoutService(
     couponId?: bigint;
   }
 ) {
-  // Get active cart
   const cart = await getActiveCartByUser(userId);
   if (!cart) throw new Error('No active cart found');
 
@@ -161,7 +151,6 @@ async function initiateCheckoutService(
     throw new Error('Cart is empty');
   }
 
-  // Create checkout session
   const session = await createCheckoutSession(cart.id, userId, data);
 
   const checkoutDTO: CheckoutSessionDTO = {
@@ -178,7 +167,6 @@ async function initiateCheckoutService(
     createdAt: session.createdAt,
   };
 
-  // Cache session
   const cacheKey = getCheckoutCacheKey(session.id);
   await redisService.set(cacheKey, checkoutDTO, CHECKOUT_CACHE_TTL);
 
@@ -191,18 +179,15 @@ async function getCheckoutSessionService(
 ): Promise<CheckoutSessionDTO> {
   const cacheKey = getCheckoutCacheKey(sessionId);
 
-  // Try cache first
   const cached = await redisService.get<CheckoutSessionDTO>(cacheKey);
   if (cached) {
     console.log(`[Cache HIT] Checkout session: ${cacheKey}`);
     return cached;
   }
 
-  // Get from database
   const session = await getCheckoutSession(sessionId, userId);
   if (!session) throw new Error('Checkout session not found');
 
-  // Check expiry
   if (new Date() > session.expiresAt) {
     throw new Error('Checkout session has expired');
   }
@@ -221,7 +206,6 @@ async function getCheckoutSessionService(
     createdAt: session.createdAt,
   };
 
-  // Cache it
   await redisService.set(cacheKey, checkoutDTO, CHECKOUT_CACHE_TTL);
 
   return checkoutDTO;
@@ -238,26 +222,21 @@ async function placeOrderService(
   sessionId: bigint,
   paymentProvider: string
 ): Promise<OrderResponseDTO> {
-  // Get checkout session
   const session = await getCheckoutSession(sessionId, userId);
   if (!session) throw new Error('Checkout session not found');
 
-  // Check expiry
   if (new Date() > session.expiresAt) {
     throw new Error('Checkout session has expired');
   }
 
-  // Get cart with branch info
   const cartWithBranch = await getCartWithBranch(session.cartId);
   if (!cartWithBranch) throw new Error('Cart not found');
 
-  // Calculate final totals
   const breakdown = await calculateCartTotals(
     session.cartId,
     session.couponId ? Number(cartWithBranch.priceBreakdowns[0]?.discountAmount || 0) : 0
   );
 
-  // Create order
   const orderNumber = generateOrderNumber();
   const order = await createOrder(userId, sessionId, session.cartId, {
     orderNumber,
@@ -271,22 +250,17 @@ async function placeOrderService(
     estimatedDeliveryMinutes: session.estimatedDeliveryMinutes,
   });
 
-  // Create order items from cart
   await createOrderItems(order.id, session.cartId);
 
-  // Create order address
   await createOrderAddress(order.id, session.addressId);
 
-  // Create payment record
   await createPayment(order.id, {
     paymentProvider,
     amount: Number(breakdown.totalAmount),
   });
 
-  // Update cart status
   await updateCartStatus(session.cartId, 'CHECKED_OUT');
 
-  // Invalidate checkout cache
   const cacheKey = getCheckoutCacheKey(sessionId);
   await redisService.del(cacheKey);
 

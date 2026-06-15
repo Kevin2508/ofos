@@ -1,4 +1,3 @@
-// src/modules/checkout/checkout.dto.ts
 
 interface InitiateCheckoutDTO {
   addressId: bigint;

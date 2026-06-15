@@ -104,12 +104,6 @@
           </div>
         </div>
 
-        <!-- Message -->
-        <div
-          id="message"
-          class="hidden mb-5 px-4 py-3 rounded-xl text-sm"
-        ></div>
-
         <!-- Table -->
         <div
           class="bg-white rounded-2xl shadow border border-orange-100 overflow-x-auto"
@@ -139,7 +133,6 @@
 
     <script>
       const logsTable = document.getElementById('logsTable');
-      const message = document.getElementById('message');
 
       /*
   Fetch Logs
@@ -211,9 +204,10 @@
             )
             .join('');
         } catch (err) {
+          showToast('Failed to load audit logs', 'error');
           logsTable.innerHTML = `
       <tr>
-        <td colspan="5" class="p-6 text-center text-red-600">
+        <td colspan="5" class="p-6 text-center text-gray-500">
           Failed to load logs
         </td>
       </tr>
@@ -226,5 +220,6 @@
 */
       fetchLogs();
     </script>
+    <%- include('../partials/toast') %>
   </body>
 </html>

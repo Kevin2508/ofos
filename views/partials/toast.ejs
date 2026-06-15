@@ -1,0 +1,92 @@
+<div
+  id="toastContainer"
+  class="fixed top-5 right-5 z-100 flex flex-col gap-3 pointer-events-none"
+></div>
+
+<style>
+  @keyframes toastSlideIn {
+    from {
+      transform: translateX(120%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes toastSlideOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(120%);
+      opacity: 0;
+    }
+  }
+  .toast-in {
+    animation: toastSlideIn 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+  }
+  .toast-out {
+    animation: toastSlideOut 0.3s ease-in forwards;
+  }
+</style>
+
+<script>
+  function showToast(message, type, duration) {
+    if (!message) return;
+    duration = duration || 4000;
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const config = {
+      success: {
+        icon: '✓',
+        bg: 'bg-green-50 border-green-300 text-green-700',
+        iconBg: 'bg-green-500',
+      },
+      error: {
+        icon: '✕',
+        bg: 'bg-red-50 border-red-200 text-red-600',
+        iconBg: 'bg-red-500',
+      },
+      warning: {
+        icon: '!',
+        bg: 'bg-yellow-50 border-yellow-300 text-yellow-700',
+        iconBg: 'bg-yellow-500',
+      },
+      info: {
+        icon: 'i',
+        bg: 'bg-blue-50 border-blue-300 text-blue-700',
+        iconBg: 'bg-blue-500',
+      },
+    };
+
+    const t = config[type] || config.info;
+
+    const el = document.createElement('div');
+    el.className =
+      'pointer-events-auto flex items-start gap-3 px-4 py-3.5 rounded-2xl border shadow-xl toast-in max-w-sm ' +
+      t.bg;
+    el.innerHTML =
+      '<span class="flex-shrink-0 w-7 h-7 rounded-full ' +
+      t.iconBg +
+      ' text-white flex items-center justify-center text-sm font-bold leading-none">' +
+      t.icon +
+      '</span>' +
+      '<p class="text-sm font-medium flex-1 pt-0.5">' +
+      message +
+      '</p>' +
+      '<button onclick="this.parentElement.remove()" class="flex-shrink-0 opacity-50 hover:opacity-100 text-lg leading-none">&times;</button>';
+
+    container.appendChild(el);
+
+    setTimeout(function () {
+      el.classList.remove('toast-in');
+      el.classList.add('toast-out');
+      setTimeout(function () {
+        if (el.parentElement) el.remove();
+      }, 300);
+    }, duration);
+  }
+</script>

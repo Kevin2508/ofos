@@ -71,12 +71,6 @@
           </p>
         </div>
 
-        <!-- API Message -->
-        <div
-          id="message"
-          class="hidden mb-5 px-4 py-3 rounded-xl text-sm"
-        ></div>
-
         <!-- Restaurant Grid -->
         <div
           id="restaurantContainer"
@@ -120,8 +114,6 @@
     <script>
       let selectedRestaurantId = null;
       let selectedStatus = null;
-
-      const message = document.getElementById('message');
 
       /*
   Fetch Pending Restaurants
@@ -285,14 +277,14 @@
             const data = await response.json();
 
             if (!response.ok) {
-              showMessage(data.message || 'Failed to update restaurant', false);
+              showToast(data.message || 'Failed to update restaurant', 'error');
 
               return;
             }
 
-            showMessage(
+            showToast(
               data.message || 'Restaurant updated successfully',
-              true
+              'success'
             );
 
             closeModal();
@@ -307,24 +299,10 @@
         });
 
       /*
-  Success / Error Message
-*/
-      function showMessage(text, success) {
-        message.classList.remove('hidden');
-
-        message.className = `mb-5 px-4 py-3 rounded-xl text-sm border ${
-          success
-            ? 'bg-green-50 text-green-600 border-green-200'
-            : 'bg-red-50 text-red-600 border-red-200'
-        }`;
-
-        message.textContent = text;
-      }
-
-      /*
   Initial Load
 */
       fetchRestaurants();
     </script>
+    <%- include('../partials/toast') %>
   </body>
 </html>

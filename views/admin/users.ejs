@@ -192,7 +192,7 @@
 
           renderUsers(users);
         } catch (error) {
-          console.log(error);
+          showToast('Failed to load users', 'error');
         }
       }
 
@@ -302,11 +302,17 @@
             }),
           });
 
-          if (response.ok) {
-            closeModal();
+          const data = await response.json();
 
+          if (response.ok) {
+            showToast('User updated successfully', 'success');
+            closeModal();
             fetchUsers();
+          } else {
+            showToast(data.message || 'Failed to update user', 'error');
           }
+        } catch (err) {
+          showToast('Something went wrong. Please try again.', 'error');
         } finally {
           btn.disabled = false;
           btn.textContent = 'Update User';
@@ -316,5 +322,6 @@
       // Initial Load
       fetchUsers();
     </script>
+    <%- include('../partials/toast') %>
   </body>
 </html>

@@ -109,12 +109,6 @@
           </div>
         </div>
 
-        <!-- API Message -->
-        <div
-          id="message"
-          class="hidden mb-5 px-4 py-3 rounded-xl text-sm"
-        ></div>
-
         <!-- Orders Table -->
         <div
           class="bg-white rounded-2xl shadow border border-orange-100 overflow-x-auto"
@@ -145,7 +139,6 @@
 
     <script>
       const ordersTable = document.getElementById('ordersTable');
-      const message = document.getElementById('message');
 
       async function fetchOrders() {
         ordersTable.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-gray-500">Loading orders...</td></tr>`;
@@ -184,12 +177,14 @@
             )
             .join('');
         } catch (err) {
-          ordersTable.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-red-600">Failed to load orders</td></tr>`;
+          showToast('Failed to load orders', 'error');
+          ordersTable.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">Failed to load orders</td></tr>`;
         }
       }
 
       // Initial load
       fetchOrders();
     </script>
+    <%- include('../partials/toast') %>
   </body>
 </html>

@@ -45,14 +45,12 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(authPageRouter);
 app.use(defaultPageRouter);
 
+app.use(customerPageRouter);
 app.use(adminPageRouter);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 
-app.use(customerPageRouter);
-app.use('/restaurants', restaurantRouter);
 app.use('/customer', customerRouter);
-app.use('/restaurants/:restaurantId/branches', branchRouter);
 app.use('/modifier', modifierRouter);
 
 app.use('/orders', orderRoutes);
@@ -63,8 +61,6 @@ app.use('/checkout', checkoutRouter);
 
 app.use('/restaurant', restrouter);
 app.use('/restaurant-staff', restaurantStaffRouter);
-app.use(menuCategoryRouter);
-app.use(menuItemRouter);
 app.use('/restaurant-management', restaurantRouter);
 
 app.use('/fleet-manager', fleetManagerRouter);
@@ -72,7 +68,7 @@ app.use('/fleet-manager', fleetManagerRouter);
 app.use(menuCategoryRouter);
 app.use(menuItemRouter);
 
-app.use(branchRouter);
+app.use('/restaurants/:restaurantId/branches', branchRouter);
 
 // app.use(errorMiddleware);
 

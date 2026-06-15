@@ -69,12 +69,6 @@
           <p class="text-gray-600 mt-1">Manage platform-wide settings</p>
         </div>
 
-        <!-- Message -->
-        <div
-          id="message"
-          class="hidden mb-5 px-4 py-3 rounded-xl text-sm"
-        ></div>
-
         <!-- Config Container -->
         <div
           id="configContainer"
@@ -158,10 +152,6 @@
 
         const value = input.value;
 
-        const message = document.getElementById('message');
-
-        message.classList.add('hidden');
-
         try {
           const res = await fetch('/admin/config/update', {
             method: 'PATCH',
@@ -179,31 +169,14 @@
           const data = await res.json();
 
           if (!res.ok) {
-            showMessage(data.message || 'Update failed', false);
+            showToast(data.message || 'Update failed', 'error');
             return;
           }
 
-          showMessage('Configuration updated successfully', true);
+          showToast('Configuration updated successfully', 'success');
         } catch (err) {
-          showMessage('Something went wrong', false);
+          showToast('Something went wrong', 'error');
         }
-      }
-
-      /*
-  Message UI
-*/
-      function showMessage(text, success) {
-        const message = document.getElementById('message');
-
-        message.classList.remove('hidden');
-
-        message.className = `mb-5 px-4 py-3 rounded-xl text-sm border ${
-          success
-            ? 'bg-green-50 text-green-600 border-green-200'
-            : 'bg-red-50 text-red-600 border-red-200'
-        }`;
-
-        message.textContent = text;
       }
 
       /*
@@ -211,5 +184,6 @@
 */
       fetchConfig();
     </script>
+    <%- include('../partials/toast') %>
   </body>
 </html>

@@ -164,7 +164,7 @@
           document.getElementById('revenueToday').innerText =
             '₹' + (data.revenueToday || 0);
         } catch (err) {
-          console.error('Failed to fetch dashboard stats', err);
+          showToast('Failed to load dashboard stats', 'error');
         }
       }
 
@@ -176,5 +176,6 @@
         window.location.href = '/loginPage';
       });
     </script>
+    <%- include('../partials/toast') %>
   </body>
 </html>

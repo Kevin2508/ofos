@@ -3,119 +3,210 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | ofos</title>
+    <title>Login | ofos - Food Ordering System</title>
     <link rel="stylesheet" href="/styles/build.css" />
   </head>
-  <body class="min-h-screen bg-orange-50">
-    <div class="min-h-screen flex items-center justify-center px-4 py-10">
-      <div class="w-full max-w-md">
-        <!-- Logo / Heading -->
-        <div class="text-center mb-8">
-          <h1 class="text-5xl font-extrabold text-orange-500">ofos</h1>
-          <p class="text-gray-600 mt-2">Login and order your favorite food</p>
-        </div>
+  <body
+    class="min-h-screen bg-linear-to-br from-orange-50 via-rose-50 to-amber-50"
+  >
+    <!-- Floating food decorations -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden select-none">
+      <span class="absolute top-16 left-[15%] text-5xl opacity-15">🍕</span>
+      <span class="absolute top-32 right-[20%] text-4xl opacity-20">🍔</span>
+      <span class="absolute bottom-24 left-[25%] text-6xl opacity-10">🌮</span>
+      <span class="absolute top-1/3 right-[15%] text-3xl opacity-15">🥗</span>
+      <span class="absolute bottom-40 right-[30%] text-5xl opacity-10">🍜</span>
+      <span class="absolute top-3/4 left-[10%] text-4xl opacity-15">🍣</span>
+    </div>
 
-        <!-- Card -->
+    <div
+      class="min-h-screen flex items-center justify-center px-4 py-10 relative"
+    >
+      <div class="w-full max-w-5xl">
         <div
-          class="bg-white rounded-3xl shadow-xl p-8 border border-orange-100"
+          class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-orange-100/60"
         >
-          <h2 class="text-2xl font-bold text-gray-800 mb-6">Welcome Back 👋</h2>
-
-          <form id="loginForm" class="space-y-5">
-            <!-- Email / Phone -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Email or Phone Number
-              </label>
-
-              <input
-                type="text"
-                id="userIdentifier"
-                name="userIdentifier"
-                placeholder="Enter email or 10 digit phone"
-                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              />
-
-              <p id="userIdentifierError" class="text-red-500 text-sm mt-1"></p>
-            </div>
-
-            <!-- Password -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Password
-              </label>
+          <div class="lg:flex">
+            <!-- Left Brand Panel -->
+            <div
+              class="lg:w-5/12 bg-linear-to-br from-orange-500 via-orange-600 to-rose-600 p-8 lg:p-10 text-white flex flex-col justify-between relative overflow-hidden min-h-70 lg:min-h-0"
+            >
+              <div
+                class="absolute -top-24 -right-24 w-72 h-72 bg-white/5 rounded-full"
+              ></div>
+              <div
+                class="absolute -bottom-20 -left-20 w-56 h-56 bg-white/5 rounded-full"
+              ></div>
+              <div
+                class="absolute top-1/2 -translate-y-1/2 right-0 w-32 h-32 bg-white/3 rounded-full"
+              ></div>
 
               <div class="relative">
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Enter password"
-                  class="w-full px-4 py-3 pr-16 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                />
-
-                <button
-                  type="button"
-                  id="togglePassword"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 font-medium"
-                >
-                  Show
-                </button>
+                <div class="flex items-center gap-3 mb-5">
+                  <span class="text-3xl">🍽️</span>
+                  <h1 class="text-3xl font-extrabold tracking-tight">ofos</h1>
+                </div>
+                <p class="text-orange-100 text-base leading-relaxed mb-7">
+                  Your favorite food, delivered
+                  <span class="font-semibold text-white">fresh & fast</span> to
+                  your doorstep.
+                </p>
+                <div class="space-y-4">
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg"
+                      >🚀</span
+                    >
+                    <div>
+                      <p class="font-semibold text-sm">Fast Delivery</p>
+                      <p class="text-xs text-orange-100">30 min or it's free</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg"
+                      >🍳</span
+                    >
+                    <div>
+                      <p class="font-semibold text-sm">100+ Restaurants</p>
+                      <p class="text-xs text-orange-100">
+                        From local to global cuisine
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg"
+                      >⭐</span
+                    >
+                    <div>
+                      <p class="font-semibold text-sm">Best Prices</p>
+                      <p class="text-xs text-orange-100">
+                        Exclusive deals & offers
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <p id="passwordError" class="text-red-500 text-sm mt-1"></p>
+              <div class="relative mt-6 pt-5 border-t border-white/20">
+                <div
+                  class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-orange-100"
+                >
+                  <span>🍕 Pizza</span>
+                  <span>🍔 Burger</span>
+                  <span>🌮 Taco</span>
+                  <span>🥗 Salad</span>
+                  <span>🍜 Noodles</span>
+                </div>
+              </div>
             </div>
 
-            <!-- Remember + Forgot -->
-            <div class="flex items-center justify-between">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  id="rememberMe"
-                  name="rememberMe"
-                  value="true"
-                  class="accent-orange-500"
-                />
+            <!-- Right Form Panel -->
+            <div class="lg:w-7/12 p-8 lg:p-12">
+              <div class="max-w-sm mx-auto">
+                <div class="text-center lg:text-left mb-8">
+                  <h2 class="text-2xl font-bold text-gray-800">
+                    Welcome Back! 👋
+                  </h2>
+                  <p class="text-gray-400 mt-1 text-sm">
+                    Log in to continue ordering your favorites
+                  </p>
+                </div>
 
-                <span class="text-sm text-gray-700"> Remember Me </span>
-              </label>
+                <form id="loginForm" class="space-y-5">
+                  <div>
+                    <label
+                      class="block text-sm font-semibold text-gray-700 mb-1.5"
+                    >
+                      Email or Phone Number
+                    </label>
+                    <input
+                      type="text"
+                      id="userIdentifier"
+                      name="userIdentifier"
+                      placeholder="Enter email or 10 digit phone"
+                      class="w-full px-4 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
+                    />
+                    <p
+                      id="userIdentifierError"
+                      class="text-red-500 text-sm mt-1.5"
+                    ></p>
+                  </div>
 
-              <a
-                href="/forgotPasswordPage"
-                class="text-sm font-medium text-orange-500 hover:text-orange-600"
-              >
-                Forgot Password?
-              </a>
+                  <div>
+                    <label
+                      class="block text-sm font-semibold text-gray-700 mb-1.5"
+                    >
+                      Password
+                    </label>
+                    <div class="relative">
+                      <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter password"
+                        class="w-full px-4 py-3.5 pr-16 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
+                      />
+                      <button
+                        type="button"
+                        id="togglePassword"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 font-semibold text-sm hover:text-orange-600 transition"
+                      >
+                        Show
+                      </button>
+                    </div>
+                    <p
+                      id="passwordError"
+                      class="text-red-500 text-sm mt-1.5"
+                    ></p>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        id="rememberMe"
+                        name="rememberMe"
+                        value="true"
+                        class="w-4 h-4 accent-orange-500 rounded border-gray-300"
+                      />
+                      <span
+                        class="text-sm text-gray-500 group-hover:text-gray-700 transition"
+                      >
+                        Remember Me
+                      </span>
+                    </label>
+                    <a
+                      href="/forgotPasswordPage"
+                      class="text-sm font-medium text-orange-500 hover:text-orange-600 transition"
+                    >
+                      Forgot Password?
+                    </a>
+                  </div>
+
+                  <button
+                    type="submit"
+                    id="loginBtn"
+                    class="w-full bg-linear-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white font-semibold py-3.5 rounded-2xl transition duration-200 shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 cursor-pointer"
+                  >
+                    Login
+                  </button>
+                </form>
+
+                <div class="mt-8 text-center">
+                  <p class="text-gray-400 text-sm">
+                    Don't have an account?
+                    <a
+                      href="/registerPage"
+                      class="font-semibold text-orange-500 hover:text-orange-600 transition"
+                    >
+                      Create Account
+                    </a>
+                  </p>
+                </div>
+              </div>
             </div>
-
-            <!-- API Error -->
-            <div
-              id="apiError"
-              class="hidden bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm"
-            ></div>
-
-            <!-- Submit -->
-            <button
-              type="submit"
-              id="loginBtn"
-              class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition duration-200"
-            >
-              Login
-            </button>
-          </form>
-
-          <!-- Register -->
-          <div class="mt-6 text-center">
-            <p class="text-gray-600">
-              Don't have an account?
-
-              <a
-                href="/registerPage"
-                class="font-semibold text-orange-500 hover:text-orange-600"
-              >
-                Register
-              </a>
-            </p>
           </div>
         </div>
       </div>
@@ -133,7 +224,6 @@
         'userIdentifierError'
       );
       const passwordError = document.getElementById('passwordError');
-      const apiError = document.getElementById('apiError');
 
       const togglePassword = document.getElementById('togglePassword');
 
@@ -196,9 +286,6 @@
       function clearErrors() {
         userIdentifierError.textContent = '';
         passwordError.textContent = '';
-
-        apiError.classList.add('hidden');
-        apiError.textContent = '';
       }
 
       //  Submit
@@ -247,23 +334,20 @@
           const data = await response.json();
 
           if (!response.ok) {
-            apiError.classList.remove('hidden');
-
-            apiError.textContent = data.message || data.error || 'Login failed';
-
+            showToast(data.message || data.error || 'Login failed', 'error');
             return;
           }
 
           // console.log(data.data.user);
           window.location.href = data.redirectUrl || '/';
         } catch (error) {
-          apiError.classList.remove('hidden');
-          apiError.textContent = 'Something went wrong. Please try again.';
+          showToast('Something went wrong. Please try again.', 'error');
         } finally {
           loginBtn.disabled = false;
           loginBtn.textContent = 'Login';
         }
       });
     </script>
+    <%- include('../partials/toast') %>
   </body>
 </html>

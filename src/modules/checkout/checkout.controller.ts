@@ -1,4 +1,3 @@
-// src/modules/checkout/checkout.controller.ts
 
 import { Request, Response } from 'express';
 import { catchAsync } from '../../middlewares/catch.async.ts';

@@ -26,6 +26,7 @@ import checkoutRouter from './modules/checkout/checkout.routes.ts';
 import { customerPageRouter } from './routes/customer.pages.routes.ts';
 import { adminPageRouter } from './routes/admin.pages.routes.ts';
 import restrouter from './modules/restuarant/restaurant.routes.ts';
+import { ownerPageRouter } from './routes/owner.pages.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,7 +51,9 @@ app.use(customerPageRouter);
 app.use(adminPageRouter);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
-
+app.use(ownerPageRouter);
+app.use(customerPageRouter);
+app.use('/restaurants', restaurantRouter);
 app.use('/customer', customerRouter);
 app.use('/modifier', modifierRouter);
 
@@ -69,7 +72,6 @@ app.use('/fleet-manager', fleetManagerRouter);
 app.use(menuCategoryRouter);
 app.use(menuItemRouter);
 
-app.use('/restaurants/:restaurantId/branches', branchRouter);
 
 // app.use(errorMiddleware);
 

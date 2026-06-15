@@ -1,0 +1,71 @@
+<%-
+  include('../partials/header', {
+    pageTitle: 'Register Restaurant',
+    pageSubtitle: 'Set up your restaurant on Quick Bites',
+    activePage: 'restaurant',
+    user: user
+  })
+%>
+
+<div class="breadcrumb">
+  <a href="/restaurant-owner/dashboard">Dashboard</a>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  <span>Register Restaurant</span>
+</div>
+
+<div class="page-header">
+  <div class="title-group">
+    <h2>Register Your Restaurant</h2>
+    <p>Provide your restaurant's basic information to get started</p>
+  </div>
+</div>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert alert-error">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    <%= error %>
+  </div>
+<% } %>
+
+<div class="card" style="max-width:720px;">
+  <div class="card-body">
+    <form action="/restaurant-owner/restaurant" method="POST">
+      <div class="form-group">
+        <label>Restaurant Name <span class="req">*</span></label>
+        <input type="text" name="name" class="form-control" placeholder="e.g. Spice Garden" required>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" class="form-control" rows="4" placeholder="Briefly describe your restaurant, specialties, ambience..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cuisine Tags</label>
+          <input type="text" name="cuisine_tags" class="form-control" placeholder="e.g. North Indian, Chinese, Desserts">
+          <div class="form-hint">Comma-separated tags</div>
+        </div>
+        <div class="form-group">
+          <label>Contact Number <span class="req">*</span></label>
+          <input type="text" name="phone" class="form-control" placeholder="+91 9XXXXXXXXX" required>
+        </div>
+      </div>
+
+      <div class="alert alert-warning" style="margin-top:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        After registration, your restaurant will be in <strong>pending verification</strong> state. You'll need to upload GSTIN, FSSAI and bank proof documents, and add at least one branch.
+      </div>
+
+      <div style="display:flex; gap:12px; margin-top:18px;">
+        <button type="submit" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Register Restaurant
+        </button>
+        <a href="/restaurant-owner/dashboard" class="btn btn-outlined">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -216,4 +216,42 @@
   <%- include('../partials/toast') %>
 </body>
 
+        if (hasError) return;
+
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Logging in...';
+
+        try {
+          const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userIdentifier: identifierValue,
+              password: passwordValue,
+              rememberMe: rememberMe.checked ? 'true' : 'false',
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            showToast(data.message || data.error || 'Login failed', 'error');
+            return;
+          }
+
+
+          console.log(data);
+          // window.location.href = data.redirectUrl || '/';
+        } catch (error) {
+          showToast('Something went wrong. Please try again.', 'error');
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Login';
+        }
+      });
+    </script>
+    <%- include('../partials/toast') %>
+  </body>
 </html>

@@ -24,6 +24,17 @@ async function createPayment(data:{orderId:bigint;
     });
 }
 
+async function findLatestPaymentByOrderId(orderId: number) {
+    return await prisma.payment.findFirst({
+        where: {
+            orderId: BigInt(orderId)
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+}
 export {
-    createPayment
+    createPayment,
+    findLatestPaymentByOrderId
 }

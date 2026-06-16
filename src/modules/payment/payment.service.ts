@@ -1,8 +1,10 @@
 
 import { findOrderById, findPaymentByOrderId } from "../refund/refund.repository.ts";
 import { InitiatePaymentDto } from "./payment.dto.ts";
-import { Decimal } from "@prisma/client/runtime/client";
-import { createPayment } from "./payment.respository.ts";
+// import { Decimal } from "@prisma/client/runtime/client";
+import { createPayment, findLatestPaymentByOrderId } from "./payment.respository.ts";
+
+
 async function inititatePaymentService(payload:InitiatePaymentDto){
 
     const {orderId, paymentProvider} = payload;
@@ -30,22 +32,44 @@ async function inititatePaymentService(payload:InitiatePaymentDto){
         }
     } 
 
-    const existingPayment = await findPaymentByOrderId(orderId);
-
-    if(existingPayment){
+    if(order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED'){
         return{
             status: 'Fail',
-            message: 'Payment Already Initiated For This Order!'
+            message: 'Cannot Initiate Payment For Refunded Order!'
+        }
+    }
+
+    const latestPayment = await findLatestPaymentByOrderId(orderId);
+
+    if(latestPayment && ['INITIATED','AUTHORIZED','CAPTURED'].includes(latestPayment.status)){
+        return{
+            status: 'Fail',
+            message: 'Payment Already Exists For This Order!'
         }
     }
 
     const providerOrderId = `ORD_${Date.now()}`;
 
+    if(paymentProvider === 'COD'){
+
+             const payment = await createPayment({
+             orderId: order.id,
+             paymentProvider: 'COD',
+             providerOrderId: '',
+             amount: order.totalAmount
+         });
+
+         return {
+            message: 'Cash On Delivery Selected.',
+            data: payment
+         }
+    }
+
     const payment = await createPayment({
         orderId: order.id,
         paymentProvider,
         providerOrderId,
-        amount: Decimal(order.totalAmount)
+        amount: order.totalAmount
     });
 
     return {

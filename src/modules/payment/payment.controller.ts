@@ -2,6 +2,7 @@ import { catchAsync } from "../../middlewares/catch.async.ts";
 import { Request, Response } from "express-serve-static-core";
 import { initiatePaymentSchema } from "./payment.validation.ts";
 import { inititatePaymentService } from "./payment.service.ts";
+
 const inititatePayment = catchAsync(
     async(req:Request, res:Response) =>{
 

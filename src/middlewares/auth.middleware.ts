@@ -4,7 +4,11 @@ import jwt from 'jsonwebtoken';
 
 const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.accessToken;
+<<<<<<< HEAD
   //console.log('Access Token from Cookie:', token);
+=======
+
+>>>>>>> 5a07a3a (Refine Auth Module)
   if (!token) {
     throw new Error('Not authenticated. No access token provided.');
   }
@@ -13,7 +17,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
   // if (!token) res.redirect('/not-authenticated');
 
   try {
-    
+
     const secret = process.env.JWT_ACCESS_SECRET as string;
 
     if (!secret) {
@@ -25,7 +29,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     const decoded = jwt.verify(token, secret);
     req.user = decoded as any;
     // console.log('Authenticated user:', req.user);
-    
+
 
     next();
 
@@ -43,7 +47,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     throw new Error('Not authenticated.');
   }
 };
- 
+
 const authorize = (requiredRole: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !req.user.roles) {
@@ -69,7 +73,7 @@ const authorize = (requiredRole: string) => {
       res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
       return;
     }
-                       
+
     next();
   };
 };

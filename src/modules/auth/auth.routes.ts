@@ -16,6 +16,7 @@ import {
   resetPassword,
   sendOtp,
   verigyOtp,
+  getMe,
 } from './auth.controller.ts';
 import {
   forgotPasswordSchema,
@@ -49,6 +50,7 @@ authRouter.post('/send-otp', validate(sendOtpSchema), sendOtp);
 authRouter.post('/verify-otp', validate(verifyOtpSchema), verigyOtp);
 
 authRouter.get('/logout', authenticate, logout);
+authRouter.get('/me', authenticate, getMe);
 
 authRouter.post('/refresh', refresh);
 

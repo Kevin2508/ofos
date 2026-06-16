@@ -26,9 +26,18 @@ import checkoutRouter from './modules/checkout/checkout.routes.ts';
 import { customerPageRouter } from './routes/customer.pages.routes.ts';
 import { adminPageRouter } from './routes/admin.pages.routes.ts';
 import restrouter from './modules/restuarant/restaurant.routes.ts';
+<<<<<<< HEAD
 import { ownerPageRouter } from './routes/owner.pages.routes.ts';
 import couponRouter from './modules/coupon/coupons.routes.ts';
 import cartRouter from './modules/cart/cart.routes.ts';
+=======
+import { deliveryPartnerPageRouter } from './routes/deliveryPartner.pages.routes.ts';
+import { restaurantOwnerPageRouter } from './routes/restaurantOwner.pages.routes.ts';
+import { restaurantStaffPageRouter } from './routes/restaurantStaff.pages.routes.ts';
+import { fleetManagerPageRouter } from './routes/fleetManager.pages.routes.ts';
+import { financeRouter } from './modules/finance/finance.routes.ts';
+import { financePageRouter } from './routes/finance.pages.routes.ts';
+>>>>>>> 5a07a3a (Refine Auth Module)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,11 +60,22 @@ app.use(defaultPageRouter);
 
 app.use(customerPageRouter);
 app.use(adminPageRouter);
+app.use(deliveryPartnerPageRouter);
+app.use(restaurantOwnerPageRouter);
+app.use(restaurantStaffPageRouter);
+app.use(fleetManagerPageRouter);
+app.use(financePageRouter);
+
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
+<<<<<<< HEAD
 app.use(ownerPageRouter);
 app.use(customerPageRouter);
 app.use('/restaurants', restaurantRouter);
+=======
+app.use('/finance', financeRouter);
+
+>>>>>>> 5a07a3a (Refine Auth Module)
 app.use('/customer', customerRouter);
 app.use('/modifier', modifierRouter);
 app.use('/cart',cartRouter)

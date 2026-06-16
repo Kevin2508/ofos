@@ -261,6 +261,15 @@ const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: req.user,
+    },
+  });
+});
+
 export {
   forgotPassword,
   login,
@@ -275,5 +284,6 @@ export {
   refresh,
   registerRestaurantOwner,
   registerRestaurantStaff,
-  registerFinanceManager
+  registerFinanceManager,
+  getMe
 };

@@ -22,4 +22,28 @@ customerPageRouter.get('/', (req, res) => {
 //   res.render('customer/register/admin');
 // });
 
+// customerPageRouter.get("/", (req, res) => {
+//   res.render("customer/home");
+// });
+
+customerPageRouter.get("/restaurant/:id", (req, res, next) => {
+  const acceptHeader = req.headers.accept || "";
+  if (acceptHeader.includes("application/json") || !acceptHeader.includes("text/html")) {
+    return next();
+  }
+  res.render("customer/restaurant");
+});
+
+customerPageRouter.get("/cart", (req, res) => {
+  res.render("customer/cart");
+});
+
+customerPageRouter.get("/checkout", (req, res) => {
+  res.render("customer/checkout");
+});
+
+customerPageRouter.get("/tracking/:id", (req, res) => {
+  res.render("customer/order-tracking");
+});
+
 export { customerPageRouter };

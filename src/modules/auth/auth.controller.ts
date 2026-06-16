@@ -98,7 +98,7 @@ const forgotPassword = catchAsync(
       message: data.message,
       link: data.link,
       otp: data.otp,
-    });
+});                                                                                                                               
   }
 );
 

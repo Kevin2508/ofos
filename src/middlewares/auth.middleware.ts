@@ -60,6 +60,9 @@ const authorize = (requiredRole: string) => {
       return;
     }
 
+    // console.log('req.user:', req.user); 
+    // console.log('requiredRole:', requiredRole);
+
     const hasRole = req.user.roles.some(
       (role: string) => role === requiredRole
     );

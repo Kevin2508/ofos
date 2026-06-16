@@ -46,10 +46,11 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Routes
 app.use(authPageRouter);
 app.use(defaultPageRouter);
-app.use('/refund', refundRouter)
-app.use(refundRouter);
+app.use('/auth', authRouter);
 app.use('/payments', paymentRouter)
 app.use(paymentRouter);
+app.use('/refund', refundRouter)
+app.use(refundRouter);
 app.use('/coupons', couponsRouter)
 app.use(couponsRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
@@ -59,7 +60,6 @@ app.use(restaurantRouter);
 
 app.use(customerPageRouter);
 app.use(adminPageRouter);
-app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 
 app.use('/customer', customerRouter);

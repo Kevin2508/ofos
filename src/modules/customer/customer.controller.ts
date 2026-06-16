@@ -1,7 +1,8 @@
 import { catchAsync } from "../../middlewares/catch.async.ts";
 import { Request, Response } from "express-serve-static-core";
 import { addAddressService, getAddressesByIdService, getAddressesService,
-    updateAdressService, deleteAddressService, 
+    updateAdressService, deleteAddressService,
+    setDefaultAddressService, 
 
  } from "./customer.service.ts";
 import { customerDto } from "./customer.dto.ts";
@@ -195,4 +196,44 @@ const deleteCustomerAddress = catchAsync(
             
     }
 )
-export {getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, deleteCustomerAddress}
+
+const setDefaultAddress = catchAsync(
+  async(req:Request, res:Response) =>{
+
+     const addressId = Number(req.params.id);
+
+    if (isNaN(addressId)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid address id',
+      });
+    }
+
+      const result = await setDefaultAddressService(req.user as customerDto, addressId);
+
+       const serializedResult = JSON.parse(
+      JSON.stringify(
+        result,
+        (_, value) =>
+          typeof value === 'bigint'
+            ? value.toString()
+            : value
+      )
+    );
+
+    if (!serializedResult.data) {
+      return res.status(404).json({
+        status: 'fail',
+        message: serializedResult.message,
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: serializedResult.message,
+      data: serializedResult.data,
+    });
+
+  }
+)
+export {getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, deleteCustomerAddress, setDefaultAddress}

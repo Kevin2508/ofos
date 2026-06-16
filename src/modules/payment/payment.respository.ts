@@ -6,6 +6,7 @@ async function createPayment(data:{orderId:bigint;
                                    paymentProvider: 'RAZORPAY' |
                                    'STRIPE' | 'PAYPAL' | 'COD';
                                    providerOrderId: string;
+                                   providerPaymentId?: string;
                                    amount: Decimal
 }) {
 
@@ -16,6 +17,8 @@ async function createPayment(data:{orderId:bigint;
             paymentProvider: data.paymentProvider,
 
             providerOrderId: data.providerOrderId,
+
+            providerPaymentId: data.providerPaymentId,
 
             amount: data.amount,
 
@@ -34,7 +37,78 @@ async function findLatestPaymentByOrderId(orderId: number) {
         }
     });
 }
+
+const verifySuccessfulPayment = (paymentId: bigint, orderId: bigint, providerPaymentId: string | undefined) =>{
+    return prisma.$transaction(
+        async (tx) =>{
+            const updatedPayment = await tx.payment.update({
+                where: {
+                    id: paymentId
+                },
+                data: {
+                    providerPaymentId,
+                    status: 'CAPTURED'
+                }
+            });
+
+            await tx.order.update({
+                where: {
+                    id:orderId
+                },
+                data: {
+                        paymentStatus: 'PAID'
+                }
+            });
+
+            return updatedPayment
+        }
+    )
+}
+
+const verifyFailedPayment = (paymentId: bigint, orderId: bigint, failureReason: string) =>{
+    return prisma.$transaction(
+        async (tx) =>{
+            const updatedPayment = await tx.payment.update({
+                where: {
+                    id: paymentId
+                },
+                data: {
+                    status: 'FAILED',
+                    failureReason
+                }
+            });
+
+            await tx.order.update({
+                where: {
+                    id:orderId
+                },
+                data: {
+                        paymentStatus: 'FAILED'
+                }
+            });
+
+            return updatedPayment
+        }
+    )
+}
+
+const findLatestPaymentDetailsByOrderId = async(orderId: number) =>{
+
+    return await prisma.payment.findFirst({
+        where: {
+            orderId: BigInt(orderId)
+        },
+
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+}
+
 export {
     createPayment,
-    findLatestPaymentByOrderId
+    findLatestPaymentByOrderId,
+    verifySuccessfulPayment,
+    verifyFailedPayment,
+    findLatestPaymentDetailsByOrderId
 }

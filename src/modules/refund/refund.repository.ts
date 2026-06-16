@@ -21,6 +21,9 @@ async function findPaymentByOrderId(orderId: number) {
     return await prisma.payment.findFirst({
         where: {
             orderId: BigInt(orderId)
+        },
+        orderBy: {
+            createdAt: 'desc'
         }
     });
 }

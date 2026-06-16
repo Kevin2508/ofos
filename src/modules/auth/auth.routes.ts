@@ -9,8 +9,10 @@ import {
   register,
   registerAdmin,
   registerDeliveryPartner,
+  registerFinanceManager,
   registerFleetManager,
   registerRestaurantOwner,
+  registerRestaurantStaff,
   resetPassword,
   sendOtp,
   verigyOtp,
@@ -68,11 +70,11 @@ authRouter.post(
 );
 
 // Restaurant Staff
-// authRouter.post(
-//   '/register/restaurant-staff',
-//   validate(registerSchema),
-//   registerRestaurantStaff
-// );
+authRouter.post(
+  '/register/restaurant-staff',
+  validate(registerSchema),
+  registerRestaurantStaff
+);
 
 // Delivery Partner
 authRouter.post(
@@ -89,10 +91,10 @@ authRouter.post(
 );
 
 // Finance Manager
-// authRouter.post(
-//   '/register/finance-manager',
-//   validate(registerSchema),
-//   registerFinanceManager
-// );
+authRouter.post(
+  '/register/finance-manager',
+  validate(registerSchema),
+  registerFinanceManager
+);
 
 export { authRouter };

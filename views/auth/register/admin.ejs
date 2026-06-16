@@ -1,347 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Registration | ofos - Food Ordering System</title>
-    <link rel="stylesheet" href="/styles/build.css" />
-  </head>
-  <body class="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-amber-50">
-    <!-- Floating food decorations -->
-    <div class="fixed inset-0 pointer-events-none overflow-hidden select-none">
-      <span class="absolute top-16 left-[18%] text-5xl opacity-15">🍕</span>
-      <span class="absolute top-32 right-[22%] text-4xl opacity-20">🍔</span>
-      <span class="absolute bottom-24 left-[28%] text-6xl opacity-10">🌮</span>
-      <span class="absolute top-1/4 right-[12%] text-3xl opacity-15">🥗</span>
-      <span class="absolute bottom-40 right-[32%] text-5xl opacity-10">🍜</span>
-      <span class="absolute top-3/4 left-[10%] text-4xl opacity-15">🍣</span>
-    </div>
 
-    <div class="min-h-screen flex items-center justify-center px-4 py-10 relative">
-      <div class="w-full max-w-6xl">
-        <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-orange-100/60">
-          <div class="lg:flex">
-            <!-- Left Brand Panel -->
-            <div class="lg:w-[38%] bg-gradient-to-br from-orange-500 via-orange-600 to-rose-600 p-8 lg:p-10 text-white flex flex-col justify-between relative overflow-hidden min-h-[300px] lg:min-h-0">
-              <div class="absolute -top-24 -right-24 w-72 h-72 bg-white/5 rounded-full"></div>
-              <div class="absolute -bottom-20 -left-20 w-56 h-56 bg-white/5 rounded-full"></div>
-              <div class="absolute top-1/2 -translate-y-1/2 right-0 w-32 h-32 bg-white/[0.03] rounded-full"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Registration | ofos - Food Ordering System</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
 
-              <div class="relative">
-                <div class="flex items-center gap-3 mb-5">
-                  <span class="text-3xl">🛡️</span>
-                  <h1 class="text-3xl font-extrabold tracking-tight">ofos</h1>
-                </div>
-                <p class="text-orange-100 text-base leading-relaxed mb-7">
-                  Create an <span class="font-semibold text-white">admin account</span> to manage your food ordering platform.
-                </p>
-                <div class="space-y-4">
-                  <div class="flex items-center gap-3">
-                    <span class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg">📊</span>
-                    <div>
-                      <p class="font-semibold text-sm">Dashboard Access</p>
-                      <p class="text-xs text-orange-100">Full platform oversight</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <span class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg">👥</span>
-                    <div>
-                      <p class="font-semibold text-sm">User Management</p>
-                      <p class="text-xs text-orange-100">Manage restaurants & staff</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <span class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg">📦</span>
-                    <div>
-                      <p class="font-semibold text-sm">Order Control</p>
-                      <p class="text-xs text-orange-100">Monitor & manage orders</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+<body>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">Register Admin</h2>
+        <p class="text-gray-500 text-sm">Create an admin account to manage the platform</p>
+      </div>
 
-              <div class="relative mt-6 pt-5 border-t border-white/20">
-                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-orange-100">
-                  <span>🍕 Pizza</span>
-                  <span>🍔 Burger</span>
-                  <span>🌮 Taco</span>
-                  <span>🥗 Salad</span>
-                  <span>🍜 Noodles</span>
-                </div>
-              </div>
+      <!-- Form -->
+      <form id="adminRegisterForm" class="space-y-5">
+        <!-- Name Fields Row -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              First Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="firstName" name="firstName" placeholder="John"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Last Name
+            </label>
+            <input type="text" id="lastName" name="lastName" placeholder="Doe"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Email <span class="text-red-500">*</span>
+          </label>
+          <input type="email" id="email" name="email" placeholder="admin@example.com"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Phone <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="phone" name="phone" placeholder="10 digit number"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+        </div>
+
+        <!-- Password & Confirm Password -->
+        <div class="space-y-4">
+          <!-- Password -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Password <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input type="password" id="password" name="password" placeholder="Min 8 characters"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-12" />
+              <button type="button" id="togglePassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
+                <!-- Eye Icon (Visible) -->
+                <svg id="eyeIcon1" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <!-- Eye Slash Icon (Hidden) -->
+                <svg id="eyeSlashIcon1" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+              </button>
             </div>
+          </div>
 
-            <!-- Right Form Panel -->
-            <div class="lg:w-[62%] p-8 lg:p-10">
-              <div class="max-w-lg mx-auto">
-                <div class="text-center lg:text-left mb-6">
-                  <h2 class="text-2xl font-bold text-gray-800">Register Admin 🛡️</h2>
-                  <p class="text-gray-400 mt-1 text-sm">Create an admin account to manage the platform</p>
-                </div>
-
-                <form id="adminRegisterForm" class="space-y-4">
-
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        First Name <span class="text-red-400">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="firstName"
-                        name="firstName"
-                        placeholder="John"
-                        class="w-full px-4 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                      />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Last Name
-                      </label>
-                      <input
-                        type="text"
-                        id="lastName"
-                        name="lastName"
-                        placeholder="Doe"
-                        class="w-full px-4 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                      Email <span class="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      placeholder="admin@example.com"
-                      class="w-full px-4 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                      Phone <span class="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="phone"
-                      name="phone"
-                      placeholder="10 digit number"
-                      class="w-full px-4 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                    />
-                  </div>
-
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Password <span class="text-red-400">*</span>
-                      </label>
-                      <div class="relative">
-                        <input
-                          type="password"
-                          id="password"
-                          name="password"
-                          placeholder="Min 8 characters"
-                          class="w-full px-4 py-3.5 pr-12 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                        />
-                        <button
-                          type="button"
-                          id="togglePassword"
-                          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition"
-                        >
-                          <svg id="eyeIcon1" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                          </svg>
-                          <svg id="eyeSlashIcon1" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Confirm Password <span class="text-red-400">*</span>
-                      </label>
-                      <div class="relative">
-                        <input
-                          type="password"
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          placeholder="Repeat password"
-                          class="w-full px-4 py-3.5 pr-12 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                        />
-                        <button
-                          type="button"
-                          id="toggleConfirmPassword"
-                          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition"
-                        >
-                          <svg id="eyeIcon2" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                          </svg>
-                          <svg id="eyeSlashIcon2" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    id="submitBtn"
-                    class="w-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white font-semibold py-3.5 rounded-2xl transition duration-200 shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 cursor-pointer mt-2"
-                  >
-                    Register Admin
-                  </button>
-                </form>
-
-                <div class="mt-6 text-center">
-                  <p class="text-gray-400 text-sm">
-                    Already have an account?
-                    <a
-                      href="/loginPage"
-                      class="font-semibold text-orange-500 hover:text-orange-600 transition"
-                    >
-                      Login
-                    </a>
-                  </p>
-                </div>
-              </div>
+          <!-- Confirm Password -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Confirm Password <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-12" />
+              <button type="button" id="toggleConfirmPassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
+                <!-- Eye Icon (Visible) -->
+                <svg id="eyeIcon2" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <!-- Eye Slash Icon (Hidden) -->
+                <svg id="eyeSlashIcon2" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
+
+        <!-- Register Admin Button -->
+        <button type="submit" id="submitBtn"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg mt-2">
+          Register Admin
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="text-center mt-6 pt-6 border-t border-gray-200">
+        <p class="text-sm text-gray-600">
+          Already have an account?
+          <a href="/loginPage" class="font-medium text-orange-500 hover:text-orange-600 transition-colors">
+            Login
+          </a>
+        </p>
       </div>
     </div>
+  </div>
 
-    <script>
-      function setupPasswordToggle(
-        toggleBtnId,
-        inputId,
-        eyeIconId,
-        eyeSlashIconId
-      ) {
-        const toggleBtn = document.getElementById(toggleBtnId);
-        const input = document.getElementById(inputId);
-        const eyeIcon = document.getElementById(eyeIconId);
-        const eyeSlashIcon = document.getElementById(eyeSlashIconId);
+  <script>
+    function setupPasswordToggle(
+      toggleBtnId,
+      inputId,
+      eyeIconId,
+      eyeSlashIconId
+    ) {
+      const toggleBtn = document.getElementById(toggleBtnId);
+      const input = document.getElementById(inputId);
+      const eyeIcon = document.getElementById(eyeIconId);
+      const eyeSlashIcon = document.getElementById(eyeSlashIconId);
 
-        toggleBtn.addEventListener('click', function () {
-          const type =
-            input.getAttribute('type') === 'password' ? 'text' : 'password';
-          input.setAttribute('type', type);
-          eyeIcon.classList.toggle('hidden');
-          eyeSlashIcon.classList.toggle('hidden');
-        });
-      }
+      toggleBtn.addEventListener('click', function () {
+        const type =
+          input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        eyeIcon.classList.toggle('hidden');
+        eyeSlashIcon.classList.toggle('hidden');
+      });
+    }
 
-      setupPasswordToggle(
-        'togglePassword',
-        'password',
-        'eyeIcon1',
-        'eyeSlashIcon1'
-      );
-      setupPasswordToggle(
-        'toggleConfirmPassword',
-        'confirmPassword',
-        'eyeIcon2',
-        'eyeSlashIcon2'
-      );
+    setupPasswordToggle(
+      'togglePassword',
+      'password',
+      'eyeIcon1',
+      'eyeSlashIcon1'
+    );
+    setupPasswordToggle(
+      'toggleConfirmPassword',
+      'confirmPassword',
+      'eyeIcon2',
+      'eyeSlashIcon2'
+    );
 
-      document
-        .getElementById('adminRegisterForm')
-        .addEventListener('submit', async function (event) {
-          event.preventDefault();
+    document
+      .getElementById('adminRegisterForm')
+      .addEventListener('submit', async function (event) {
+        event.preventDefault();
 
-          const submitBtn = document.getElementById('submitBtn');
+        const submitBtn = document.getElementById('submitBtn');
 
-          const firstName = document.getElementById('firstName').value.trim();
-          const lastName = document.getElementById('lastName').value.trim();
-          const email = document.getElementById('email').value.trim();
-          const phone = document.getElementById('phone').value.trim();
-          const password = document.getElementById('password').value;
-          const confirmPassword =
-            document.getElementById('confirmPassword').value;
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword =
+          document.getElementById('confirmPassword').value;
 
-          const phoneRegex = /^[0-9]{10}$/;
-          const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|io)$/i;
+        const phoneRegex = /^[0-9]{10}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|io)$/i;
 
-          if (!firstName || firstName.length > 100) {
-            showToast('First name is required and cannot exceed 100 characters.', 'error');
-            return;
+        if (!firstName || firstName.length > 100) {
+          showToast('First name is required and cannot exceed 100 characters.', 'error');
+          return;
+        }
+
+        if (lastName.length > 100) {
+          showToast('Last name cannot exceed 100 characters.', 'error');
+          return;
+        }
+
+        if (!email || !emailRegex.test(email)) {
+          showToast('Please enter a valid email address ending in .com, .net, .org, or .io.', 'error');
+          return;
+        }
+
+        if (!phone || !phoneRegex.test(phone)) {
+          showToast('Contact number must be exactly 10 digits and contain only numbers.', 'error');
+          return;
+        }
+
+        if (password.length < 8) {
+          showToast('Password must be at least 8 characters long.', 'error');
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          showToast('Passwords do not match.', 'error');
+          return;
+        }
+
+        try {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Registering Admin...';
+
+          const payload = {
+            firstName,
+            email,
+            phone,
+            password,
+            confirmPassword,
+          };
+
+          if (lastName) {
+            payload.lastName = lastName;
           }
 
-          if (lastName.length > 100) {
-            showToast('Last name cannot exceed 100 characters.', 'error');
-            return;
+          const response = await fetch('/api/register/admin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(
+              data.message || 'Admin registration failed. Please try again.'
+            );
           }
 
-          if (!email || !emailRegex.test(email)) {
-            showToast('Please enter a valid email address ending in .com, .net, .org, or .io.', 'error');
-            return;
-          }
+          showToast('Admin account created successfully! Redirecting...', 'success');
+          document.getElementById('adminRegisterForm').reset();
+        } catch (error) {
+          showToast(error.message, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Register Admin';
+        }
+      });
+  </script>
+  <%- include('../../partials/toast') %>
+</body>
 
-          if (!phone || !phoneRegex.test(phone)) {
-            showToast('Contact number must be exactly 10 digits and contain only numbers.', 'error');
-            return;
-          }
-
-          if (password.length < 8) {
-            showToast('Password must be at least 8 characters long.', 'error');
-            return;
-          }
-
-          if (password !== confirmPassword) {
-            showToast('Passwords do not match.', 'error');
-            return;
-          }
-
-          try {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Registering Admin...';
-
-            const payload = {
-              firstName,
-              email,
-              phone,
-              password,
-              confirmPassword,
-            };
-
-            if (lastName) {
-              payload.lastName = lastName;
-            }
-
-            const response = await fetch('/api/register/admin', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(payload),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-              throw new Error(
-                data.message || 'Admin registration failed. Please try again.'
-              );
-            }
-
-            showToast('Admin account created successfully! Redirecting...', 'success');
-            document.getElementById('adminRegisterForm').reset();
-          } catch (error) {
-            showToast(error.message, 'error');
-          } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Register Admin';
-          }
-        });
-    </script>
-    <%- include('../../partials/toast') %>
-  </body>
 </html>

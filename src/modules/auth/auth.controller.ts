@@ -19,7 +19,9 @@ import {
   registerAdminService,
   registerDeliveryPartnerService,
   registerFleetManagerService,
+  registerFinanceManagerService,
   registerRestaurantOwnerService,
+  registerRestaurantStaffService,
   registerService,
   resetPasswordService,
   sendOtpService,
@@ -98,7 +100,7 @@ const forgotPassword = catchAsync(
       message: data.message,
       link: data.link,
       otp: data.otp,
-});                                                                                                                               
+    });
   }
 );
 
@@ -227,6 +229,28 @@ const registerRestaurantOwner = catchAsync(
   }
 );
 
+const registerRestaurantStaff = catchAsync(
+  async (req: Request, res: Response) => {
+    const data = await registerRestaurantStaffService(req.body);
+
+    res.status(200).json({
+      status: 'success',
+      message: data.message,
+    });
+  }
+);
+
+const registerFinanceManager = catchAsync(
+  async (req: Request, res: Response) => {
+    const data = await registerFinanceManagerService(req.body);
+
+    res.status(200).json({
+      status: 'success',
+      message: data.message,
+    });
+  }
+);
+
 
 const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
   const data = await registerFleetManagerService(req.body);
@@ -249,5 +273,7 @@ export {
   registerFleetManager,
   verigyOtp,
   refresh,
-  registerRestaurantOwner
+  registerRestaurantOwner,
+  registerRestaurantStaff,
+  registerFinanceManager
 };

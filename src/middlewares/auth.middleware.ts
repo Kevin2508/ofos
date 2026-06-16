@@ -8,7 +8,11 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
   //console.log('Access Token from Cookie:', token);
 =======
 
+<<<<<<< HEAD
 >>>>>>> 5a07a3a (Refine Auth Module)
+=======
+  //console.log('Access Token from Cookie:', token);
+>>>>>>> bdca7d7 (sadfgdg)
   if (!token) {
     throw new Error('Not authenticated. No access token provided.');
   }
@@ -17,7 +21,6 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
   // if (!token) res.redirect('/not-authenticated');
 
   try {
-
     const secret = process.env.JWT_ACCESS_SECRET as string;
 
     if (!secret) {
@@ -30,9 +33,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     req.user = decoded as any;
     // console.log('Authenticated user:', req.user);
 
-
     next();
-
   } catch (err) {
     if (err instanceof Error) {
       if (err.name === 'TokenExpiredError') {

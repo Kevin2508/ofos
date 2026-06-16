@@ -37,7 +37,13 @@ import { restaurantStaffPageRouter } from './routes/restaurantStaff.pages.routes
 import { fleetManagerPageRouter } from './routes/fleetManager.pages.routes.ts';
 import { financeRouter } from './modules/finance/finance.routes.ts';
 import { financePageRouter } from './routes/finance.pages.routes.ts';
+<<<<<<< HEAD
 >>>>>>> 5a07a3a (Refine Auth Module)
+=======
+import { ownerPageRouter } from './routes/owner.pages.routes.ts';
+import couponRouter from './modules/coupon/coupons.routes.ts';
+import cartRouter from './modules/cart/cart.routes.ts';
+>>>>>>> bdca7d7 (sadfgdg)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,6 +81,7 @@ app.use('/restaurants', restaurantRouter);
 =======
 app.use('/finance', financeRouter);
 
+<<<<<<< HEAD
 >>>>>>> 5a07a3a (Refine Auth Module)
 app.use('/customer', customerRouter);
 app.use('/modifier', modifierRouter);
@@ -82,6 +89,17 @@ app.use('/cart',cartRouter)
 app.use('/orders', orderRoutes);
 app.use('/refund', refundRouter);
 app.use('/coupons',couponRouter)
+=======
+app.use(ownerPageRouter);
+app.use(customerPageRouter);
+app.use('/restaurants', restaurantRouter);
+app.use('/customer', customerRouter);
+app.use('/modifier', modifierRouter);
+app.use('/cart', cartRouter);
+app.use('/orders', orderRoutes);
+app.use('/refund', refundRouter);
+app.use('/coupons', couponRouter);
+>>>>>>> bdca7d7 (sadfgdg)
 app.use('/delivery-partner', deliveryPartnerRouter);
 app.use('/checkout', checkoutRouter);
 
@@ -94,7 +112,10 @@ app.use('/fleet-manager', fleetManagerRouter);
 app.use(menuCategoryRouter);
 app.use(menuItemRouter);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> bdca7d7 (sadfgdg)
 // app.use(errorMiddleware);
 
 // app.use((req, res) => {

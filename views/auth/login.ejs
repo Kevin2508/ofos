@@ -241,11 +241,17 @@
             return;
           }
 
-
           console.log(data);
-          // window.location.href = data.redirectUrl || '/';
+          const roles = data.data.user.roles;
+
+          if (roles.includes('Restaurant_owner')) {
+            window.location.href = '/owner-dashboard';
+          } else {
+            window.location.href = data.redirectUrl || '/';
+          }
         } catch (error) {
           showToast('Something went wrong. Please try again.', 'error');
+          console.log(error)
         } finally {
           loginBtn.disabled = false;
           loginBtn.textContent = 'Login';

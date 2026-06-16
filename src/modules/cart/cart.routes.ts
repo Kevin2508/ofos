@@ -26,7 +26,7 @@ const cartRouter = Router();
 cartRouter.use(authenticate);
 
 // GET /cart - retrieve active cart
-cartRouter.get('/', validate(getCartSchema), getCart);
+cartRouter.get('/', getCart);
 
 // POST /cart/items - add item to cart
 cartRouter.post('/items', validate(addCartItemSchema), addCartItem);

@@ -27,6 +27,8 @@ import { customerPageRouter } from './routes/customer.pages.routes.ts';
 import { adminPageRouter } from './routes/admin.pages.routes.ts';
 import restrouter from './modules/restuarant/restaurant.routes.ts';
 import { ownerPageRouter } from './routes/owner.pages.routes.ts';
+import couponRouter from './modules/coupon/coupons.routes.ts';
+import cartRouter from './modules/cart/cart.routes.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,10 +58,10 @@ app.use(customerPageRouter);
 app.use('/restaurants', restaurantRouter);
 app.use('/customer', customerRouter);
 app.use('/modifier', modifierRouter);
-
+app.use('/cart',cartRouter)
 app.use('/orders', orderRoutes);
 app.use('/refund', refundRouter);
-
+app.use('/coupons',couponRouter)
 app.use('/delivery-partner', deliveryPartnerRouter);
 app.use('/checkout', checkoutRouter);
 

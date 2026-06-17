@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orders | ofos Admin</title>
+    <link rel="stylesheet" href="/styles/build.css" />
+  </head>
+
+  <body class="min-h-screen bg-orange-50">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-white border-r border-orange-100 shadow-md">
+        <div class="p-6">
+          <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
+        </div>
+
+        <nav class="px-4 space-y-2">
+          <a
+            href="/admin/dashboard"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            Dashboard
+          </a>
+
+          <a
+            href="/admin/users"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            User Management
+          </a>
+
+          <a
+            href="/admin/restaurants"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            Restaurants
+          </a>
+
+          <a
+            href="/admin/orders"
+            class="block px-4 py-2 rounded-xl bg-orange-100 text-orange-600 font-semibold"
+          >
+            Orders
+          </a>
+
+          <a
+            href="/admin/config"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            System Config
+          </a>
+
+          <a
+            href="/admin/audit-logs"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            Audit Logs
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main -->
+      <main class="flex-1 p-8">
+        <!-- Header -->
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-800">Orders</h2>
+          <p class="text-gray-600 mt-1">
+            View and manage all orders placed on the platform
+          </p>
+        </div>
+
+        <!-- Filters -->
+        <div
+          class="bg-white rounded-2xl shadow border border-orange-100 p-5 mb-6"
+        >
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search order, customer, restaurant"
+              class="px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:outline-none"
+            />
+
+            <select
+              id="statusFilter"
+              class="px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:outline-none"
+            >
+              <option value="">All Status</option>
+              <option>pending</option>
+              <option>preparing</option>
+              <option>on-the-way</option>
+              <option>delivered</option>
+              <option>cancelled</option>
+            </select>
+
+            <input
+              type="date"
+              id="dateFilter"
+              class="px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:outline-none"
+            />
+
+            <button
+              onclick="fetchOrders()"
+              class="px-4 py-3 rounded-xl bg-orange-500 text-white hover:bg-orange-600"
+            >
+              Filter
+            </button>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div
+          class="bg-white rounded-2xl shadow border border-orange-100 overflow-x-auto"
+        >
+          <table class="w-full">
+            <thead class="bg-orange-100">
+              <tr class="text-left">
+                <th class="p-4">Order ID</th>
+                <th class="p-4">Customer</th>
+                <th class="p-4">Restaurant</th>
+                <th class="p-4">Total</th>
+                <th class="p-4">Status</th>
+                <th class="p-4">Payment</th>
+                <th class="p-4">Date</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable">
+              <tr>
+                <td colspan="7" class="text-center p-6 text-gray-500">
+                  Loading orders...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const ordersTable = document.getElementById('ordersTable');
+
+      async function fetchOrders() {
+        ordersTable.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-gray-500">Loading orders...</td></tr>`;
+
+        const search = document.getElementById('searchInput').value.trim();
+        const status = document.getElementById('statusFilter').value;
+        const date = document.getElementById('dateFilter').value;
+
+        const query = new URLSearchParams();
+        if (search) query.append('search', search);
+        if (status) query.append('status', status);
+        if (date) query.append('date', date);
+
+        try {
+          const response = await fetch('/admin/orders?' + query.toString());
+          const data = await response.json();
+
+          if (!data.length) {
+            ordersTable.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">No orders found</td></tr>`;
+            return;
+          }
+
+          ordersTable.innerHTML = data
+            .map(
+              (order) => `
+      <tr class="border-t">
+        <td class="p-4">${order.id}</td>
+        <td class="p-4">${order.customerName}</td>
+        <td class="p-4">${order.restaurantName}</td>
+        <td class="p-4">₹${order.total}</td>
+        <td class="p-4 capitalize">${order.status}</td>
+        <td class="p-4 capitalize">${order.paymentStatus}</td>
+        <td class="p-4">${new Date(order.createdAt).toLocaleString()}</td>
+      </tr>
+    `
+            )
+            .join('');
+        } catch (err) {
+          showToast('Failed to load orders', 'error');
+          ordersTable.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-500">Failed to load orders</td></tr>`;
+        }
+      }
+
+      // Initial load
+      fetchOrders();
+    </script>
+    <%- include('../partials/toast') %>
+  </body>
+</html>

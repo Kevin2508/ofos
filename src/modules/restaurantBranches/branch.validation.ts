@@ -30,4 +30,4 @@ export const updateBranchSchema = Joi.object({
   longitude: Joi.number().min(-180).max(180),
   minimumOrderValue: Joi.number().min(0),
   deliveryFee: Joi.number().min(0),
-}).min(1); // At least one field must be provided
+}).min(1);

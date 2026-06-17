@@ -19,6 +19,7 @@ import {
   registerAdminService,
   registerDeliveryPartnerService,
   registerFleetManagerService,
+  registerRestaurantOwnerService,
   registerService,
   resetPasswordService,
   sendOtpService,
@@ -50,7 +51,7 @@ const login = catchAsync(
       path: '/',
     });
 
-    const accessTokenLifeMs = ms(data.tokens.expiresIn);
+    const accessTokenLifeMs = ms(data.tokens.expiresIn);                                             
 
     res.cookie('accessToken', data.tokens.accessToken, {
       httpOnly: true,
@@ -215,6 +216,18 @@ const registerDeliveryPartner = catchAsync(
   }
 );
 
+const registerRestaurantOwner = catchAsync(
+  async (req: Request, res: Response) => {
+    const data = await registerRestaurantOwnerService(req.body);
+
+    res.status(200).json({
+      status: 'success',
+      message: data.message,
+    });
+  }
+);
+
+
 const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
   const data = await registerFleetManagerService(req.body);
 
@@ -236,4 +249,5 @@ export {
   registerFleetManager,
   verigyOtp,
   refresh,
+  registerRestaurantOwner
 };

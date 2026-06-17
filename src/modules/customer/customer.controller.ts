@@ -1,12 +1,12 @@
 import { catchAsync } from "../../middlewares/catch.async.ts";
 import { Request, Response } from "express-serve-static-core";
 import { addAddressService, getAddressesByIdService, getAddressesService,
-    updateAdressService, deleteAddressService, setDefaultAddressService
- } from "./customer.service.ts";
-import { customerDto, CreateAddressDto } from "./customer.dto.ts";
-import { createAddressSchema } from "./customer.valication.ts";
-import { json } from "node:stream/consumers";
+    updateAdressService, deleteAddressService,
+    setDefaultAddressService, 
 
+ } from "./customer.service.ts";
+import { customerDto } from "./customer.dto.ts";
+import { createAddressSchema } from "./customer.valication.ts";
 
 
 const getAddresses = catchAsync(
@@ -200,25 +200,18 @@ const deleteCustomerAddress = catchAsync(
 const setDefaultAddress = catchAsync(
   async(req:Request, res:Response) =>{
 
-    console.log("Address ID = ", req.params.id);
-    const addressID = Number(req.params.id);
+     const addressId = Number(req.params.id);
 
-    if (isNaN(addressID)) {
+    if (isNaN(addressId)) {
       return res.status(400).json({
         status: 'fail',
         message: 'Invalid address id',
       });
     }
 
-    console.log("Customer Data==========================", req.user);
+      const result = await setDefaultAddressService(req.user as customerDto, addressId);
 
-    const result = await setDefaultAddressService(
-        req.user as customerDto, addressID
-      );
-
-      
-
-      const serializedResult = JSON.parse(
+       const serializedResult = JSON.parse(
       JSON.stringify(
         result,
         (_, value) =>
@@ -241,5 +234,6 @@ const setDefaultAddress = catchAsync(
       data: serializedResult.data,
     });
 
-  })
+  }
+)
 export {getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, deleteCustomerAddress, setDefaultAddress}

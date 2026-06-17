@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | ofos</title>
+    <link rel="stylesheet" href="/styles/build.css" />
+  </head>
+  <body class="min-h-screen bg-orange-50">
+    <!-- SIDEBAR + NAVBAR -->
+    <div class="flex min-h-screen">
+      <!-- SIDEBAR -->
+      <aside
+        class="w-64 bg-white border-r border-orange-100 shadow-md flex flex-col"
+      >
+        <div class="p-6 text-center">
+          <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-2">
+          <a
+            href="/admin/dashboard"
+            class="block px-4 py-2 rounded-lg bg-orange-100 text-orange-600 font-semibold"
+            >Dashboard</a
+          >
+          <a
+            href="/admin-users"
+            class="block px-4 py-2 rounded-lg hover:bg-orange-50"
+            >User Management</a
+          >
+          <a
+            href="/admin-restaurants"
+            class="block px-4 py-2 rounded-lg hover:bg-orange-50"
+            >Restaurants</a
+          >
+          <a
+            href="/admin-orders"
+            class="block px-4 py-2 rounded-lg hover:bg-orange-50"
+            >Orders</a
+          >
+          <a
+            href="/admin-config"
+            class="block px-4 py-2 rounded-lg hover:bg-orange-50"
+            >System Config</a
+          >
+          <a
+            href="/admin-audit-logs"
+            class="block px-4 py-2 rounded-lg hover:bg-orange-50"
+            >Audit Logs</a
+          >
+        </nav>
+
+        <div class="p-4">
+          <button
+            id="logoutBtn"
+            class="w-full bg-orange-500 text-white rounded-xl py-2 hover:bg-orange-600"
+          >
+            Logout
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 p-8">
+        <!-- Greeting -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-gray-800">Welcome, Admin 👋</h2>
+          <p class="text-gray-600 mt-1">
+            Here is the overview of your platform
+          </p>
+        </div>
+
+        <!-- STAT CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="bg-white p-6 rounded-2xl shadow border border-orange-100">
+            <p class="text-gray-500 text-sm">Total Users</p>
+            <h3 id="totalUsers" class="text-2xl font-bold text-gray-800 mt-2">
+              0
+            </h3>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl shadow border border-orange-100">
+            <p class="text-gray-500 text-sm">Pending Restaurants</p>
+            <h3
+              id="pendingRestaurants"
+              class="text-2xl font-bold text-gray-800 mt-2"
+            >
+              0
+            </h3>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl shadow border border-orange-100">
+            <p class="text-gray-500 text-sm">Orders Today</p>
+            <h3 id="ordersToday" class="text-2xl font-bold text-gray-800 mt-2">
+              0
+            </h3>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl shadow border border-orange-100">
+            <p class="text-gray-500 text-sm">Revenue Today</p>
+            <h3 id="revenueToday" class="text-2xl font-bold text-gray-800 mt-2">
+              ₹0
+            </h3>
+          </div>
+        </div>
+
+        <!-- QUICK LINKS -->
+        <div class="mt-12">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <a
+              href="/admin/users"
+              class="block bg-orange-500 text-white rounded-xl p-6 hover:bg-orange-600"
+            >
+              View Users
+            </a>
+
+            <a
+              href="/admin/restaurants"
+              class="block bg-orange-500 text-white rounded-xl p-6 hover:bg-orange-600"
+            >
+              Approve Restaurants
+            </a>
+
+            <a
+              href="/admin/orders"
+              class="block bg-orange-500 text-white rounded-xl p-6 hover:bg-orange-600"
+            >
+              Manage Orders
+            </a>
+
+            <a
+              href="/admin/config"
+              class="block bg-orange-500 text-white rounded-xl p-6 hover:bg-orange-600"
+            >
+              Update System Config
+            </a>
+
+            <a
+              href="/admin/audit-logs"
+              class="block bg-orange-500 text-white rounded-xl p-6 hover:bg-orange-600"
+            >
+              View Audit Logs
+            </a>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Fetch dashboard stats from backend
+      async function fetchDashboardStats() {
+        try {
+          const res = await fetch('/admin/dashboard/stats');
+          const data = await res.json();
+
+          document.getElementById('totalUsers').innerText =
+            data.totalUsers || 0;
+          document.getElementById('pendingRestaurants').innerText =
+            data.pendingRestaurants || 0;
+          document.getElementById('ordersToday').innerText =
+            data.ordersToday || 0;
+          document.getElementById('revenueToday').innerText =
+            '₹' + (data.revenueToday || 0);
+        } catch (err) {
+          showToast('Failed to load dashboard stats', 'error');
+        }
+      }
+
+      fetchDashboardStats();
+
+      // Logout
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = '/loginPage';
+      });
+    </script>
+    <%- include('../partials/toast') %>
+  </body>
+</html>

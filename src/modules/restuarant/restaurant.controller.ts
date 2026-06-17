@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
-import * as restaurantService from './restaurant.service.ts';
-import { RestaurantListDto } from './restaurant.dto.ts';
 import { RestaurantParams } from './restaurant.interface.ts';
-import { User } from '../../types/express.d.ts';
+import * as restaurantService from './restaurant.service.ts';
 
 export const getRestaurants = async (req: Request, res: Response) => {
   try {
@@ -23,7 +21,10 @@ export const getRestaurants = async (req: Request, res: Response) => {
   }
 };
 
-export async function getRestaurantDetails(req: Request<RestaurantParams>, res: Response) {
+export async function getRestaurantDetails(
+  req: Request<RestaurantParams>,
+  res: Response
+) {
   try {
     const { id } = req.params;
 
@@ -33,7 +34,6 @@ export async function getRestaurantDetails(req: Request<RestaurantParams>, res: 
       success: true,
       data: restaurant,
     });
-    
   } catch (error: any) {
     return res.status(404).json({
       success: false,
@@ -43,15 +43,13 @@ export async function getRestaurantDetails(req: Request<RestaurantParams>, res: 
 }
 
 export async function getRestaurantMenu(
-  req: Request<RestaurantParams>, res: Response
+  req: Request<RestaurantParams>,
+  res: Response
 ) {
   try {
     const { id } = req.params;
 
-    const menu =
-      await restaurantService.getRestaurantMenu(
-        id
-      );
+    const menu = await restaurantService.getRestaurantMenu(id);
 
     return res.status(200).json({
       success: true,
@@ -65,17 +63,13 @@ export async function getRestaurantMenu(
   }
 }
 
-export const getFeaturedRestaurants = async (
-  req: Request,
-  res: Response
-) => {
+export const getFeaturedRestaurants = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
 
-    const result =
-      await restaurantService.getFeaturedRestaurants(
-        userId as string | undefined
-      );
+    const result = await restaurantService.getFeaturedRestaurants(
+      userId as string | undefined
+    );
 
     return res.status(200).json({
       success: true,
@@ -87,4 +81,4 @@ export const getFeaturedRestaurants = async (
       message: error.message,
     });
   }
-}
+};

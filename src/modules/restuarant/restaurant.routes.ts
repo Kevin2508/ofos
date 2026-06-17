@@ -1,13 +1,13 @@
 import { Router } from "express";
-const router = Router();
+const restrouter = Router();
 import * as restaurantController from "./restaurant.controller.ts";
 
-router.get("/", restaurantController.getRestaurants);
+restrouter.get("/", restaurantController.getRestaurants);
 
-router.get("/featured", restaurantController.getFeaturedRestaurants);
+restrouter.get("/featured", restaurantController.getFeaturedRestaurants);
 
-router.get("/:id", restaurantController.getRestaurantDetails);
+restrouter.get("/:id", restaurantController.getRestaurantDetails);
 
-router.get("/:id/menu", restaurantController.getRestaurantMenu);
+restrouter.get("/:id/menu", restaurantController.getRestaurantMenu);
 
-export default router ;
+export default restrouter ;

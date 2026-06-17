@@ -1,6 +1,19 @@
 import { prisma } from "../../config/prisma.ts";
 import { DocumentType, RestaurantStatus } from "../../generated/prisma/enums.ts";
 
+async function createRestaurantOwner(data: { userId: bigint }) {
+  return await prisma.restaurant.create({
+    data: {
+      ownerUserId: data.userId,
+      businessName: '',
+      legalBusinessName: '',
+      primaryPhone: '',
+      primaryEmail: '',
+      status: 'PENDING_VERIFICATION',
+    },
+  });
+}
+
 async function createRestaurant(data: {
   ownerUserId: bigint;
   businessName: string;
@@ -85,6 +98,7 @@ async function addRestaurantDocument(data: {
 }
 
 export {
+  createRestaurantOwner,
   addRestaurantDocument,
   createRestaurant,
   findRestaurantById,

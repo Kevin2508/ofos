@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audit Logs | ofos Admin</title>
+    <link rel="stylesheet" href="/styles/build.css" />
+  </head>
+
+  <body class="min-h-screen bg-orange-50">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 bg-white border-r border-orange-100 shadow-md">
+        <div class="p-6">
+          <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
+        </div>
+
+        <nav class="px-4 space-y-2">
+          <a
+            href="/admin/dashboard"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            Dashboard
+          </a>
+
+          <a
+            href="/admin/users"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            User Management
+          </a>
+
+          <a
+            href="/admin/restaurants"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            Restaurants
+          </a>
+
+          <a
+            href="/admin/orders"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            Orders
+          </a>
+
+          <a
+            href="/admin/config"
+            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
+          >
+            System Config
+          </a>
+
+          <a
+            href="/admin/audit-logs"
+            class="block px-4 py-2 rounded-xl bg-orange-100 text-orange-600 font-semibold"
+          >
+            Audit Logs
+          </a>
+        </nav>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="flex-1 p-8">
+        <!-- Header -->
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-800">Audit Logs</h2>
+
+          <p class="text-gray-600 mt-1">
+            Track all admin activities and system changes
+          </p>
+        </div>
+
+        <!-- Filters -->
+        <div
+          class="bg-white rounded-2xl shadow border border-orange-100 p-5 mb-6"
+        >
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search admin or action"
+              class="px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:outline-none"
+            />
+
+            <input
+              id="startDate"
+              type="date"
+              class="px-4 py-3 rounded-xl border border-gray-300"
+            />
+
+            <input
+              id="endDate"
+              type="date"
+              class="px-4 py-3 rounded-xl border border-gray-300"
+            />
+
+            <button
+              onclick="fetchLogs()"
+              class="bg-orange-500 text-white rounded-xl px-4 py-3 hover:bg-orange-600"
+            >
+              Filter
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div
+          class="bg-white rounded-2xl shadow border border-orange-100 overflow-x-auto"
+        >
+          <table class="w-full">
+            <thead class="bg-orange-100">
+              <tr class="text-left">
+                <th class="p-4">Admin</th>
+                <th class="p-4">Action</th>
+                <th class="p-4">Target</th>
+                <th class="p-4">IP Address</th>
+                <th class="p-4">Time</th>
+              </tr>
+            </thead>
+
+            <tbody id="logsTable">
+              <tr>
+                <td colspan="5" class="p-6 text-center text-gray-500">
+                  Loading logs...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const logsTable = document.getElementById('logsTable');
+
+      /*
+  Fetch Logs
+*/
+      async function fetchLogs() {
+        logsTable.innerHTML = `
+    <tr>
+      <td colspan="5" class="p-6 text-center text-gray-500">
+        Loading logs...
+      </td>
+    </tr>
+  `;
+
+        const search = document.getElementById('searchInput').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        const query = new URLSearchParams();
+
+        if (search) query.append('search', search);
+        if (startDate) query.append('startDate', startDate);
+        if (endDate) query.append('endDate', endDate);
+
+        try {
+          const res = await fetch('/admin/audit-logs?' + query.toString());
+          const data = await res.json();
+
+          if (!data.length) {
+            logsTable.innerHTML = `
+        <tr>
+          <td colspan="5" class="p-6 text-center text-gray-500">
+            No logs found
+          </td>
+        </tr>
+      `;
+
+            return;
+          }
+
+          logsTable.innerHTML = data
+            .map(
+              (log) => `
+
+      <tr class="border-t">
+
+        <td class="p-4 font-semibold">
+          ${log.adminName}
+        </td>
+
+        <td class="p-4">
+          ${log.action}
+        </td>
+
+        <td class="p-4">
+          ${log.target}
+        </td>
+
+        <td class="p-4 text-gray-600">
+          ${log.ipAddress || '-'}
+        </td>
+
+        <td class="p-4 text-gray-600">
+          ${new Date(log.createdAt).toLocaleString()}
+        </td>
+
+      </tr>
+
+    `
+            )
+            .join('');
+        } catch (err) {
+          showToast('Failed to load audit logs', 'error');
+          logsTable.innerHTML = `
+      <tr>
+        <td colspan="5" class="p-6 text-center text-gray-500">
+          Failed to load logs
+        </td>
+      </tr>
+    `;
+        }
+      }
+
+      /*
+  Init
+*/
+      fetchLogs();
+    </script>
+    <%- include('../partials/toast') %>
+  </body>
+</html>

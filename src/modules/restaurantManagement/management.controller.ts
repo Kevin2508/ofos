@@ -19,8 +19,7 @@ import {
   uploadLogoService,
 } from './management.service.ts';
 
-// POST /restaurants
-const registerRestaurant = catchAsync(
+export const registerRestaurant = catchAsync(
   async (req: Request<{}, {}, createRestaurantDto>, res: Response) => {
     const ownerUserId = BigInt((req as any).user.id);
     const data = await registerRestaurantService(ownerUserId, req.body);
@@ -29,16 +28,14 @@ const registerRestaurant = catchAsync(
   }
 );
 
-// GET /restaurants/mine
-const getMyRestaurants = catchAsync(async (req: Request, res: Response) => {
+export const getMyRestaurants = catchAsync(async (req: Request, res: Response) => {
   const ownerUserId = BigInt((req as any).user.id);
   const data = await getMyRestaurantsService(ownerUserId);
 
   res.status(200).json({ status: 'success', ...data });
 });
 
-// PATCH /restaurants/:id
-const updateRestaurant = catchAsync(
+export const updateRestaurant = catchAsync(
   async (
     req: Request<restaurantParamsDto, {}, updateRestaurantDto>,
     res: Response
@@ -51,8 +48,7 @@ const updateRestaurant = catchAsync(
   }
 );
 
-// POST /restaurants/:id/logo
-const uploadLogo = catchAsync(
+export const uploadLogo = catchAsync(
   async (req: Request<restaurantParamsDto>, res: Response) => {
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
@@ -69,8 +65,7 @@ const uploadLogo = catchAsync(
   }
 );
 
-// POST /restaurants/:id/cover
-const uploadCover = catchAsync(
+export const uploadCover = catchAsync(
   async (req: Request<restaurantParamsDto>, res: Response) => {
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
@@ -87,8 +82,7 @@ const uploadCover = catchAsync(
   }
 );
 
-// POST /restaurants/:id/documents
-const uploadDocument = catchAsync(
+export const uploadDocument = catchAsync(
   async (
     req: Request<restaurantParamsDto, {}, uploadDocumentDto>,
     res: Response
@@ -113,8 +107,7 @@ const uploadDocument = catchAsync(
   }
 );
 
-// PATCH /restaurants/:id/pause
-const pauseRestaurant = catchAsync(
+export const pauseRestaurant = catchAsync(
   async (
     req: Request<restaurantParamsDto, {}, pauseRestaurantDto>,
     res: Response
@@ -127,8 +120,7 @@ const pauseRestaurant = catchAsync(
   }
 );
 
-// PATCH /restaurants/:id/resume
-const resumeRestaurant = catchAsync(
+export const resumeRestaurant = catchAsync(
   async (req: Request<restaurantParamsDto>, res: Response) => {
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
@@ -138,8 +130,7 @@ const resumeRestaurant = catchAsync(
   }
 );
 
-// DELETE /restaurants/:id  — admin only
-const deactivateRestaurant = catchAsync(
+export const deactivateRestaurant = catchAsync(
   async (req: Request<restaurantParamsDto>, res: Response) => {
     const id = BigInt(req.params.id);
     const data = await deactivateRestaurantService(id);
@@ -147,15 +138,3 @@ const deactivateRestaurant = catchAsync(
     res.status(200).json({ status: 'success', ...data });
   }
 );
-
-export {
-  deactivateRestaurant,
-  getMyRestaurants,
-  pauseRestaurant,
-  registerRestaurant,
-  resumeRestaurant,
-  updateRestaurant,
-  uploadCover,
-  uploadDocument,
-  uploadLogo,
-};

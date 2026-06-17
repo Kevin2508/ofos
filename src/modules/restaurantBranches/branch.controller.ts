@@ -18,7 +18,6 @@ import {
     upsertDeliveryZone as upsertDeliveryZoneService,
 } from "./branch.service.ts";
 
-// GET /restaurants/:restaurantId/branches
 const getBranches = catchAsync(
   async (req: Request<Pick<branchParamsDto, "restaurantId">>, res: Response) => {
     const restaurantId = BigInt(req.params.restaurantId);
@@ -28,7 +27,6 @@ const getBranches = catchAsync(
   }
 );
 
-// POST /restaurants/:restaurantId/branches
 const createBranch = catchAsync(
   async (
     req: Request<Pick<branchParamsDto, "restaurantId">, {}, createBranchDto>,
@@ -41,9 +39,9 @@ const createBranch = catchAsync(
   }
 );
 
-// GET /restaurants/:restaurantId/branches/:id
 const getBranch = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
+    console.log(req.params.restaurantId)
     const restaurantId = BigInt(req.params.restaurantId);
     const id = BigInt(req.params.id);
     const data = await getBranchService(restaurantId, id);
@@ -52,7 +50,6 @@ const getBranch = catchAsync(
   }
 );
 
-// PATCH /restaurants/:restaurantId/branches/:id
 const updateBranch = catchAsync(
   async (
     req: Request<branchParamsDto, {}, updateBranchDto>,
@@ -66,7 +63,6 @@ const updateBranch = catchAsync(
   }
 );
 
-// DELETE /restaurants/:restaurantId/branches/:id
 const deactivateBranch = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
     const restaurantId = BigInt(req.params.restaurantId);

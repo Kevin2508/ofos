@@ -1,43 +1,72 @@
 import { Router } from 'express';
 import { authenticate, authorize } from '../../middlewares/auth.middleware.ts';
+import {
+  validate,
+  validateParams,
+  validateQuery,
+} from '../../middlewares/validation.middleware.ts';
+import {
+  getAdminOrders,
+  getAllSystemConfigs,
+  getAllUsers,
+  getAuditLogs,
+  getPendingRestaurants,
+  getUserById,
+  updateRestaurantStatus,
+  updateSystemConfig,
+  updateUserRoleStatus,
+} from './admin.controller.ts';
+import {
+  getAdminOrdersQuerySchema,
+  getAllUsersSchema,
+  getAuditLogsSchema,
+  restaurantIdSchema,
+  updateRestaurantStatusSchema,
+  updateSystemConfigSchema,
+  updateUserRoleStatusSchema,
+  userIdSchema,
+} from './admin.validation.ts';
 
 const adminRouter = Router();
 
 adminRouter.use(authenticate);
 
-adminRouter.use(authorize('Fleet_manager'));
+adminRouter.use(authorize('Admin'));
 
-// GET /admin/users
-// Search and list all users with role and status filters.
+adminRouter.get('/users', validateQuery(getAllUsersSchema), getAllUsers);
 
-// GET /admin/users/:id
-// Get detailed profile for any user.
+adminRouter.get('/user/:id', validateParams(userIdSchema), getUserById);
 
-// PATCH /admin/users/:id/
-// status Approve, suspend, or permanently deactivate a user account.
+adminRouter.patch(
+  '/user/:id/status',
+  validateParams(userIdSchema),
+  validate(updateUserRoleStatusSchema),
+  updateUserRoleStatus
+);
 
-// GET /admin/restaurants/pending
-// List restaurants awaiting verification approval.
+adminRouter.get('/restaurants/pending', getPendingRestaurants);
 
-// PATCH /admin/restaurants/:id/approve
-// Approve a restaurant's onboarding application.
+adminRouter.patch(
+  '/restaurants/:id/status',
+  validateParams(restaurantIdSchema),
+  validate(updateRestaurantStatusSchema),
+  updateRestaurantStatus
+);
 
-// PATCH /admin/restaurants/:id/reject
-// Reject with a reason and optional document request.
+adminRouter.get(
+  '/orders',
+  validateQuery(getAdminOrdersQuerySchema),
+  getAdminOrders
+);
 
-// PATCH /admin/restaurants/:id/delist
-// Temporarily delist an approved restaurant.
+adminRouter.get('/config', getAllSystemConfigs);
 
-// GET /admin/orders
-// Real-time order monitoring board across the entire platform.
+adminRouter.patch(
+  '/config/update',
+  validate(updateSystemConfigSchema),
+  updateSystemConfig
+);
 
-// GET /admin/config
-// Get all current system configuration values.
-
-// PATCH /admin/config/:key
-// Update a configuration value.
-
-// GET /admin/audit-logs
-// Paginated immutable audit trail with actor and entity filters.
+adminRouter.get('/audit-logs', validateQuery(getAuditLogsSchema), getAuditLogs);
 
 export { adminRouter };

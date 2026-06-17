@@ -2,8 +2,9 @@ import { prisma } from '../../config/prisma.ts';
 import {
   AssignmentStatus,
   DeliveryPartnerStatus,
-  VehicleType,
+  
 } from '../../generated/prisma/enums.ts';
+import { VehicleType } from '../../generated/prisma/enums.ts';
 import { IupdateProfilePayload } from './deliveryPartner.interface.ts';
 
 async function createDeliveryPartner(data: {

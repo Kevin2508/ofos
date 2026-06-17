@@ -1,118 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Profile | Restaurant Staff | ofos</title>
-    <link rel="stylesheet" href="/styles/build.css" />
-  </head>
-  <body class="min-h-screen bg-orange-50 font-sans">
-    <div class="flex min-h-screen">
-      <!-- SIDEBAR -->
-      <aside class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
-        <div class="p-6 text-center border-b border-orange-50">
-          <h1 class="text-3xl font-extrabold text-orange-500">ofos Staff</h1>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile | Restaurant Staff | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans">
+  <div class="flex min-h-screen">
+    <!-- SIDEBAR -->
+    <aside
+      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
+      <div class="p-6 text-center border-b border-orange-50">
+        <h1 class="text-3xl font-extrabold text-orange-500">ofos Staff</h1>
+      </div>
+
+      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <a href="/rs/restaurant-staff-dashboard"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+            </path>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="/rs/restaurant-staff-orders"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+          </svg>
+          <span>Active Orders</span>
+        </a>
+        <a href="/rs/restaurant-staff-profile"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          <span>Profile</span>
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-orange-50">
+        <button id="logoutBtn"
+          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+          <span class="font-semibold">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 ml-64 p-8">
+      <div class="mb-8 flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">My Profile</h2>
+          <p class="text-gray-500 mt-1">Manage your staff account information.</p>
         </div>
+      </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-          <a href="/restaurant-staff-dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-            <span>Dashboard</span>
-          </a>
-          <a href="/restaurant-staff-orders" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-            <span>Active Orders</span>
-          </a>
-          <a href="/restaurant-staff-profile" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-            <span>Profile</span>
-          </a>
-        </nav>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 max-w-3xl overflow-hidden">
+        <div class="h-32 bg-orange-100 relative"></div>
+        <div class="px-8 pb-8 pt-4 relative">
+          <div
+            class="absolute -top-16 w-32 h-32 bg-white rounded-full border-4 border-white shadow-lg overflow-hidden flex items-center justify-center text-orange-500">
+            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+          </div>
 
-        <div class="p-4 border-t border-orange-50">
-          <button id="logoutBtn" class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            <span class="font-semibold">Logout</span>
-          </button>
-        </div>
-      </aside>
+          <div class="mt-16">
+            <h3 class="text-2xl font-bold text-gray-800">Staff Account</h3>
+            <p class="text-gray-500 text-sm">Restaurant Staff Role</p>
+          </div>
 
-      <!-- MAIN CONTENT -->
-      <main class="flex-1 ml-64 p-8">
-        <div class="mb-8 flex justify-between items-center">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-800">My Profile</h2>
-            <p class="text-gray-500 mt-1">Manage your staff account information.</p>
+          <hr class="my-6 border-gray-100" />
+
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                <input type="text" id="firstName" disabled value="Loading..."
+                  class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                <input type="text" id="lastName" disabled value="" placeholder="Loading..."
+                  class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <input type="email" id="email" disabled value="Loading..."
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <input type="text" id="phone" disabled value="Loading..."
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed" />
+            </div>
           </div>
         </div>
+      </div>
+    </main>
+  </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 max-w-3xl overflow-hidden">
-          <div class="h-32 bg-orange-100 relative"></div>
-          <div class="px-8 pb-8 pt-4 relative">
-            <div class="absolute -top-16 w-32 h-32 bg-white rounded-full border-4 border-white shadow-lg overflow-hidden flex items-center justify-center text-orange-500">
-              <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-            </div>
-            
-            <div class="mt-16">
-              <h3 class="text-2xl font-bold text-gray-800">Staff Account</h3>
-              <p class="text-gray-500 text-sm">Restaurant Staff Role</p>
-            </div>
+  <script>
+    async function loadProfile() {
+      try {
+        const res = await fetch('/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          const user = data.data?.user || {};
 
-            <hr class="my-6 border-gray-100" />
-
-            <div class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                  <input type="text" id="firstName" disabled value="Loading..." class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed" />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                  <input type="text" id="lastName" disabled value="" placeholder="Loading..." class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed" />
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                <input type="email" id="email" disabled value="Loading..." class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                <input type="text" id="phone" disabled value="Loading..." class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-
-    <script>
-      async function loadProfile() {
-        try {
-          const res = await fetch('/auth/me');
-          if (res.ok) {
-            const data = await res.json();
-            const user = data.data?.user || {};
-            
-            document.getElementById('firstName').value = user.firstName || '';
-            document.getElementById('lastName').value = user.lastName || '';
-            document.getElementById('email').value = user.email || '';
-            document.getElementById('phone').value = user.phone || '';
-          }
-        } catch (err) {
-          console.error('Failed to fetch profile', err);
+          document.getElementById('firstName').value = user.firstName || '';
+          document.getElementById('lastName').value = user.lastName || '';
+          document.getElementById('email').value = user.email || '';
+          document.getElementById('phone').value = user.phone || '';
         }
+      } catch (err) {
+        console.error('Failed to fetch profile', err);
       }
+    }
 
-      loadProfile();
+    loadProfile();
 
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        localStorage.removeItem('token');
-        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        window.location.href = '/loginPage';
-      });
-    </script>
-    <%- include('../partials/toast') %>
-  </body>
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        await fetch('/auth/logout', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (e) { console.error(e); }
+      localStorage.clear();
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.href = '/loginPage';
+    });;
+  </script>
+  <%- include('../partials/toast') %>
+</body>
+
 </html>

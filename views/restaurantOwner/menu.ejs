@@ -1,123 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Menu Management | Restaurant Owner | ofos</title>
-    <link rel="stylesheet" href="/styles/build.css" />
-  </head>
-  <body class="min-h-screen bg-orange-50 font-sans">
-    <div class="flex min-h-screen">
-      <!-- SIDEBAR -->
-      <aside class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
-        <div class="p-6 text-center border-b border-orange-50">
-          <h1 class="text-3xl font-extrabold text-orange-500">ofos Partner</h1>
-        </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-          <a href="/restaurant-owner-dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-            <span>Dashboard</span>
-          </a>
-          <a href="/restaurant-owner-restaurants" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-            <span>Restaurants</span>
-          </a>
-          <a href="/restaurant-owner-menu" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-            <span>Menu Management</span>
-          </a>
-          <a href="/restaurant-owner-orders" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-            <span>Orders</span>
-          </a>
-          <a href="/restaurant-owner-profile" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-            <span>Profile</span>
-          </a>
-        </nav>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu Management | Restaurant Owner | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
 
-        <div class="p-4 border-t border-orange-50">
-          <button id="logoutBtn" class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            <span class="font-semibold">Logout</span>
-          </button>
-        </div>
-      </aside>
+<body class="min-h-screen bg-orange-50 font-sans">
+  <div class="flex min-h-screen">
+    <!-- SIDEBAR -->
+    <aside
+      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
+      <div class="p-6 text-center border-b border-orange-50">
+        <h1 class="text-3xl font-extrabold text-orange-500">ofos Partner</h1>
+      </div>
 
-      <!-- MAIN CONTENT -->
-      <main class="flex-1 ml-64 p-8">
-        <div class="mb-8 flex justify-between items-center">
+      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <a href="/ro/restaurant-owner-dashboard"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+            </path>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="/ro/restaurant-owner-restaurants"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+            </path>
+          </svg>
+          <span>Restaurants</span>
+        </a>
+        <a href="/ro/restaurant-owner-menu"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+            </path>
+          </svg>
+          <span>Menu Management</span>
+        </a>
+        <a href="/ro/restaurant-owner-orders"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+          </svg>
+          <span>Orders</span>
+        </a>
+        <a href="/ro/restaurant-owner-profile"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          <span>Profile</span>
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-orange-50">
+        <button id="logoutBtn"
+          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+          <span class="font-semibold">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 ml-64 p-8">
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800">Menu Management</h2>
+        <p class="text-gray-500 mt-1">Manage categories and menu items for each branch.</p>
+      </div>
+
+      <!-- Step 1: Select Restaurant & Branch -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h2 class="text-2xl font-bold text-gray-800">Menu Management</h2>
-            <p class="text-gray-500 mt-1">Add or update items and categories for your restaurants.</p>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Restaurant</label>
+            <select id="restaurantSelect"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-colors">
+              <option value="" disabled selected>Loading restaurants...</option>
+            </select>
           </div>
-          <button class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow transition-colors">
-            + New Category
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Branch</label>
+            <select id="branchSelect"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-colors" disabled>
+              <option value="" disabled selected>Select a restaurant first</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Management (hidden until branch is selected) -->
+      <div id="categorySection" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-800">Categories</h3>
+          <button onclick="openAddCategoryModal()"
+            class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            New Category
           </button>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center min-h-[400px]">
-          <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 mb-4">
-             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-800">Select a Restaurant</h3>
-          <p class="text-gray-500 text-center max-w-sm mt-2 mb-6">You need to select a specific restaurant to view and manage its menu categories and items.</p>
-          
-          <select id="restaurantSelect" class="w-full max-w-xs px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-colors">
-            <option value="" disabled selected>Loading your restaurants...</option>
-          </select>
+        <div id="categoriesContainer" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-8 text-center text-gray-500">Loading categories...</div>
         </div>
+      </div>
 
-        <div id="menuContent" class="hidden mt-8">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">Menu Items</h3>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center text-gray-500">
-            Select a category to view menu items or click '+ New Category' to start.
-          </div>
+      <!-- Placeholder when no branch selected -->
+      <div id="placeholderSection"
+        class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center min-h-[300px]">
+        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 mb-4">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+            </path>
+          </svg>
         </div>
-      </main>
+        <h3 class="text-lg font-bold text-gray-700">Select a Restaurant & Branch</h3>
+        <p class="text-gray-500 text-sm mt-1 text-center max-w-xs">Choose a restaurant and branch above to view and manage its menu categories.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add / Edit Category Modal -->
+  <div id="categoryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+      <h3 id="categoryModalTitle" class="text-xl font-bold text-gray-800 mb-4">Add Category</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Name <span class="text-red-500">*</span></label>
+          <input type="text" id="categoryName" placeholder="e.g. Starters"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+          <input type="text" id="categoryDescription" placeholder="Optional description"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Display Order</label>
+          <input type="number" id="categoryOrder" value="0" min="0"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+        </div>
+        <input type="hidden" id="editCategoryId" value="" />
+        <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100">
+          <button onclick="closeCategoryModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+          <button onclick="saveCategory()" id="saveCategoryBtn"
+            class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium shadow">Save</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-      async function loadRestaurantsForDropdown() {
-        try {
-          const token = localStorage.getItem('token') || '';
-          const res = await fetch('/restaurant-management/mine', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          
-          const select = document.getElementById('restaurantSelect');
-          
-          if (res.ok) {
-            const data = await res.json();
-            const restaurants = data.data || [];
-            
-            if (restaurants.length === 0) {
-              select.innerHTML = `<option disabled selected>No restaurants found</option>`;
-            } else {
-              select.innerHTML = `<option value="" disabled selected>Select a restaurant...</option>` + 
-                restaurants.map(r => `<option value="${r.id}">${r.businessName}</option>`).join('');
-            }
+  <script>
+    const token = localStorage.getItem('token') || '';
+    let selectedRestaurantId = null;
+    let selectedBranchId = null;
+
+    async function loadRestaurantsForDropdown() {
+      try {
+        const res = await fetch('/restaurant-management/mine', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const select = document.getElementById('restaurantSelect');
+        if (res.ok) {
+          const data = await res.json();
+          const restaurants = data.restaurants || [];
+          if (restaurants.length === 0) {
+            select.innerHTML = `<option disabled selected>No restaurants found</option>`;
+          } else {
+            select.innerHTML = `<option value="" disabled selected>Select a restaurant...</option>` +
+              restaurants.map(r => `<option value="${r.id}">${r.businessName}</option>`).join('');
           }
-        } catch (err) {
-          console.error(err);
         }
+      } catch (err) { console.error(err); }
+    }
+
+    async function loadBranches(restaurantId) {
+      const branchSelect = document.getElementById('branchSelect');
+      branchSelect.disabled = true;
+      branchSelect.innerHTML = `<option disabled selected>Loading branches...</option>`;
+
+      try {
+        const res = await fetch(`/restaurant-management/${restaurantId}/branches`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const branches = data.data || data.branches || [];
+          if (branches.length === 0) {
+            branchSelect.innerHTML = `<option disabled selected>No branches found — create one first</option>`;
+          } else {
+            branchSelect.innerHTML = `<option value="" disabled selected>Select a branch...</option>` +
+              branches.map(b => `<option value="${b.id}">${b.name || b.city || 'Branch ' + b.id}</option>`).join('');
+            branchSelect.disabled = false;
+          }
+        } else {
+          branchSelect.innerHTML = `<option disabled selected>Error loading branches</option>`;
+        }
+      } catch (err) {
+        console.error(err);
+        branchSelect.innerHTML = `<option disabled selected>Error loading branches</option>`;
       }
+    }
 
-      document.getElementById('restaurantSelect').addEventListener('change', (e) => {
-        if(e.target.value) {
-          document.getElementById('menuContent').classList.remove('hidden');
+    async function loadCategories() {
+      if (!selectedBranchId) return;
+      const container = document.getElementById('categoriesContainer');
+      container.innerHTML = `<div class="p-8 text-center text-gray-500">Loading...</div>`;
+
+      try {
+        const res = await fetch(`/menu-category/branches/${selectedBranchId}/categories`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const categories = data.data || [];
+          if (categories.length === 0) {
+            container.innerHTML = `<div class="p-8 text-center text-gray-500">No categories yet. Click <strong>New Category</strong> to add one.</div>`;
+          } else {
+            container.innerHTML = `<table class="w-full text-left">
+              <thead class="bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider">
+                <tr>
+                  <th class="px-6 py-3">Name</th>
+                  <th class="px-6 py-3">Description</th>
+                  <th class="px-6 py-3 text-center">Order</th>
+                  <th class="px-6 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50 text-gray-700">
+                ${categories.map(c => `
+                  <tr class="hover:bg-orange-50 transition-colors">
+                    <td class="px-6 py-4 font-semibold text-gray-800">${c.name}</td>
+                    <td class="px-6 py-4 text-gray-500 text-sm">${c.description || '—'}</td>
+                    <td class="px-6 py-4 text-center text-sm">${c.displayOrder ?? 0}</td>
+                    <td class="px-6 py-4 text-right">
+                      <button onclick="openEditCategoryModal('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${(c.description || '').replace(/'/g, "\\'")}', ${c.displayOrder ?? 0})"
+                        class="px-3 py-1.5 text-xs bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg mr-2 font-medium transition-colors">Edit</button>
+                      <button onclick="deleteCategory('${c.id}')"
+                        class="px-3 py-1.5 text-xs bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-medium transition-colors">Delete</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>`;
+          }
+        } else {
+          container.innerHTML = `<div class="p-8 text-center text-red-500">Failed to load categories.</div>`;
         }
-      });
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div class="p-8 text-center text-red-500">Error loading categories.</div>`;
+      }
+    }
 
-      loadRestaurantsForDropdown();
+    function openAddCategoryModal() {
+      document.getElementById('categoryModalTitle').textContent = 'Add Category';
+      document.getElementById('categoryName').value = '';
+      document.getElementById('categoryDescription').value = '';
+      document.getElementById('categoryOrder').value = '0';
+      document.getElementById('editCategoryId').value = '';
+      document.getElementById('categoryModal').classList.remove('hidden');
+    }
 
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        localStorage.removeItem('token');
-        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        window.location.href = '/loginPage';
-      });
-    </script>
-    <%- include('../partials/toast') %>
-  </body>
+    function openEditCategoryModal(id, name, description, order) {
+      document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+      document.getElementById('categoryName').value = name;
+      document.getElementById('categoryDescription').value = description;
+      document.getElementById('categoryOrder').value = order;
+      document.getElementById('editCategoryId').value = id;
+      document.getElementById('categoryModal').classList.remove('hidden');
+    }
+
+    function closeCategoryModal() {
+      document.getElementById('categoryModal').classList.add('hidden');
+    }
+
+    async function saveCategory() {
+      const name = document.getElementById('categoryName').value.trim();
+      const description = document.getElementById('categoryDescription').value.trim();
+      const displayOrder = parseInt(document.getElementById('categoryOrder').value) || 0;
+      const editId = document.getElementById('editCategoryId').value;
+      const btn = document.getElementById('saveCategoryBtn');
+
+      if (!name) return alert('Category name is required');
+
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        const isEdit = !!editId;
+        const url = isEdit
+          ? `/menu-category/branches/${selectedBranchId}/categories/${editId}`
+          : `/menu-category/branches/${selectedBranchId}/categories`;
+
+        const res = await fetch(url, {
+          method: isEdit ? 'PATCH' : 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, description: description || null, displayOrder })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          closeCategoryModal();
+          loadCategories();
+        } else {
+          alert(data.message || 'Error saving category');
+        }
+      } catch (e) {
+        alert('Error saving category');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save';
+      }
+    }
+
+    async function deleteCategory(id) {
+      if (!confirm('Delete this category? This cannot be undone.')) return;
+      try {
+        const res = await fetch(`/menu-category/branches/${selectedBranchId}/categories/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          loadCategories();
+        } else {
+          const data = await res.json();
+          alert(data.message || 'Error deleting category');
+        }
+      } catch (e) { alert('Error deleting category'); }
+    }
+
+    document.getElementById('restaurantSelect').addEventListener('change', (e) => {
+      selectedRestaurantId = e.target.value;
+      selectedBranchId = null;
+      document.getElementById('categorySection').classList.add('hidden');
+      document.getElementById('placeholderSection').classList.remove('hidden');
+      loadBranches(selectedRestaurantId);
+    });
+
+    document.getElementById('branchSelect').addEventListener('change', (e) => {
+      selectedBranchId = e.target.value;
+      document.getElementById('categorySection').classList.remove('hidden');
+      document.getElementById('placeholderSection').classList.add('hidden');
+      loadCategories();
+    });
+
+    loadRestaurantsForDropdown();
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/auth/logout', { headers: { 'Authorization': `Bearer ${token}` } });
+      } catch (e) { }
+      localStorage.clear();
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.href = '/loginPage';
+    });
+  </script>
+  <%- include('../partials/toast') %>
+</body>
+
 </html>

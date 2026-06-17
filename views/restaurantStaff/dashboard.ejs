@@ -18,7 +18,7 @@
       </div>
 
       <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        <a href="/restaurant-staff-dashboard"
+        <a href="/rs/restaurant-staff-dashboard"
           class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -27,7 +27,7 @@
           </svg>
           <span>Dashboard</span>
         </a>
-        <a href="/restaurant-staff-orders"
+        <a href="/rs/restaurant-staff-orders"
           class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -35,7 +35,7 @@
           </svg>
           <span>Active Orders</span>
         </a>
-        <a href="/restaurant-staff-profile"
+        <a href="/rs/restaurant-staff-profile"
           class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -122,7 +122,8 @@
       <div class="mt-10">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-bold text-gray-800">Latest Active Orders</h3>
-          <a href="/restaurant-staff-orders" class="text-orange-500 hover:text-orange-600 font-medium text-sm">View All
+          <a href="/rs/restaurant-staff-orders" class="text-orange-500 hover:text-orange-600 font-medium text-sm">View
+            All
             &rarr;</a>
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -192,13 +193,20 @@
 
     loadDashboard();
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.removeItem('token');
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        await fetch('/auth/logout', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (e) { console.error(e); }
+      localStorage.clear();
       document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       window.location.href = '/loginPage';
-    });
+    });;
   </script>
   <%- include('../partials/toast') %>
+    <%- include('../partials/floating-role-switcher') %>
 </body>
 
 </html>

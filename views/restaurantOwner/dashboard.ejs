@@ -18,7 +18,7 @@
       </div>
 
       <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        <a href="/restaurant-owner-dashboard"
+        <a href="/ro/restaurant-owner-dashboard"
           class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -27,7 +27,7 @@
           </svg>
           <span>Dashboard</span>
         </a>
-        <a href="/restaurant-owner-restaurants"
+        <a href="/ro/restaurant-owner-restaurants"
           class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -36,7 +36,7 @@
           </svg>
           <span>Restaurants</span>
         </a>
-        <a href="/restaurant-owner-menu"
+        <a href="/ro/restaurant-owner-menu"
           class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -45,7 +45,7 @@
           </svg>
           <span>Menu Management</span>
         </a>
-        <a href="/restaurant-owner-orders"
+        <a href="/ro/restaurant-owner-orders"
           class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -53,7 +53,7 @@
           </svg>
           <span>Orders</span>
         </a>
-        <a href="/restaurant-owner-profile"
+        <a href="/ro/restaurant-owner-profile"
           class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -86,7 +86,7 @@
           </p>
         </div>
         <div class="mt-4 md:mt-0">
-          <a href="/restaurant-owner-restaurants"
+          <a href="/ro/restaurant-owner-restaurants"
             class="px-5 py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-colors shadow-sm inline-block">
             + New Restaurant
           </a>
@@ -161,7 +161,8 @@
       <div class="mt-10">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-bold text-gray-800">Your Restaurants</h3>
-          <a href="/restaurant-owner-restaurants" class="text-orange-500 hover:text-orange-600 font-medium text-sm">View
+          <a href="/ro/restaurant-owner-restaurants"
+            class="text-orange-500 hover:text-orange-600 font-medium text-sm">View
             All &rarr;</a>
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -199,7 +200,7 @@
 
         if (res.ok) {
           const data = await res.json();
-          const restaurants = data.data || [];
+          const restaurants = data.restaurants || [];
 
           document.getElementById('statRestaurants').innerText = restaurants.length;
           document.getElementById('statPending').innerText = restaurants.filter(r => r.status === 'PENDING_VERIFICATION').length;
@@ -235,13 +236,20 @@
 
     loadDashboard();
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.removeItem('token');
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        await fetch('/auth/logout', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (e) { console.error(e); }
+      localStorage.clear();
       document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       window.location.href = '/loginPage';
-    });
+    });;
   </script>
   <%- include('../partials/toast') %>
+    <%- include('../partials/floating-role-switcher') %>
 </body>
 
 </html>

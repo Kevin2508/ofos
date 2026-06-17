@@ -68,6 +68,7 @@ const login = catchAsync(
       message: data.message,
       data: {
         user: data.user,
+        token: data.tokens.accessToken,
       },
     });
   }

@@ -28,6 +28,7 @@ async function getActiveCartByUser(userId: bigint) {
         orderBy: { calculatedAt: 'desc' },
         take: 1,
       },
+      branch: true,
     },
   });
 }
@@ -54,9 +55,14 @@ async function createCart(userId: bigint, branchId: bigint) {
               },
             },
           },
+          menuItem: true,
         },
       },
-      priceBreakdowns: true,
+      priceBreakdowns: {
+        orderBy: { calculatedAt: 'desc' },
+        take: 1,
+      },
+      branch: true,
     },
   });
 }

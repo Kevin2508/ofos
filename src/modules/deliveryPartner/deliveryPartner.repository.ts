@@ -37,6 +37,7 @@ async function getProfile(id: bigint) {
         select: {
           vehicleType: true,
           vehicleRegistrationNumber: true,
+          isOnline: true,
         },
       },
     },
@@ -86,6 +87,7 @@ async function updateProfileRepo(id: bigint, data: IupdateProfilePayload) {
         select: {
           vehicleType: true,
           vehicleRegistrationNumber: true,
+          isOnline: true,
         },
       },
     },

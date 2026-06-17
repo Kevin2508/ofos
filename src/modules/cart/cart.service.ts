@@ -304,10 +304,12 @@ async function getPriceBreakdownService(
   const cart = await getActiveCartByUser(userId);
   if (!cart) throw new Error('No active cart found');
 
-  const breakdown = await calculateCartTotals(cart.id);
+  const appliedDiscountRaw = cart.priceBreakdowns?.[0]?.discountAmount || 0;
+  const appliedDiscountNum = Number(appliedDiscountRaw) || 0;
 
-  const appliedDiscount = cart.priceBreakdowns?.[0]?.discountAmount || 0;
-  const appliedCoupon = appliedDiscount > 0 ? true : false;
+  const breakdown = await calculateCartTotals(cart.id, appliedDiscountNum);
+
+  const appliedCoupon = appliedDiscountNum > 0;
 
   return {
     ...breakdown,

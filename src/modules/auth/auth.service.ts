@@ -136,6 +136,7 @@ async function loginService(
       lastName: user.lastName,
       email: user.email,
       roles: Array.from(roles),
+      pendingRoles: Array.from(pendingRoles),
     },
   };
 }

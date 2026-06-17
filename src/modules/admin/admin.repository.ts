@@ -171,6 +171,23 @@ async function getPendingRestaurantsRepo() {
   };
 }
 
+async function getAllRestaurantsRepo(status?: string) {
+  const where: any = { deletedAt: null };
+  if (status) {
+    where.status = status;
+  }
+  
+  const [restaurants, totalCount] = await prisma.$transaction([
+    prisma.restaurant.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.restaurant.count({ where }),
+  ]);
+
+  return { restaurants, totalCount };
+}
+
 async function updateRestaurantStatusRepo({
   restaurantId,
   status,
@@ -304,6 +321,28 @@ async function updateSystemConfigRepo(
   return updatedConfig;
 }
 
+async function createSystemConfigRepo(
+  key: string,
+  value: string,
+  description: string | null,
+  updatedBy: bigint
+) {
+  return prisma.systemConfiguration.create({
+    data: {
+      configKey: key,
+      configValue: value,
+      description,
+      updatedBy,
+    },
+  });
+}
+
+async function deleteSystemConfigRepo(key: string) {
+  return prisma.systemConfiguration.delete({
+    where: { configKey: key },
+  });
+}
+
 async function getAuditLogsRepo(filters: {
   actorUserId?: string;
   entityType?: string;
@@ -374,10 +413,13 @@ export {
   getUserByIdRepo,
   updateUserRoleStatusRepo,
   getPendingRestaurantsRepo,
+  getAllRestaurantsRepo,
   updateRestaurantStatusRepo,
   getAdminOrdersRepo,
   getAllSystemConfigsRepo,
   updateSystemConfigRepo,
   getAuditLogsRepo,
   createAuditLogRepo,
+  createSystemConfigRepo,
+  deleteSystemConfigRepo,
 };

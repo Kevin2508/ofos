@@ -14,7 +14,10 @@ import {
   getUserById,
   updateRestaurantStatus,
   updateSystemConfig,
+  createSystemConfig,
+  deleteSystemConfig,
   updateUserRoleStatus,
+  getAllRestaurants,
 } from './admin.controller.ts';
 import {
   getAdminOrdersQuerySchema,
@@ -46,6 +49,8 @@ adminRouter.patch(
 
 adminRouter.get('/restaurants/pending', getPendingRestaurants);
 
+adminRouter.get('/restaurants', getAllRestaurants);
+
 adminRouter.patch(
   '/restaurants/:id/status',
   validateParams(restaurantIdSchema),
@@ -65,6 +70,16 @@ adminRouter.patch(
   '/config/update',
   validate(updateSystemConfigSchema),
   updateSystemConfig
+);
+
+adminRouter.post(
+  '/config',
+  createSystemConfig
+);
+
+adminRouter.delete(
+  '/config/:key',
+  deleteSystemConfig
 );
 
 adminRouter.get('/audit-logs', validateQuery(getAuditLogsSchema), getAuditLogs);

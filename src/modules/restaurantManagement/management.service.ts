@@ -1,5 +1,5 @@
 import { RestaurantStatus } from "../../generated/prisma/enums.ts";
-import {
+import type {
   createRestaurantDto,
   pauseRestaurantDto,
   updateRestaurantDto,
@@ -17,12 +17,31 @@ import {
   updateRestaurantCover,
   updateRestaurantLogo,
 } from "./management.repository.ts";
+import { createBranch } from "../restaurantBranches/branch.repository.ts";
 
 async function registerRestaurantService(
   ownerUserId: bigint,
   data: createRestaurantDto
 ) {
   const restaurant = await createRestaurant({ ownerUserId, ...data });
+
+  // Automatically create a default branch so the restaurant is usable immediately
+  await createBranch({
+    restaurantId: restaurant.id,
+    branchName: `${data.businessName} — Main Branch`,
+    gstin: 'PENDING',
+    fssaiLicenseNumber: 'PENDING',
+    contactPhone: data.primaryPhone,
+    addressLine1: 'Address to be updated',
+    city: 'City',
+    state: 'State',
+    postalCode: '000000',
+    country: 'India',
+    latitude: 0,
+    longitude: 0,
+    minimumOrderValue: 0,
+    deliveryFee: 0,
+  });
 
   return {
     message: "Restaurant registered successfully. Pending verification.",

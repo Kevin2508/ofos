@@ -20,39 +20,39 @@ import {
 } from "./management.validation.ts";
 import { authenticate } from "../../middlewares/auth.middleware.ts";
 
-const restaurantRouter = Router();
+const restaurantManagementRouter = Router();
 
-restaurantRouter.post(
+restaurantManagementRouter.post(
   "/",
   authenticate,
   validate(createRestaurantSchema),
   registerRestaurant
 );
 
-restaurantRouter.get("/mine", authenticate, getMyRestaurants);
+restaurantManagementRouter.get("/mine", authenticate, getMyRestaurants);
 
-restaurantRouter.patch(
+restaurantManagementRouter.patch(
   "/:id",
   authenticate,
   validate(updateRestaurantSchema),
   updateRestaurant
 );
 
-restaurantRouter.post(
+restaurantManagementRouter.post(
   "/:id/logo",
   authenticate,
   upload.single("logo"),
   uploadLogo
 );
 
-restaurantRouter.post(
+restaurantManagementRouter.post(
   "/:id/cover",
   authenticate,
   upload.single("cover"),
   uploadCover
 );
 
-restaurantRouter.post(
+restaurantManagementRouter.post(
   "/:id/documents",
   authenticate,
   upload.single("document"),
@@ -60,15 +60,15 @@ restaurantRouter.post(
   uploadDocument
 );
 
-restaurantRouter.patch(
+restaurantManagementRouter.patch(
   "/:id/pause",
   authenticate,
   validate(pauseRestaurantSchema),
   pauseRestaurant
 );
 
-restaurantRouter.patch("/:id/resume", authenticate, resumeRestaurant);
+restaurantManagementRouter.patch("/:id/resume", authenticate, resumeRestaurant);
 
-restaurantRouter.delete("/:id", authenticate, deactivateRestaurant);
+restaurantManagementRouter.delete("/:id", authenticate, deactivateRestaurant);
 
-export { restaurantRouter };
+export { restaurantManagementRouter };

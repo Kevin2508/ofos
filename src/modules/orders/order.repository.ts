@@ -38,6 +38,8 @@ async function getOrders({ customerUserId, page, limit }: GetOrdersParams) {
           city: true,
         },
       },
+      
+      items: true,
     },
 
     orderBy: {

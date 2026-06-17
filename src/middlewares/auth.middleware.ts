@@ -4,21 +4,10 @@ import jwt from 'jsonwebtoken';
 
 const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.accessToken;
-<<<<<<< HEAD
-  //console.log('Access Token from Cookie:', token);
-=======
 
-<<<<<<< HEAD
->>>>>>> 5a07a3a (Refine Auth Module)
-=======
-  //console.log('Access Token from Cookie:', token);
->>>>>>> bdca7d7 (sadfgdg)
   if (!token) {
-    throw new Error('Not authenticated. No access token provided.');
+    return res.render('default/notAuthenticated')
   }
-
-  if (!token) throw new Error('Not authenticated');
-  // if (!token) res.redirect('/not-authenticated');
 
   try {
     const secret = process.env.JWT_ACCESS_SECRET as string;
@@ -45,34 +34,32 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
         throw new Error('Invalid access token.');
       }
     }
-    throw new Error('Not authenticated.');
+    return res.render('default/notAuthenticated')
   }
 };
 
 const authorize = (requiredRole: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !req.user.roles) {
-      res.status(401).json({ message: 'Unauthorized: No user or roles found' });
-      return;
+
+    if (!req.user || !(req.user as any).roles) {
+      return res.render('default/notAuthenticated')
     }
 
-    const hasPendingRole = req.user.pendingRoles.some(
+    const hasPendingRole = (req.user as any).pendingRoles?.some(
       (role: string) => role === requiredRole
     );
 
     if (hasPendingRole) {
       // res.status(403).json({ message: 'Verification Pending' });
-      res.redirect('/pendingVerificationPage');
-      return;
+      return res.redirect('default/pendingVerification');
     }
 
-    const hasRole = req.user.roles.some(
+    const hasRole = (req.user as any).roles?.some(
       (role: string) => role === requiredRole
     );
 
     if (!hasRole) {
-      res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
-      return;
+      return res.render('default/notAuthorize')
     }
 
     next();

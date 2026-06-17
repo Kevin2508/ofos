@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { authenticate } from '../middlewares/auth.middleware.ts';
+import { authenticate, authorize } from '../middlewares/auth.middleware.ts';
 
 const financePageRouter = Router();
 
-// Protect all finance manager pages
 financePageRouter.use(authenticate);
+
+financePageRouter.use(authorize('Finance_manager'));
 
 financePageRouter.get('/finance-dashboard', (req, res) => {
   res.render('finance/dashboard');

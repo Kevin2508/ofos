@@ -16,7 +16,9 @@
     "start": "node src/server.js",
     "build:css": "postcss public/styles/styles.css -o public/styles/build.css --watch",
     "dev": "tsx --watch src/server.ts",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "swagger": "tsx src/config/swagger.ts",
+    "dev:swagger": "npm run swagger && npm run dev"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -36,12 +38,14 @@
     "express": "^5.2.1",
     "ioredis": "^5.11.1",
     "joi": "^18.1.2",
+    "joi-to-swagger": "^6.2.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
     "mysql2": "^3.22.2",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
-    "redis": "^6.0.0"
+    "redis": "^6.0.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",
@@ -52,11 +56,13 @@
     "@types/node": "^25.9.2",
     "@types/passport": "^1.0.17",
     "@types/passport-google-oauth2": "^0.1.10",
+    "@types/swagger-ui-express": "^4.1.8",
     "autoprefixer": "^10.5.0",
     "postcss": "^8.5.10",
     "postcss-cli": "^11.0.1",
     "prettier": "^3.8.3",
     "prisma": "^7.8.0",
+    "swagger-autogen": "^2.23.7",
     "tailwindcss": "^4.2.4",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"

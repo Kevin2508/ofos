@@ -1,6 +1,11 @@
 import { Router } from 'express';
+import { authenticate, authorize } from '../middlewares/auth.middleware.ts';
 
 const deliveryPartnerPageRouter = Router();
+
+deliveryPartnerPageRouter.use(authenticate);
+
+deliveryPartnerPageRouter.use(authorize('Delivery_partner'));
 
 deliveryPartnerPageRouter.get('/delivery-partner-dashboard', (req, res) => {
   res.render('deliveryPartner/dashboard');

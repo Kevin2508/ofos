@@ -1,0 +1,134 @@
+<!-- Floating Role Switcher Widget -->
+<div id="globalRoleSwitcher" class="fixed top-6 right-6 z-[100] hidden">
+  <div class="relative">
+    <button id="globalRoleSwitcherBtn" type="button"
+      class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-orange-200 bg-white/95 backdrop-blur-md text-sm font-semibold text-gray-700 hover:border-orange-400 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-md">
+      <span id="globalRoleSwitcherLabel">Switch Role</span>
+      <svg class="w-4 h-4 text-orange-400 transition-transform duration-200" id="globalRoleSwitcherArrow" fill="none"
+        stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div id="globalRoleSwitcherDropdown"
+      class="hidden absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-orange-100 rounded-2xl shadow-2xl overflow-hidden z-50 origin-top-right"
+      style="animation: roleFadeIn 0.2s ease-out;">
+      <div class="px-4 py-2.5 border-b border-orange-100 bg-orange-50/50">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Switch Dashboard</p>
+      </div>
+      <div id="globalRoleList" class="py-1 max-h-72 overflow-y-auto overflow-x-hidden"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes roleFadeIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .global-role-item { transition: all 0.2s ease; margin: 4px 8px; border-radius: 12px; }
+  .global-role-item:hover { background-color: #fff7ed; }
+  .global-role-item.global-active-role { background-color: #ffedd5; font-weight: 700; }
+</style>
+
+<script>
+  (function() {
+    const ROLE_MAP = {
+      'Customer': { label: 'Customer', url: '/' },
+      'Admin': { label: 'Admin', url: '/a/admin-dashboard' },
+      'Fleet_manager': { label: 'Fleet Manager', url: '/fl/fleet-manager-dashboard' },
+      'Delivery_partner': { label: 'Delivery Partner', url: '/d/delivery-partner-dashboard' },
+      'Restaurant_owner': { label: 'Restaurant Owner', url: '/ro/restaurant-owner-dashboard' },
+      'Restaurant_staff': { label: 'Restaurant Staff', url: '/rs/restaurant-staff-dashboard' },
+      'Finance_manager': { label: 'Finance Manager', url: '/fi/finance-dashboard' },
+    };
+
+    function initGlobalRoleSwitcher() {
+      try {
+        const roles = JSON.parse(localStorage.getItem('roles') || '[]');
+        const pendingRoles = JSON.parse(localStorage.getItem('pendingRoles') || '[]');
+        
+        // Show switcher if user has more than 1 assigned role
+        if (roles.length < 2) return;
+
+        const switcher = document.getElementById('globalRoleSwitcher');
+        switcher.classList.remove('hidden');
+
+        // Determine current role from URL
+        const currentPath = window.location.pathname;
+        let currentRole = 'Customer';
+        for (const [role, cfg] of Object.entries(ROLE_MAP)) {
+          if (cfg.url !== '/' && currentPath.startsWith(cfg.url)) { currentRole = role; break; }
+        }
+
+        const currentCfg = ROLE_MAP[currentRole] || ROLE_MAP['Customer'];
+        document.getElementById('globalRoleSwitcherLabel').textContent = currentCfg.label;
+
+        // Build dropdown items
+        const roleList = document.getElementById('globalRoleList');
+        roleList.innerHTML = '';
+
+        roles.forEach(role => {
+          const cfg = ROLE_MAP[role];
+          if (!cfg) return;
+          const isActive = role === currentRole;
+          const item = document.createElement('a');
+          item.href = cfg.url;
+          item.className = 'global-role-item flex items-center gap-3 px-3 py-2.5 cursor-pointer group' + (isActive ? ' global-active-role' : '');
+          item.innerHTML = '<div class="flex-1"><p class="text-sm font-medium transition-colors ' + (isActive ? 'text-orange-900' : 'text-gray-700 group-hover:text-orange-600') + '">' + cfg.label + '</p>'
+            + (isActive ? '<p class="text-[10px] text-orange-600 font-bold tracking-wider mt-0.5">CURRENT</p>' : '') + '</div>'
+            + (isActive ? '<span class="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.6)]"></span>' : '');
+          roleList.appendChild(item);
+        });
+
+        // Show pending roles
+        if (pendingRoles.length > 0) {
+          const divider = document.createElement('div');
+          divider.className = 'px-4 py-2 border-t border-orange-50 mt-1';
+          divider.innerHTML = '<p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Pending Approval</p>';
+          roleList.appendChild(divider);
+
+          pendingRoles.forEach(role => {
+            const cfg = ROLE_MAP[role];
+            if (!cfg) return;
+            const item = document.createElement('div');
+            item.className = 'flex items-center gap-3 px-5 py-2.5 opacity-50 cursor-not-allowed bg-gray-50/50 mx-2 my-1 rounded-xl border border-gray-100 border-dashed';
+            item.innerHTML = '<div class="flex-1"><p class="text-sm font-medium text-gray-500">' + cfg.label + '</p>'
+              + '<p class="text-[10px] text-yellow-600 font-bold tracking-wider mt-0.5">PENDING</p></div>'
+              + '<span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>';
+            roleList.appendChild(item);
+          });
+        }
+
+        // Dropdown toggle logic
+        const btn = document.getElementById('globalRoleSwitcherBtn');
+        const dropdown = document.getElementById('globalRoleSwitcherDropdown');
+        const arrow = document.getElementById('globalRoleSwitcherArrow');
+
+        // Prevent attaching multiple times if init is called again
+        if (!btn.dataset.initialized) {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+            arrow.style.transform = dropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+          });
+
+          document.addEventListener('click', (e) => {
+            if (!switcher.contains(e.target)) {
+              dropdown.classList.add('hidden');
+              arrow.style.transform = 'rotate(0deg)';
+            }
+          });
+          btn.dataset.initialized = 'true';
+        }
+      } catch (err) {
+        console.error("Error initializing role switcher:", err);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGlobalRoleSwitcher);
+    } else {
+      initGlobalRoleSwitcher();
+    }
+  })();
+</script>

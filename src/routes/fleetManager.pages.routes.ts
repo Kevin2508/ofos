@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { authenticate } from '../middlewares/auth.middleware.ts';
+import { authenticate, authorize } from '../middlewares/auth.middleware.ts';
 
 const fleetManagerPageRouter = Router();
 
-// Protect all fleet manager routes
 fleetManagerPageRouter.use(authenticate);
+
+fleetManagerPageRouter.use(authorize('Fleet_manager'));
 
 fleetManagerPageRouter.get('/fleet-manager-dashboard', (req, res) => {
   res.render('fleetManager/dashboard');

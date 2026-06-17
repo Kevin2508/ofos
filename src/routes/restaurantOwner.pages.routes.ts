@@ -1,6 +1,11 @@
 import { Router } from 'express';
+import { authenticate, authorize } from '../middlewares/auth.middleware.ts';
 
 const restaurantOwnerPageRouter = Router();
+
+restaurantOwnerPageRouter.use(authenticate);
+
+restaurantOwnerPageRouter.use(authorize('Restaurant_owner'));
 
 restaurantOwnerPageRouter.get('/restaurant-owner-dashboard', (req, res) => {
   res.render('restaurantOwner/dashboard');

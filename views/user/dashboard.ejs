@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50">
+  <div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen">
+  <!-- NAVBAR -->
+  <nav class="bg-white border-b border-orange-100 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <!-- Hamburger & Logo -->
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1 class="text-3xl font-extrabold text-orange-500 lg:hidden">ofos</h1>
+      </div>
+
+      <!-- Search -->
+      <div class="flex-1 mx-6">
+        <input id="searchInput" type="text" placeholder="Search restaurants or dishes..."
+          class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+      </div>
+
+      <!-- Role Switcher (hidden by default, shown via JS when logged in with multiple roles) -->
+      <div id="roleSwitcher" class="relative hidden">
+        <button id="roleSwitcherBtn" type="button"
+          class="flex items-center gap-2 px-4 py-2 rounded-xl border border-orange-200 bg-gradient-to-r from-orange-50 to-white text-sm font-semibold text-gray-700 hover:border-orange-400 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-400">
+          <span id="roleSwitcherLabel">Switch Role</span>
+          <svg class="w-4 h-4 text-orange-400 transition-transform duration-200" id="roleSwitcherArrow" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div id="roleSwitcherDropdown"
+          class="hidden absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-lg border border-orange-100 rounded-2xl shadow-2xl overflow-hidden z-50"
+          style="animation: roleFadeIn 0.2s ease-out;">
+          <div class="px-4 py-2.5 border-b border-orange-100">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Switch Dashboard</p>
+          </div>
+          <div id="roleList" class="py-1 max-h-72 overflow-y-auto overflow-x-hidden"></div>
+        </div>
+      </div>
+
+      <!-- Auth Section -->
+      <div id="authSection" class="flex items-center gap-3">
+        <!-- Guest Buttons -->
+        <a href="/loginPage" class="text-sm font-semibold text-orange-500 hover:text-orange-600" id="loginBtn">
+          Login
+        </a>
+
+        <a href="/registerPage"
+          class="text-sm font-semibold bg-orange-500 text-white px-4 py-2 rounded-xl hover:bg-orange-600"
+          id="registerBtn">
+          Register
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Greeting -->
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">Welcome!</h2>
+
+      <p class="text-gray-600">
+        Browse restaurants, explore menus and order food easily
+      </p>
+    </div>
+
+    <!-- CATEGORY FILTERS -->
+    <div id="categoryFilters" class="flex gap-3 flex-wrap mb-6">
+      <button onclick="setFilter('')" class="filter-btn px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-semibold transition-colors" data-filter="">
+        All
+      </button>
+
+      <button onclick="setFilter('foodType=VEG')" class="filter-btn px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:border-orange-300 transition-colors" data-filter="foodType=VEG">
+        Veg
+      </button>
+
+      <button onclick="setFilter('foodType=NON_VEG')" class="filter-btn px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:border-orange-300 transition-colors" data-filter="foodType=NON_VEG">
+        Non-Veg
+      </button>
+      
+      <button onclick="setFilter('foodType=VEGAN')" class="filter-btn px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:border-orange-300 transition-colors" data-filter="foodType=VEGAN">
+        Vegan
+      </button>
+
+      <button onclick="setFilter('search=Jain')" class="filter-btn px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:border-orange-300 transition-colors" data-filter="search=Jain">
+        Jain
+      </button>
+    </div>
+
+    <!-- RESTAURANT GRID -->
+    <div id="restaurantGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Cards will be populated here -->
+    </div>
+  </div>
+
+
+  <style>
+    @keyframes roleFadeIn {
+      from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    #roleSwitcherDropdown:not(.hidden) { animation: roleFadeIn 0.2s ease-out; }
+    .role-item { transition: all 0.2s ease; margin: 4px 8px; border-radius: 12px; }
+    .role-item:hover { background-color: #fff7ed; }
+    .role-item.active-role { background-color: #ffedd5; font-weight: 700; }
+  </style>
+
+  <script>
+    /* ---------------------------
+    ROLE CONFIG MAP
+    ---------------------------- */
+    const ROLE_MAP = {
+      'Customer': { label: 'Customer', url: '/' },
+      'Admin': { label: 'Admin', url: '/a/admin-dashboard' },
+      'Fleet_manager': { label: 'Fleet Manager', url: '/fl/fleet-manager-dashboard' },
+      'Delivery_partner': { label: 'Delivery Partner', url: '/d/delivery-partner-dashboard' },
+      'Restaurant_owner': { label: 'Restaurant Owner', url: '/ro/restaurant-owner-dashboard' },
+      'Restaurant_staff': { label: 'Restaurant Staff', url: '/rs/restaurant-staff-dashboard' },
+      'Finance_manager': { label: 'Finance Manager', url: '/fi/finance-dashboard' },
+    };
+
+    /* ---------------------------
+    AUTH CHECK + ROLE SWITCHER
+    ---------------------------- */
+    function checkAuth() {
+      const roles = JSON.parse(localStorage.getItem('roles') || '[]');
+      const pendingRoles = JSON.parse(localStorage.getItem('pendingRoles') || '[]');
+      const email = localStorage.getItem('email');
+
+      if (!email) return;
+
+      // Auto-redirect if user has roles but is NOT a Customer
+      if (roles.length > 0 && !roles.includes('Customer') && window.location.pathname === '/') {
+        const primaryRole = roles[0];
+        const cfg = ROLE_MAP[primaryRole];
+        if (cfg && cfg.url !== '/') {
+          window.location.replace(cfg.url);
+          return;
+        }
+      }
+
+      document.getElementById('loginBtn').style.display = 'none';
+      document.getElementById('registerBtn').style.display = 'none';
+
+      if (roles.length < 2 && pendingRoles.length === 0) return;
+
+      const switcher = document.getElementById('roleSwitcher');
+      switcher.classList.remove('hidden');
+
+      const currentPath = window.location.pathname;
+      let currentRole = 'Customer';
+      for (const [role, cfg] of Object.entries(ROLE_MAP)) {
+        if (cfg.url !== '/' && currentPath.startsWith(cfg.url)) { currentRole = role; break; }
+      }
+
+      const currentCfg = ROLE_MAP[currentRole] || ROLE_MAP['Customer'];
+      document.getElementById('roleSwitcherLabel').textContent = currentCfg.label;
+
+      const roleList = document.getElementById('roleList');
+      roleList.innerHTML = '';
+
+      roles.forEach(role => {
+        const cfg = ROLE_MAP[role];
+        if (!cfg) return;
+        const isActive = role === currentRole;
+        const item = document.createElement('a');
+        item.href = cfg.url;
+        item.className = 'role-item flex items-center gap-3 px-3 py-2.5 cursor-pointer group' + (isActive ? ' active-role' : '');
+        item.innerHTML = '<div class="flex-1"><p class="text-sm font-medium transition-colors ' + (isActive ? 'text-orange-900' : 'text-gray-700 group-hover:text-orange-600') + '">' + cfg.label + '</p>'
+          + (isActive ? '<p class="text-[10px] text-orange-600 font-bold tracking-wider mt-0.5">CURRENT</p>' : '') + '</div>'
+          + (isActive ? '<span class="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.6)]"></span>' : '');
+        roleList.appendChild(item);
+      });
+
+      if (pendingRoles.length > 0) {
+        const divider = document.createElement('div');
+        divider.className = 'px-4 py-2 border-t border-orange-50';
+        divider.innerHTML = '<p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Pending Approval</p>';
+        roleList.appendChild(divider);
+
+        pendingRoles.forEach(role => {
+          const cfg = ROLE_MAP[role];
+          if (!cfg) return;
+          const item = document.createElement('div');
+          item.className = 'flex items-center gap-3 px-5 py-2.5 opacity-50 cursor-not-allowed bg-gray-50/50 mx-2 my-1 rounded-xl border border-gray-100 border-dashed';
+          item.innerHTML = '<div class="flex-1"><p class="text-sm font-medium text-gray-500">' + cfg.label + '</p>'
+            + '<p class="text-[10px] text-yellow-600 font-bold tracking-wider mt-0.5">PENDING</p></div>'
+            + '<span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>';
+          roleList.appendChild(item);
+        });
+      }
+
+      const btn = document.getElementById('roleSwitcherBtn');
+      const dropdown = document.getElementById('roleSwitcherDropdown');
+      const arrow = document.getElementById('roleSwitcherArrow');
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = dropdown.classList.contains('hidden');
+        dropdown.classList.toggle('hidden');
+        arrow.style.transform = isHidden ? 'rotate(180deg)' : '';
+      });
+
+      document.addEventListener('click', () => {
+        dropdown.classList.add('hidden');
+        arrow.style.transform = '';
+      });
+
+      dropdown.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    checkAuth();
+
+    /* ---------------------------
+    SEARCH & FILTER RESTAURANT
+    ---------------------------- */
+
+    let currentSearch = '';
+    let currentFilter = '';
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        currentSearch = e.target.value.trim();
+        fetchRestaurants();
+    });
+
+    function setFilter(filterQuery) {
+      currentFilter = filterQuery;
+      
+      // Update active button styling
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.dataset.filter === filterQuery) {
+          btn.className = "filter-btn px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-semibold transition-colors";
+        } else {
+          btn.className = "filter-btn px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:border-orange-300 transition-colors";
+        }
+      });
+
+      fetchRestaurants();
+    }
+
+    async function fetchRestaurants() {
+      try {
+        let url = '/restaurants?';
+        if (currentSearch && currentSearch.length >= 2) url += `search=${currentSearch}&`;
+        if (currentFilter) url += `${currentFilter}&`;
+
+        const res = await fetch(url);
+        const { data } = await res.json();
+        renderRestaurants(data?.data || data || []);
+      } catch (err) {
+        // Silently fail or use toast if available
+        console.error('Failed to load restaurants', err);
+      }
+    }
+    
+    // Initial fetch
+    fetchRestaurants();
+
+    function renderRestaurants(restaurants) {
+      const grid = document.getElementById('restaurantGrid');
+      grid.innerHTML = '';
+
+      if (!restaurants || restaurants.length === 0) {
+        grid.innerHTML = '<div class="col-span-full py-12 text-center text-gray-500 font-medium">No restaurants found matching your criteria.</div>';
+        return;
+      }
+
+      restaurants.forEach((r) => {
+        const card = document.createElement('div');
+        card.onclick = () => window.location.href = '/restaurant/' + r.id;
+        card.className = 'cursor-pointer bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-lg transition-all transform hover:-translate-y-1';
+        
+        card.innerHTML = `
+            <div class="h-48 bg-orange-100 relative">
+                ${r.coverImageUrl ? `<img src="${r.coverImageUrl}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-orange-300"><svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></div>'}
+                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-sm font-bold text-gray-800 shadow-sm flex items-center gap-1">
+                  ⭐ ${r.averageRating > 0 ? r.averageRating : 'New'}
+                </div>
+            </div>
+            <div class="p-5">
+              <h3 class="text-xl font-bold text-gray-800 mb-1 truncate">${r.businessName}</h3>
+              <p class="text-gray-500 text-sm truncate mb-4">${r.description || 'Amazing food delivered to you'}</p>
+              <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                <span class="text-sm font-semibold text-orange-500">${r.totalBranches || 1} Location${(r.totalBranches || 1) > 1 ? 's' : ''}</span>
+                <span class="text-sm text-orange-600 font-bold hover:text-orange-700 transition-colors">
+                  View Menu &rarr;
+                </span>
+              </div>
+            </div>
+          `;
+        grid.appendChild(card);
+      });
+    }
+
+  </script>
+  </div>
+  <%- include('../partials/toast') %>
+  <%- include('../partials/customer-sidebar') %>
+</body>
+
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+<body class="min-h-screen bg-orange-50">
+<div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen">
+  <nav class="bg-white border-b border-orange-100 shadow-sm sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <a href="/" class="text-3xl font-extrabold text-orange-500 lg:hidden">ofos</a>
+      </div>
+      <a href="/" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">← Home</a>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-4 py-8 w-full flex-1">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">My Profile</h1>
+
+    <!-- Loading State -->
+    <div id="profileLoading" class="text-center py-24">
+      <div class="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-gray-500">Loading your profile...</p>
+    </div>
+
+    <!-- Profile Card -->
+    <div id="profileCard" class="hidden max-w-2xl bg-white rounded-3xl p-8 border border-orange-100 shadow-sm">
+      <div class="flex items-center gap-6 mb-8 pb-8 border-b border-gray-100">
+        <div class="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center text-4xl font-bold text-orange-500" id="avatarInitial">
+          O
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800" id="profileName">Loading...</h2>
+          <span class="inline-flex items-center px-3 py-1 mt-2 rounded-full text-xs font-bold bg-orange-50 text-orange-600 uppercase tracking-wider" id="profileRole">Customer</span>
+        </div>
+      </div>
+      
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm font-semibold text-gray-400 mb-1 uppercase tracking-wide">Email Address</label>
+          <div class="flex items-center gap-3 text-gray-800 font-medium bg-gray-50 p-4 rounded-xl">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span id="profileEmail">...</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-400 mb-1 uppercase tracking-wide">Phone Number</label>
+          <div class="flex items-center gap-3 text-gray-800 font-medium bg-gray-50 p-4 rounded-xl">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            <span id="profilePhone">...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const token = localStorage.getItem('token');
+  const authH = () => ({ 'Authorization': `Bearer ${token}` });
+
+  async function loadProfile() {
+    try {
+      const res = await fetch('/auth/me', { headers: authH() });
+      const data = await res.json();
+      
+      document.getElementById('profileLoading').classList.add('hidden');
+      
+      if (res.ok && data.data && data.data.user) {
+        const user = data.data.user;
+        document.getElementById('profileCard').classList.remove('hidden');
+        
+        document.getElementById('profileName').textContent = `${user.firstName} ${user.lastName}`;
+        document.getElementById('profileEmail').textContent = user.email || 'Not provided';
+        document.getElementById('profilePhone').textContent = user.phone || 'Not provided';
+        
+        const initial = user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U';
+        document.getElementById('avatarInitial').textContent = initial;
+      } else {
+        if(typeof showToast === 'function') showToast('Failed to load profile', 'error');
+      }
+    } catch (err) {
+      document.getElementById('profileLoading').classList.add('hidden');
+      if(typeof showToast === 'function') showToast('Error loading profile', 'error');
+    }
+  }
+
+  if (!token) {
+    window.location.href = '/loginPage';
+  } else {
+    loadProfile();
+  }
+</script>
+</div>
+<%- include('../partials/toast') %>
+<%- include('../partials/customer-sidebar') %>
+</body>
+</html>

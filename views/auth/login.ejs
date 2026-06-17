@@ -203,10 +203,20 @@
           return;
         }
 
-        // console.log(data.data.user);
+        const roles = data?.data?.user?.roles || [];
+
+        localStorage.setItem('roles', JSON.stringify(roles));
+        localStorage.setItem('pendingRoles', JSON.stringify(data?.data?.user?.pendingRoles));
+        localStorage.setItem('email', data?.data?.user?.email);
+
+        if (data?.data?.token) {
+          localStorage.setItem('token', data.data.token);
+        }
+
         window.location.href = data.redirectUrl || '/';
       } catch (error) {
         showToast('Something went wrong. Please try again.', 'error');
+        console.error(error);
       } finally {
         loginBtn.disabled = false;
         loginBtn.textContent = 'Login';
@@ -216,48 +226,4 @@
   <%- include('../partials/toast') %>
 </body>
 
-        if (hasError) return;
-
-        loginBtn.disabled = true;
-        loginBtn.textContent = 'Logging in...';
-
-        try {
-          const response = await fetch('/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              userIdentifier: identifierValue,
-              password: passwordValue,
-              rememberMe: rememberMe.checked ? 'true' : 'false',
-            }),
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            showToast(data.message || data.error || 'Login failed', 'error');
-            return;
-          }
-
-          console.log(data);
-          const roles = data.data.user.roles;
-
-          if (roles.includes('Restaurant_owner')) {
-            window.location.href = '/owner-dashboard';
-          } else {
-            window.location.href = data.redirectUrl || '/';
-          }
-        } catch (error) {
-          showToast('Something went wrong. Please try again.', 'error');
-          console.log(error)
-        } finally {
-          loginBtn.disabled = false;
-          loginBtn.textContent = 'Login';
-        }
-      });
-    </script>
-    <%- include('../partials/toast') %>
-  </body>
 </html>

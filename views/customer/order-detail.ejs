@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Details | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+<body class="min-h-screen bg-orange-50">
+<div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen">
+<nav class="bg-white border-b border-orange-100 shadow-sm sticky top-0 z-40">
+  <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button onclick="toggleSidebar()" class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="/" class="text-3xl font-extrabold text-orange-500 lg:hidden">ofos</a>
+    </div>
+    <a href="/c/orders" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">← My Orders</a>
+  </div>
+</nav>
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div id="loading" class="text-center py-24">
+    <div class="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="text-gray-500">Loading order…</p>
+  </div>
+
+  <div id="orderDetail" class="hidden space-y-5">
+
+    <!-- Header -->
+    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">Order <span id="orderNum" class="text-orange-500">—</span></h1>
+          <p class="text-sm text-gray-400 mt-1" id="orderDate">—</p>
+        </div>
+        <div class="text-right">
+          <div id="orderStatusBadge" class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold">—</div>
+          <p class="text-xs text-gray-400 mt-1.5">Payment: <span id="paymentStatus" class="font-semibold">—</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div id="timelineSection" class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+      <h2 class="font-bold text-gray-800 mb-5">Order Progress</h2>
+      <div id="timeline" class="relative space-y-4"></div>
+    </div>
+
+    <!-- Items -->
+    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+      <h2 class="font-bold text-gray-800 mb-4">Items Ordered</h2>
+      <div id="itemsList" class="divide-y divide-gray-50"></div>
+    </div>
+
+    <!-- Price Breakdown -->
+    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+      <h2 class="font-bold text-gray-800 mb-4">Price Breakdown</h2>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between text-gray-600"><span>Subtotal</span><span id="detSubtotal">—</span></div>
+        <div class="flex justify-between text-gray-600"><span>Delivery Fee</span><span id="detDelivery">—</span></div>
+        <div class="flex justify-between text-gray-600"><span>Tax</span><span id="detTax">—</span></div>
+        <div id="detDiscountRow" class="hidden flex justify-between text-green-600 font-medium"><span>Discount</span><span id="detDiscount">—</span></div>
+        <div class="border-t border-gray-100 pt-2 flex justify-between font-bold text-gray-800 text-base"><span>Total</span><span id="detTotal">—</span></div>
+      </div>
+    </div>
+
+    <!-- Delivery Address -->
+    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+      <h2 class="font-bold text-gray-800 mb-3">Delivery Address</h2>
+      <p id="deliveryAddress" class="text-gray-600 text-sm leading-relaxed">—</p>
+    </div>
+
+    <!-- Actions -->
+    <div id="actionsSection" class="flex gap-3"></div>
+
+  </div>
+</div>
+
+<style>
+  .status-badge { display: inline-flex; align-items: center; padding: 4px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .status-PENDING { background: #FEF3C7; color: #92400E; }
+  .status-ACCEPTED { background: #DBEAFE; color: #1E40AF; }
+  .status-PREPARING { background: #E0E7FF; color: #3730A3; }
+  .status-OUT_FOR_DELIVERY { background: #D1FAE5; color: #065F46; }
+  .status-DELIVERED { background: #D1FAE5; color: #065F46; }
+  .status-CANCELLED { background: #FEE2E2; color: #991B1B; }
+
+  .timeline-step { display: flex; gap: 12px; position: relative; }
+  .timeline-step:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 28px; bottom: -16px; width: 2px; background: #E5E7EB; }
+  .timeline-step.done::before { background: #F97316; }
+  .timeline-dot { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .timeline-dot.done { background: #F97316; }
+  .timeline-dot.active { background: #F97316; box-shadow: 0 0 0 4px rgba(249,115,22,0.2); }
+  .timeline-dot.pending { background: #E5E7EB; }
+</style>
+
+<script>
+  const token = localStorage.getItem('token');
+  const authH = () => ({ 'Authorization': `Bearer ${token}` });
+  const orderId = window.location.pathname.split('/').pop();
+
+  const ORDER_STEPS = ['PENDING','ACCEPTED','PREPARING','OUT_FOR_DELIVERY','DELIVERED'];
+  const STEP_LABELS = { PENDING: 'Order Placed', ACCEPTED: 'Accepted by Restaurant', PREPARING: 'Being Prepared', OUT_FOR_DELIVERY: 'Out for Delivery', DELIVERED: 'Delivered', CANCELLED: 'Cancelled' };
+
+  async function loadOrder() {
+    try {
+      const res = await fetch(`/orders/${orderId}`, { headers: authH() });
+      const data = await res.json();
+      document.getElementById('loading').classList.add('hidden');
+      if (!res.ok || !data.data) return;
+      renderOrder(data.data);
+    } catch {
+      document.getElementById('loading').classList.add('hidden');
+    }
+  }
+
+  function renderOrder(order) {
+    document.getElementById('orderDetail').classList.remove('hidden');
+
+    const status = order.orderStatus || 'PENDING';
+    const date = new Date(order.createdAt || Date.now()).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+
+    document.getElementById('orderNum').textContent = `#${order.orderNumber || order.id}`;
+    document.getElementById('orderDate').textContent = date;
+
+    const badge = document.getElementById('orderStatusBadge');
+    badge.className = `status-badge status-${status}`;
+    badge.textContent = status.replace(/_/g, ' ');
+    document.getElementById('paymentStatus').textContent = (order.paymentStatus || '—').replace(/_/g, ' ');
+
+    // Timeline
+    const timeline = document.getElementById('timeline');
+    timeline.innerHTML = '';
+    if (status === 'CANCELLED') {
+      const step = document.createElement('div');
+      step.className = 'timeline-step';
+      step.innerHTML = `<div class="timeline-dot" style="background:#EF4444;"><svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <div class="pb-4"><p class="font-semibold text-sm text-red-600">Cancelled</p><p class="text-xs text-gray-400">${order.cancellationReason || 'Order was cancelled'}</p></div>`;
+      timeline.appendChild(step);
+    } else {
+      const currentIdx = ORDER_STEPS.indexOf(status);
+      ORDER_STEPS.forEach((s, i) => {
+        const done = i < currentIdx;
+        const active = i === currentIdx;
+        const step = document.createElement('div');
+        step.className = `timeline-step${done ? ' done' : ''}`;
+        step.innerHTML = `<div class="timeline-dot ${done ? 'done' : active ? 'active' : 'pending'}">
+          ${done ? `<svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>` : active ? `<div class="w-2.5 h-2.5 bg-white rounded-full"></div>` : ''}
+        </div>
+        <div class="pb-4"><p class="font-semibold text-sm ${done ? 'text-orange-600' : active ? 'text-gray-800' : 'text-gray-400'}">${STEP_LABELS[s]}</p></div>`;
+        timeline.appendChild(step);
+      });
+    }
+
+    // Items
+    const itemsList = document.getElementById('itemsList');
+    itemsList.innerHTML = '';
+    (order.items || []).forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'flex justify-between items-center py-3';
+      div.innerHTML = `<div><p class="font-semibold text-gray-800 text-sm">${item.menuItem?.name || item.name || '—'}</p>
+        <p class="text-xs text-gray-400">Qty: ${item.quantity}</p></div>
+        <p class="font-bold text-orange-500">₹${Number(item.subtotal || (item.unitPrice * item.quantity) || 0).toFixed(2)}</p>`;
+      itemsList.appendChild(div);
+    });
+
+    // Prices
+    document.getElementById('detSubtotal').textContent = `₹${Number(order.subtotalAmount || 0).toFixed(2)}`;
+    document.getElementById('detDelivery').textContent = `₹${Number(order.deliveryFee || 0).toFixed(2)}`;
+    document.getElementById('detTax').textContent = `₹${Number(order.taxAmount || 0).toFixed(2)}`;
+    document.getElementById('detTotal').textContent = `₹${Number(order.totalAmount || 0).toFixed(2)}`;
+    if (order.discountAmount > 0) { document.getElementById('detDiscountRow').classList.remove('hidden'); document.getElementById('detDiscount').textContent = `-₹${Number(order.discountAmount).toFixed(2)}`; }
+
+    // Address
+    const addr = order.deliveryAddress;
+    if (addr) {
+      document.getElementById('deliveryAddress').textContent = `${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}, ${addr.city}, ${addr.state} — ${addr.postalCode}`;
+    }
+
+    // Actions
+    const actions = document.getElementById('actionsSection');
+    if (status !== 'DELIVERED' && status !== 'CANCELLED') {
+      actions.innerHTML = `<a href="/c/tracking/${order.id}" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600 transition-colors">📍 Track Order</a>
+        ${status === 'PENDING' ? `<button onclick="cancelOrder()" class="flex-1 border border-red-200 text-red-500 py-3 rounded-xl font-semibold hover:bg-red-50 transition-colors">Cancel Order</button>` : ''}`;
+    } else if (status === 'DELIVERED') {
+      actions.innerHTML = `<a href="/" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600">Order Again</a>`;
+    }
+  }
+
+  async function cancelOrder() {
+    if (!confirm('Cancel this order?')) return;
+    try {
+      const res = await fetch(`/orders/${orderId}/cancel`, { method: 'PATCH', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'Customer requested cancellation' }) });
+      if (res.ok) { showToast('Order cancelled', 'success'); setTimeout(() => loadOrder(), 1000); }
+      else { const d = await res.json(); showToast(d.message || 'Cannot cancel', 'error'); }
+    } catch { showToast('Failed', 'error'); }
+  }
+
+  if (!token) window.location.href = '/loginPage';
+  else loadOrder();
+</script>
+</div>
+<%- include('../partials/toast') %>
+<%- include('../partials/customer-sidebar') %>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Tracking | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body class="min-h-screen bg-orange-50">
+<div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen">
+<nav class="bg-white border-b border-orange-100 shadow-sm sticky top-0 z-40">
+  <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button onclick="toggleSidebar()" class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="/" class="text-3xl font-extrabold text-orange-500 lg:hidden">ofos</a>
+    </div>
+    <a href="/c/orders" class="text-sm text-gray-500 hover:text-orange-500">← My Orders</a>
+  </div>
+</nav>
+
+<div class="max-w-4xl mx-auto px-4 py-8 space-y-5">
+  <h1 class="text-3xl font-bold text-gray-800">Track Order</h1>
+
+  <!-- Loading -->
+  <div id="loading" class="text-center py-16">
+    <div class="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="text-gray-500">Fetching tracking info…</p>
+  </div>
+
+  <div id="content" class="hidden space-y-5">
+
+    <!-- Status Card -->
+    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+      <div class="flex items-start justify-between gap-4 mb-5">
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Order Number</p>
+          <h2 class="text-xl font-bold text-gray-800" id="orderNum">—</h2>
+        </div>
+        <div id="statusBadge" class="status-badge">—</div>
+      </div>
+
+      <!-- ETA -->
+      <div id="etaSection" class="hidden bg-orange-50 rounded-xl px-4 py-3 flex items-center gap-3 mb-5">
+        <svg class="w-5 h-5 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div>
+          <p class="text-xs text-orange-700 font-medium">Estimated Arrival</p>
+          <p class="text-orange-900 font-bold" id="etaTime">—</p>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="space-y-2">
+        <div class="flex justify-between text-xs text-gray-400 font-medium">
+          <span>Order Placed</span>
+          <span>Preparing</span>
+          <span>On the Way</span>
+          <span>Delivered</span>
+        </div>
+        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div id="progressBar" class="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full transition-all duration-700" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div class="bg-white rounded-2xl overflow-hidden border border-orange-100 shadow-sm">
+      <div class="px-5 py-4 border-b border-gray-50">
+        <h3 class="font-bold text-gray-800">Live Location</h3>
+        <p class="text-xs text-gray-400 mt-0.5">Delivery partner's location updates every 30s</p>
+      </div>
+      <div id="trackMap" style="height: 350px;"></div>
+    </div>
+
+    <!-- Timeline Detail -->
+    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+      <h3 class="font-bold text-gray-800 mb-4">Delivery Timeline</h3>
+      <div id="timeline" class="space-y-3"></div>
+    </div>
+
+    <!-- Delivery Partner Info -->
+    <div id="partnerSection" class="hidden bg-white rounded-2xl p-5 border border-orange-100 shadow-sm">
+      <h3 class="font-bold text-gray-800 mb-3">Your Delivery Partner</h3>
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center text-orange-500">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </div>
+        <div>
+          <p class="font-bold text-gray-800" id="partnerName">—</p>
+          <p class="text-sm text-gray-500" id="partnerVehicle">—</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .status-badge { display: inline-flex; align-items: center; padding: 4px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .status-PENDING { background: #FEF3C7; color: #92400E; }
+  .status-ACCEPTED { background: #DBEAFE; color: #1E40AF; }
+  .status-PREPARING { background: #E0E7FF; color: #3730A3; }
+  .status-OUT_FOR_DELIVERY { background: #D1FAE5; color: #065F46; }
+  .status-DELIVERED { background: #D1FAE5; color: #065F46; }
+  .status-CANCELLED { background: #FEE2E2; color: #991B1B; }
+  .tl-item { display: flex; gap: 12px; align-items: flex-start; }
+  .tl-dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+</style>
+
+<script>
+  const token = localStorage.getItem('token');
+  const authH = () => ({ 'Authorization': `Bearer ${token}` });
+  const orderId = window.location.pathname.split('/').pop();
+
+  const PROGRESS = { PENDING: 8, ACCEPTED: 30, PREPARING: 55, OUT_FOR_DELIVERY: 80, DELIVERED: 100 };
+  const TIMELINE_STEPS = ['PENDING','ACCEPTED','PREPARING','OUT_FOR_DELIVERY','DELIVERED'];
+  const STEP_LABELS = { PENDING: 'Order Placed', ACCEPTED: 'Accepted', PREPARING: 'Preparing your food', OUT_FOR_DELIVERY: 'Out for Delivery', DELIVERED: 'Delivered! Enjoy your meal' };
+
+  let map, partnerMarker, restaurantMarker;
+
+  async function loadTracking() {
+    try {
+      const res = await fetch(`/orders/${orderId}/tracking`, { headers: authH() });
+      const data = await res.json();
+      document.getElementById('loading').classList.add('hidden');
+      if (!res.ok || !data.data) return;
+      renderTracking(data.data);
+    } catch {
+      document.getElementById('loading').classList.add('hidden');
+    }
+  }
+
+  function renderTracking(tracking) {
+    document.getElementById('content').classList.remove('hidden');
+
+    const status = tracking.orderStatus || tracking.status || 'PENDING';
+    document.getElementById('orderNum').textContent = `#${tracking.orderNumber || orderId}`;
+
+    const badge = document.getElementById('statusBadge');
+    badge.className = `status-badge status-${status}`;
+    badge.textContent = status.replace(/_/g, ' ');
+
+    document.getElementById('progressBar').style.width = `${PROGRESS[status] || 0}%`;
+
+    if (tracking.estimatedDeliveryAt) {
+      document.getElementById('etaSection').classList.remove('hidden');
+      document.getElementById('etaTime').textContent = new Date(tracking.estimatedDeliveryAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Timeline
+    const timeline = document.getElementById('timeline');
+    timeline.innerHTML = '';
+    const currentIdx = TIMELINE_STEPS.indexOf(status);
+    TIMELINE_STEPS.forEach((step, i) => {
+      const done = i <= currentIdx;
+      const item = document.createElement('div');
+      item.className = 'tl-item';
+      item.innerHTML = `
+        <div class="tl-dot ${done ? 'bg-orange-500' : 'bg-gray-200'}"></div>
+        <div><p class="text-sm font-semibold ${done ? 'text-gray-800' : 'text-gray-400'}">${STEP_LABELS[step]}</p></div>`;
+      timeline.appendChild(item);
+    });
+
+    // Delivery partner
+    if (tracking.deliveryPartner) {
+      const dp = tracking.deliveryPartner;
+      document.getElementById('partnerSection').classList.remove('hidden');
+      document.getElementById('partnerName').textContent = `${dp.user?.firstName || ''} ${dp.user?.lastName || ''}`.trim() || 'Delivery Partner';
+      document.getElementById('partnerVehicle').textContent = `${dp.vehicleType || ''} · ${dp.vehicleRegistrationNumber || ''}`.trim();
+    }
+
+    // Map
+    initMap(tracking);
+  }
+
+  function initMap(tracking) {
+    const lat = tracking.restaurantLat || 22.3039;
+    const lng = tracking.restaurantLng || 70.8022;
+
+    if (!map) {
+      map = L.map('trackMap').setView([lat, lng], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    }
+
+    const restIcon = L.divIcon({ html: '<div style="background:#F97316;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-size:16px">🍽️</div>', className: '', iconAnchor: [16,16] });
+    const partnerIcon = L.divIcon({ html: '<div style="background:#10B981;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-size:16px">🛵</div>', className: '', iconAnchor: [16,16] });
+
+    if (tracking.restaurantLat && tracking.restaurantLng) {
+      restaurantMarker = L.marker([tracking.restaurantLat, tracking.restaurantLng], { icon: restIcon }).addTo(map).bindPopup('Restaurant');
+    }
+
+    if (tracking.deliveryPartnerLat && tracking.deliveryPartnerLng) {
+      partnerMarker = L.marker([tracking.deliveryPartnerLat, tracking.deliveryPartnerLng], { icon: partnerIcon }).addTo(map).bindPopup('Delivery Partner');
+      map.setView([tracking.deliveryPartnerLat, tracking.deliveryPartnerLng], 14);
+    }
+  }
+
+  if (!token) window.location.href = '/loginPage';
+  else {
+    loadTracking();
+    // Poll every 30 seconds if order is active
+    setInterval(loadTracking, 30000);
+  }
+</script>
+</div>
+<%- include('../partials/toast') %>
+<%- include('../partials/customer-sidebar') %>
+</body>
+</html>

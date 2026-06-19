@@ -14,6 +14,9 @@ import {
   updateRestaurantStatusRepo,
   updateSystemConfigRepo,
   updateUserRoleStatusRepo,
+  createSystemConfigRepo,
+  deleteSystemConfigRepo,
+  getAllRestaurantsRepo,
 } from './admin.repository.ts';
 
 async function getAllUsersService(params: GetAllUsersParams) {
@@ -124,6 +127,32 @@ async function getPendingRestaurantsService() {
 
   return {
     restaurants: formattedRestaurants,
+  };
+}
+
+async function getAllRestaurantsService(status?: string) {
+  const { restaurants, totalCount } = await getAllRestaurantsRepo(status);
+
+  const formattedRestaurants = restaurants.map((restaurant) => ({
+    id: restaurant.id.toString(),
+    ownerUserId: restaurant.ownerUserId.toString(),
+    businessName: restaurant.businessName,
+    legalBusinessName: restaurant.legalBusinessName,
+    primaryPhone: restaurant.primaryPhone,
+    primaryEmail: restaurant.primaryEmail,
+    logoUrl: restaurant.logoUrl,
+    coverImageUrl: restaurant.coverImageUrl,
+    description: restaurant.description,
+    status: restaurant.status,
+    approvedBy: restaurant.approvedBy?.toString(),
+    approvedAt: restaurant.approvedAt,
+    createdAt: restaurant.createdAt,
+    updatedAt: restaurant.updatedAt,
+  }));
+
+  return {
+    restaurants: formattedRestaurants,
+    totalCount,
   };
 }
 
@@ -249,7 +278,10 @@ async function getAdminOrdersService(params: { orderStatus?: string }) {
 
 async function getAllSystemConfigsService() {
   const configs = await getAllSystemConfigsRepo();
-  return configs;
+  return configs.map(c => ({
+    ...c,
+    updatedBy: c.updatedBy?.toString(),
+  }));
 }
 
 async function updateSystemConfigService(
@@ -288,7 +320,77 @@ async function updateSystemConfigService(
     ipAddress,
   });
 
-  return updatedConfig;
+  return {
+    ...updatedConfig,
+    updatedBy: updatedConfig.updatedBy?.toString(),
+  };
+}
+
+async function createSystemConfigService(
+  key: string,
+  value: string,
+  description: string | null,
+  updatedBy: bigint,
+  ipAddress?: string
+) {
+  const existingConfig = await prisma.systemConfiguration.findUnique({
+    where: { configKey: key },
+  });
+
+  if (existingConfig) {
+    throw new Error('Configuration key already exists');
+  }
+
+  const newConfig = await createSystemConfigRepo(key, value, description, updatedBy);
+
+  await createAuditLogRepo({
+    actorUserId: updatedBy.toString(),
+    entityType: 'SystemConfiguration',
+    entityId: updatedBy.toString(),
+    action: 'CREATE_SYSTEM_CONFIG',
+    newValues: {
+      configKey: newConfig.configKey,
+      configValue: newConfig.configValue,
+      description: newConfig.description,
+    },
+    ipAddress,
+  });
+
+  return {
+    ...newConfig,
+    updatedBy: newConfig.updatedBy?.toString(),
+  };
+}
+
+async function deleteSystemConfigService(
+  key: string,
+  deletedBy: bigint,
+  ipAddress?: string
+) {
+  const oldConfig = await prisma.systemConfiguration.findUnique({
+    where: { configKey: key },
+  });
+
+  if (!oldConfig) {
+    throw new Error('Configuration key not found');
+  }
+
+  const deletedConfig = await deleteSystemConfigRepo(key);
+
+  await createAuditLogRepo({
+    actorUserId: deletedBy.toString(),
+    entityType: 'SystemConfiguration',
+    entityId: deletedBy.toString(),
+    action: 'DELETE_SYSTEM_CONFIG',
+    oldValues: {
+      configKey: oldConfig.configKey,
+      configValue: oldConfig.configValue,
+      description: oldConfig.description,
+    },
+    ipAddress,
+  });
+
+  return deletedConfig;
 }
 
 async function getAuditLogsService(filters: {
@@ -322,6 +424,7 @@ async function getAuditLogsService(filters: {
 export {
   getAllUsersService,
   getPendingRestaurantsService,
+  getAllRestaurantsService,
   getUserByIdService,
   getAdminOrdersService,
   updateRestaurantStatusService,
@@ -329,4 +432,6 @@ export {
   getAllSystemConfigsService,
   updateSystemConfigService,
   getAuditLogsService,
+  createSystemConfigService,
+  deleteSystemConfigService,
 };

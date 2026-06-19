@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+<body class="min-h-screen bg-orange-50">
+<div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen">
+<nav class="bg-white border-b border-orange-100 shadow-sm sticky top-0 z-40">
+  <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button onclick="toggleSidebar()" class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <a href="/" class="text-3xl font-extrabold text-orange-500 lg:hidden">ofos</a>
+    </div>
+    <a href="/c/cart" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">← Back to Cart</a>
+  </div>
+</nav>
+
+<!-- STEP INDICATOR -->
+<div class="max-w-5xl mx-auto px-4 pt-8 pb-4">
+  <div class="flex items-center gap-2 mb-8">
+    <div class="step-dot flex items-center gap-2">
+      <div id="step1Dot" class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold">1</div>
+      <span class="text-sm font-semibold text-orange-600">Delivery</span>
+    </div>
+    <div class="flex-1 h-0.5 bg-orange-200 mx-2" id="line1"></div>
+    <div class="step-dot flex items-center gap-2">
+      <div id="step2Dot" class="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-bold">2</div>
+      <span id="step2Label" class="text-sm font-semibold text-gray-400">Payment</span>
+    </div>
+    <div class="flex-1 h-0.5 bg-gray-200 mx-2" id="line2"></div>
+    <div class="step-dot flex items-center gap-2">
+      <div id="step3Dot" class="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-bold">3</div>
+      <span id="step3Label" class="text-sm font-semibold text-gray-400">Confirm</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- LEFT: Steps -->
+    <div class="lg:col-span-2">
+
+      <!-- STEP 1: Delivery -->
+      <div id="stepDelivery" class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+        <h2 class="text-xl font-bold text-gray-800 mb-5">Delivery Details</h2>
+
+        <!-- Addresses -->
+        <div class="mb-5">
+          <label class="text-sm font-semibold text-gray-600 mb-2 block">Select Delivery Address</label>
+          <div id="addressList" class="space-y-2">
+            <div class="text-gray-400 text-sm">Loading addresses...</div>
+          </div>
+          <a href="#" onclick="showAddAddressModal()" class="mt-3 inline-flex items-center gap-1 text-sm text-orange-500 font-semibold hover:text-orange-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add New Address
+          </a>
+        </div>
+
+        <!-- Delivery Type -->
+        <div class="mb-5">
+          <label class="text-sm font-semibold text-gray-600 mb-2 block">Delivery Type</label>
+          <div class="flex gap-3">
+            <label class="flex-1 flex items-center gap-3 p-3 border-2 border-orange-400 rounded-xl cursor-pointer bg-orange-50">
+              <input type="radio" name="deliveryType" value="ASAP" checked class="accent-orange-500" />
+              <div>
+                <p class="font-semibold text-sm text-gray-800">ASAP</p>
+                <p class="text-xs text-gray-500">30–45 min</p>
+              </div>
+            </label>
+            <label class="flex-1 flex items-center gap-3 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-300">
+              <input type="radio" name="deliveryType" value="SCHEDULED" class="accent-orange-500" />
+              <div>
+                <p class="font-semibold text-sm text-gray-800">Schedule</p>
+                <p class="text-xs text-gray-500">Pick a time</p>
+              </div>
+            </label>
+          </div>
+          <input type="datetime-local" id="scheduledFor" class="hidden mt-3 w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+        </div>
+
+        <button onclick="proceedToPayment()" class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition-all hover:shadow-lg">
+          Continue to Payment →
+        </button>
+      </div>
+
+      <!-- STEP 2: Payment -->
+      <div id="stepPayment" class="hidden bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+        <h2 class="text-xl font-bold text-gray-800 mb-5">Payment Method</h2>
+        <div class="space-y-3 mb-6">
+          <label class="flex items-center gap-4 p-4 border-2 border-orange-400 rounded-xl cursor-pointer bg-orange-50">
+            <input type="radio" name="paymentMethod" value="COD" checked class="accent-orange-500" />
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              </div>
+              <div>
+                <p class="font-bold text-gray-800">Cash on Delivery</p>
+                <p class="text-xs text-gray-500">Pay when your order arrives</p>
+              </div>
+            </div>
+          </label>
+          <label class="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-300">
+            <input type="radio" name="paymentMethod" value="RAZORPAY" class="accent-orange-500" />
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+              </div>
+              <div>
+                <p class="font-bold text-gray-800">Online Payment</p>
+                <p class="text-xs text-gray-500">Razorpay — UPI, Cards, Wallets</p>
+              </div>
+            </div>
+          </label>
+          <label class="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-orange-300">
+            <input type="radio" name="paymentMethod" value="STRIPE" class="accent-orange-500" />
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+              </div>
+              <div>
+                <p class="font-bold text-gray-800">Stripe</p>
+                <p class="text-xs text-gray-500">International cards accepted</p>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Special Instructions -->
+        <div class="mb-5">
+          <label class="text-sm font-semibold text-gray-600 mb-2 block">Special Instructions (optional)</label>
+          <textarea id="specialInstructions" placeholder="e.g., No onions, extra spicy…" rows="3"
+            class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"></textarea>
+        </div>
+
+        <div class="flex gap-3">
+          <button onclick="goToStep(1)" class="flex-1 border border-gray-200 text-gray-600 py-3 rounded-xl font-semibold hover:bg-gray-50">← Back</button>
+          <button onclick="proceedToConfirm()" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition-all hover:shadow-lg">Review Order →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Confirm -->
+      <div id="stepConfirm" class="hidden bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
+        <h2 class="text-xl font-bold text-gray-800 mb-5">Confirm Order</h2>
+        <div id="confirmSummary" class="space-y-3 mb-6 text-sm"></div>
+
+        <div class="flex gap-3">
+          <button onclick="goToStep(2)" class="flex-1 border border-gray-200 text-gray-600 py-3 rounded-xl font-semibold hover:bg-gray-50">← Back</button>
+          <button onclick="placeOrder()" id="placeOrderBtn" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition-all hover:shadow-lg">
+            Place Order
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Order Summary -->
+    <div>
+      <div class="bg-white rounded-2xl p-5 border border-orange-100 shadow-sm sticky top-24">
+        <h3 class="font-bold text-gray-800 mb-4">Order Summary</h3>
+        <div id="checkoutSummary" class="space-y-2 text-sm">
+          <div class="flex justify-between text-gray-600"><span>Subtotal</span><span id="coSubtotal">—</span></div>
+          <div class="flex justify-between text-gray-600"><span>Delivery</span><span id="coDelivery">—</span></div>
+          <div class="flex justify-between text-gray-600"><span>Tax</span><span id="coTax">—</span></div>
+          <div class="border-t border-gray-100 pt-2 flex justify-between font-bold text-gray-800 text-base"><span>Total</span><span id="coTotal">—</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD ADDRESS MODAL -->
+<div id="addAddressModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-gray-800">Add New Address</h2>
+      <button onclick="closeAddAddressModal()" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="addAddressForm" class="space-y-4" onsubmit="submitNewAddress(event)">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Contact Name</label>
+          <input type="text" id="newContactName" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Contact Phone</label>
+          <input type="text" id="newContactPhone" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Address Line 1</label>
+        <input type="text" id="newAddrLine1" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Address Line 2</label>
+        <input type="text" id="newAddrLine2" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">City</label>
+          <input type="text" id="newCity" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">State</label>
+          <input type="text" id="newState" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Postal Code</label>
+          <input type="text" id="newPostalCode" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-600 mb-1">Label</label>
+          <select id="newLabel" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white">
+            <option value="HOME">HOME</option>
+            <option value="WORK">WORK</option>
+            <option value="OTHER">OTHER</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 mt-2">
+        <input type="checkbox" id="newIsDefault" class="accent-orange-500 w-4 h-4" />
+        <label class="text-sm font-semibold text-gray-600">Set as default address</label>
+      </div>
+      <button type="submit" id="saveAddressBtn" class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition-all shadow-sm mt-4">
+        Save Address
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-800 mb-2">Order Placed!</h2>
+    <p class="text-gray-500 mb-1">Your order has been confirmed.</p>
+    <p class="text-orange-500 font-bold text-lg mb-6" id="successOrderNum">—</p>
+    <div class="flex gap-3">
+      <a href="/c/orders" class="flex-1 border border-orange-300 text-orange-600 py-2.5 rounded-xl font-semibold hover:bg-orange-50">My Orders</a>
+      <a id="trackBtn" href="#" class="flex-1 bg-orange-500 text-white py-2.5 rounded-xl font-bold hover:bg-orange-600">Track Order</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('token');
+  const authH = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
+
+  let selectedAddressId = null;
+  let checkoutSessionId = null;
+  let currentStep = 1;
+
+  // Load addresses and price summary on mount
+  async function init() {
+    if (!token) { window.location.href = '/loginPage'; return; }
+    loadAddresses();
+    loadSummary();
+
+    // Toggle scheduled input
+    document.querySelectorAll('input[name="deliveryType"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('scheduledFor').classList.toggle('hidden', r.value !== 'SCHEDULED');
+      });
+    });
+  }
+
+  async function loadAddresses() {
+    try {
+      const res = await fetch('/customer/address', { headers: authH() });
+      const data = await res.json();
+      const list = document.getElementById('addressList');
+      list.innerHTML = '';
+      (data.data || []).forEach((addr, i) => {
+        if (i === 0) selectedAddressId = addr.id;
+        const el = document.createElement('label');
+        el.className = `flex items-start gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${addr.isDefault || i === 0 ? 'border-orange-400 bg-orange-50' : 'border-gray-200 hover:border-orange-300'}`;
+        el.innerHTML = `
+          <input type="radio" name="addressSelect" value="${addr.id}" ${addr.isDefault || i === 0 ? 'checked' : ''} class="mt-1 accent-orange-500" onchange="selectedAddressId=${addr.id}" />
+          <div>
+            <p class="font-semibold text-sm text-gray-800">${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}</p>
+            <p class="text-xs text-gray-500">${addr.city}, ${addr.state} — ${addr.postalCode}</p>
+            ${addr.isDefault ? '<span class="text-xs text-orange-600 font-bold">Default</span>' : ''}
+          </div>`;
+        list.appendChild(el);
+      });
+      if ((data.data || []).length === 0) list.innerHTML = '<p class="text-gray-400 text-sm">No addresses found. Please add one.</p>';
+    } catch { document.getElementById('addressList').innerHTML = '<p class="text-red-400 text-sm">Failed to load addresses.</p>'; }
+  }
+
+  async function loadSummary() {
+    try {
+      const res = await fetch('/cart/price-breakdown', { headers: authH() });
+      const data = await res.json();
+      const b = data.data || data;
+      document.getElementById('coSubtotal').textContent = `₹${(b.subtotal || 0).toFixed(2)}`;
+      document.getElementById('coDelivery').textContent = `₹${(b.deliveryFee || 0).toFixed(2)}`;
+      document.getElementById('coTax').textContent = `₹${(b.taxAmount || 0).toFixed(2)}`;
+      document.getElementById('coTotal').textContent = `₹${(b.totalAmount || 0).toFixed(2)}`;
+    } catch {}
+  }
+
+  async function proceedToPayment() {
+    const addr = document.querySelector('input[name="addressSelect"]:checked');
+    if (!addr) return showToast('Please select a delivery address', 'warning');
+    selectedAddressId = addr.value;
+    goToStep(2);
+  }
+
+  async function proceedToConfirm() {
+    const payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+    const deliveryType = document.querySelector('input[name="deliveryType"]:checked')?.value;
+    const scheduledFor = document.getElementById('scheduledFor').value;
+
+    if (deliveryType === 'SCHEDULED' && !scheduledFor) return showToast('Please pick a scheduled time', 'warning');
+
+    // Initiate checkout session
+    try {
+      const body = { addressId: Number(selectedAddressId), deliveryType };
+      if (scheduledFor) body.scheduledFor = scheduledFor;
+
+      const res = await fetch('/checkout/initiate', { method: 'POST', headers: authH(), body: JSON.stringify(body) });
+      const data = await res.json();
+      if (!res.ok) return showToast(data.message || 'Checkout failed', 'error');
+      checkoutSessionId = data.data?.id || data.data?.sessionId;
+    } catch { return showToast('Failed to initiate checkout', 'error'); }
+
+    // Build confirm summary
+    const addrEl = document.querySelector('input[name="addressSelect"]:checked')?.parentElement;
+    const addrText = addrEl?.querySelector('p')?.textContent || '—';
+    document.getElementById('confirmSummary').innerHTML = `
+      <div class="flex justify-between py-2 border-b border-gray-50"><span class="text-gray-500">Address</span><span class="font-medium text-gray-800 text-right max-w-[60%]">${addrText}</span></div>
+      <div class="flex justify-between py-2 border-b border-gray-50"><span class="text-gray-500">Delivery</span><span class="font-medium text-gray-800">${deliveryType}</span></div>
+      <div class="flex justify-between py-2 border-b border-gray-50"><span class="text-gray-500">Payment</span><span class="font-medium text-gray-800">${payment}</span></div>
+      <div class="flex justify-between py-2 font-bold text-gray-800 text-base"><span>Total</span><span>${document.getElementById('coTotal').textContent}</span></div>`;
+    goToStep(3);
+  }
+
+  async function placeOrder() {
+    const payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+    const btn = document.getElementById('placeOrderBtn');
+    btn.disabled = true; btn.textContent = 'Placing Order…';
+
+    try {
+      const res = await fetch(`/checkout/${checkoutSessionId}/place-order`, {
+        method: 'POST', headers: authH(), body: JSON.stringify({ paymentProvider: payment })
+      });
+      const data = await res.json();
+      if (!res.ok) { showToast(data.message || 'Order failed', 'error'); btn.disabled = false; btn.textContent = 'Place Order'; return; }
+
+      const order = data.data?.order || data.data || {};
+      document.getElementById('successOrderNum').textContent = order.orderNumber || `#${order.orderId || '—'}`;
+      document.getElementById('trackBtn').href = `/c/tracking/${order.orderId || ''}`;
+      document.getElementById('successModal').classList.remove('hidden');
+    } catch { showToast('Failed to place order', 'error'); btn.disabled = false; btn.textContent = 'Place Order'; }
+  }
+
+  function goToStep(n) {
+    currentStep = n;
+    ['stepDelivery', 'stepPayment', 'stepConfirm'].forEach((id, i) => document.getElementById(id).classList.toggle('hidden', i + 1 !== n));
+    [1, 2, 3].forEach(i => {
+      const dot = document.getElementById(`step${i}Dot`);
+      const label = document.getElementById(`step${i}Label`);
+      if (i < n) { dot.className = 'w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold'; dot.textContent = '✓'; }
+      else if (i === n) { dot.className = 'w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold'; dot.textContent = i; if (label) { label.className = 'text-sm font-semibold text-orange-600'; } }
+      else { dot.className = 'w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-bold'; dot.textContent = i; if (label) { label.className = 'text-sm font-semibold text-gray-400'; } }
+    });
+  }
+
+  function showAddAddressModal() {
+    document.getElementById('addAddressModal').classList.remove('hidden');
+  }
+
+  function closeAddAddressModal() {
+    document.getElementById('addAddressModal').classList.add('hidden');
+    document.getElementById('addAddressForm').reset();
+  }
+
+  async function submitNewAddress(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveAddressBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    const payload = {
+      label: document.getElementById('newLabel').value,
+      contactName: document.getElementById('newContactName').value.trim(),
+      contactPhone: document.getElementById('newContactPhone').value.trim(),
+      addressLine1: document.getElementById('newAddrLine1').value.trim(),
+      addressLine2: document.getElementById('newAddrLine2').value.trim(),
+      city: document.getElementById('newCity').value.trim(),
+      state: document.getElementById('newState').value.trim(),
+      postalCode: document.getElementById('newPostalCode').value.trim(),
+      country: 'India',
+      latitude: 0,
+      longitude: 0,
+      isDefault: document.getElementById('newIsDefault').checked
+    };
+
+    try {
+      const res = await fetch('/customer/addresses', {
+        method: 'POST',
+        headers: authH(),
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to save address');
+      
+      showToast('Address added successfully!', 'success');
+      closeAddAddressModal();
+      loadAddresses(); // Reload list so new address appears
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save Address';
+    }
+  }
+
+  init();
+</script>
+</div>
+<%- include('../partials/toast') %>
+<%- include('../partials/customer-sidebar') %>
+</body>
+</html>

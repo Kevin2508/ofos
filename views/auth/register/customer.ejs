@@ -1,236 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register | ofos - Food Ordering System</title>
-    <link rel="stylesheet" href="/styles/build.css" />
-  </head>
-  <body class="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-amber-50">
-    <!-- Floating food decorations -->
-    <div class="fixed inset-0 pointer-events-none overflow-hidden select-none">
-      <span class="absolute top-16 left-[18%] text-5xl opacity-15">🍕</span>
-      <span class="absolute top-32 right-[22%] text-4xl opacity-20">🍔</span>
-      <span class="absolute bottom-24 left-[28%] text-6xl opacity-10">🌮</span>
-      <span class="absolute top-1/4 right-[12%] text-3xl opacity-15">🥗</span>
-      <span class="absolute bottom-40 right-[32%] text-5xl opacity-10">🍜</span>
-      <span class="absolute top-3/4 left-[10%] text-4xl opacity-15">🍣</span>
-    </div>
 
-    <div class="min-h-screen flex items-center justify-center px-4 py-10 relative">
-      <div class="w-full max-w-6xl">
-        <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-orange-100/60">
-          <div class="lg:flex">
-            <!-- Left Brand Panel -->
-            <div class="lg:w-[38%] bg-gradient-to-br from-orange-500 via-orange-600 to-rose-600 p-8 lg:p-10 text-white flex flex-col justify-between relative overflow-hidden min-h-[300px] lg:min-h-0">
-              <div class="absolute -top-24 -right-24 w-72 h-72 bg-white/5 rounded-full"></div>
-              <div class="absolute -bottom-20 -left-20 w-56 h-56 bg-white/5 rounded-full"></div>
-              <div class="absolute top-1/2 -translate-y-1/2 right-0 w-32 h-32 bg-white/[0.03] rounded-full"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | ofos - Food Ordering System</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
 
-              <div class="relative">
-                <div class="flex items-center gap-3 mb-5">
-                  <span class="text-3xl">🍽️</span>
-                  <h1 class="text-3xl font-extrabold tracking-tight">ofos</h1>
-                </div>
-                <p class="text-orange-100 text-base leading-relaxed mb-7">
-                  Join <span class="font-semibold text-white">ofos</span> and start ordering your favorite meals today!
-                </p>
-                <div class="space-y-4">
-                  <div class="flex items-center gap-3">
-                    <span class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg">🚀</span>
-                    <div>
-                      <p class="font-semibold text-sm">Fast Delivery</p>
-                      <p class="text-xs text-orange-100">30 min or it's free</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <span class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg">🍳</span>
-                    <div>
-                      <p class="font-semibold text-sm">100+ Restaurants</p>
-                      <p class="text-xs text-orange-100">From local to global cuisine</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <span class="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-lg">⭐</span>
-                    <div>
-                      <p class="font-semibold text-sm">Best Prices</p>
-                      <p class="text-xs text-orange-100">Exclusive deals & offers</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+<body>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
+        <p class="text-gray-500 text-sm">Sign up to start ordering your favorite food</p>
+      </div>
 
-              <div class="relative mt-6 pt-5 border-t border-white/20">
-                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-orange-100">
-                  <span>🍕 Pizza</span>
-                  <span>🍔 Burger</span>
-                  <span>🌮 Taco</span>
-                  <span>🥗 Salad</span>
-                  <span>🍜 Noodles</span>
-                </div>
-              </div>
+      <!-- Form -->
+      <form id="registerForm" class="space-y-5">
+        <!-- First Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            First Name <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="firstName" name="firstName" placeholder="John"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          <p id="firstNameError" class="mt-1 text-sm text-red-500"></p>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Email <span class="text-red-500">*</span>
+          </label>
+          <input type="email" id="email" name="email" placeholder="you@example.com"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          <p id="emailError" class="mt-1 text-sm text-red-500"></p>
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Phone <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="phone" name="phone" placeholder="10 digit number"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          <p id="phoneError" class="mt-1 text-sm text-red-500"></p>
+        </div>
+
+        <!-- Password & Confirm Password -->
+        <div class="space-y-4">
+          <!-- Password -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Password <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input type="password" id="password" name="password" placeholder="Min 8 characters"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
+              <button type="button" id="togglePassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
+                Show
+              </button>
             </div>
+            <p id="passwordError" class="mt-1 text-sm text-red-500"></p>
+          </div>
 
-            <!-- Right Form Panel -->
-            <div class="lg:w-[62%] p-8 lg:p-10">
-              <div class="max-w-lg mx-auto">
-                <div class="text-center lg:text-left mb-6">
-                  <h2 class="text-2xl font-bold text-gray-800">Create Account 🎉</h2>
-                  <p class="text-gray-400 mt-1 text-sm">Sign up to start ordering your favorite food</p>
-                </div>
-
-                <form id="registerForm" class="space-y-4">
-                  <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                      First Name <span class="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      name="firstName"
-                      placeholder="John"
-                      class="w-full px-4 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                    />
-                    <p id="firstNameError" class="text-red-500 text-sm mt-1.5"></p>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                      Email <span class="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      placeholder="you@example.com"
-                      class="w-full px-4 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                    />
-                    <p id="emailError" class="text-red-500 text-sm mt-1.5"></p>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                      Phone <span class="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="phone"
-                      name="phone"
-                      placeholder="10 digit number"
-                      class="w-full px-4 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                    />
-                    <p id="phoneError" class="text-red-500 text-sm mt-1.5"></p>
-                  </div>
-
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Password <span class="text-red-400">*</span>
-                      </label>
-                      <div class="relative">
-                        <input
-                          type="password"
-                          id="password"
-                          name="password"
-                          placeholder="Min 8 characters"
-                          class="w-full px-4 py-3.5 pr-16 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                        />
-                        <button
-                          type="button"
-                          id="togglePassword"
-                          class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 font-semibold text-sm hover:text-orange-600 transition"
-                        >
-                          Show
-                        </button>
-                      </div>
-                      <p id="passwordError" class="text-red-500 text-sm mt-1.5"></p>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Confirm Password <span class="text-red-400">*</span>
-                      </label>
-                      <div class="relative">
-                        <input
-                          type="password"
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          placeholder="Repeat password"
-                          class="w-full px-4 py-3.5 pr-16 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200 bg-gray-50 focus:bg-white"
-                        />
-                        <button
-                          type="button"
-                          id="toggleConfirmPassword"
-                          class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 font-semibold text-sm hover:text-orange-600 transition"
-                        >
-                          Show
-                        </button>
-                      </div>
-                      <p id="confirmPasswordError" class="text-red-500 text-sm mt-1.5"></p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    id="registerBtn"
-                    class="w-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white font-semibold py-3.5 rounded-2xl transition duration-200 shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 cursor-pointer mt-2"
-                  >
-                    Create Account
-                  </button>
-                </form>
-
-                <div class="mt-6 text-center">
-                  <p class="text-gray-400 text-sm">
-                    Already have an account?
-                    <a
-                      href="/loginPage"
-                      class="font-semibold text-orange-500 hover:text-orange-600 transition"
-                    >
-                      Login
-                    </a>
-                  </p>
-                </div>
-              </div>
+          <!-- Confirm Password -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Confirm Password <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
+              <button type="button" id="toggleConfirmPassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
+                Show
+              </button>
             </div>
+            <p id="confirmPasswordError" class="mt-1 text-sm text-red-500"></p>
           </div>
         </div>
+
+        <!-- Register Button -->
+        <button type="submit" id="registerBtn"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg mt-2">
+          Create Account
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="text-center mt-6 pt-6 border-t border-gray-200">
+        <p class="text-sm text-gray-600">
+          Already have an account?
+          <a href="/loginPage" class="font-medium text-orange-500 hover:text-orange-600 transition-colors">
+            Login
+          </a>
+        </p>
       </div>
     </div>
+  </div>
 
-    <script>
-      const registerForm = document.getElementById('registerForm');
-      const registerBtn = document.getElementById('registerBtn');
+  <script>
+    const registerForm = document.getElementById('registerForm');
+    const registerBtn = document.getElementById('registerBtn');
 
-      const firstName = document.getElementById('firstName');
-      const email = document.getElementById('email');
-      const phone = document.getElementById('phone');
-      const password = document.getElementById('password');
-      const confirmPassword = document.getElementById('confirmPassword');
+    const firstName = document.getElementById('firstName');
+    const email = document.getElementById('email');
+    const phone = document.getElementById('phone');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
 
-      const firstNameError = document.getElementById('firstNameError');
-      const emailError = document.getElementById('emailError');
-      const phoneError = document.getElementById('phoneError');
-      const passwordError = document.getElementById('passwordError');
-      const confirmPasswordError = document.getElementById(
-        'confirmPasswordError'
-      );
+    const firstNameError = document.getElementById('firstNameError');
+    const emailError = document.getElementById('emailError');
+    const phoneError = document.getElementById('phoneError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmPasswordError = document.getElementById(
+      'confirmPasswordError'
+    );
 
-      /* Show / Hide Password */
+    /* Show / Hide Password */
 
-      function togglePassword(buttonId, input) {
-        document.getElementById(buttonId).addEventListener('click', () => {
-          if (input.type === 'password') {
-            input.type = 'text';
-            document.getElementById(buttonId).textContent = 'Hide';
-          } else {
-            input.type = 'password';
-            document.getElementById(buttonId).textContent = 'Show';
-          }
+    function togglePassword(buttonId, input) {
+      document.getElementById(buttonId).addEventListener('click', () => {
+        if (input.type === 'password') {
+          input.type = 'text';
+          document.getElementById(buttonId).textContent = 'Hide';
+        } else {
+          input.type = 'password';
+          document.getElementById(buttonId).textContent = 'Show';
+        }
+      });
+    }
+
+    togglePassword('togglePassword', password);
+    togglePassword('toggleConfirmPassword', confirmPassword);
+
+    /* Validation */
+
+    function clearErrors() {
+      firstNameError.textContent = '';
+      emailError.textContent = '';
+      phoneError.textContent = '';
+      passwordError.textContent = '';
+      confirmPasswordError.textContent = '';
+    }
+
+    function validate() {
+      let hasError = false;
+
+      const nameValue = firstName.value.trim();
+
+      if (!nameValue) {
+        firstNameError.textContent = 'First name is required';
+        hasError = true;
+      } else if (nameValue.length < 2) {
+        firstNameError.textContent =
+          'First name must be at least 2 characters';
+        hasError = true;
+      } else if (!/^[A-Za-z]+$/.test(nameValue)) {
+        firstNameError.textContent = 'First name can only contain letters';
+        hasError = true;
+      }
+
+      const emailValue = email.value.trim();
+
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
+
+      if (!emailValue) {
+        emailError.textContent = 'Email is required';
+        hasError = true;
+      } else if (!emailRegex.test(emailValue)) {
+        emailError.textContent = 'Please enter valid email address';
+        hasError = true;
+      }
+
+      const phoneValue = phone.value.trim();
+
+      if (phoneValue.length !== 10) {
+        phoneError.textContent = 'Contact number must be exactly 10 digits';
+        hasError = true;
+      } else if (!/^[0-9]+$/.test(phoneValue)) {
+        phoneError.textContent = 'Contact number must only contain digits';
+        hasError = true;
+      }
+
+      if (password.value.length < 8) {
+        passwordError.textContent = 'Password must be at least 8 characters';
+        hasError = true;
+      }
+
+      if (confirmPassword.value !== password.value) {
+        confirmPasswordError.textContent = 'Passwords do not match';
+        hasError = true;
+      }
+
+      return !hasError;
+    }
+
+    /* Submit */
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      clearErrors();
+
+      if (!validate()) return;
+
+      registerBtn.disabled = true;
+      registerBtn.textContent = 'Creating Account...';
+
+      try {
+        const response = await fetch('/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: firstName.value.trim(),
+            email: email.value.trim(),
+            phone: phone.value.trim(),
+            password: password.value,
+            confirmPassword: confirmPassword.value,
+          }),
         });
       }
 
       togglePassword('togglePassword', password);
       togglePassword('toggleConfirmPassword', confirmPassword);
 
+<<<<<<< HEAD
       /* Validation */
 
       function clearErrors() {
@@ -294,6 +295,27 @@
       }
 
       /* Submit */
+=======
+        if (!response.ok) {
+          showToast(data.message || 'Registration failed', 'error');
+          return;
+        }
+
+        showToast(data.message || 'Account created successfully', 'success');
+        setTimeout(() => {
+          window.location.href = '/loginPage';
+        }, 2000);
+      } catch (error) {
+        showToast('Something went wrong. Please try again.', 'error');
+      } finally {
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Create Account';
+      }
+    });
+  </script>
+  <%- include('../../partials/toast') %>
+</body>
+>>>>>>> dev
 
       registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();

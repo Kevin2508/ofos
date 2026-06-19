@@ -136,6 +136,7 @@ async function loginService(
       lastName: user.lastName,
       email: user.email,
       roles: Array.from(roles),
+      pendingRoles: Array.from(pendingRoles),
     },
   };
 }
@@ -593,36 +594,134 @@ async function registerRestaurantOwnerService(data: any) {
   }
 
   const isExistingUser = !!user;
+  let targetUserId = user?.id;
 
   if (!isExistingUser) {
     const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    user = await createUser({
+    const newUser = await createUser({
       firstName: data.firstName,
       email: data.email,
       phone: data.phone,
       passwordHash: hashedPassword,
     });
+    targetUserId = newUser.id;
   }
 
-  await createRestaurantOwner({
-    userId: user.id,
-  });
-
-  const role = await getRoleIdByRole({ role: 'Restaurant_owner' });
-  if (role) {
-    await assignRole({
-      userId: user.id,
-      roleId: role.id,
-      status: 'REQUESTED',
+  if (targetUserId) {
+    await createRestaurantOwner({
+      userId: targetUserId,
     });
+
+    const role = await getRoleIdByRole({ role: 'Restaurant_owner' });
+    if (role) {
+      await assignRole({
+        userId: targetUserId,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
   }
 
   return {
     message: isExistingUser
       ? 'Account found. Your request for Restaurant owner has been sent to administrators for review.'
       : 'Account created. Your request for Restaurant owner has been sent to administrators for review.',
+  };
+}
+
+async function registerRestaurantStaffService(data: any) {
+  let user = await findUserByIdentifier(data.email);
+  if (!user) {
+    user = await findUserByIdentifier(data.phone);
+  }
+
+  const isExistingUser = !!user;
+
+  if (isExistingUser) {
+    const role = await getRoleIdByRole({ role: 'Restaurant_staff' });
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
+  } else {
+    const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
+    const user = await createUser({
+      firstName: data.firstName,
+      // lastName: data.lastName,
+      email: data.email,
+      phone: data.phone,
+      passwordHash: hashedPassword,
+    });
+
+    const role = await getRoleIdByRole({ role: 'Restaurant_staff' });
+
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
+  }
+
+  return {
+    message: isExistingUser
+      ? 'Account found. Your request for Restaurant staff has been sent to administrators for review.'
+      : 'Account created. Your request for Restaurant staff has been sent to administrators for review.',
+  };
+}
+
+async function registerFinanceManagerService(data: any) {
+  let user = await findUserByIdentifier(data.email);
+  if (!user) {
+    user = await findUserByIdentifier(data.phone);
+  }
+
+  const isExistingUser = !!user;
+
+  if (isExistingUser) {
+    const role = await getRoleIdByRole({ role: 'Finance_manager' });
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
+  } else {
+    const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
+    const user = await createUser({
+      firstName: data.firstName,
+      // lastName: data.lastName,
+      email: data.email,
+      phone: data.phone,
+      passwordHash: hashedPassword,
+    });
+
+    const role = await getRoleIdByRole({ role: 'Finance_manager' });
+
+    if (user && role) {
+      await assignRole({
+        userId: user.id,
+        roleId: role.id,
+        status: 'REQUESTED',
+      });
+    }
+  }
+
+  return {
+    message: isExistingUser
+      ? 'Account found. Your request for Finance manager has been sent to administrators for review.'
+      : 'Account created. Your request for Finance manager has been sent to administrators for review.',
   };
 }
 
@@ -637,5 +736,7 @@ export {
   verifyOtpService,
   registerDeliveryPartnerService,
   refreshTokenService,
-  registerRestaurantOwnerService
+  registerRestaurantOwnerService,
+  registerRestaurantStaffService,
+  registerFinanceManagerService
 };

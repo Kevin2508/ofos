@@ -27,7 +27,7 @@ interface restaurantParamsDto {
   id: string;
 }
 
-export {
+export type {
   createRestaurantDto,
   updateRestaurantDto,
   uploadDocumentDto,

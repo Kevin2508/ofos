@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50">
+  <div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen">
+  <nav class="bg-white border-b border-orange-100 shadow-sm sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <a href="/" class="text-3xl font-extrabold text-orange-500 lg:hidden">ofos</a>
+      </div>
+      <a href="/" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">← Continue Shopping</a>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Your Cart</h1>
+
+    <div id="cartLoading" class="text-center py-24">
+      <div class="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4">
+      </div>
+      <p class="text-gray-500">Loading your cart...</p>
+    </div>
+
+    <div id="cartEmpty" class="hidden text-center py-24">
+      <div class="w-24 h-24 mx-auto mb-6 text-orange-200">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-700 mb-2">Your cart is empty</h2>
+      <p class="text-gray-500 mb-6">Looks like you haven't added anything yet.</p>
+      <a href="/"
+        class="inline-block bg-orange-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-orange-600 transition-colors">Browse
+        Restaurants</a>
+    </div>
+
+    <div id="cartContent" class="hidden lg:grid lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 space-y-4">
+        <div id="restaurantBanner"
+          class="bg-white rounded-2xl p-4 border border-orange-100 shadow-sm flex items-center gap-3">
+          <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Ordering from</p>
+            <p id="restaurantName" class="font-bold text-gray-800">—</p>
+          </div>
+        </div>
+        <div id="cartItemsList" class="space-y-3"></div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-white rounded-2xl p-5 border border-orange-100 shadow-sm">
+          <h3 class="font-bold text-gray-800 mb-3">Coupon Code</h3>
+          <div id="couponApplied"
+            class="hidden mb-3 flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-3 py-2">
+            <span class="text-green-700 text-sm font-semibold" id="couponAppliedLabel">—</span>
+            <button onclick="removeCoupon()" class="text-red-400 hover:text-red-600 text-xs font-medium">Remove</button>
+          </div>
+          <div id="couponInputGroup" class="flex gap-2">
+            <input id="couponInput" type="text" placeholder="Enter code"
+              class="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+            <button onclick="applyCoupon()"
+              class="bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-orange-600">Apply</button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-orange-100 shadow-sm">
+          <h3 class="font-bold text-gray-800 mb-4">Order Summary</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between text-gray-600"><span>Subtotal</span><span id="priceSubtotal">₹0</span>
+            </div>
+            <div class="flex justify-between text-gray-600"><span>Delivery Fee</span><span id="priceDelivery">₹0</span>
+            </div>
+            <div class="flex justify-between text-gray-600"><span>Taxes</span><span id="priceTax">₹0</span></div>
+            <div id="discountRow" class="hidden flex justify-between text-green-600 font-medium">
+              <span>Discount</span><span id="priceDiscount">-₹0</span></div>
+            <div class="border-t border-gray-100 pt-2 flex justify-between font-bold text-gray-800 text-base">
+              <span>Total</span><span id="priceTotal">₹0</span></div>
+          </div>
+          <a href="/c/checkout"
+            class="mt-5 w-full block text-center bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition-all hover:shadow-lg">
+            Proceed to Checkout →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .qty-btn {
+      transition: all 0.15s ease;
+    }
+
+    .qty-btn:hover {
+      transform: scale(1.1);
+    }
+  </style>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const authHeaders = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
+
+    async function loadCart() {
+      try {
+        const res = await fetch('/cart', { headers: authHeaders() });
+        const data = await res.json();
+        document.getElementById('cartLoading').classList.add('hidden');
+        if (!data.data || !data.data.items || data.data.items.length === 0) {
+          document.getElementById('cartEmpty').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('cartContent').classList.remove('hidden');
+        renderCart(data.data);
+        loadPriceBreakdown();
+      } catch {
+        document.getElementById('cartLoading').classList.add('hidden');
+        document.getElementById('cartEmpty').classList.remove('hidden');
+      }
+    }
+
+    function renderCart(cart) {
+      if (cart.restaurantBranch) {
+        document.getElementById('restaurantName').textContent = cart.restaurantBranch.restaurant?.businessName || 'Restaurant';
+      }
+      const list = document.getElementById('cartItemsList');
+      list.innerHTML = '';
+      (cart.items || []).forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-4 border border-orange-100 shadow-sm flex gap-4';
+        card.innerHTML = `
+        <div class="w-20 h-20 bg-orange-50 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden">
+          ${item.menuItem?.imageUrl ? `<img src="${item.menuItem.imageUrl}" class="w-full h-full object-cover"/>` : `<svg class="w-8 h-8 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>`}
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-bold text-gray-800 truncate">${item.menuItem?.name || 'Item'}</h3>
+          ${item.specialInstructions ? `<p class="text-xs text-gray-400 mt-0.5 italic">${item.specialInstructions}</p>` : ''}
+          <div class="flex items-center justify-between mt-3">
+            <div class="flex items-center gap-2 bg-orange-50 rounded-xl px-1 py-1">
+              <button class="qty-btn w-7 h-7 bg-white rounded-lg shadow-sm text-orange-500 font-bold hover:bg-orange-500 hover:text-white"
+                onclick="updateQty('${item.id}', ${item.quantity - 1})">−</button>
+              <span class="text-sm font-bold text-gray-800 w-5 text-center">${item.quantity}</span>
+              <button class="qty-btn w-7 h-7 bg-white rounded-lg shadow-sm text-orange-500 font-bold hover:bg-orange-500 hover:text-white"
+                onclick="updateQty('${item.id}', ${item.quantity + 1})">+</button>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-orange-500">₹${((item.unitPrice || 0) * item.quantity).toFixed(2)}</p>
+              <p class="text-xs text-gray-400">₹${item.unitPrice || 0} each</p>
+            </div>
+          </div>
+        </div>
+        <button onclick="removeItem('${item.id}')" class="self-start text-gray-300 hover:text-red-400 p-1 rounded-lg hover:bg-red-50">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>`;
+        list.appendChild(card);
+      });
+    }
+
+    async function loadPriceBreakdown() {
+      try {
+        const res = await fetch('/cart/price-breakdown', { headers: authHeaders() });
+        const data = await res.json();
+        const b = data.data || data;
+        document.getElementById('priceSubtotal').textContent = `₹${(b.subtotal || 0).toFixed(2)}`;
+        document.getElementById('priceDelivery').textContent = `₹${(b.deliveryFee || 0).toFixed(2)}`;
+        document.getElementById('priceTax').textContent = `₹${(b.taxAmount || 0).toFixed(2)}`;
+        document.getElementById('priceTotal').textContent = `₹${(b.totalAmount || 0).toFixed(2)}`;
+        if (b.discountAmount > 0) { document.getElementById('discountRow').classList.remove('hidden'); document.getElementById('priceDiscount').textContent = `-₹${b.discountAmount.toFixed(2)}`; }
+        if (b.coupon) { document.getElementById('couponApplied').classList.remove('hidden'); document.getElementById('couponAppliedLabel').textContent = `"${b.coupon.code}" applied`; document.getElementById('couponInputGroup').classList.add('hidden'); }
+      } catch { }
+    }
+
+    async function updateQty(itemId, newQty) {
+      if (newQty < 1) return removeItem(itemId);
+      try { await fetch(`/cart/items/${itemId}`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ quantity: newQty }) }); loadCart(); }
+      catch { showToast('Failed to update', 'error'); }
+    }
+
+    async function removeItem(itemId) {
+      try { await fetch(`/cart/items/${itemId}`, { method: 'DELETE', headers: authHeaders() }); showToast('Item removed', 'success'); loadCart(); }
+      catch { showToast('Failed to remove item', 'error'); }
+    }
+
+    async function applyCoupon() {
+      const code = document.getElementById('couponInput').value.trim();
+      if (!code) return showToast('Enter a coupon code', 'warning');
+      try {
+        const res = await fetch('/cart/apply-coupon', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ couponCode: code }) });
+        const data = await res.json();
+        if (res.ok) { showToast('Coupon applied!', 'success'); loadCart(); }
+        else showToast(data.error || 'Invalid coupon', 'error');
+      } catch { showToast('Failed to apply coupon', 'error'); }
+    }
+
+    async function removeCoupon() {
+      try { await fetch('/cart/coupon', { method: 'DELETE', headers: authHeaders() }); showToast('Coupon removed', 'info'); document.getElementById('couponApplied').classList.add('hidden'); document.getElementById('couponInputGroup').classList.remove('hidden'); document.getElementById('couponInput').value = ''; loadCart(); }
+      catch { showToast('Failed to remove', 'error'); }
+    }
+
+    if (!token) window.location.href = '/loginPage';
+    else loadCart();
+  </script>
+  </div>
+  <%- include('../partials/toast') %>
+  <%- include('../partials/customer-sidebar') %>
+</body>
+
+</html>

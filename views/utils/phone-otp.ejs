@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMS OTP Simulation | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+  <style>
+    /* iOS iMessage Bubble Tail */
+    .imessage-received {
+      position: relative;
+      background-color: #E5E5EA;
+      color: black;
+      border-radius: 20px;
+      padding: 12px 16px;
+    }
+
+    .imessage-received::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: -8px;
+      height: 20px;
+      width: 20px;
+      background-color: #E5E5EA;
+      border-bottom-right-radius: 15px;
+    }
+
+    .imessage-received::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: -10px;
+      height: 20px;
+      width: 10px;
+      background-color: white;
+      border-bottom-right-radius: 10px;
+    }
+
+    /* Copy Button Tooltip Animation */
+    @keyframes tooltipPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 10px) scale(0.9);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -10px) scale(1);
+      }
+    }
+
+    .copy-tooltip {
+      display: none;
+      animation: tooltipPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .imessage-received:hover .copy-tooltip {
+      display: block;
+    }
+  </style>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <!-- Outer Device Frame -->
+    <div
+      class="relative w-[340px] h-[720px] bg-black rounded-[55px] border-[12px] border-black shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5),inset_0_0_0_2px_rgba(255,255,255,0.2)] overflow-hidden flex flex-col ring-4 ring-gray-900/50">
+
+      <!-- Screen Content -->
+      <div class="flex-1 bg-white flex flex-col relative z-0">
+
+        <!-- Status Bar -->
+        <div
+          class="h-12 w-full flex justify-between items-center px-6 pt-3 text-[13px] font-semibold text-black z-40 bg-white/80 backdrop-blur-md">
+          <span id="phoneTime" class="tracking-tight ml-1">9:41</span>
+          <div class="flex items-center gap-1.5 mr-1">
+            <!-- Signal Bars -->
+            <div class="flex items-end gap-[1.5px] h-2.5">
+              <div class="w-1 h-1 bg-black rounded-sm"></div>
+              <div class="w-1 h-1.5 bg-black rounded-sm"></div>
+              <div class="w-1 h-2 bg-black rounded-sm"></div>
+              <div class="w-1 h-2.5 bg-black rounded-sm"></div>
+            </div>
+            <span class="font-bold text-[10px] tracking-tighter">5G</span>
+            <!-- Battery -->
+            <div class="w-6 h-3 border border-gray-400 rounded-[4px] relative flex items-center p-[1px]">
+              <div class="bg-black h-full w-[80%] rounded-sm"></div>
+              <div class="absolute -right-1 w-0.5 h-1 bg-gray-400 rounded-r-sm"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- iMessage Header -->
+        <div
+          class="bg-white/90 backdrop-blur-xl px-4 py-2 border-b border-gray-200 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+          <div
+            class="flex items-center text-[#007AFF] text-lg font-normal cursor-pointer hover:opacity-70 transition-opacity">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            <span class="text-[17px]">Filters</span>
+          </div>
+
+          <div class="flex flex-col items-center flex-1 -ml-4">
+            <div
+              class="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-400 to-orange-500 flex items-center justify-center text-white text-lg font-bold shadow-sm mb-0.5">
+              OF
+            </div>
+            <span class="text-[11px] font-medium text-gray-800">OFOS</span>
+            <span class="text-[9px] text-gray-400">&gt;</span>
+          </div>
+
+          <div class="w-[70px]"></div> <!-- Spacer for centering -->
+        </div>
+
+        <!-- Chat Area -->
+        <div class="flex-1 px-4 py-6 flex flex-col gap-5 overflow-y-auto bg-white">
+          <div class="text-center text-[11px] font-semibold text-gray-500 my-1 tracking-wide">Text Message<br><span
+              id="msgTime" class="font-normal text-gray-400">Today 9:41 AM</span></div>
+
+          <!-- Interactive Message Bubble -->
+          <div class="flex w-full mt-2 relative pl-2">
+            <div class="imessage-received max-w-[85%] text-[15px] leading-tight shadow-sm">
+              Your ofos verification code is:
+              
+              <!-- Copy Box -->
+              <div class="mt-3 mb-2 p-3 bg-white/60 rounded-xl border border-gray-200/60 flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all" id="copyBox">
+                <strong class="text-2xl tracking-[0.2em] text-black font-mono" id="otpCode">123456</strong>
+                
+                <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#007AFF] group-hover:bg-[#007AFF] group-hover:text-white transition-colors" id="copyIconWrap">
+                  <svg id="iconCopy" class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                  </svg>
+                  <svg id="iconCheck" class="w-5 h-5 hidden text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+              </div>
+              
+              <span class="text-[#3C3C43]/60 text-[13px] block">Do not share this code with anyone. It will expire in 10 minutes.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- iMessage Input Area -->
+        <div class="bg-[#F6F6F8] px-3 py-2 border-t border-gray-200 flex gap-3 items-end pb-6">
+          <div
+            class="w-8 h-8 rounded-full flex items-center justify-center text-[#8E8E93] hover:bg-gray-200 transition-colors cursor-pointer mb-0.5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path>
+            </svg>
+          </div>
+          <div
+            class="flex-1 bg-white border border-[#E5E5EA] rounded-full min-h-[36px] flex items-center px-4 shadow-sm mb-0.5">
+            <span class="text-[#3C3C43]/30 text-[15px]">iMessage</span>
+          </div>
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-[#007AFF] cursor-pointer mb-0.5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
+              </path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Home Indicator -->
+        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-[130px] h-[4px] bg-black rounded-full z-50"></div>
+      </div>
+    </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const otp = urlParams.get('otp') || '123456';
+
+      document.getElementById('otpCode').textContent = otp;
+
+      // Set realistic times
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      document.getElementById('phoneTime').textContent = timeStr.replace(' AM', '').replace(' PM', '');
+      document.getElementById('msgTime').textContent = `Today ${timeStr}`;
+
+      // Copy functionality
+      const copyBox = document.getElementById('copyBox');
+      const iconCopy = document.getElementById('iconCopy');
+      const iconCheck = document.getElementById('iconCheck');
+      const iconWrap = document.getElementById('copyIconWrap');
+
+      copyBox.addEventListener('click', function () {
+        navigator.clipboard.writeText(otp).then(() => {
+          // Visual feedback
+          iconCopy.classList.add('hidden');
+          iconCheck.classList.remove('hidden');
+          iconWrap.classList.remove('group-hover:bg-[#007AFF]', 'text-[#007AFF]');
+          iconWrap.classList.add('bg-green-50');
+
+          // Haptic feedback simulation
+          if (navigator.vibrate) navigator.vibrate(50);
+
+          setTimeout(() => {
+            iconCheck.classList.add('hidden');
+            iconCopy.classList.remove('hidden');
+            iconWrap.classList.add('group-hover:bg-[#007AFF]', 'text-[#007AFF]');
+            iconWrap.classList.remove('bg-green-50');
+          }, 2000);
+        });
+      });
+    </script>
+  </body>
+
+</html>

@@ -24,21 +24,21 @@ const createRestaurantSchema = Joi.object({
     }),
 
   primaryEmail: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "org", "io"] } })
+    .email()
     .required()
     .messages({
       "string.email": "Please enter a valid email address",
       "any.required": "Primary email is required",
     }),
 
-  description: Joi.string().max(300).optional().messages({
+  description: Joi.string().max(300).allow("").optional().messages({
     "string.max": "Description cannot exceed 300 characters",
   }),
 });
 
 const updateRestaurantSchema = Joi.object({
   businessName: Joi.string().trim().min(2).max(255).optional(),
-  description: Joi.string().max(300).optional(),
+  description: Joi.string().max(300).allow("").optional(),
   primaryPhone: Joi.string()
     .length(10)
     .pattern(/^[0-9]+$/)
@@ -48,7 +48,7 @@ const updateRestaurantSchema = Joi.object({
       "string.pattern.base": "Phone number must only contain digits",
     }),
   primaryEmail: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "org", "io"] } })
+    .email()
     .optional()
     .messages({
       "string.email": "Please enter a valid email address",

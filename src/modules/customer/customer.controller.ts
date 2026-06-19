@@ -1,8 +1,7 @@
 import { catchAsync } from "../../middlewares/catch.async.ts";
 import { Request, Response } from "express-serve-static-core";
 import { addAddressService, getAddressesByIdService, getAddressesService,
-    updateAdressService, deleteAddressService,
-    setDefaultAddressService, 
+    updateAdressService, deleteAddressService, setDefaultAddressService
 
  } from "./customer.service.ts";
 import { customerDto } from "./customer.dto.ts";
@@ -198,9 +197,15 @@ const deleteCustomerAddress = catchAsync(
 )
 
 const setDefaultAddress = catchAsync(
-  async(req:Request, res:Response) =>{
+  async (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Unauthorized',
+      });
+    }
 
-     const addressId = Number(req.params.id);
+    const addressId = Number(req.params.id);
 
     if (isNaN(addressId)) {
       return res.status(400).json({
@@ -209,9 +214,9 @@ const setDefaultAddress = catchAsync(
       });
     }
 
-      const result = await setDefaultAddressService(req.user as customerDto, addressId);
+    const result = await setDefaultAddressService(req.user as customerDto, addressId);
 
-       const serializedResult = JSON.parse(
+    const serializedResult = JSON.parse(
       JSON.stringify(
         result,
         (_, value) =>
@@ -222,7 +227,8 @@ const setDefaultAddress = catchAsync(
     );
 
     if (!serializedResult.data) {
-      return res.status(404).json({
+      const statusCode = serializedResult.message === 'Unauthorized access' ? 403 : 404;
+      return res.status(statusCode).json({
         status: 'fail',
         message: serializedResult.message,
       });
@@ -233,7 +239,7 @@ const setDefaultAddress = catchAsync(
       message: serializedResult.message,
       data: serializedResult.data,
     });
-
   }
-)
+);
+
 export {getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, deleteCustomerAddress, setDefaultAddress}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delivery Partners | Fleet Manager | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans text-gray-800">
+  <div class="flex min-h-screen">
+    <!-- SIDEBAR -->
+    <aside
+      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
+      <div class="p-6 text-center border-b border-orange-50">
+        <h1 class="text-3xl font-extrabold text-orange-500">Fleet Control</h1>
+      </div>
+
+      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <a href="/fl/fleet-manager-dashboard"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+            </path>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="/fl/fleet-manager-partners"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+            </path>
+          </svg>
+          <span>Delivery Partners</span>
+        </a>
+        <a href="/fl/fleet-manager-assignments"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+            </path>
+          </svg>
+          <span>Assignments</span>
+        </a>
+        <a href="/fl/fleet-manager-profile"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          <span>Profile</span>
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-orange-50">
+        <button id="logoutBtn"
+          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+          <span class="font-semibold">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 ml-64 p-8">
+      <div class="mb-8">
+        <h2 class="text-3xl font-bold text-gray-900">Delivery Partners</h2>
+        <p class="text-gray-500 mt-2">Manage all registered delivery partners in your fleet.</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left whitespace-nowrap">
+            <thead>
+              <tr class="bg-orange-50 border-b border-gray-100 text-gray-600 text-sm uppercase tracking-wider">
+                <th class="px-6 py-4 font-semibold">Partner ID</th>
+                <th class="px-6 py-4 font-semibold">Vehicle</th>
+                <th class="px-6 py-4 font-semibold">License</th>
+                <th class="px-6 py-4 font-semibold">Status</th>
+                <th class="px-6 py-4 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="partnersList" class="divide-y divide-gray-50 text-gray-700">
+              <tr>
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                  <div class="animate-pulse flex justify-center">Loading delivery partners...</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    async function updateStatus(id, newStatus) {
+      if (!confirm(`Change status to ${newStatus}?`)) return;
+      const token = localStorage.getItem('token') || '';
+      try {
+        const res = await fetch(`/fleet-manager/delivery-partner/${id}/update/status`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: newStatus })
+        });
+        if (res.ok) {
+          alert('Status updated!');
+          loadPartners();
+        } else {
+          alert('Failed to update status.');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadPartners() {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch('/fleet-manager/delivery-partners/all', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const list = document.getElementById('partnersList');
+        if (res.ok) {
+          const data = await res.json();
+          const partners = data.data?.partners || [];
+
+          if (partners.length === 0) {
+            list.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No partners found.</td></tr>`;
+          } else {
+            list.innerHTML = partners.map(p => `
+              <tr class="hover:bg-orange-50/50 transition-colors">
+                <td class="px-6 py-4 font-bold text-gray-900">#${p.userId}</td>
+                <td class="px-6 py-4">
+                  <p class="font-medium text-gray-900 capitalize">${p.vehicleType || 'N/A'}</p>
+                  <p class="text-xs text-gray-500">${p.vehicleNumber || 'N/A'}</p>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-600">${p.drivingLicenseNumber || 'N/A'}</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    ${p.status}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right space-x-2">
+                  <button onclick="updateStatus('${p.userId}', 'APPROVED')" class="text-green-600 hover:text-green-800 text-sm font-medium">Approve</button>
+                  <button onclick="updateStatus('${p.userId}', 'SUSPENDED')" class="text-red-600 hover:text-red-800 text-sm font-medium">Suspend</button>
+                </td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadPartners();
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        await fetch('/auth/logout', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (e) { console.error(e); }
+      localStorage.clear();
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.href = '/loginPage';
+    });;
+  </script>
+</body>
+
+</html>

@@ -1,12 +1,12 @@
 import { ErrorRequestHandler } from "express";
 
-const errorMiddleware: ErrorRequestHandler = (err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status =  err ;
+const errorMiddleware: ErrorRequestHandler = (err: any, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const status = err.status || "error";
 
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err,
+  res.status(statusCode).json({
+    status,
+    message: err.message || "Internal Server Error",
   });
 };
 

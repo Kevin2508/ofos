@@ -1,6 +1,11 @@
 import { Router } from 'express';
+import { authenticate, authorize } from '../middlewares/auth.middleware.ts';
 
 const adminPageRouter = Router();
+
+adminPageRouter.use(authenticate);
+
+adminPageRouter.use(authorize('Admin'));
 
 adminPageRouter.get('/admin-dashboard', (req, res) => {
   res.render('admin/dashboard');

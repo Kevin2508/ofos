@@ -1,308 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Restaurant Approval | ofos Admin</title>
-    <link rel="stylesheet" href="/styles/build.css" />
-  </head>
 
-  <body class="min-h-screen bg-orange-50">
-    <div class="flex min-h-screen">
-      <!-- Sidebar -->
-      <aside class="w-64 bg-white border-r border-orange-100 shadow-md">
-        <div class="p-6">
-          <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Restaurants | Admin | ofos</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans text-gray-800">
+  <div class="flex min-h-screen">
+    <!-- SIDEBAR -->
+    <aside
+      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
+      <div class="p-6 text-center border-b border-orange-50">
+        <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
+      </div>
+
+      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <a href="/a/admin-dashboard"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+            </path>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="/a/admin-users"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+            </path>
+          </svg>
+          <span>Users</span>
+        </a>
+        <a href="/a/admin-restaurants"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+            </path>
+          </svg>
+          <span>Restaurants</span>
+        </a>
+        <a href="/a/admin-orders"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+          </svg>
+          <span>Global Orders</span>
+        </a>
+        <a href="/a/admin-configs"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+            </path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+            </path>
+          </svg>
+          <span>Configurations</span>
+        </a>
+        <a href="/a/admin-audit-logs"
+          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+          </svg>
+          <span>Audit Logs</span>
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-orange-50">
+        <button id="logoutBtn"
+          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+          <span class="font-semibold">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 ml-64 p-8">
+      <div class="mb-8 flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900" id="pageTitle">Pending Restaurants</h2>
+          <p class="text-gray-500 mt-2" id="pageSubtitle">Review and approve new restaurant applications.</p>
         </div>
-
-        <nav class="px-4 space-y-2">
-          <a
-            href="/admin/dashboard"
-            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
-          >
-            Dashboard
-          </a>
-
-          <a
-            href="/admin/users"
-            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
-          >
-            User Management
-          </a>
-
-          <a
-            href="/admin/restaurants"
-            class="block px-4 py-2 rounded-xl bg-orange-100 text-orange-600 font-semibold"
-          >
-            Restaurants
-          </a>
-
-          <a
-            href="/admin/orders"
-            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
-          >
-            Orders
-          </a>
-
-          <a
-            href="/admin/config"
-            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
-          >
-            System Config
-          </a>
-
-          <a
-            href="/admin/audit-logs"
-            class="block px-4 py-2 rounded-xl hover:bg-orange-50"
-          >
-            Audit Logs
-          </a>
-        </nav>
-      </aside>
-
-      <!-- Main Content -->
-      <main class="flex-1 p-8">
-        <!-- Header -->
-        <div class="mb-6">
-          <h2 class="text-2xl font-bold text-gray-800">Restaurant Approvals</h2>
-
-          <p class="text-gray-600 mt-1">
-            Review and manage restaurant registration requests
-          </p>
-        </div>
-
-        <!-- Restaurant Grid -->
-        <div
-          id="restaurantContainer"
-          class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-        >
-          <!-- Loading -->
-          <div class="bg-white rounded-2xl shadow border border-orange-100 p-6">
-            Loading pending restaurants...
-          </div>
-        </div>
-      </main>
-    </div>
-
-    <!-- Confirmation Modal -->
-    <div
-      id="confirmModal"
-      class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4"
-    >
-      <div class="bg-white rounded-3xl w-full max-w-md p-6">
-        <h3 class="text-xl font-bold text-gray-800">Confirm Action</h3>
-
-        <p class="text-gray-600 mt-3">
-          Are you sure you want to update this restaurant status?
-        </p>
-
-        <div class="flex justify-end gap-3 mt-6">
-          <button onclick="closeModal()" class="px-4 py-2 border rounded-xl">
-            Cancel
-          </button>
-
-          <button
-            id="confirmBtn"
-            class="px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600"
-          >
-            Confirm
-          </button>
+        <div class="flex bg-gray-100 rounded-lg p-1 w-max">
+          <button id="tabPending" onclick="switchTab('pending')" class="px-6 py-2 rounded-md bg-white shadow-sm text-sm font-semibold text-gray-800 transition-all">Pending</button>
+          <button id="tabAll" onclick="switchTab('all')" class="px-6 py-2 rounded-md text-sm font-semibold text-gray-500 hover:text-gray-800 transition-all">All Restaurants</button>
         </div>
       </div>
-    </div>
 
-    <script>
-      let selectedRestaurantId = null;
-      let selectedStatus = null;
-
-      /*
-  Fetch Pending Restaurants
-*/
-      async function fetchRestaurants() {
-        const container = document.getElementById('restaurantContainer');
-
-        try {
-          const response = await fetch('/admin/restaurants/pending');
-
-          const restaurants = await response.json();
-
-          if (!restaurants.length) {
-            container.innerHTML = `
-        <div
-          class="bg-white rounded-2xl border border-orange-100 p-6">
-          No pending restaurants found
-        </div>
-      `;
-
-            return;
-          }
-
-          container.innerHTML = restaurants
-            .map(
-              (restaurant) => `
-
-        <div
-          class="bg-white rounded-2xl shadow border border-orange-100 p-6">
-
-          <h3 class="text-xl font-bold text-gray-800">
-            ${restaurant.name}
-          </h3>
-
-
-          <div class="mt-4 space-y-2 text-gray-600">
-
-            <p>
-              <strong>Owner:</strong>
-              ${restaurant.ownerName}
-            </p>
-
-
-            <p>
-              <strong>Email:</strong>
-              ${restaurant.email}
-            </p>
-
-
-            <p>
-              <strong>Phone:</strong>
-              ${restaurant.phone}
-            </p>
-
-
-            <p>
-              <strong>Address:</strong>
-              ${restaurant.address}
-            </p>
-
-
-            <p>
-              <strong>Cuisine:</strong>
-              ${restaurant.cuisine}
-            </p>
-
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div id="restaurantsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="col-span-full py-12 text-center text-gray-500">
+            Loading...
           </div>
-
-
-          <div class="mt-6 flex gap-2">
-
-            <button
-              onclick="openModal('${restaurant.id}','approved')"
-              class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl">
-
-              Approve
-
-            </button>
-
-
-            <button
-              onclick="openModal('${restaurant.id}','rejected')"
-              class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl">
-
-              Reject
-
-            </button>
-
-
-            <button
-              onclick="openModal('${restaurant.id}','suspended')"
-              class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-xl">
-
-              Suspend
-
-            </button>
-
-          </div>
-
         </div>
-
-      `
-            )
-            .join('');
-        } catch (error) {
-          container.innerHTML = `
-      <div
-        class="bg-red-50 text-red-600 border border-red-200 rounded-xl p-4">
-
-        Failed to load restaurants
-
       </div>
-    `;
-        }
+    </main>
+  </div>
+
+  <script>
+    let currentTab = 'pending';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      const tabPending = document.getElementById('tabPending');
+      const tabAll = document.getElementById('tabAll');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageSubtitle = document.getElementById('pageSubtitle');
+
+      if (tab === 'pending') {
+        tabPending.classList.add('bg-white', 'shadow-sm', 'text-gray-800');
+        tabPending.classList.remove('text-gray-500');
+        tabAll.classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
+        tabAll.classList.add('text-gray-500');
+        pageTitle.textContent = 'Pending Restaurants';
+        pageSubtitle.textContent = 'Review and approve new restaurant applications.';
+        loadRestaurants();
+      } else {
+        tabAll.classList.add('bg-white', 'shadow-sm', 'text-gray-800');
+        tabAll.classList.remove('text-gray-500');
+        tabPending.classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
+        tabPending.classList.add('text-gray-500');
+        pageTitle.textContent = 'All Restaurants';
+        pageSubtitle.textContent = 'Manage all registered restaurants in the system.';
+        loadRestaurants();
       }
+    }
 
-      /*
-  Open Confirmation Modal
-*/
-      function openModal(id, status) {
-        selectedRestaurantId = id;
-        selectedStatus = status;
+    async function updateStatus(id, newStatus) {
+      if (!confirm(`Are you sure you want to change status to ${newStatus}?`)) return;
 
-        document.getElementById('confirmModal').classList.remove('hidden');
-      }
-
-      /*
-  Close Modal
-*/
-      function closeModal() {
-        document.getElementById('confirmModal').classList.add('hidden');
-      }
-
-      /*
-  Update Restaurant Status
-*/
-      document
-        .getElementById('confirmBtn')
-        .addEventListener('click', async function () {
-          const button = this;
-
-          button.disabled = true;
-          button.textContent = 'Updating...';
-
-          try {
-            const response = await fetch(
-              `/admin/restaurants/${selectedRestaurantId}/status`,
-              {
-                method: 'PATCH',
-
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-
-                body: JSON.stringify({
-                  status: selectedStatus,
-                }),
-              }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-              showToast(data.message || 'Failed to update restaurant', 'error');
-
-              return;
-            }
-
-            showToast(
-              data.message || 'Restaurant updated successfully',
-              'success'
-            );
-
-            closeModal();
-
-            fetchRestaurants();
-          } catch (error) {
-            showMessage('Something went wrong. Please try again.', false);
-          } finally {
-            button.disabled = false;
-            button.textContent = 'Confirm';
-          }
+      const token = localStorage.getItem('token') || '';
+      try {
+        const res = await fetch(`/admin/restaurants/${id}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: newStatus })
         });
 
-      /*
-  Initial Load
-*/
-      fetchRestaurants();
-    </script>
-    <%- include('../partials/toast') %>
-  </body>
+        if (res.ok) {
+          alert('Status updated successfully!');
+          loadRestaurants();
+        } else {
+          alert('Failed to update status.');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadRestaurants() {
+      const grid = document.getElementById('restaurantsGrid');
+      grid.innerHTML = '<div class="col-span-full py-12 text-center text-gray-500">Loading...</div>';
+      
+      try {
+        const token = localStorage.getItem('token') || '';
+        const url = currentTab === 'pending' ? '/admin/restaurants/pending' : '/admin/restaurants';
+        const res = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const restaurants = data.data?.restaurants || [];
+
+          if (restaurants.length === 0) {
+            if (currentTab === 'pending') {
+              grid.innerHTML = `<div class="col-span-full text-center py-16"><div class="text-6xl mb-4">🙌</div><h3 class="text-xl font-bold text-gray-700">All caught up!</h3><p class="text-gray-500">No pending approvals.</p></div>`;
+            } else {
+              grid.innerHTML = `<div class="col-span-full text-center py-16"><h3 class="text-xl font-bold text-gray-700">No restaurants found.</h3></div>`;
+            }
+          } else {
+            grid.innerHTML = restaurants.map(r => {
+              const statusColor = r.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                                  r.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                                  r.status === 'SUSPENDED' ? 'bg-gray-100 text-gray-800' :
+                                  'bg-amber-100 text-amber-800';
+
+              const actionButtons = r.status === 'PENDING_VERIFICATION' ? `
+                <button onclick="updateStatus('${r.id}', 'APPROVED')" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                  Approve
+                </button>
+                <button onclick="updateStatus('${r.id}', 'REJECTED')" class="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-medium py-2 px-4 rounded-lg transition-colors">
+                  Reject
+                </button>
+              ` : `
+                <button onclick="updateStatus('${r.id}', '${r.status === 'SUSPENDED' ? 'APPROVED' : 'SUSPENDED'}')" class="flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors">
+                  ${r.status === 'SUSPENDED' ? 'Activate' : 'Suspend'}
+                </button>
+              `;
+
+              return `
+              <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow bg-white flex flex-col">
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-900">${r.businessName}</h3>
+                    <p class="text-sm text-gray-500">${r.legalBusinessName || ''}</p>
+                  </div>
+                  <span class="px-3 py-1 ${statusColor} rounded-full text-xs font-semibold">${r.status.replace('_', ' ')}</span>
+                </div>
+                
+                <div class="space-y-2 mb-6 flex-1 text-sm text-gray-600">
+                  <p><strong>Owner ID:</strong> #${r.ownerUserId}</p>
+                  <p><strong>Email:</strong> ${r.primaryEmail || 'N/A'}</p>
+                  <p><strong>Phone:</strong> ${r.primaryPhone || 'N/A'}</p>
+                </div>
+                
+                <div class="flex space-x-3 pt-4 border-t border-gray-100 mt-auto">
+                  ${actionButtons}
+                </div>
+              </div>
+            `}).join('');
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadRestaurants();
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        await fetch('/auth/logout', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (e) { console.error(e); }
+      localStorage.clear();
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.href = '/loginPage';
+    });;
+  </script>
+</body>
+
 </html>

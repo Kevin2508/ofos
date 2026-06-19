@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { UserStatus } from '../../generated/prisma/enums.ts';
 import { catchAsync } from '../../middlewares/catch.async.ts';
 import {
+  createSystemConfigService,
+  deleteSystemConfigService,
   getAdminOrdersService,
   getAllSystemConfigsService,
   getAllUsersService,
@@ -11,6 +13,7 @@ import {
   updateRestaurantStatusService,
   updateSystemConfigService,
   updateUserRoleStatusService,
+  getAllRestaurantsService,
 } from './admin.service.ts';
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
@@ -73,6 +76,17 @@ const getPendingRestaurants = catchAsync(
     });
   }
 );
+
+const getAllRestaurants = catchAsync(async (req: Request, res: Response) => {
+  const { status } = req.query;
+  const result = await getAllRestaurantsService(status as string);
+
+  res.status(200).json({
+    success: true,
+    message: 'Restaurants fetched successfully',
+    data: result,
+  });
+});
 
 const updateRestaurantStatus = catchAsync(
   async (req: Request, res: Response) => {
@@ -143,6 +157,39 @@ const updateSystemConfig = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const createSystemConfig = catchAsync(async (req: Request, res: Response) => {
+  const { key, value, description } = req.body;
+  const adminUserId = req.user?.id;
+
+  const newConfig = await createSystemConfigService(
+    key,
+    value,
+    description || null,
+    BigInt(adminUserId as string)
+  );
+
+  return res.status(201).json({
+    success: true,
+    message: 'Configuration created successfully',
+    data: newConfig,
+  });
+});
+
+const deleteSystemConfig = catchAsync(async (req: Request, res: Response) => {
+  const { key } = req.params;
+  const adminUserId = req.user?.id;
+
+  await deleteSystemConfigService(
+    key as string,
+    BigInt(adminUserId as string)
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: 'Configuration deleted successfully',
+  });
+});
+
 const getAuditLogs = catchAsync(async (req: Request, res: Response) => {
   const { actorUserId, entityType, entityId } = req.query;
 
@@ -163,10 +210,13 @@ export {
   getAllUsers,
   getAdminOrders,
   getPendingRestaurants,
+  getAllRestaurants,
   getUserById,
   updateRestaurantStatus,
   updateUserRoleStatus,
   getAllSystemConfigs,
   updateSystemConfig,
+  createSystemConfig,
+  deleteSystemConfig,
   getAuditLogs,
 };

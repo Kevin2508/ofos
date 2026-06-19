@@ -19,7 +19,9 @@ import {
   registerAdminService,
   registerDeliveryPartnerService,
   registerFleetManagerService,
+  registerFinanceManagerService,
   registerRestaurantOwnerService,
+  registerRestaurantStaffService,
   registerService,
   resetPasswordService,
   sendOtpService,
@@ -66,6 +68,7 @@ const login = catchAsync(
       message: data.message,
       data: {
         user: data.user,
+        token: data.tokens.accessToken,
       },
     });
   }
@@ -227,6 +230,28 @@ const registerRestaurantOwner = catchAsync(
   }
 );
 
+const registerRestaurantStaff = catchAsync(
+  async (req: Request, res: Response) => {
+    const data = await registerRestaurantStaffService(req.body);
+
+    res.status(200).json({
+      status: 'success',
+      message: data.message,
+    });
+  }
+);
+
+const registerFinanceManager = catchAsync(
+  async (req: Request, res: Response) => {
+    const data = await registerFinanceManagerService(req.body);
+
+    res.status(200).json({
+      status: 'success',
+      message: data.message,
+    });
+  }
+);
+
 
 const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
   const data = await registerFleetManagerService(req.body);
@@ -234,6 +259,15 @@ const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
   res.status(200).json({
     status: 'success',
     message: data.message,
+  });
+});
+
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: req.user,
+    },
   });
 });
 
@@ -249,5 +283,8 @@ export {
   registerFleetManager,
   verigyOtp,
   refresh,
-  registerRestaurantOwner
+  registerRestaurantOwner,
+  registerRestaurantStaff,
+  registerFinanceManager,
+  getMe
 };

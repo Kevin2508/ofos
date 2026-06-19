@@ -74,7 +74,7 @@ interface PriceBreakdownResponseDTO {
   calculatedAt: Date;
 }
 
-export {
+export type {
   GetCartDto,
   CartItemDTO,
   PriceBreakdownDTO,

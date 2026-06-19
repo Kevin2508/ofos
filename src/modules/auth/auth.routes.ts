@@ -9,11 +9,14 @@ import {
   register,
   registerAdmin,
   registerDeliveryPartner,
+  registerFinanceManager,
   registerFleetManager,
   registerRestaurantOwner,
+  registerRestaurantStaff,
   resetPassword,
   sendOtp,
   verigyOtp,
+  getMe,
 } from './auth.controller.ts';
 import {
   forgotPasswordSchema,
@@ -47,6 +50,7 @@ authRouter.post('/send-otp', validate(sendOtpSchema), sendOtp);
 authRouter.post('/verify-otp', validate(verifyOtpSchema), verigyOtp);
 
 authRouter.get('/logout', authenticate, logout);
+authRouter.get('/me', authenticate, getMe);
 
 authRouter.post('/refresh', refresh);
 
@@ -68,11 +72,11 @@ authRouter.post(
 );
 
 // Restaurant Staff
-// authRouter.post(
-//   '/register/restaurant-staff',
-//   validate(registerSchema),
-//   registerRestaurantStaff
-// );
+authRouter.post(
+  '/register/restaurant-staff',
+  validate(registerSchema),
+  registerRestaurantStaff
+);
 
 // Delivery Partner
 authRouter.post(
@@ -89,10 +93,10 @@ authRouter.post(
 );
 
 // Finance Manager
-// authRouter.post(
-//   '/register/finance-manager',
-//   validate(registerSchema),
-//   registerFinanceManager
-// );
+authRouter.post(
+  '/register/finance-manager',
+  validate(registerSchema),
+  registerFinanceManager
+);
 
 export { authRouter };

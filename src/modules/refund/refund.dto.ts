@@ -9,3 +9,7 @@ export interface GetAllRefundsDto {
     fromDate?: string;
     toDate?: string;
 }
+
+export interface UpdateRefundStatusDto {
+    status: | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+}

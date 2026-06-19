@@ -226,4 +226,78 @@
   <%- include('../partials/toast') %>
 </body>
 
+        if (value.length < 8) {
+          return 'Password must be at least 8 characters';
+        }
+
+        return '';
+      }
+
+      function clearErrors() {
+        userIdentifierError.textContent = '';
+        passwordError.textContent = '';
+      }
+
+      //  Submit
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        clearErrors();
+
+        const identifierValue = userIdentifier.value.trim();
+        const passwordValue = password.value;
+
+        const identifierValidation = validateUserIdentifier(identifierValue);
+
+        const passwordValidation = validatePassword(passwordValue);
+
+        let hasError = false;
+
+        if (identifierValidation) {
+          userIdentifierError.textContent = identifierValidation;
+          hasError = true;
+        }
+
+        if (passwordValidation) {
+          passwordError.textContent = passwordValidation;
+          hasError = true;
+        }
+
+        if (hasError) return;
+
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Logging in...';
+
+        try {
+          const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userIdentifier: identifierValue,
+              password: passwordValue,
+              rememberMe: rememberMe.checked ? 'true' : 'false',
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            showToast(data.message || data.error || 'Login failed', 'error');
+            return;
+          }
+
+          // console.log(data.data.user);
+          window.location.href = data.redirectUrl || '/';
+        } catch (error) {
+          showToast('Something went wrong. Please try again.', 'error');
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Login';
+        }
+      });
+    </script>
+    <%- include('../partials/toast') %>
+  </body>
 </html>

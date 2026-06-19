@@ -27,7 +27,6 @@ customerRouter.patch('/addresses/:id', updateCustomerAddress);
 //To delete the One Of Customer Address.
 customerRouter.delete('/addresses/:id', deleteCustomerAddress);
 
-
 //to see the customer address default if its not set.
 customerRouter.patch('/address/:id', authenticate, setDefaultAddress);
 

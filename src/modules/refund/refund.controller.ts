@@ -1,11 +1,13 @@
 import { NextFunction } from "express";
 import { catchAsync } from "../../middlewares/catch.async.ts";
-import { createRefundSchema } from "./refund.validation.ts"; 
+import { createRefundSchema, updateRefundStatusSchema } from "./refund.validation.ts"; 
 import { Request, Response } from "express-serve-static-core";
 import { createRefundService,
          getRefundByOrderIdService,
-         getAllRefundsService
+         getAllRefundsService,
+         updateRefundStatusService
  } from "./refund.service.ts";
+import { json } from "node:stream/consumers";
 
 const createRefund = catchAsync(
     async(req:Request, res:Response, next:NextFunction) =>{
@@ -116,4 +118,47 @@ const getAllRefunds = catchAsync(
     }
 )
 
-export {createRefund, getRefundByOrderId, getAllRefunds}
+const changeRefundStatus = catchAsync(
+    async(req:Request, res:Response) =>{
+
+        const refundId:number = Number(req.params.refundId);
+
+        if(isNaN(refundId)){
+            return res.status(400).json({
+                status: 'Fail',
+                message: 'Invalid Refund Id'
+            })
+        }
+
+        const { error } = updateRefundStatusSchema.validate(req.body, {
+            abortEarly: false,
+            stripUnknown: true
+        });
+
+         if (error) {
+                return res.status(400).json({
+                  status: 'fail',
+                  errors: error.details.map(
+                    detail => detail.message
+                  ),
+                });
+         }
+
+
+         const result = await updateRefundStatusService(refundId, req.body);
+
+         const serializedResult = JSON.parse(
+             JSON.stringify(result, (__, value) =>
+                 typeof value === 'bigint' ? value.toString() : value
+             )
+         );
+
+         return res.status(200).json({
+            status: 'success',
+            message: serializedResult.message,
+            data: serializedResult.data
+         })
+    }
+)
+
+export {createRefund, getRefundByOrderId, getAllRefunds, changeRefundStatus}

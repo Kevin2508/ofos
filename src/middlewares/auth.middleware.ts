@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.accessToken;
-
+  console.log('Access Token from Cookie:', token);
   if (!token) {
     return res.render('default/notAuthenticated')
   }
@@ -23,6 +23,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     // console.log('Authenticated user:', req.user);
 
     next();
+
   } catch (err) {
     if (err instanceof Error) {
       if (err.name === 'TokenExpiredError') {
@@ -37,7 +38,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
     return res.render('default/notAuthenticated')
   }
 };
-
+ 
 const authorize = (requiredRole: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
 
@@ -54,6 +55,9 @@ const authorize = (requiredRole: string) => {
       return res.redirect('default/pendingVerification');
     }
 
+    // console.log('req.user:', req.user); 
+    // console.log('requiredRole:', requiredRole);
+
     const hasRole = (req.user as any).roles?.some(
       (role: string) => role === requiredRole
     );
@@ -61,7 +65,7 @@ const authorize = (requiredRole: string) => {
     if (!hasRole) {
       return res.render('default/notAuthorize')
     }
-
+                       
     next();
   };
 };

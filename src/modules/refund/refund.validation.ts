@@ -12,4 +12,11 @@ const createRefundSchema = Joi.object({
         .max(500)
         .required()
 });
-export {createRefundSchema}
+
+const updateRefundStatusSchema = Joi.object({
+    status: Joi.string().
+    valid('PROCESSING','COMPLETED', 'FAILED').required()
+});
+
+
+export {createRefundSchema, updateRefundStatusSchema}

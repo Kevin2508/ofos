@@ -21,6 +21,9 @@ async function findPaymentByOrderId(orderId: number) {
     return await prisma.payment.findFirst({
         where: {
             orderId: BigInt(orderId)
+        },
+        orderBy: {
+            createdAt: 'desc'
         }
     });
 }
@@ -144,7 +147,50 @@ async function findAllRefunds(filters:GetAllRefundsDto) {
         }
     }
 }
+
+async function findRefundById(refundId:number){
+
+    return prisma.refund.findUnique({
+        where: {
+            id: refundId
+        }
+    })
+}
+
+async function updateRefundStatus(refundId:number,
+                                  paymentId:bigint,
+                                  orderId:bigint,
+                                  newStatus: 'PROCESSING' | 'COMPLETED' | 'FAILED'
+) {
+
+    return prisma.$transaction(async(tx) => {
+
+        const updateRefund = await tx.refund.update({
+            where: {id: BigInt(refundId)},
+            data: { status: newStatus}
+        })
+
+        if(newStatus !== 'COMPLETED'){
+            return updateRefund;
+        }
+
+        await tx.payment.update({
+            where: {id: paymentId},
+            data: {status: 'REFUNDED'}
+        });
+
+        await tx.order.update({
+            where: {id: orderId},
+            data: {paymentStatus: 'REFUNDED'}
+        });
+
+        return updateRefund
+    })
+    
+}
 export {findOrderById, findOrderCancellation, findPaymentByOrderId, findRefundByOrderId, createRefundRecord,
         findRefundDetailsByOrderId,
-        findAllRefunds
+        findAllRefunds,
+        findRefundById,
+        updateRefundStatus
 }

@@ -191,6 +191,14 @@ async function cancelOrder(
       },
     });
 
+    await tx.orderEvent.create({
+      data: {
+        orderId,
+        eventType: 'ORDER_STATUS_CHANGED',
+        payload: { status: 'CANCELLED', changedByUserId: customerUserId.toString(), remarks: reason },
+      },
+    });
+
     return order;
   });
 }
@@ -213,6 +221,14 @@ export async function updateOrderStatus(
         status,
         changedByUserId,
         remarks,
+      },
+    });
+
+    await tx.orderEvent.create({
+      data: {
+        orderId,
+        eventType: 'ORDER_STATUS_CHANGED',
+        payload: { status, changedByUserId: changedByUserId.toString(), remarks },
       },
     });
 
@@ -344,6 +360,7 @@ export const createOrder = async (params: {
   totalAmount: number;
   estimatedDeliveryAt: Date | null;
   specialInstructions?: string;
+  otpHash?: string;
 }) => {
   const {
     customerUserId,
@@ -356,6 +373,7 @@ export const createOrder = async (params: {
     totalAmount,
     estimatedDeliveryAt,
     specialInstructions,
+    otpHash,
   } = params;
 
   return await prisma.$transaction(async (tx) => {
@@ -375,6 +393,7 @@ export const createOrder = async (params: {
         taxAmount,
         totalAmount,
         estimatedDeliveryAt,
+        otpHash,
       },
     });
 

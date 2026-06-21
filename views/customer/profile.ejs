@@ -255,6 +255,14 @@
 
         <!-- Tabs -->
         <div class="flex gap-1.5 mb-6 bg-white rounded-xl p-1.5 border border-orange-100 shadow-sm w-fit flex-wrap">
+          <button id="tab-personal"
+            class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm text-gray-600 hover:bg-orange-50"
+            onclick="switchTab('personal')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Personal Info
+          </button>
           <button id="tab-addresses"
             class="tab-btn active flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm"
             onclick="switchTab('addresses')">
@@ -279,11 +287,90 @@
             class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm text-gray-600 hover:bg-orange-50"
             onclick="switchTab('security')">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             Security
           </button>
+          <button id="tab-payments"
+            class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm text-gray-600 hover:bg-orange-50"
+            onclick="switchTab('payments')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+            Payment Methods
+          </button>
+        </div>
+
+        <!-- ── Personal Info Tab ── -->
+        <div id="section-personal" class="profile-section">
+          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 mb-6 max-w-2xl">
+            <h3 class="text-lg font-bold text-gray-700 mb-1">Personal Information</h3>
+            <p class="text-sm text-gray-400 mb-6">Update your display name and contact details.</p>
+
+            <form id="personalInfoForm" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_firstName">First Name</label>
+                  <input type="text" id="pi_firstName" name="firstName" class="if" />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_lastName">Last Name</label>
+                  <input type="text" id="pi_lastName" name="lastName" class="if" />
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_email">Email</label>
+                  <input type="email" id="pi_email" name="email" class="if" />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_phone">Phone</label>
+                  <input type="tel" id="pi_phone" name="phone" class="if" />
+                </div>
+              </div>
+              <div>
+                 <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_profilePicture">Profile Picture</label>
+                 <input type="file" id="pi_profilePicture" name="profilePicture" class="if" accept="image/*" />
+              </div>
+              <button type="submit" id="savePersonalInfoBtn"
+                class="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm">
+                Save Changes
+              </button>
+            </form>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 max-w-2xl mt-6">
+            <h3 class="text-lg font-bold text-gray-700 mb-1">Dietary Preferences</h3>
+            <p class="text-sm text-gray-400 mb-6">Filter menus by default based on your preferences.</p>
+            <form id="preferencesForm" class="space-y-4">
+              <div class="flex flex-wrap gap-4">
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" id="pref_vegetarian" name="vegetarian" class="w-4 h-4 accent-orange-500 rounded" />
+                  <span class="text-sm font-semibold text-gray-700">Vegetarian</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" id="pref_vegan" name="vegan" class="w-4 h-4 accent-orange-500 rounded" />
+                  <span class="text-sm font-semibold text-gray-700">Vegan</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" id="pref_glutenFree" name="glutenFree" class="w-4 h-4 accent-orange-500 rounded" />
+                  <span class="text-sm font-semibold text-gray-700">Gluten-Free</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" id="pref_halal" name="halal" class="w-4 h-4 accent-orange-500 rounded" />
+                  <span class="text-sm font-semibold text-gray-700">Halal</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" id="pref_jain" name="jain" class="w-4 h-4 accent-orange-500 rounded" />
+                  <span class="text-sm font-semibold text-gray-700">Jain</span>
+                </label>
+              </div>
+              <button type="submit" id="savePrefsBtn"
+                class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm">
+                Save Preferences
+              </button>
+            </form>
+          </div>
         </div>
 
         <!-- ── Addresses Tab ── -->
@@ -399,6 +486,31 @@
               </button>
             </form>
           </div>
+
+          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 max-w-2xl mt-6">
+            <h3 class="text-lg font-bold text-gray-700 mb-1">Active Sessions</h3>
+            <p class="text-sm text-gray-400 mb-4">View and manage devices currently logged into your account.</p>
+            <div id="sessionsList" class="space-y-3">
+              <div class="text-sm text-gray-500">Loading sessions...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Payments Tab ── -->
+        <div id="section-payments" class="profile-section">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-700">Payment Methods</h3>
+            <button id="addPaymentBtn" onclick="openPaymentModal()"
+              class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add New
+            </button>
+          </div>
+          <div id="paymentsList" class="space-y-4">
+            <!-- Payment Methods Loaded Here -->
+          </div>
         </div>
 
       </div><!-- /profileContent -->
@@ -412,7 +524,13 @@
     <div class="modal-box" id="addressModalBox">
 
       <div class="flex items-center justify-between mb-5">
-        <h3 id="modalTitle" class="text-xl font-bold text-gray-800">Add Address</h3>
+        <div class="flex items-center gap-3">
+          <h3 id="modalTitle" class="text-xl font-bold text-gray-800">Add Address</h3>
+          <button type="button" onclick="useCurrentLocation()" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded flex items-center gap-1 font-semibold transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-7 13-7 13s-7-9.483-7-13a7 7 0 1114 0z"/><circle cx="12" cy="11" r="3"/></svg>
+            Use GPS
+          </button>
+        </div>
         <button id="modalCloseBtn"
           class="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
           aria-label="Close modal">
@@ -524,6 +642,47 @@
         </div>
       </form>
 
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+     PAYMENT MODAL
+  ═══════════════════════════════════════════════ -->
+  <div id="paymentModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-5">
+        <h3 id="paymentModalTitle" class="text-xl font-bold text-gray-800">Add Payment Method</h3>
+        <button onclick="closePaymentModal()" class="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <form id="paymentForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-600 mb-2">Type</label>
+          <div class="flex gap-3">
+            <label class="label-radio flex-1"><input type="radio" name="paymentType" value="CARD" checked /><span>💳 Card</span></label>
+            <label class="label-radio flex-1"><input type="radio" name="paymentType" value="UPI" /><span>📱 UPI</span></label>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-gray-600 mb-1" for="pm_identifier">Card Number / UPI ID</label>
+          <input type="text" id="pm_identifier" name="identifier" class="if" placeholder="XXXX-XXXX-XXXX-1234 or name@upi" required />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-gray-600 mb-1" for="pm_provider">Provider (Simulation)</label>
+          <select id="pm_provider" name="provider" class="if">
+             <option value="RAZORPAY">Razorpay</option>
+             <option value="STRIPE">Stripe</option>
+          </select>
+        </div>
+
+        <button type="submit" id="paymentSubmitBtn" class="w-full py-3 rounded-xl font-bold text-white bg-orange-500 hover:bg-orange-600 transition-colors shadow-sm">
+          Save Payment Method
+        </button>
+      </form>
     </div>
   </div>
 
@@ -644,9 +803,18 @@
             return;
           }
 
-          renderHeader(json.data.user);
+          const u = json.data.user;
+          document.getElementById('pi_firstName').value = u.firstName || '';
+          document.getElementById('pi_lastName').value = u.lastName || '';
+          document.getElementById('pi_email').value = u.email || '';
+          document.getElementById('pi_phone').value = u.phone || '';
+
+          renderHeader(u);
           renderAddresses(json.data.addresses || []);
-          renderRoles(json.data.user);
+          renderRoles(u);
+          loadSessions();
+          loadPreferences();
+          loadPaymentMethods();
           profileContent.classList.remove('hidden');
         } catch {
           profileLoading.classList.add('hidden');
@@ -954,6 +1122,241 @@
 
       // ─── Boot ─────────────────────────────────────────────────────
       loadProfile();
+      // ─── Location ─────────────────────────────────────────────────
+      window.useCurrentLocation = function () {
+        if (!navigator.geolocation) {
+          showToast('Geolocation is not supported by your browser', 'error');
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(pos => {
+          document.getElementById('f_latitude').value = pos.coords.latitude;
+          document.getElementById('f_longitude').value = pos.coords.longitude;
+          showToast('Location acquired successfully!', 'success');
+        }, err => {
+          showToast('Unable to retrieve location', 'error');
+        });
+      };
+
+      // ─── Sessions ──────────────────────────────────────────────────
+      async function loadSessions() {
+        try {
+          const res = await fetch('/customer/sessions');
+          if (!res.ok) return;
+          const { data } = await res.json();
+          const list = document.getElementById('sessionsList');
+          if (!data || data.length === 0) {
+            list.innerHTML = '<div class="text-sm text-gray-500">No active sessions found.</div>';
+            return;
+          }
+          list.innerHTML = data.map(s => {
+            const isCurrent = false; // Could detect current token if available
+            return `
+            <div class="flex items-center justify-between bg-gray-50 border border-gray-100 p-3 rounded-xl">
+              <div>
+                <p class="font-bold text-gray-800 text-sm">${s.userAgent || 'Unknown Device'} ${isCurrent ? '<span class="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full ml-1 border border-green-200">Current</span>' : ''}</p>
+                <p class="text-xs text-gray-500 mt-0.5">IP: ${s.ipAddress || 'Unknown'} • Expires: ${new Date(s.expiresAt).toLocaleDateString()}</p>
+              </div>
+              <button onclick="revokeSession('${s.id}')" class="text-xs font-bold text-red-500 hover:text-red-700 bg-white border border-red-100 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors shadow-sm">Log Out</button>
+            </div>
+            `;
+          }).join('');
+        } catch (e) { console.error(e); }
+      }
+
+      window.revokeSession = async function(id) {
+        if(!confirm('Are you sure you want to log out this device?')) return;
+        try {
+          const res = await fetch('/customer/sessions/' + id, { method: 'DELETE' });
+          if (res.ok) {
+            showToast('Session revoked', 'success');
+            loadSessions();
+          } else {
+            showToast('Failed to revoke session', 'error');
+          }
+        } catch(e) { showToast('Error', 'error'); }
+      };
+
+      // ─── Personal Info Form ────────────────────────────────────────
+      document.getElementById('personalInfoForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const btn = document.getElementById('savePersonalInfoBtn');
+        const originalText = btn.textContent;
+        btn.textContent = 'Saving...';
+        btn.disabled = true;
+
+        const formData = new FormData(this);
+        
+        // Remove empty file input
+        if (document.getElementById('pi_profilePicture').files.length === 0) {
+          formData.delete('profilePicture');
+        }
+
+        try {
+          const res = await fetch('/customer/setup-profile', {
+            method: 'POST',
+            body: formData
+          });
+
+          const json = await res.json();
+          if (res.ok) {
+            showToast('Profile updated successfully!', 'success');
+            loadProfile(); // reload to show changes
+          } else {
+            showToast(json.message || 'Update failed', 'error');
+          }
+        } catch (err) {
+          showToast('Network error', 'error');
+        } finally {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }
+      });
+
+      // ─── Preferences Form ────────────────────────────────────────
+      async function loadPreferences() {
+        try {
+          const res = await fetch('/customer/preferences');
+          if (!res.ok) return;
+          const { data } = await res.json();
+          if (data) {
+            document.getElementById('pref_vegetarian').checked = data.vegetarian;
+            document.getElementById('pref_vegan').checked = data.vegan;
+            document.getElementById('pref_glutenFree').checked = data.glutenFree;
+            document.getElementById('pref_halal').checked = data.halal;
+            document.getElementById('pref_jain').checked = data.jain;
+          }
+        } catch(e) {}
+      }
+
+      document.getElementById('preferencesForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const payload = {
+          vegetarian: document.getElementById('pref_vegetarian').checked,
+          vegan: document.getElementById('pref_vegan').checked,
+          glutenFree: document.getElementById('pref_glutenFree').checked,
+          halal: document.getElementById('pref_halal').checked,
+          jain: document.getElementById('pref_jain').checked,
+        };
+
+        const btn = document.getElementById('savePrefsBtn');
+        const txt = btn.textContent;
+        btn.textContent = 'Saving...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch('/customer/preferences', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if(res.ok) {
+             showToast('Preferences saved successfully', 'success');
+          } else {
+             showToast('Failed to save preferences', 'error');
+          }
+        } catch(e) {
+          showToast('Error saving preferences', 'error');
+        } finally {
+          btn.textContent = txt;
+          btn.disabled = false;
+        }
+      });
+
+      // ─── Payment Methods ──────────────────────────────────────────
+      window.openPaymentModal = function() {
+         document.getElementById('paymentModal').classList.add('open');
+      };
+      window.closePaymentModal = function() {
+         document.getElementById('paymentModal').classList.remove('open');
+         document.getElementById('paymentForm').reset();
+      };
+      
+      async function loadPaymentMethods() {
+        try {
+          const res = await fetch('/customer/payment-methods');
+          if (!res.ok) return;
+          const { data } = await res.json();
+          const list = document.getElementById('paymentsList');
+          if (!data || data.length === 0) {
+            list.innerHTML = `
+              <div class="bg-white border border-dashed border-orange-200 rounded-2xl p-10 text-center">
+                <div class="text-4xl mb-3">💳</div>
+                <p class="text-gray-500 font-medium">No payment methods saved</p>
+                <p class="text-gray-400 text-sm mt-1">Add a card or UPI ID for faster checkout</p>
+              </div>`;
+            return;
+          }
+
+          list.innerHTML = data.map(pm => `
+             <div class="bg-white border border-orange-100 rounded-2xl p-4 shadow-sm flex justify-between items-center">
+               <div class="flex items-center gap-3">
+                 <div class="p-2 bg-orange-50 rounded-lg text-orange-500 text-xl">
+                   ${pm.paymentType === 'CARD' ? '💳' : '📱'}
+                 </div>
+                 <div>
+                   <p class="font-bold text-gray-800">${pm.paymentType === 'CARD' ? 'Card' : 'UPI'} ending in ${pm.maskedIdentifier.slice(-4)}</p>
+                   <p class="text-xs text-gray-500">Provider: ${pm.provider}</p>
+                 </div>
+               </div>
+               <button onclick="deletePaymentMethod('${pm.id}')" class="p-2 text-red-500 bg-red-50 rounded-lg hover:bg-red-100">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+               </button>
+             </div>
+          `).join('');
+        } catch(e) {}
+      }
+
+      window.deletePaymentMethod = async function(id) {
+         if(!confirm('Delete this payment method?')) return;
+         try {
+            const res = await fetch('/customer/payment-methods/' + id, { method: 'DELETE' });
+            if(res.ok) {
+               showToast('Payment method deleted', 'success');
+               loadPaymentMethods();
+            } else {
+               showToast('Failed to delete', 'error');
+            }
+         } catch(e) {}
+      };
+
+      document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+         e.preventDefault();
+         const formData = new FormData(this);
+         
+         const payload = {
+            paymentType: formData.get('paymentType'),
+            provider: formData.get('provider'),
+            maskedIdentifier: formData.get('identifier').toString().slice(-4).padStart(8, '*'),
+            gatewayToken: 'simulated_tok_' + Math.random().toString(36).substring(7)
+         };
+
+         const btn = document.getElementById('paymentSubmitBtn');
+         const txt = btn.textContent;
+         btn.textContent = 'Saving...';
+         btn.disabled = true;
+
+         try {
+            const res = await fetch('/customer/payment-methods', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify(payload)
+            });
+            if(res.ok) {
+               showToast('Payment method saved', 'success');
+               closePaymentModal();
+               loadPaymentMethods();
+            } else {
+               const err = await res.json();
+               showToast(err.message || 'Failed to save', 'error');
+            }
+         } catch(e) {
+            showToast('Error', 'error');
+         } finally {
+            btn.textContent = txt;
+            btn.disabled = false;
+         }
+      });
+
     })();
   </script>
 

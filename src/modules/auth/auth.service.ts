@@ -22,6 +22,7 @@ import {
   createUserSession,
   deleteOtp,
   deleteResetToken,
+  extendUserSession,
   getToken,
   getValidOtpByEmail,
   getValidOtpByPhone,
@@ -385,6 +386,12 @@ async function refreshTokenService(rawRefreshToken: string) {
     process.env.JWT_ACCESS_SECRET!,
     { expiresIn: accessTokenLife }
   );
+
+  // Extend the session by 30 days of inactivity
+  const refreshExpiresInDays = 30;
+  const newExpiresAt = new Date();
+  newExpiresAt.setDate(newExpiresAt.getDate() + refreshExpiresInDays);
+  await extendUserSession(session.id, newExpiresAt);
 
   return {
     accessToken: newAccessToken,

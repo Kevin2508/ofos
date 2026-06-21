@@ -21,6 +21,11 @@ interface branchIdParamsDto {
   branchId: string;
 }
 
+interface scheduleParamsDto {
+  id: string; // menuItemId
+  scheduleId: string;
+}
+
 /**
  * Create Menu Item
  */
@@ -55,6 +60,16 @@ interface updateMenuItemDto {
 
 interface updateAvailabilityDto {
   isAvailable: boolean;
+}
+
+/**
+ * Availability Schedule
+ */
+
+interface createAvailabilityScheduleDto {
+  dayOfWeek: number;
+  startTime: string; // ISO or HH:mm:ss
+  endTime: string;
 }
 
 /**
@@ -95,11 +110,13 @@ export {
   menuItemIdParamsDto,
   menuItemImageParamsDto,
   branchIdParamsDto,
+  scheduleParamsDto,
 
   createMenuItemDto,
   updateMenuItemDto,
 
   updateAvailabilityDto,
+  createAvailabilityScheduleDto,
   updateBestsellerDto,
 
   importMenuItemsDto,

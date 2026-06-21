@@ -121,6 +121,30 @@
       </div>
     </div>
 
+    <!-- SEARCH & FILTERS -->
+    <div class="max-w-6xl mx-auto px-4 mt-8">
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div class="relative w-full md:w-1/3">
+          <input type="text" id="menuSearchInput" placeholder="Search dishes..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500" oninput="filterMenu()">
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <label class="cursor-pointer">
+            <input type="checkbox" class="peer hidden dietary-filter" value="VEG" onchange="filterMenu()">
+            <span class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 peer-checked:bg-green-50 peer-checked:text-green-700 peer-checked:border-green-300 transition-colors">Veg</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="checkbox" class="peer hidden dietary-filter" value="NON_VEG" onchange="filterMenu()">
+            <span class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 peer-checked:bg-red-50 peer-checked:text-red-700 peer-checked:border-red-300 transition-colors">Non-Veg</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="checkbox" class="peer hidden dietary-filter" value="VEGAN" onchange="filterMenu()">
+            <span class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 peer-checked:bg-green-50 peer-checked:text-green-700 peer-checked:border-green-300 transition-colors">Vegan</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <!-- MENU SECTION -->
     <div class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
 
@@ -155,7 +179,7 @@
 
     <!-- VIEW CART FLOATING BAR -->
     <div id="floatingCartBar"
-      class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 transform translate-y-full transition-transform duration-300 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+      class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 transform translate-y-full transition-transform duration-300 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
       <div class="max-w-6xl mx-auto flex items-center justify-between">
         <div>
           <p class="text-sm text-gray-500 font-medium">Your Cart</p>
@@ -168,6 +192,26 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
           </svg>
         </a>
+      </div>
+    </div>
+
+    <!-- MODIFIER MODAL -->
+    <div id="modifierModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-200" id="modifierModalContent">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <h3 class="text-xl font-extrabold text-gray-900" id="modalItemName">Customise Item</h3>
+          <button onclick="closeModifierModal()" class="text-gray-400 hover:text-gray-600 p-2 bg-white rounded-full shadow-sm">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div class="p-6 overflow-y-auto flex-1 space-y-6 bg-white" id="modalModifierGroups">
+        </div>
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+           <textarea id="modalSpecialInstructions" maxlength="150" class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 mb-4" placeholder="Add special instructions (optional, max 150 chars)..."></textarea>
+           <button id="modalConfirmBtn" onclick="confirmModalAddToCart()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+             Add to Cart | ₹<span id="modalTotalPrice">0</span>
+           </button>
+        </div>
       </div>
     </div>
 
@@ -232,7 +276,8 @@
               throw new Error('Menu data not found');
             }
 
-            const categories = result.data.filter(c => c.menuItems && c.menuItems.length > 0);
+            globalMenuData = result.data; // Store globally for filtering/modals
+            const categories = globalMenuData.filter(c => c.menuItems && c.menuItems.length > 0);
 
             renderCategoryNav(categories);
             renderMenu(categories);
@@ -300,10 +345,23 @@
                 foodIcon = '<span class="inline-block w-4 h-4 border-2 border-green-400 rounded-sm flex items-center justify-center" title="Vegan"><span class="w-2 h-2 bg-green-400 rounded-full"></span></span>';
               }
 
+              const isBestseller = item.isBestseller ? '<span class="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm z-10 flex items-center gap-1">✨ Bestseller</span>' : '';
+              const isAvailable = item.isAvailable;
+              const cardOpacity = isAvailable ? '' : 'opacity-60 grayscale-[50%]';
+              const outOfStockOverlay = !isAvailable ? '<div class="absolute inset-0 bg-white/40 z-20 flex items-center justify-center backdrop-blur-[1px] rounded-2xl"><span class="bg-black/80 text-white font-bold px-4 py-2 rounded-lg transform -rotate-12 shadow-lg tracking-wider border border-white/20">OUT OF STOCK</span></div>' : '';
+
               const card = document.createElement('div');
-              card.className = 'bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between h-full';
+              card.className = `menu-item-card bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between h-full relative ${cardOpacity}`;
+              card.setAttribute('data-name', item.name.toLowerCase());
+              card.setAttribute('data-foodtype', item.foodType || '');
+              
+              const dietaryTags = item.dietaryTags || [];
+              let dietaryStr = Array.isArray(dietaryTags) ? dietaryTags.join(',') : (typeof dietaryTags === 'string' ? dietaryTags : '');
+              card.setAttribute('data-dietary', dietaryStr.toLowerCase());
 
               card.innerHTML = `
+            ${outOfStockOverlay}
+            ${isBestseller}
             <div>
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
@@ -320,8 +378,8 @@
               ${item.description ? `<p class="text-sm text-gray-500 mt-3 line-clamp-2">${item.description}</p>` : ''}
             </div>
             
-            <div class="mt-4 flex justify-end">
-              <button onclick="addToCart('${item.id}', this)" class="add-to-cart-btn bg-orange-50 text-orange-600 border border-orange-200 font-bold px-6 py-2 rounded-xl hover:bg-orange-100 hover:border-orange-300 transition-colors shadow-sm">
+            <div class="mt-4 flex justify-end z-30 relative">
+              <button onclick="handleAddToCartClick('${item.id}', this)" class="add-to-cart-btn bg-orange-50 text-orange-600 border border-orange-200 font-bold px-6 py-2 rounded-xl hover:bg-orange-100 hover:border-orange-300 transition-colors shadow-sm" ${!isAvailable ? 'disabled' : ''}>
                 ADD
               </button>
             </div>
@@ -332,16 +390,191 @@
           });
         }
 
-        async function addToCart(menuItemId, btn) {
+        let globalMenuData = [];
+
+        function filterMenu() {
+          const searchQuery = document.getElementById('menuSearchInput').value.toLowerCase();
+          const checkboxes = document.querySelectorAll('.dietary-filter:checked');
+          const selectedTags = Array.from(checkboxes).map(cb => cb.value.toLowerCase());
+
+          const cards = document.querySelectorAll('.menu-item-card');
+          cards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            const foodType = card.getAttribute('data-foodtype').toLowerCase();
+            const dietary = card.getAttribute('data-dietary');
+
+            const matchesSearch = name.includes(searchQuery);
+            const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => foodType.includes(tag) || dietary.includes(tag));
+
+            if (matchesSearch && matchesTags) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        }
+
+        // Modifiers State
+        let currentModalItem = null;
+
+        function handleAddToCartClick(itemId, btn) {
+          const item = findItemInGlobalData(itemId);
+          if (!item) return;
+
+          if (item.modifierGroups && item.modifierGroups.length > 0) {
+             openModifierModal(item);
+          } else {
+             // For standard items without modifiers, open modal anyway to allow special instructions
+             openModifierModal(item);
+          }
+        }
+
+        function findItemInGlobalData(itemId) {
+          for (let cat of globalMenuData) {
+            for (let item of cat.menuItems) {
+              if (item.id == itemId) return item;
+            }
+          }
+          return null;
+        }
+
+        function openModifierModal(item) {
+          currentModalItem = item;
+          document.getElementById('modalItemName').textContent = item.name;
+          document.getElementById('modalSpecialInstructions').value = '';
+          
+          const groupsContainer = document.getElementById('modalModifierGroups');
+          groupsContainer.innerHTML = '';
+
+          if (item.modifierGroups && item.modifierGroups.length > 0) {
+            item.modifierGroups.forEach(mg => {
+              const group = mg.modifierGroup;
+              const isRadio = group.maxSelection === 1;
+              const requiredLabel = group.isRequired ? '<span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Required</span>' : '<span class="text-xs text-gray-400">Optional</span>';
+              
+              let optionsHtml = '';
+              group.options.forEach(opt => {
+                const inputType = isRadio ? 'radio' : 'checkbox';
+                const inputName = `modifierGroup_${group.id}`;
+                optionsHtml += `
+                  <label class="flex items-center justify-between p-3 border border-gray-100 rounded-xl hover:bg-orange-50 cursor-pointer transition-colors group">
+                    <div class="flex items-center gap-3">
+                      <input type="${inputType}" name="${inputName}" value="${opt.id}" data-price="${opt.additionalPrice}" onchange="calculateModalPrice()" class="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500">
+                      <span class="text-gray-700 font-medium group-hover:text-orange-700">${opt.optionName}</span>
+                    </div>
+                    <span class="text-gray-500 text-sm border border-gray-100 px-2 py-1 rounded-md bg-white group-hover:bg-orange-50">₹${opt.additionalPrice}</span>
+                  </label>
+                `;
+              });
+
+              groupsContainer.innerHTML += `
+                <div class="modifier-group-block" data-group-id="${group.id}" data-min="${group.minSelection}" data-max="${group.maxSelection}" data-required="${group.isRequired}">
+                  <div class="flex items-center gap-2 mb-3">
+                    <h4 class="font-bold text-gray-900">${group.name}</h4>
+                    ${requiredLabel}
+                    <span class="text-xs text-gray-400 ml-auto">Select ${group.minSelection === group.maxSelection ? group.minSelection : group.minSelection + ' to ' + group.maxSelection}</span>
+                  </div>
+                  <div class="space-y-2">
+                    ${optionsHtml}
+                  </div>
+                </div>
+              `;
+            });
+          }
+
+          calculateModalPrice();
+
+          const modal = document.getElementById('modifierModal');
+          const content = document.getElementById('modifierModalContent');
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          // small delay for transition
+          setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+          }, 10);
+        }
+
+        function closeModifierModal() {
+          const modal = document.getElementById('modifierModal');
+          const content = document.getElementById('modifierModalContent');
+          
+          content.classList.remove('scale-100', 'opacity-100');
+          content.classList.add('scale-95', 'opacity-0');
+          setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentModalItem = null;
+          }, 200);
+        }
+
+        function calculateModalPrice() {
+          if (!currentModalItem) return;
+          let total = parseFloat(currentModalItem.basePrice);
+          const checkedOpts = document.querySelectorAll('#modalModifierGroups input:checked');
+          checkedOpts.forEach(opt => {
+            total += parseFloat(opt.getAttribute('data-price') || 0);
+          });
+          document.getElementById('modalTotalPrice').textContent = total.toFixed(2);
+        }
+
+        function validateModifiers() {
+          let isValid = true;
+          const blocks = document.querySelectorAll('.modifier-group-block');
+          blocks.forEach(block => {
+            const min = parseInt(block.getAttribute('data-min'));
+            const max = parseInt(block.getAttribute('data-max'));
+            const isRequired = block.getAttribute('data-required') === 'true';
+            const checkedCount = block.querySelectorAll('input:checked').length;
+
+            if (isRequired && checkedCount < min) isValid = false;
+            if (checkedCount > max) isValid = false;
+          });
+          return isValid;
+        }
+
+        async function confirmModalAddToCart() {
+          if (!validateModifiers()) {
+            showToast('Please fulfill modifier requirements', 'error');
+            return;
+          }
+
+          const btn = document.getElementById('modalConfirmBtn');
+          const originalText = btn.innerHTML;
+          btn.textContent = 'ADDING...';
+          btn.disabled = true;
+
+          const checkedOpts = document.querySelectorAll('#modalModifierGroups input:checked');
+          const modifiers = Array.from(checkedOpts).map(opt => ({
+            modifierOptionId: opt.value,
+            additionalPrice: parseFloat(opt.getAttribute('data-price') || 0)
+          }));
+          const specialInstructions = document.getElementById('modalSpecialInstructions').value.trim();
+
+          try {
+             await addToCart(currentModalItem.id, null, modifiers, specialInstructions);
+             closeModifierModal();
+          } catch(err) {
+             console.error(err);
+             showToast('Failed to add item', 'error');
+          } finally {
+             btn.innerHTML = originalText;
+             btn.disabled = false;
+          }
+        }
+
+        async function addToCart(menuItemId, btn, modifiers = [], specialInstructions = '') {
           if (!branchId) {
             showToast('Restaurant is currently unavailable for ordering', 'error');
             return;
           }
 
-          // Visual feedback
-          const originalText = btn.textContent;
-          btn.textContent = 'ADDING...';
-          btn.disabled = true;
+          if (btn) {
+             // If called directly from button (fallback), add visual feedback
+             const originalText = btn.textContent;
+             btn.textContent = 'ADDING...';
+             btn.disabled = true;
+          }
 
           try {
             const res = await fetch('/cart/items', {
@@ -352,7 +585,9 @@
               body: JSON.stringify({
                 menuItemId: Number(menuItemId),
                 restaurantBranchId: Number(branchId),
-                quantity: 1
+                quantity: 1,
+                modifiers,
+                specialInstructions
               })
             });
 
@@ -375,10 +610,13 @@
 
           } catch (err) {
             console.error(err);
-            showToast(err.message, 'error');
+            throw err; // Propagate to caller
           } finally {
-            btn.textContent = originalText;
-            btn.disabled = false;
+            if (btn) {
+               // Restore button state if it was passed
+               btn.textContent = 'ADD'; // Restore original text... or hardcode 'ADD' since it was the original text
+               btn.disabled = false;
+            }
           }
         }
 

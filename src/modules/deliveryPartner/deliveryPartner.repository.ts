@@ -107,19 +107,28 @@ async function updateProfileRepo(id: bigint, data: IupdateProfilePayload) {
 }
 
 async function updateStatusRepo(userId: bigint, isOnline: boolean) {
-  const deliveryPartner = await prisma.deliveryPartner.update({
-    where: {
-      userId: userId,
-    },
-    data: {
-      isOnline: isOnline,
-    },
-    select: {
-      isOnline: true,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const deliveryPartner = await tx.deliveryPartner.update({
+      where: {
+        userId: userId,
+      },
+      data: {
+        isOnline: isOnline,
+      },
+      select: {
+        isOnline: true,
+      },
+    });
 
-  return deliveryPartner;
+    await tx.partnerStatusLog.create({
+      data: {
+        partnerUserId: userId,
+        status: isOnline ? 'ONLINE' : 'OFFLINE',
+      },
+    });
+
+    return deliveryPartner;
+  });
 }
 
 async function uploadDocumentRepo(
@@ -208,54 +217,77 @@ async function acceptAssignmentRepo(
   assignmentId: bigint,
   partnerUserId: bigint
 ) {
-  const assignment = await prisma.deliveryAssignment.update({
-    where: {
-      id: assignmentId,
-    },
-    data: {
-      status: 'ACCEPTED',
-      partnerUserId: partnerUserId,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const assignment = await tx.deliveryAssignment.update({
+      where: {
+        id: assignmentId,
+      },
+      data: {
+        status: 'ACCEPTED',
+        partnerUserId: partnerUserId,
+        acceptedAt: new Date(),
+      },
+    });
 
-  return {
-    ...assignment,
-    id: assignment.id.toString(),
-    orderId: assignment.orderId.toString(),
-    partnerUserId: assignment.partnerUserId
-      ? assignment.partnerUserId.toString()
-      : null,
-    assignedByUserId: assignment.assignedByUserId
-      ? assignment.assignedByUserId.toString()
-      : null,
-  };
+    await tx.deliveryEvent.create({
+      data: {
+        orderId: assignment.orderId,
+        partnerUserId: partnerUserId,
+        eventType: 'ASSIGNMENT_ACCEPTED',
+        eventData: { assignmentId: assignmentId.toString() },
+      },
+    });
+
+    return {
+      ...assignment,
+      id: assignment.id.toString(),
+      orderId: assignment.orderId.toString(),
+      partnerUserId: assignment.partnerUserId
+        ? assignment.partnerUserId.toString()
+        : null,
+      assignedByUserId: assignment.assignedByUserId
+        ? assignment.assignedByUserId.toString()
+        : null,
+    };
+  });
 }
 
 async function declineAssignmentRepo(
   assignmentId: bigint,
   partnerUserId: bigint
 ) {
-  const assignment = await prisma.deliveryAssignment.update({
-    where: {
-      id: assignmentId,
-    },
-    data: {
-      status: 'DECLINED',
-      partnerUserId: partnerUserId,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const assignment = await tx.deliveryAssignment.update({
+      where: {
+        id: assignmentId,
+      },
+      data: {
+        status: 'DECLINED',
+        partnerUserId: partnerUserId,
+      },
+    });
 
-  return {
-    ...assignment,
-    id: assignment.id.toString(),
-    orderId: assignment.orderId.toString(),
-    partnerUserId: assignment.partnerUserId
-      ? assignment.partnerUserId.toString()
-      : null,
-    assignedByUserId: assignment.assignedByUserId
-      ? assignment.assignedByUserId.toString()
-      : null,
-  };
+    await tx.deliveryEvent.create({
+      data: {
+        orderId: assignment.orderId,
+        partnerUserId: partnerUserId,
+        eventType: 'ASSIGNMENT_DECLINED',
+        eventData: { assignmentId: assignmentId.toString() },
+      },
+    });
+
+    return {
+      ...assignment,
+      id: assignment.id.toString(),
+      orderId: assignment.orderId.toString(),
+      partnerUserId: assignment.partnerUserId
+        ? assignment.partnerUserId.toString()
+        : null,
+      assignedByUserId: assignment.assignedByUserId
+        ? assignment.assignedByUserId.toString()
+        : null,
+    };
+  });
 }
 
 async function getDeliveryPartnerByIdRepo(partnerId: bigint) {

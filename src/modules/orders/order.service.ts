@@ -1,4 +1,5 @@
 import { IPlaceOrderRequest, IPlaceOrderResult } from './order.interface.ts';
+import bcrypt from 'bcrypt';
 import orderRepository, {
   createOrder,
   findActiveCart,
@@ -207,8 +208,10 @@ export const placeOrder = async (
     ? new Date(Date.now() + session.estimatedDeliveryMinutes * 60 * 1000)
     : null;
 
-  // ── 7. Generate order number ──────────────────────────────
+  // ── 7. Generate order number & OTP ────────────────────────
   const orderNumber = generateOrderNumber();
+  const rawOtp = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP
+  const otpHash = await bcrypt.hash(rawOtp, 10);
 
   // ── 8. Run atomic DB transaction ─────────────────────────
   const order = await createOrder({
@@ -222,6 +225,7 @@ export const placeOrder = async (
     totalAmount,
     estimatedDeliveryAt,
     specialInstructions: req.specialInstructions,
+    otpHash,
   });
 
   return {
@@ -236,6 +240,7 @@ export const placeOrder = async (
     estimatedDeliveryAt,
     deliveryType: session.deliveryType,
     scheduledFor: session.scheduledFor,
+    otp: rawOtp,
   };
 };
 

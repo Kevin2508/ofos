@@ -222,7 +222,6 @@ async function getBranchMenu(branchId: bigint) {
     include: {
       menuItems: {
         where: {
-          isAvailable: true,
           deletedAt: null
         },
         include: {
@@ -335,6 +334,15 @@ async function getGlobalMenuItems(filters: any) {
     where: whereClause,
     include: {
       images: true,
+      modifierGroups: {
+        include: {
+          modifierGroup: {
+            include: {
+              options: true
+            }
+          }
+        }
+      },
       category: {
         include: {
           branch: {

@@ -277,6 +277,52 @@ async function updateMenuItemBestseller({
 }
 
 /**
+ * ============================================================
+ * AVAILABILITY SCHEDULES
+ * ============================================================
+ */
+
+async function getMenuItemAvailabilitySchedules(menuItemId: bigint) {
+  return prisma.menuItemAvailability.findMany({
+    where: {
+      menuItemId,
+    },
+    orderBy: {
+      dayOfWeek: 'asc',
+    },
+  });
+}
+
+async function createMenuItemAvailabilitySchedule({
+  menuItemId,
+  dayOfWeek,
+  startTime,
+  endTime,
+}: {
+  menuItemId: bigint;
+  dayOfWeek: number;
+  startTime: Date;
+  endTime: Date;
+}) {
+  return prisma.menuItemAvailability.create({
+    data: {
+      menuItemId,
+      dayOfWeek,
+      startTime,
+      endTime,
+    },
+  });
+}
+
+async function deleteMenuItemAvailabilitySchedule(scheduleId: bigint) {
+  return prisma.menuItemAvailability.delete({
+    where: {
+      id: scheduleId,
+    },
+  });
+}
+
+/**
  * Soft delete menu item.
  */
 async function softDeleteMenuItem(
@@ -409,6 +455,10 @@ export {
   updateMenuItemAvailability,
   updateMenuItemBestseller,
   softDeleteMenuItem,
+
+  getMenuItemAvailabilitySchedules,
+  createMenuItemAvailabilitySchedule,
+  deleteMenuItemAvailabilitySchedule,
 
   createMenuItemImages,
   findMenuItemImageById,

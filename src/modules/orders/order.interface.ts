@@ -109,11 +109,12 @@ export interface IPlaceOrderResult {
   orderNumber: string;
   orderStatus: OrderStatus;
   paymentStatus: PaymentStatus;
-  totalAmount: number;
+  subtotalAmount: number;
   deliveryFee: number;
   taxAmount: number;
-  subtotalAmount: number;
+  totalAmount: number;
   estimatedDeliveryAt: Date | null;
-  deliveryType: DeliveryType;
+  deliveryType: string;
   scheduledFor: Date | null;
+  otp?: string;
 }

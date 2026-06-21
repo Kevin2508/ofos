@@ -206,7 +206,7 @@ export async function triggerAutoAssignment(orderId: bigint) {
   });
 
   if (availablePartner) {
-    await prisma.deliveryAssignment.create({
+    const assignment = await prisma.deliveryAssignment.create({
       data: {
         orderId,
         partnerUserId: availablePartner.userId,
@@ -215,6 +215,16 @@ export async function triggerAutoAssignment(orderId: bigint) {
         assignedAt: new Date()
       }
     });
+    
+    await prisma.deliveryEvent.create({
+      data: {
+        orderId,
+        partnerUserId: availablePartner.userId,
+        eventType: 'ASSIGNMENT_AUTO_CREATED',
+        eventData: { assignmentId: assignment.id.toString() }
+      }
+    });
+    
     console.log(`Order ${orderId} auto-assigned to partner ${availablePartner.userId}`);
   } else {
     console.log(`No available partners for order ${orderId}`);
@@ -263,7 +273,16 @@ async function pickupOrderService(assignmentId: string, partnerUserId: string) {
 
   // Mark assignment as picked up by updating order status
   await updateOrderStatus(BigInt(assignment.orderId), 'PICKED_UP', BigInt(partnerUserId), 'Picked up by delivery partner');
-  
+
+  await prisma.deliveryEvent.create({
+    data: {
+      orderId: BigInt(assignment.orderId),
+      partnerUserId: BigInt(partnerUserId),
+      eventType: 'ORDER_PICKED_UP',
+      eventData: { assignmentId: assignmentId.toString() },
+    },
+  });
+
   return { message: 'Order picked up successfully' };
 }
 
@@ -287,6 +306,29 @@ async function deliverOrderService(assignmentId: string, partnerUserId: string, 
   });
 
   await updateOrderStatus(order.id, 'DELIVERED', BigInt(partnerUserId), 'Delivered successfully');
+
+  await prisma.deliveryEvent.create({
+    data: {
+      orderId: order.id,
+      partnerUserId: BigInt(partnerUserId),
+      eventType: 'ORDER_DELIVERED',
+      eventData: { assignmentId: assignmentId.toString() },
+    },
+  });
+
+  const deliveryFeeNum = order.deliveryFee ? Number(order.deliveryFee) : 0;
+  const finalEarning = deliveryFeeNum > 0 ? deliveryFeeNum : 40;
+
+  await prisma.partnerEarning.create({
+    data: {
+      partnerUserId: BigInt(partnerUserId),
+      orderId: order.id,
+      baseEarning: finalEarning,
+      incentiveAmount: 0,
+      totalEarning: finalEarning,
+      status: 'PENDING',
+    },
+  });
 
   return { message: 'Order delivered successfully' };
 }

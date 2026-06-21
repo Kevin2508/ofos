@@ -2,12 +2,14 @@ import { catchAsync } from "../../middlewares/catch.async.ts";
 import { Request, Response } from "express-serve-static-core";
 import {
   addAddressService, getAddressesByIdService, getAddressesService,
-  updateAdressService, deleteAddressService, setDefaultAddressService
-
+  updateAdressService, deleteAddressService, setDefaultAddressService,
+  getPreferencesService, updatePreferencesService,
+  getPaymentMethodsService, addPaymentMethodService, deletePaymentMethodService
 } from "./customer.service.ts";
 import { customerDto } from "./customer.dto.ts";
 import { createAddressSchema } from "./customer.valication.ts";
 import { updateUser, findUserById } from "../user/user.repository.ts";
+import { getUserSessions, revokeUserSession } from "../auth/auth.repository.ts";
 import bcrypt from 'bcryptjs';
 
 
@@ -247,12 +249,20 @@ const setupCustomerProfile = catchAsync(async (req: Request, res: Response) => {
   }
 
   const userDto = req.user as customerDto;
-  const { addressLine1, city, postalCode } = req.body;
+  const { addressLine1, city, postalCode, firstName, lastName, email, phone } = req.body;
 
   // Update user profileImageUrl if file is uploaded
+  const dataToUpdate: any = {};
   if (req.file) {
-    const profileImageUrl = `/uploads/users/profiles/${req.file.filename}`;
-    await updateUser({ userId: BigInt(userDto.id), data: { profileImageUrl } });
+    dataToUpdate.profileImageUrl = `/uploads/users/profiles/${req.file.filename}`;
+  }
+  if (firstName !== undefined) dataToUpdate.firstName = firstName;
+  if (lastName !== undefined) dataToUpdate.lastName = lastName;
+  if (email !== undefined) dataToUpdate.email = email;
+  if (phone !== undefined) dataToUpdate.phone = phone;
+
+  if (Object.keys(dataToUpdate).length > 0) {
+    await updateUser({ userId: BigInt(userDto.id), data: dataToUpdate });
   }
 
   if (addressLine1 && city && postalCode) {
@@ -352,4 +362,73 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
   return res.status(200).json({ status: 'success', message: 'Password changed successfully' });
 });
 
-export { getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, deleteCustomerAddress, setDefaultAddress, setupCustomerProfile, getCustomerProfile, changePassword }
+// Session Management
+const getSessions = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+  const userDto = req.user as customerDto;
+  const sessions = await getUserSessions(BigInt(userDto.id));
+  const serialize = (v: any) => JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+  
+  return res.status(200).json({ status: 'success', data: serialize(sessions) });
+});
+
+const revokeSession = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+  const sessionId = Number(req.params.id);
+  if (isNaN(sessionId)) {
+    return res.status(400).json({ status: 'fail', message: 'Invalid session ID' });
+  }
+  
+  await revokeUserSession(BigInt(sessionId));
+  return res.status(200).json({ status: 'success', message: 'Session revoked successfully' });
+});
+
+// Preferences
+const getPreferences = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  const result = await getPreferencesService(Number((req.user as customerDto).id));
+  const serialize = (v: any) => JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+  return res.status(200).json({ status: 'success', data: serialize(result.data) });
+});
+
+const updatePreferences = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  const result = await updatePreferencesService(Number((req.user as customerDto).id), req.body);
+  const serialize = (v: any) => JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+  return res.status(200).json({ status: 'success', message: result.message, data: serialize(result.data) });
+});
+
+// Payment Methods
+const getPaymentMethods = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  const result = await getPaymentMethodsService(Number((req.user as customerDto).id));
+  const serialize = (v: any) => JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+  return res.status(200).json({ status: 'success', data: serialize(result.data) });
+});
+
+const addPaymentMethod = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  const result = await addPaymentMethodService(Number((req.user as customerDto).id), req.body);
+  const serialize = (v: any) => JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+  if (!result.success) {
+    return res.status(400).json({ status: 'error', message: result.message });
+  }
+  return res.status(201).json({ status: 'success', message: result.message, data: serialize(result.data) });
+});
+
+const deletePaymentMethod = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  const result = await deletePaymentMethodService(Number(req.params.id));
+  return res.status(200).json({ status: 'success', message: result.message });
+});
+
+export { 
+  getAddresses, insertAddresses, getAddressesById, updateCustomerAddress, 
+  deleteCustomerAddress, setDefaultAddress, setupCustomerProfile, 
+  getCustomerProfile, changePassword, getSessions, revokeSession,
+  getPreferences, updatePreferences, getPaymentMethods, addPaymentMethod, deletePaymentMethod
+}

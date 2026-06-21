@@ -1,12 +1,18 @@
 import { Router } from "express";
-import { authenticate } from "../../middlewares/auth.middleware.ts";
 import {
     getAddresses, getAddressesById, insertAddresses,
     updateCustomerAddress, deleteCustomerAddress, setDefaultAddress,
-    setupCustomerProfile, getCustomerProfile, changePassword
+    setupCustomerProfile, getCustomerProfile, changePassword,
+    getSessions, revokeSession,
+    getPreferences,
+    updatePreferences,
+    addPaymentMethod,
+    deletePaymentMethod,
+    getPaymentMethods
 } from "./customer.controller.ts";
 import { upload } from "../../middlewares/upload.middleware.ts";
-import { authorize } from "../../middlewares/auth.middleware.ts";
+import { authenticate, authorize } from "../../middlewares/auth.middleware.ts";
+import { getFeed, search } from './search.controller.ts';
 
 const customerRouter = Router();
 
@@ -41,5 +47,21 @@ customerRouter.get('/profile-data', getCustomerProfile);
 // Change password
 customerRouter.post('/change-password', changePassword);
 
-//to see the customer address default if its not set.
+// Sessions
+customerRouter.get('/sessions', getSessions);
+customerRouter.delete('/sessions/:id', revokeSession);
+
+// Preferences
+customerRouter.get('/preferences', getPreferences);
+customerRouter.patch('/preferences', updatePreferences);
+
+// Payment Methods
+customerRouter.get('/payment-methods', authenticate, getPaymentMethods);
+customerRouter.post('/payment-methods', authenticate, addPaymentMethod);
+customerRouter.delete('/payment-methods/:id', authenticate, deletePaymentMethod);
+
+// Feed & Search
+customerRouter.get('/feed', getFeed); // optional auth inside controller
+customerRouter.get('/search', search);
+
 export { customerRouter }

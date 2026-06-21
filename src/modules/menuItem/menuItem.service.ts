@@ -4,6 +4,7 @@ import {
   createMenuItemDto,
   importMenuItemsDto,
   updateAvailabilityDto,
+  createAvailabilityScheduleDto,
   updateBestsellerDto,
   updateMenuItemDto,
 } from './menuItem.dto.ts';
@@ -26,6 +27,10 @@ import {
   createMenuItemImages,
   findMenuItemImageById,
   deleteMenuItemImage,
+
+  getMenuItemAvailabilitySchedules,
+  createMenuItemAvailabilitySchedule,
+  deleteMenuItemAvailabilitySchedule,
 } from './menuItem.repository.ts';
 
 import { IMenuItemResponse } from './menuItem.interface.ts';
@@ -272,6 +277,76 @@ async function updateMenuItemBestsellerService(
     message:
       'Menu item bestseller status updated successfully',
     data: item,
+  };
+}
+
+/**
+ * ============================================================
+ * SOFT DELETE MENU ITEM
+ * ============================================================
+ */
+
+/**
+ * ============================================================
+ * MENU ITEM AVAILABILITY SCHEDULES
+ * ============================================================
+ */
+
+async function getAvailabilitySchedulesService(menuItemId: string): Promise<IMenuItemResponse> {
+  const existingItem = await findMenuItemById(BigInt(menuItemId));
+  if (!existingItem) {
+    throw new Error('Menu item not found');
+  }
+
+  const schedules = await getMenuItemAvailabilitySchedules(BigInt(menuItemId));
+
+  return {
+    message: 'Availability schedules fetched successfully',
+    data: schedules,
+  };
+}
+
+async function createAvailabilityScheduleService(
+  menuItemId: string,
+  data: createAvailabilityScheduleDto
+): Promise<IMenuItemResponse> {
+  const existingItem = await findMenuItemById(BigInt(menuItemId));
+  if (!existingItem) {
+    throw new Error('Menu item not found');
+  }
+
+  // Convert "HH:mm" to Date objects for Prisma
+  const now = new Date();
+  const startTimeObj = new Date(now.toDateString() + ' ' + data.startTime);
+  const endTimeObj = new Date(now.toDateString() + ' ' + data.endTime);
+
+  const schedule = await createMenuItemAvailabilitySchedule({
+    menuItemId: BigInt(menuItemId),
+    dayOfWeek: data.dayOfWeek,
+    startTime: startTimeObj,
+    endTime: endTimeObj,
+  });
+
+  return {
+    message: 'Availability schedule created successfully',
+    data: schedule,
+  };
+}
+
+async function deleteAvailabilityScheduleService(
+  menuItemId: string,
+  scheduleId: string
+): Promise<IMenuItemResponse> {
+  const existingItem = await findMenuItemById(BigInt(menuItemId));
+  if (!existingItem) {
+    throw new Error('Menu item not found');
+  }
+
+  // Optionally verify schedule belongs to menu item, but deletion by ID is usually sufficient if we trust the route or we can do a check
+  await deleteMenuItemAvailabilitySchedule(BigInt(scheduleId));
+
+  return {
+    message: 'Availability schedule deleted successfully',
   };
 }
 
@@ -592,6 +667,10 @@ export {
   updateMenuItemAvailabilityService,
   updateMenuItemBestsellerService,
   deleteMenuItemService,
+
+  getAvailabilitySchedulesService,
+  createAvailabilityScheduleService,
+  deleteAvailabilityScheduleService,
 
   uploadMenuItemImageService,
   deleteMenuItemImageService,

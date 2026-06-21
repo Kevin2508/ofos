@@ -127,6 +127,44 @@ async function setAddressAsDefault(addressId: number) {
      });
 }
 
+// Preferences
+async function getCustomerPreference(userId: number) {
+  return prisma.customerPreference.findUnique({
+    where: { customerUserId: BigInt(userId) }
+  });
+}
+
+async function updateCustomerPreference(userId: number, data: any) {
+  return prisma.customerPreference.upsert({
+    where: { customerUserId: BigInt(userId) },
+    update: data,
+    create: { customerUserId: BigInt(userId), ...data }
+  });
+}
+
+// Payment Methods
+async function getPaymentMethods(userId: number) {
+  return prisma.customerPaymentMethod.findMany({
+    where: { customerUserId: BigInt(userId) },
+    orderBy: { createdAt: 'desc' }
+  });
+}
+
+async function createPaymentMethod(userId: number, data: any) {
+  return prisma.customerPaymentMethod.create({
+    data: {
+      customerUserId: BigInt(userId),
+      ...data
+    }
+  });
+}
+
+async function deletePaymentMethod(id: number) {
+  return prisma.customerPaymentMethod.delete({
+    where: { id: BigInt(id) }
+  });
+}
+
 export {
     findAddressesByID,
     createAddress,
@@ -134,7 +172,7 @@ export {
     findAddressesById, updateCustomerAddress,
 
     findAddressById1, deleteAddressById, removeDefaultAddresses,
-    setAddressAsDefault
- 
-
+    setAddressAsDefault,
+    getCustomerPreference, updateCustomerPreference,
+    getPaymentMethods, createPaymentMethod, deletePaymentMethod
 }

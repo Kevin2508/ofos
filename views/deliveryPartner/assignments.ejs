@@ -10,65 +10,10 @@
 
 <body class="min-h-screen bg-orange-50 font-sans">
   <div class="flex min-h-screen">
-    <!-- SIDEBAR -->
-    <aside
-      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
-      <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">epicureDelivery</h1>
-      </div>
-
-      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        <a href="/d/delivery-partner-dashboard"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-            </path>
-          </svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="/d/delivery-partner-assignments"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-            </path>
-          </svg>
-          <span>My Assignments</span>
-        </a>
-        <a href="/d/delivery-partner-earnings"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-            </path>
-          </svg>
-          <span>Earnings</span>
-        </a>
-        <a href="/d/delivery-partner-profile"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-          <span>Profile</span>
-        </a>
-      </nav>
-
-      <div class="p-4 border-t border-orange-50">
-        <button id="logoutBtn"
-          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          <span class="font-semibold">Logout</span>
-        </button>
-      </div>
-    </aside>
+    <%- include('../partials/deliveryPartner/sidebar') %>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 ml-64 p-8">
+    <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
       <div class="mb-8">
         <h2 class="text-2xl font-bold text-gray-800">My Assignments</h2>
         <p class="text-gray-500 mt-1">View your active and past deliveries.</p>
@@ -91,8 +36,8 @@
                 <th class="px-6 py-4 font-semibold">Assignment ID</th>
                 <th class="px-6 py-4 font-semibold">Restaurant</th>
                 <th class="px-6 py-4 font-semibold">Date</th>
-                <th class="px-6 py-4 font-semibold">Status</th>
                 <th class="px-6 py-4 font-semibold text-right">Earnings</th>
+                <th class="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="assignmentsList" class="divide-y divide-gray-50 text-gray-700">
@@ -124,7 +69,24 @@
           if (assignments.length === 0) {
             list.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No assignments found.</td></tr>`;
           } else {
-            list.innerHTML = assignments.map(a => `
+            list.innerHTML = assignments.map(a => {
+                let actionsHtml = '';
+                if (a.status === 'PENDING') {
+                   actionsHtml = `
+                     <button onclick="updateAssignmentStatus('${a.id}', 'accept')" class="bg-green-100 text-green-700 px-3 py-1 rounded-lg font-bold text-xs hover:bg-green-200 transition-colors mr-2">Accept</button>
+                     <button onclick="updateAssignmentStatus('${a.id}', 'decline')" class="bg-red-100 text-red-700 px-3 py-1 rounded-lg font-bold text-xs hover:bg-red-200 transition-colors">Decline</button>
+                   `;
+                } else if (a.status === 'ACCEPTED') {
+                   actionsHtml = `
+                     <button onclick="updateAssignmentStatus('${a.id}', 'pickup')" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg font-bold text-xs hover:bg-blue-200 transition-colors">Pick Up Order</button>
+                   `;
+                } else if (a.status === 'PICKED_UP') {
+                   actionsHtml = `
+                     <button onclick="deliverOrderPrompt('${a.id}')" class="bg-purple-100 text-purple-700 px-3 py-1 rounded-lg font-bold text-xs hover:bg-purple-200 transition-colors">Deliver Order</button>
+                   `;
+                }
+
+                return `
                 <tr class="hover:bg-orange-50 transition-colors group">
                   <td class="px-6 py-4 font-medium text-gray-900 group-hover:text-orange-600">#${a.id}</td>
                   <td class="px-6 py-4 text-gray-600">${a.restaurant?.businessName || 'Unknown'}</td>
@@ -138,8 +100,11 @@
                     </span>
                   </td>
                   <td class="px-6 py-4 text-right font-semibold text-gray-700">₹${a.earnings || 0}</td>
+                  <td class="px-6 py-4 text-right">
+                    ${actionsHtml}
+                  </td>
                 </tr>
-              `).join('');
+              `}).join('');
           }
         } else {
           list.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Could not load assignments.</td></tr>`;
@@ -151,6 +116,57 @@
     }
 
     loadAssignments();
+
+    async function updateAssignmentStatus(assignmentId, action) {
+      if (!confirm(`Are you sure you want to ${action} this assignment?`)) return;
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch(`/delivery-partner/assignments/${assignmentId}/${action}`, {
+          method: 'PATCH',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (res.ok) {
+          showToast('Assignment updated successfully', 'success');
+          loadAssignments();
+        } else {
+          const data = await res.json();
+          showToast(data.message || 'Failed to update assignment', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Network error while updating assignment', 'error');
+      }
+    }
+
+    async function deliverOrderPrompt(assignmentId) {
+      const otp = prompt('Enter the 4-digit Delivery PIN from the customer:');
+      if (!otp) return;
+      
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch(`/delivery-partner/assignments/${assignmentId}/deliver`, {
+          method: 'PATCH',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ otp })
+        });
+        if (res.ok) {
+          showToast('Order delivered successfully!', 'success');
+          loadAssignments();
+        } else {
+          const data = await res.json();
+          showToast(data.message || 'Failed to deliver order', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Network error while delivering order', 'error');
+      }
+    }
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {

@@ -10,85 +10,10 @@
 
 <body class="min-h-screen bg-orange-50 font-sans text-gray-800">
   <div class="flex min-h-screen">
-    <!-- SIDEBAR -->
-    <aside
-      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
-      <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">epicureAdmin</h1>
-      </div>
-
-      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        <a href="/a/admin-dashboard"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-            </path>
-          </svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="/a/admin-users"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-            </path>
-          </svg>
-          <span>Users</span>
-        </a>
-        <a href="/a/admin-restaurants"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-            </path>
-          </svg>
-          <span>Restaurants</span>
-        </a>
-        <a href="/a/admin-orders"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-          </svg>
-          <span>Global Orders</span>
-        </a>
-        <a href="/a/admin-configs"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-            </path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
-            </path>
-          </svg>
-          <span>Configurations</span>
-        </a>
-        <a href="/a/admin-audit-logs"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-            </path>
-          </svg>
-          <span>Audit Logs</span>
-        </a>
-      </nav>
-
-      <div class="p-4 border-t border-orange-50">
-        <button id="logoutBtn"
-          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          <span class="font-semibold">Logout</span>
-        </button>
-      </div>
-    </aside>
+    <%- include('../partials/admin/sidebar') %>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 ml-64 p-8">
+    <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
       <div class="mb-8 flex justify-between items-center">
         <div>
           <h2 class="text-3xl font-bold text-gray-900">User Management</h2>
@@ -103,13 +28,14 @@
               <tr class="bg-slate-50 border-b border-gray-100 text-slate-500 text-sm uppercase tracking-wider">
                 <th class="px-6 py-4 font-semibold">User Details</th>
                 <th class="px-6 py-4 font-semibold">Role</th>
+                <th class="px-6 py-4 font-semibold">Role Status</th>
                 <th class="px-6 py-4 font-semibold">Date Joined</th>
                 <th class="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="usersList" class="divide-y divide-gray-50 text-gray-700">
               <tr>
-                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                   <div class="animate-pulse flex justify-center">Loading users...</div>
                 </td>
               </tr>
@@ -120,40 +46,47 @@
   </div>
 
   <!-- User Details Modal -->
-  <div id="userModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg rounded-3xl p-6">
+  <div id="userModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-[80]">
+    <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-xl transform transition-all">
       <div class="flex justify-between items-center mb-5">
-        <h3 class="text-xl font-bold">User Details</h3>
+        <h3 class="text-xl font-bold text-gray-900">User Details</h3>
 
-        <button onclick="closeModal()">✕</button>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
-      <div id="userDetails" class="space-y-3 text-gray-700"></div>
+      <div id="userDetails" class="space-y-3 text-gray-700 bg-slate-50 p-4 rounded-xl border border-gray-100 mb-6"></div>
 
       <div class="mt-5">
         <label class="block mb-2 font-semibold"> Role </label>
 
         <select id="updateRole" class="w-full px-4 py-3 rounded-xl border">
-          <option>customer</option>
-          <option>restaurant_owner</option>
-          <option>restaurant_staff</option>
-          <option>fleet_manager</option>
-          <option>platform_admin</option>
+          <option value="Customer">Customer</option>
+          <option value="Admin">Admin</option>
+          <option value="Restaurant_owner">Restaurant Owner</option>
+          <option value="Restaurant_staff">Restaurant Staff</option>
+          <option value="Fleet_manager">Fleet Manager</option>
+          <option value="Delivery_partner">Delivery Partner</option>
+          <option value="Finance_manager">Finance Manager</option>
         </select>
       </div>
 
       <div class="mt-4">
-        <label class="block mb-2 font-semibold"> Status </label>
+        <label class="block mb-2 font-semibold"> Role Status </label>
 
         <select id="updateStatus" class="w-full px-4 py-3 rounded-xl border">
-          <option>active</option>
-          <option>inactive</option>
-          <option>banned</option>
+          <option value="REQUESTED">REQUESTED</option>
+          <option value="ASSIGNED">ASSIGNED</option>
+          <option value="REJECTED">REJECTED</option>
+          <option value="SUSPENDED">SUSPENDED</option>
         </select>
       </div>
 
       <button id="updateBtn" onclick="updateUser()"
-        class="w-full mt-6 bg-orange-500 text-white py-3 rounded-xl hover:bg-orange-600">
+        class="w-full mt-6 bg-orange-500 text-white py-3.5 rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/30">
         Update User
       </button>
     </div>
@@ -169,20 +102,27 @@
     // Get users
     async function fetchUsers() {
       try {
-        const response = await fetch('/admin/users');
+        const token = localStorage.getItem('token') || '';
+        const response = await fetch('/admin/users', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         json = await response.json();
-        renderUsers(json.data.users);
+        if (response.ok) {
+          renderUsers(json.data.users || []);
+        } else {
+          showToast(json.message || 'Failed to load users', 'error');
+        }
       } catch (error) {
         showToast('Failed to load users', 'error');
       }
     }
 
     function renderUsers(data) {
-      const table = document.getElementById('usersTable');
+      const table = document.getElementById('usersList');
       if (!data.length) {
         table.innerHTML = `
       <tr>
-        <td colspan="6" class="p-6 text-center">
+        <td colspan="5" class="p-6 text-center text-gray-500">
           No users found
         </td>
       </tr>
@@ -193,33 +133,44 @@
 
       table.innerHTML = data
         .map(
-          (user) => `
-    <tr class="border-t">
-      <td class="p-4">
-        ${user.firstName}
+          (user) => {
+            const roleName = user.roles && user.roles.length > 0 ? user.roles.map(r => r.name).join(', ') : 'Customer';
+            const roleStatus = user.roles && user.roles.length > 0 ? user.roles[0].status : 'N/A';
+            
+            // Determine badge color based on status
+            let statusColorClass = 'bg-gray-100 text-gray-800';
+            if (roleStatus === 'ASSIGNED') statusColorClass = 'bg-green-100 text-green-800';
+            if (roleStatus === 'REQUESTED') statusColorClass = 'bg-yellow-100 text-yellow-800';
+            if (roleStatus === 'REJECTED') statusColorClass = 'bg-red-100 text-red-800';
+            if (roleStatus === 'SUSPENDED') statusColorClass = 'bg-orange-100 text-orange-800';
+
+            return `
+    <tr class="hover:bg-slate-50 transition-colors border-t border-gray-100">
+      <td class="px-6 py-4">
+        <div class="font-medium text-gray-900">${user.firstName} ${user.lastName || ''}</div>
+        <div class="text-sm text-gray-500">${user.email}</div>
       </td>
-      <td class="p-4">
-        ${user.email}
+      <td class="px-6 py-4 capitalize">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          ${roleName}
+        </span>
       </td>
-      <td class="p-4">
-        ${user.phone}
+      <td class="px-6 py-4 capitalize">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColorClass}">
+          ${roleStatus}
+        </span>
+      </td>
+      <td class="px-6 py-4 text-sm text-gray-500">
+        ${new Date(user.joiningDate).toLocaleDateString()}
       </td>
 
-      <td class="p-4 capitalize">
-        ${user.role}
-      </td>
-
-      <td class="p-4 capitalize">
-        ${user.status}
-      </td>
-
-      <td class="p-4">
+      <td class="px-6 py-4 text-right">
 
         <button
           onclick="viewUser('${user.id}')"
-          class="bg-orange-500 text-white px-3 py-2 rounded-lg">
+          class="bg-orange-50 text-orange-600 hover:bg-orange-100 hover:text-orange-700 font-semibold px-4 py-2 rounded-lg transition-colors">
 
-          View
+          Manage
 
         </button>
 
@@ -227,7 +178,7 @@
 
     </tr>
 
-  `
+  `;}
         )
         .join('');
     }
@@ -236,21 +187,34 @@
     async function viewUser(id) {
       selectedUserId = id;
 
-      const response = await fetch(`/admin/user/${id}`);
+      try {
+        const token = localStorage.getItem('token') || '';
+        const response = await fetch(`/admin/user/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
 
-      const user = await response.json();
+        const json = await response.json();
+        if (response.ok && json.data?.user) {
+          const user = json.data.user;
+          document.getElementById('userDetails').innerHTML = `
+        <p><b>Name:</b> ${user.firstName} ${user.lastName || ''}</p>
+        <p><b>Email:</b> ${user.email}</p>
+        <p><b>Phone:</b> ${user.phone || 'N/A'}</p>
+      `;
 
-      document.getElementById('userDetails').innerHTML = `
-    <p><b>Name:</b> ${user.firstName}</p>
-    <p><b>Email:</b> ${user.email}</p>
-    <p><b>Phone:</b> ${user.phone}</p>
-  `;
+          const roleName = user.roles && user.roles.length > 0 ? user.roles[0].name : 'Customer';
+          const roleStatus = user.roles && user.roles.length > 0 ? user.roles[0].status : 'REQUESTED';
 
-      document.getElementById('updateRole').value = user.role;
+          document.getElementById('updateRole').value = roleName;
+          document.getElementById('updateStatus').value = roleStatus;
 
-      document.getElementById('updateStatus').value = user.status;
-
-      document.getElementById('userModal').classList.remove('hidden');
+          document.getElementById('userModal').classList.remove('hidden');
+        } else {
+          showToast(json.message || 'Failed to fetch user details', 'error');
+        }
+      } catch (err) {
+        showToast('Error fetching user', 'error');
+      }
     }
 
     function closeModal() {
@@ -265,15 +229,17 @@
       btn.textContent = 'Updating...';
 
       try {
+        const token = localStorage.getItem('token') || '';
         const response = await fetch(`/admin/user/${selectedUserId}/status`, {
           method: 'PATCH',
 
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           },
 
           body: JSON.stringify({
-            role: document.getElementById('updateRole').value,
+            roleName: document.getElementById('updateRole').value,
             status: document.getElementById('updateStatus').value,
           }),
         });

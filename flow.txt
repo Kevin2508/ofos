@@ -12,3 +12,9 @@ refine order flow
 11. when order delivered delivery partner take otp from customer and change order status to delivered
 12. if any issue like wrong address or customer not available then delivery partner will raise issue and it will be visible to fleet manager
 13. after successfully delivered order in customer screen show ui to give rating to order, delivery partner. this rating will be reflet to individual menu items stored in database, restaurant(branch)'s rating, delivery partners rating, and order's rating
+
+env: 
+POLLING_INTERVAL_MS=5000
+
+check below functionality is available in my project if not then add it
+

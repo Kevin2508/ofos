@@ -7,7 +7,9 @@ import {
   createMenuItemDto,
   menuItemIdParamsDto,
   branchIdParamsDto,
+  scheduleParamsDto,
   updateAvailabilityDto,
+  createAvailabilityScheduleDto,
   updateBestsellerDto,
   updateMenuItemDto,
 } from './menuItem.dto.ts';
@@ -18,6 +20,9 @@ import {
   getMenuItemByIdService,
   getMenuItemsByCategoryService,
   updateMenuItemAvailabilityService,
+  getAvailabilitySchedulesService,
+  createAvailabilityScheduleService,
+  deleteAvailabilityScheduleService,
   updateMenuItemBestsellerService,
   updateMenuItemService,
 
@@ -166,6 +171,63 @@ const updateMenuItemAvailability =
       });
     }
   );
+
+/**
+ * ============================================================
+ * AVAILABILITY SCHEDULES
+ * ============================================================
+ *
+ * GET /menu-items/:id/availability-schedules
+ */
+const getAvailabilitySchedules = catchAsync(
+  async (
+    req: Request<menuItemIdParamsDto>,
+    res: Response
+  ) => {
+    const data = await getAvailabilitySchedulesService(req.params.id);
+
+    return res.status(200).json({
+      status: 'success',
+      message: data.message,
+      data: data.data,
+    });
+  }
+);
+
+/**
+ * POST /menu-items/:id/availability-schedules
+ */
+const createAvailabilitySchedule = catchAsync(
+  async (
+    req: Request<menuItemIdParamsDto, {}, createAvailabilityScheduleDto>,
+    res: Response
+  ) => {
+    const data = await createAvailabilityScheduleService(req.params.id, req.body);
+
+    return res.status(201).json({
+      status: 'success',
+      message: data.message,
+      data: data.data,
+    });
+  }
+);
+
+/**
+ * DELETE /menu-items/:id/availability-schedules/:scheduleId
+ */
+const deleteAvailabilitySchedule = catchAsync(
+  async (
+    req: Request<scheduleParamsDto>,
+    res: Response
+  ) => {
+    const data = await deleteAvailabilityScheduleService(req.params.id, req.params.scheduleId);
+
+    return res.status(200).json({
+      status: 'success',
+      message: data.message,
+    });
+  }
+);
 
 /**
  * ============================================================
@@ -331,6 +393,9 @@ export {
   getMenuItemById,
   updateMenuItem,
   updateMenuItemAvailability,
+  getAvailabilitySchedules,
+  createAvailabilitySchedule,
+  deleteAvailabilitySchedule,
   updateMenuItemBestseller,
   deleteMenuItem,
 

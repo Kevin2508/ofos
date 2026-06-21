@@ -12,6 +12,9 @@ import {
   getMenuItemsByCategory,
   updateMenuItem,
   updateMenuItemAvailability,
+  getAvailabilitySchedules,
+  createAvailabilitySchedule,
+  deleteAvailabilitySchedule,
   updateMenuItemBestseller,
 
   uploadMenuItemImage,
@@ -23,6 +26,7 @@ import {
 import {
   createMenuItemSchema,
   updateAvailabilitySchema,
+  createAvailabilityScheduleSchema,
   updateBestsellerSchema,
   updateMenuItemSchema,
 
@@ -124,6 +128,42 @@ menuItemRouter.patch(
   authenticate,
   validate(updateAvailabilitySchema),
   updateMenuItemAvailability
+);
+
+/**
+ * ============================================================
+ * AVAILABILITY SCHEDULES
+ * ============================================================
+ */
+
+/**
+ * GET /menu-items/:id/availability-schedules
+ * Fetch schedules
+ */
+menuItemRouter.get(
+  '/menu-items/:id/availability-schedules',
+  getAvailabilitySchedules
+);
+
+/**
+ * POST /menu-items/:id/availability-schedules
+ * Create schedule
+ */
+menuItemRouter.post(
+  '/menu-items/:id/availability-schedules',
+  authenticate,
+  validate(createAvailabilityScheduleSchema),
+  createAvailabilitySchedule
+);
+
+/**
+ * DELETE /menu-items/:id/availability-schedules/:scheduleId
+ * Delete schedule
+ */
+menuItemRouter.delete(
+  '/menu-items/:id/availability-schedules/:scheduleId',
+  authenticate,
+  deleteAvailabilitySchedule
 );
 
 /**

@@ -4,8 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fleet Manager Dashboard | ofos</title>
+  <title>Fleet Manager Dashboard | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 
 <body class="min-h-screen bg-orange-50 font-sans text-gray-800">
@@ -140,6 +142,12 @@
           </div>
         </div>
       </div>
+
+      <!-- LIVE MAP -->
+      <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Live Partner Tracking</h3>
+        <div id="liveMap" style="height: 500px; border-radius: 12px; z-index: 1;"></div>
+      </div>
     </main>
   </div>
 
@@ -208,6 +216,49 @@
 
     loadDashboard();
 
+    // Live Map
+    let liveMap;
+    const partnerMarkers = {};
+    const partnerIcon = L.divIcon({ html: '<div style="background:#10B981;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-size:16px">🛵</div>', className: '', iconAnchor: [16, 16] });
+
+    async function loadLiveMap() {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch('/fleet-manager/live-map', { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!res.ok) return;
+        const data = await res.json();
+        const partners = data.data || [];
+
+        if (!liveMap) {
+          liveMap = L.map('liveMap').setView([22.3039, 70.8022], 12);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(liveMap);
+        }
+
+        partners.forEach(p => {
+          if (p.location) {
+            const lat = p.location.latitude;
+            const lng = p.location.longitude;
+            const popupHtml = `<b>${p.name}</b><br>ID: ${p.userId}<br>Assignment: ${p.activeAssignment || 'None'}`;
+
+            if (partnerMarkers[p.userId]) {
+              partnerMarkers[p.userId].setLatLng([lat, lng]).bindPopup(popupHtml);
+            } else {
+              partnerMarkers[p.userId] = L.marker([lat, lng], { icon: partnerIcon }).addTo(liveMap).bindPopup(popupHtml);
+            }
+          } else if (partnerMarkers[p.userId]) {
+            // Partner went offline or has no location
+            liveMap.removeLayer(partnerMarkers[p.userId]);
+            delete partnerMarkers[p.userId];
+          }
+        });
+      } catch (e) {
+        console.error('Error loading live map', e);
+      }
+    }
+
+    loadLiveMap();
+    setInterval(loadLiveMap, parseInt('<%= process.env.POLLING_INTERVAL_MS || 5000 %>'));
+
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
         const token = localStorage.getItem('token') || '';
@@ -220,7 +271,7 @@
       window.location.href = '/loginPage';
     });;
   </script>
-  <%- include('../partials/floating-role-switcher') %>
+
 </body>
 
 </html>

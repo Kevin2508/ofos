@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manage Restaurants | Admin | ofos</title>
+  <title>Manage Restaurants | Admin | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
@@ -14,7 +14,7 @@
     <aside
       class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
       <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
+        <h1 class="text-3xl font-extrabold text-orange-500">epicureAdmin</h1>
       </div>
 
       <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -95,8 +95,11 @@
           <p class="text-gray-500 mt-2" id="pageSubtitle">Review and approve new restaurant applications.</p>
         </div>
         <div class="flex bg-gray-100 rounded-lg p-1 w-max">
-          <button id="tabPending" onclick="switchTab('pending')" class="px-6 py-2 rounded-md bg-white shadow-sm text-sm font-semibold text-gray-800 transition-all">Pending</button>
-          <button id="tabAll" onclick="switchTab('all')" class="px-6 py-2 rounded-md text-sm font-semibold text-gray-500 hover:text-gray-800 transition-all">All Restaurants</button>
+          <button id="tabPending" onclick="switchTab('pending')"
+            class="px-6 py-2 rounded-md bg-white shadow-sm text-sm font-semibold text-gray-800 transition-all">Pending</button>
+          <button id="tabAll" onclick="switchTab('all')"
+            class="px-6 py-2 rounded-md text-sm font-semibold text-gray-500 hover:text-gray-800 transition-all">All
+            Restaurants</button>
         </div>
       </div>
 
@@ -167,7 +170,7 @@
     async function loadRestaurants() {
       const grid = document.getElementById('restaurantsGrid');
       grid.innerHTML = '<div class="col-span-full py-12 text-center text-gray-500">Loading...</div>';
-      
+
       try {
         const token = localStorage.getItem('token') || '';
         const url = currentTab === 'pending' ? '/admin/restaurants/pending' : '/admin/restaurants';
@@ -188,9 +191,9 @@
           } else {
             grid.innerHTML = restaurants.map(r => {
               const statusColor = r.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                                  r.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
-                                  r.status === 'SUSPENDED' ? 'bg-gray-100 text-gray-800' :
-                                  'bg-amber-100 text-amber-800';
+                r.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                  r.status === 'SUSPENDED' ? 'bg-gray-100 text-gray-800' :
+                    'bg-amber-100 text-amber-800';
 
               const actionButtons = r.status === 'PENDING_VERIFICATION' ? `
                 <button onclick="updateStatus('${r.id}', 'APPROVED')" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">

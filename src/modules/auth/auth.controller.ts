@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import ms from 'ms';
 import { Request, Response } from 'express';
 import { catchAsync } from '../../middlewares/catch.async.ts';
+import { prisma } from '../../config/prisma.ts';
 import {
   forgotPasswordDto,
   loginDto,
@@ -26,6 +27,9 @@ import {
   resetPasswordService,
   sendOtpService,
   verifyOtpService,
+  checkPhoneService,
+  checkEmailService,
+  selectRoleService,
 } from './auth.service.ts';
 
 const login = catchAsync(
@@ -162,6 +166,15 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
   try {
     const data = await refreshTokenService(rawRefreshToken);
 
+    const accessTokenLifeMs = ms(data.expiresIn);
+    res.cookie('accessToken', data.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: accessTokenLifeMs,
+      path: '/',
+    });
+
     return res.status(200).json({
       status: 'success',
       message: 'Token refreshed successfully',
@@ -190,12 +203,57 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
 
 const register = catchAsync(
   async (req: Request<{}, {}, registerDto>, res: Response) => {
-    const result = await registerService(req.body);
+    const reqMeta: { ipAddress: string; userAgent: string } = {
+      ipAddress: req.ip || (req.socket.remoteAddress as string),
+      userAgent: req.headers['user-agent'] as string,
+    };
+
+    const data = await registerService(req.body, reqMeta);
+
+    const cookieLifeDays = Number(process.env.COOKIE_EXPIRE || 1);
+    const cookieLifeMs = cookieLifeDays * 24 * 60 * 60 * 1000;
+
+    res.cookie('refreshToken', data.tokens.refreshToken, {
+      signed: true,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: cookieLifeMs,
+      path: '/',
+    });
+
+    const accessTokenLifeMs = ms(data.tokens.expiresIn);                                             
+
+    res.cookie('accessToken', data.tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: accessTokenLifeMs,
+      path: '/',
+    });
 
     return res.status(201).json({
       status: 'success',
-      message: result.message,
+      message: data.message,
+      data: {
+        user: data.user,
+        token: data.tokens.accessToken,
+      },
     });
+  }
+);
+
+const checkPhone = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await checkPhoneService(req.body);
+    res.status(200).json({ status: 'success', message: result.message });
+  }
+);
+
+const checkEmail = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await checkEmailService(req.body);
+    res.status(200).json({ status: 'success', message: result.message });
   }
 );
 
@@ -221,7 +279,7 @@ const registerDeliveryPartner = catchAsync(
 
 const registerRestaurantOwner = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerRestaurantOwnerService(req.body);
+    const data = await registerRestaurantOwnerService(req.body, req.files);
 
     res.status(200).json({
       status: 'success',
@@ -263,11 +321,71 @@ const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
-  res.status(200).json({
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: BigInt(req.user.id) },
+    include: {
+      userRoles: {
+        include: { role: true },
+      },
+    },
+  });
+
+  if (!user) {
+    return res.status(404).json({ status: 'fail', message: 'User not found' });
+  }
+
+  const roles: string[] = [];
+  const pendingRoles: string[] = [];
+
+  user.userRoles.forEach(ur => {
+    if (ur.status === 'ASSIGNED') {
+      roles.push(ur.role.name);
+    } else if (ur.status === 'REQUESTED') {
+      pendingRoles.push(ur.role.name);
+    }
+  });
+
+  return res.status(200).json({
     status: 'success',
     data: {
-      user: req.user,
+      user: {
+        ...req.user,
+        roles,
+        pendingRoles,
+      },
     },
+  });
+});
+
+const selectRole = catchAsync(async (req: Request, res: Response) => {
+  const { role } = req.body;
+  if (!role) {
+    return res.status(400).json({ status: 'fail', message: 'Role is required' });
+  }
+
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
+  }
+
+  const result = await selectRoleService(String(req.user.id), role);
+
+  // Set activeRole cookie
+  res.cookie('activeRole', result.role, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    path: '/',
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    message: 'Role selected successfully',
+    data: { role: result.role },
   });
 });
 
@@ -286,5 +404,8 @@ export {
   registerRestaurantOwner,
   registerRestaurantStaff,
   registerFinanceManager,
-  getMe
+  checkPhone,
+  checkEmail,
+  getMe,
+  selectRole
 };

@@ -38,7 +38,7 @@ async function getOrders({ customerUserId, page, limit }: GetOrdersParams) {
           city: true,
         },
       },
-      
+
       items: true,
     },
 
@@ -195,11 +195,35 @@ async function cancelOrder(
   });
 }
 
+export async function updateOrderStatus(
+  orderId: bigint,
+  status: OrderStatus,
+  changedByUserId: bigint,
+  remarks: string
+) {
+  return prisma.$transaction(async (tx) => {
+    const order = await tx.order.update({
+      where: { id: orderId },
+      data: { orderStatus: status },
+    });
+
+    await tx.orderStatusHistory.create({
+      data: {
+        orderId,
+        status,
+        changedByUserId,
+        remarks,
+      },
+    });
+
+    return order;
+  });
+}
+
 export const findCheckoutSession = async (
   sessionId: bigint,
   customerUserId: bigint
 ): Promise<ICheckoutSessionData | null> => {
-  console.log(sessionId, customerUserId);
   const session = await prisma.checkoutSession.findFirst({
     where: { id: sessionId, customerUserId },
     select: {
@@ -228,8 +252,7 @@ export const findCheckoutSession = async (
       },
     },
   })
-  // console.log(session);
-  
+
   return session as ICheckoutSessionData | null;
 };
 
@@ -443,4 +466,5 @@ export default {
   findActiveCart,
   findExistingOrderBySession,
   createOrder,
+  updateOrderStatus,
 };

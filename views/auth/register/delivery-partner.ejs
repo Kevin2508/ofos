@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Delivery Partner Registration | ofos - Food Ordering System</title>
+  <title>Delivery Partner Registration | epicure- Food Ordering System</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
@@ -274,6 +274,7 @@
           });
 
           const data = await response.json();
+          console.log(data)
 
           if (!response.ok) {
             throw new Error(

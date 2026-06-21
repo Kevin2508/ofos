@@ -5,6 +5,7 @@ import orderRepository, {
   findCheckoutSession,
   findExistingOrderBySession,
 } from './order.repository.ts';
+import { triggerAutoAssignment } from '../deliveryPartner/deliveryPartner.service.ts';
 // import * as orderRepository from "./order.repository.ts";
 
 async function getOrders(customerUserId: bigint, page: number, limit: number) {
@@ -72,19 +73,19 @@ export async function getOrderTracking(
 
     partner: assignment.partner
       ? {
-          id: assignment.partner.user.id,
-          firstName: assignment.partner.user.firstName,
-          lastName: assignment.partner.user.lastName,
-          phone: assignment.partner.user.phone,
-        }
+        id: assignment.partner.user.id,
+        firstName: assignment.partner.user.firstName,
+        lastName: assignment.partner.user.lastName,
+        phone: assignment.partner.user.phone,
+      }
       : null,
 
     location: latestLocation
       ? {
-          latitude: latestLocation.latitude,
-          longitude: latestLocation.longitude,
-          recordedAt: latestLocation.recordedAt,
-        }
+        latitude: latestLocation.latitude,
+        longitude: latestLocation.longitude,
+        recordedAt: latestLocation.recordedAt,
+      }
       : null,
   };
 }
@@ -109,6 +110,25 @@ export async function cancelOrder(
 
   return orderRepository.cancelOrder(orderId, customerUserId, reason);
 }
+
+export async function acceptOrder(orderId: bigint, staffUserId: bigint) {
+  return orderRepository.updateOrderStatus(orderId, 'ACCEPTED', staffUserId, 'Staff accepted order');
+}
+
+export async function rejectOrder(orderId: bigint, staffUserId: bigint, reason: string) {
+  return orderRepository.updateOrderStatus(orderId, 'REJECTED', staffUserId, reason);
+}
+
+export async function markPreparing(orderId: bigint, staffUserId: bigint) {
+  return orderRepository.updateOrderStatus(orderId, 'PREPARING', staffUserId, 'Food is being prepared');
+}
+
+export async function markReadyForPickup(orderId: bigint, staffUserId: bigint) {
+  const order = await orderRepository.updateOrderStatus(orderId, 'READY_FOR_PICKUP', staffUserId, 'Ready for pickup');
+  await triggerAutoAssignment(orderId);
+  return order;
+}
+
 const TAX_RATE = 0.05;
 
 // ─────────────────────────────────────────────────────────────
@@ -137,7 +157,6 @@ export const placeOrder = async (
     req.checkoutSessionId,
     customerUserId
   );
-  console.log(session);
   if (!session) {
     throw new Error('Checkout session not found.');
   }
@@ -226,4 +245,8 @@ export default {
   getOrderTracking,
   cancelOrder,
   placeOrder,
+  acceptOrder,
+  rejectOrder,
+  markPreparing,
+  markReadyForPickup,
 };

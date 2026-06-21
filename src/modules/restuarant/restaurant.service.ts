@@ -4,7 +4,6 @@ import { RestaurantListDto } from './restaurant.dto.ts';
 
 export const getRestaurants = async (filters: GetRestaurantsQuery) => {
   const restaurants = await restaurantRepository.getRestaurants(filters);
-  //   console.log(restaurants);
 
   const total = await restaurantRepository.countRestaurants(filters);
 
@@ -26,6 +25,11 @@ export const getRestaurants = async (filters: GetRestaurantsQuery) => {
       coverImageUrl: restaurant.coverImageUrl,
 
       totalBranches: restaurant.branches.length,
+      branches: restaurant.branches.map(b => ({
+        ...b,
+        id: b.id.toString(),
+        restaurantId: b.restaurantId.toString()
+      })),
 
       averageRating: Number(averageRating.toFixed(1)),
 
@@ -38,6 +42,15 @@ export const getRestaurants = async (filters: GetRestaurantsQuery) => {
     page: Number(filters.page || 1),
     limit: Number(filters.limit || 10),
     data,
+  };
+};
+
+export const getGlobalMenuItems = async (filters: any) => {
+  const items = await restaurantRepository.getGlobalMenuItems(filters);
+  const total = await restaurantRepository.countGlobalMenuItems(filters);
+  return {
+    total,
+    data: items
   };
 };
 
@@ -181,3 +194,38 @@ export async function getFeaturedRestaurants(userId?: string) {
     })),
   };
 }
+
+export const getBranchDetails = async (id: string) => {
+  const branch = await restaurantRepository.getBranchById(BigInt(id));
+
+  if (!branch) {
+    throw new Error('Branch not found');
+  }
+
+  // Formatting id properly for BigInt to string mappings
+  return {
+    ...branch,
+    id: branch.id.toString(),
+    restaurantId: branch.restaurantId.toString(),
+    restaurant: {
+      ...branch.restaurant,
+      id: branch.restaurant.id.toString(),
+    }
+  };
+};
+
+export const getBranchMenu = async (branchId: string) => {
+  const categories = await restaurantRepository.getBranchMenu(BigInt(branchId));
+
+  return categories.map((category) => ({
+    id: category.id.toString(),
+    name: category.name,
+    description: category.description,
+    menuItems: category.menuItems.map(item => ({
+      ...item,
+      id: item.id.toString(),
+      categoryId: item.categoryId.toString(),
+      basePrice: item.basePrice.toString()
+    }))
+  }));
+};

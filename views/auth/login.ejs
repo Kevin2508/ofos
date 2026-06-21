@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | ofos - Food Ordering System</title>
+  <title>Login | epicure- Food Ordering System</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
@@ -203,17 +203,8 @@
           return;
         }
 
-        const roles = data?.data?.user?.roles || [];
-
-        localStorage.setItem('roles', JSON.stringify(roles));
-        localStorage.setItem('pendingRoles', JSON.stringify(data?.data?.user?.pendingRoles));
-        localStorage.setItem('email', data?.data?.user?.email);
-
-        if (data?.data?.token) {
-          localStorage.setItem('token', data.data.token);
-        }
-
-        window.location.href = data.redirectUrl || '/';
+        // Always go through role-selection which handles setting activeRole cookie
+        window.location.href = '/role-selection';
       } catch (error) {
         showToast('Something went wrong. Please try again.', 'error');
         console.error(error);
@@ -226,78 +217,4 @@
   <%- include('../partials/toast') %>
 </body>
 
-        if (value.length < 8) {
-          return 'Password must be at least 8 characters';
-        }
-
-        return '';
-      }
-
-      function clearErrors() {
-        userIdentifierError.textContent = '';
-        passwordError.textContent = '';
-      }
-
-      //  Submit
-      loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        clearErrors();
-
-        const identifierValue = userIdentifier.value.trim();
-        const passwordValue = password.value;
-
-        const identifierValidation = validateUserIdentifier(identifierValue);
-
-        const passwordValidation = validatePassword(passwordValue);
-
-        let hasError = false;
-
-        if (identifierValidation) {
-          userIdentifierError.textContent = identifierValidation;
-          hasError = true;
-        }
-
-        if (passwordValidation) {
-          passwordError.textContent = passwordValidation;
-          hasError = true;
-        }
-
-        if (hasError) return;
-
-        loginBtn.disabled = true;
-        loginBtn.textContent = 'Logging in...';
-
-        try {
-          const response = await fetch('/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              userIdentifier: identifierValue,
-              password: passwordValue,
-              rememberMe: rememberMe.checked ? 'true' : 'false',
-            }),
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            showToast(data.message || data.error || 'Login failed', 'error');
-            return;
-          }
-
-          // console.log(data.data.user);
-          window.location.href = data.redirectUrl || '/';
-        } catch (error) {
-          showToast('Something went wrong. Please try again.', 'error');
-        } finally {
-          loginBtn.disabled = false;
-          loginBtn.textContent = 'Login';
-        }
-      });
-    </script>
-    <%- include('../partials/toast') %>
-  </body>
 </html>

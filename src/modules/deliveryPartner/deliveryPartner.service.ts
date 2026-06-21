@@ -12,6 +12,9 @@ import {
   updateStatusRepo,
   uploadDocumentRepo,
 } from './deliveryPartner.repository.ts';
+import { prisma } from '../../config/prisma.ts';
+import { updateOrderStatus } from '../orders/order.repository.ts';
+import bcrypt from 'bcryptjs';
 
 async function getProfileService(userId: string) {
   const user = await getProfile(BigInt(userId));
@@ -157,10 +160,135 @@ async function declineAssignmentService(
     BigInt(partnerUserId)
   );
 
+  // Check how many times this order has been declined
+  const orderId = currentAssignment.orderId;
+  const declineCount = await prisma.deliveryAssignment.count({
+    where: { orderId: BigInt(orderId), status: 'DECLINED' },
+  });
+
+  if (declineCount >= 2) {
+    // Leave it unassigned, Fleet Manager will manually assign
+    console.log(`Order ${orderId} declined 2 or more times. Waiting for manual assignment.`);
+  } else {
+    // Attempt auto-assign again
+    await triggerAutoAssignment(BigInt(orderId));
+  }
+
   return {
     message: 'Assignment declined successfully',
     assignment: updatedAssignment,
   };
+}
+
+export async function triggerAutoAssignment(orderId: bigint) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { branch: true },
+  });
+
+  if (!order) return null;
+
+  // Find an online delivery partner who is not already declined for this order
+  const declinedPartners = await prisma.deliveryAssignment.findMany({
+    where: { orderId, status: 'DECLINED' },
+    select: { partnerUserId: true }
+  });
+  const declinedIds = declinedPartners.map(p => p.partnerUserId).filter(Boolean);
+
+  const availablePartner = await prisma.deliveryPartner.findFirst({
+    where: {
+      isOnline: true,
+      status: 'ACTIVE',
+      userId: { notIn: declinedIds as bigint[] }
+    },
+    // Ideally order by distance using Haversine, but for now we pick the first available
+    orderBy: { joinedAt: 'asc' }
+  });
+
+  if (availablePartner) {
+    await prisma.deliveryAssignment.create({
+      data: {
+        orderId,
+        partnerUserId: availablePartner.userId,
+        assignmentType: 'AUTO',
+        status: 'PENDING',
+        assignedAt: new Date()
+      }
+    });
+    console.log(`Order ${orderId} auto-assigned to partner ${availablePartner.userId}`);
+  } else {
+    console.log(`No available partners for order ${orderId}`);
+  }
+}
+
+async function reportDeliveryIssueService(assignmentId: string, partnerUserId: string, issueReason: string) {
+  const assignment = await getAssignmentByIdRepo(BigInt(assignmentId));
+  if (!assignment || assignment.partnerUserId !== partnerUserId) throw new Error('Invalid assignment');
+
+  const ticket = await prisma.supportTicket.create({
+    data: {
+      ticketNumber: `TKT-${Date.now()}`,
+      orderId: BigInt(assignment.orderId),
+      partnerUserId: BigInt(partnerUserId),
+      category: 'OTHER',
+      priority: 'HIGH',
+      status: 'OPEN',
+      subject: 'Delivery Issue Reported by Partner',
+      description: issueReason
+    }
+  });
+
+  return { message: 'Issue reported successfully', ticketId: ticket.id.toString() };
+}
+
+async function updateLocationService(partnerUserId: string, assignmentId: string, latitude: number, longitude: number) {
+  const assignment = await getAssignmentByIdRepo(BigInt(assignmentId));
+  if (!assignment || assignment.partnerUserId !== partnerUserId) throw new Error('Invalid assignment');
+
+  await prisma.deliveryTrackingPoint.create({
+    data: {
+      assignmentId: BigInt(assignmentId),
+      latitude,
+      longitude,
+      recordedAt: new Date()
+    }
+  });
+
+  return { message: 'Location updated successfully' };
+}
+
+async function pickupOrderService(assignmentId: string, partnerUserId: string) {
+  const assignment = await getAssignmentByIdRepo(BigInt(assignmentId));
+  if (!assignment || assignment.partnerUserId !== partnerUserId) throw new Error('Invalid assignment');
+
+  // Mark assignment as picked up by updating order status
+  await updateOrderStatus(BigInt(assignment.orderId), 'PICKED_UP', BigInt(partnerUserId), 'Picked up by delivery partner');
+  
+  return { message: 'Order picked up successfully' };
+}
+
+async function deliverOrderService(assignmentId: string, partnerUserId: string, otp: string) {
+  const assignment = await getAssignmentByIdRepo(BigInt(assignmentId));
+  if (!assignment || assignment.partnerUserId !== partnerUserId) throw new Error('Invalid assignment');
+
+  const order = await prisma.order.findUnique({ where: { id: BigInt(assignment.orderId) } });
+  if (!order) throw new Error('Order not found');
+
+  if (order.otpHash) {
+    const isMatch = await bcrypt.compare(otp, order.otpHash);
+    if (!isMatch) {
+      throw new Error('Invalid OTP');
+    }
+  }
+
+  await prisma.deliveryAssignment.update({
+    where: { id: BigInt(assignmentId) },
+    data: { status: 'COMPLETED', completedAt: new Date() }
+  });
+
+  await updateOrderStatus(order.id, 'DELIVERED', BigInt(partnerUserId), 'Delivered successfully');
+
+  return { message: 'Order delivered successfully' };
 }
 
 async function getEarningsService(
@@ -217,4 +345,8 @@ export {
   getEarningsHistoryService,
   getPerformanceService,
   getEarningsService,
+  pickupOrderService,
+  deliverOrderService,
+  reportDeliveryIssueService,
+  updateLocationService,
 };

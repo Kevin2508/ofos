@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Active Orders | Restaurant Staff | ofos</title>
+  <title>Active Orders | Restaurant Staff | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
@@ -14,7 +14,7 @@
     <aside
       class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
       <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">ofos Staff</h1>
+        <h1 class="text-3xl font-extrabold text-orange-500">epicureStaff</h1>
       </div>
 
       <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -113,24 +113,49 @@
           if (orders.length === 0) {
             list.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No active orders right now.</td></tr>`;
           } else {
-            list.innerHTML = orders.map(o => `
+            list.innerHTML = orders.map(o => {
+              const statusColors = {
+                PENDING: 'bg-yellow-100 text-yellow-800',
+                ACCEPTED: 'bg-blue-100 text-blue-800',
+                PREPARING: 'bg-purple-100 text-purple-800',
+                READY_FOR_PICKUP: 'bg-green-100 text-green-800',
+                ASSIGNED: 'bg-indigo-100 text-indigo-800',
+                PICKED_UP: 'bg-orange-100 text-orange-800',
+                DELIVERED: 'bg-green-100 text-green-800',
+                REJECTED: 'bg-red-100 text-red-800',
+                CANCELLED: 'bg-red-100 text-red-800'
+              };
+
+              let actionButtons = '';
+              if (o.orderStatus === 'PENDING') {
+                actionButtons = `
+                  <button onclick="updateStatus(${o.id}, 'accept')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-md text-sm font-medium mr-2">Accept</button>
+                  <button onclick="updateStatus(${o.id}, 'reject')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md text-sm font-medium">Reject</button>
+                `;
+              } else if (o.orderStatus === 'ACCEPTED') {
+                actionButtons = `<button onclick="updateStatus(${o.id}, 'preparing')" class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded-md text-sm font-medium">Start Preparing</button>`;
+              } else if (o.orderStatus === 'PREPARING') {
+                actionButtons = `<button onclick="updateStatus(${o.id}, 'ready')" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-md text-sm font-medium">Mark Ready</button>`;
+              } else {
+                actionButtons = `<span class="text-gray-400 text-sm">No actions</span>`;
+              }
+
+              return `
                 <tr class="hover:bg-orange-50 transition-colors">
-                  <td class="px-6 py-4 font-medium text-gray-900">#${o.id}</td>
-                  <td class="px-6 py-4 text-gray-600 truncate max-w-xs">Items summary placeholder</td>
+                  <td class="px-6 py-4 font-medium text-gray-900">#${o.orderNumber || o.id}</td>
+                  <td class="px-6 py-4 text-gray-600 truncate max-w-xs">${o.orderItems?.length || 0} items</td>
                   <td class="px-6 py-4">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${o.status === 'PENDING' ? 'bg-blue-100 text-blue-800' :
-                o.status === 'PREPARING' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
-              }">
-                      ${o.status || 'PENDING'}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[o.orderStatus] || 'bg-gray-100 text-gray-800'}">
+                      ${o.orderStatus || 'PENDING'}
                     </span>
                   </td>
                   <td class="px-6 py-4 text-gray-500 text-sm">${new Date(o.createdAt).toLocaleString()}</td>
                   <td class="px-6 py-4 text-right">
-                    <button class="bg-orange-100 hover:bg-orange-200 text-orange-700 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">Update Status</button>
+                    ${actionButtons}
                   </td>
                 </tr>
-              `).join('');
+              `;
+            }).join('');
           }
         } else {
           list.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Failed to load orders.</td></tr>`;
@@ -141,7 +166,32 @@
       }
     }
 
+    async function updateStatus(orderId, action) {
+      if (!confirm(`Are you sure you want to ${action} this order?`)) return;
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch(`/orders/${orderId}/${action}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Order ${action}ed successfully!`, 'success');
+          loadOrders();
+        } else {
+          showToast(data.message || 'Failed to update order', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Error updating order', 'error');
+      }
+    }
+
     loadOrders();
+    setInterval(loadOrders, parseInt('<%= process.env.POLLING_INTERVAL_MS || 5000 %>'));
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {

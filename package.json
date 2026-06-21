@@ -1,10 +1,10 @@
 {
-  "name": "ofos",
+  "name": "epicure",
   "version": "1.0.0",
   "description": "",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.taskgrids.com/kevin.dave/ofos.git"
+    "url": "https://gitlab.taskgrids.com/kevin.dave/epicure.git"
   },
   "license": "ISC",
   "author": "",

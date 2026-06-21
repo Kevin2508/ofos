@@ -53,7 +53,10 @@ export const uploadLogo = catchAsync(
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
 
-    const logoUrl: string | undefined = req.file?.path;
+    let logoUrl: string | undefined = req.file?.path?.replace(/\\/g, '/');
+    if (logoUrl && !logoUrl.startsWith('/')) {
+      logoUrl = '/' + logoUrl;
+    }
     if (!logoUrl) {
       return res
         .status(400)
@@ -70,7 +73,10 @@ export const uploadCover = catchAsync(
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
 
-    const coverImageUrl: string | undefined = req.file?.path;
+    let coverImageUrl: string | undefined = req.file?.path?.replace(/\\/g, '/');
+    if (coverImageUrl && !coverImageUrl.startsWith('/')) {
+      coverImageUrl = '/' + coverImageUrl;
+    }
     if (!coverImageUrl) {
       return res
         .status(400)
@@ -90,7 +96,10 @@ export const uploadDocument = catchAsync(
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
 
-    const documentUrl: string | undefined = req.file?.path;
+    let documentUrl: string | undefined = req.file?.path?.replace(/\\/g, '/');
+    if (documentUrl && !documentUrl.startsWith('/')) {
+      documentUrl = '/' + documentUrl;
+    }
     if (!documentUrl) {
       return res
         .status(400)

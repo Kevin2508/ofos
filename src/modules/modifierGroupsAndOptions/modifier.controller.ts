@@ -1,129 +1,127 @@
 import { catchAsync } from "../../middlewares/catch.async.ts";
 import { Request, Response } from "express-serve-static-core";
 import { updateModifierGroupSchema, createModifierOptionSchema, updateModifierOptionSchema, attachModifierGroupSchema } from "./modifier.validate.ts";
-import { getAllModifierGroupsService, createModifierGroupService,
-    updateModifierGroupService, deleteModifierGroupService, createModifierOptionService, updateModifierOptionService,
-    deleteModifierOptionService, attachModifierGroupService, detachModifierGroupService
- } from "./modifier.service.ts";
+import {
+  getAllModifierGroupsService, createModifierGroupService,
+  updateModifierGroupService, deleteModifierGroupService, createModifierOptionService, updateModifierOptionService,
+  deleteModifierOptionService, attachModifierGroupService, detachModifierGroupService
+} from "./modifier.service.ts";
 
 const getAllModifierGroups = catchAsync(
-    async(req:Request, res:Response) =>{
+  async (req: Request, res: Response) => {
 
-        const branchId = Number(req.params.id);
+    const branchId = Number(req.params.id);
 
-        if(isNaN(branchId)){
-             return res.status(400).json({
-              status: 'fail',
-              message: 'Invalid Branch id',
-            });
-        }
-
-        const result = await getAllModifierGroupsService(branchId);
-
-        const serializedResult = JSON.parse(
-                 JSON.stringify(
-                   result,
-                   (_, value) =>
-                     typeof value === 'bigint'
-                       ? value.toString()
-                       : value
-                 )
-               );
-
-        return res.status(200).json({
-            status:'success',
-            message: serializedResult.message,
-            data: serializedResult.data
-        });       
+    if (isNaN(branchId)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid Branch id',
+      });
     }
+
+    const result = await getAllModifierGroupsService(branchId);
+
+    const serializedResult = JSON.parse(
+      JSON.stringify(
+        result,
+        (_, value) =>
+          typeof value === 'bigint'
+            ? value.toString()
+            : value
+      )
+    );
+
+    return res.status(200).json({
+      status: 'success',
+      message: serializedResult.message,
+      data: serializedResult.data
+    });
+  }
 )
 
 const createModifierGroup = catchAsync(
-    async(req:Request, res:Response) =>{
+  async (req: Request, res: Response) => {
 
-        const branchId = Number(req.params.id);
+    const branchId = Number(req.params.id);
 
-        if (isNaN(branchId)) {
-             return res.status(400).json({
-               status: 'fail',
-               message: 'Invalid branch id',
-             });
-           }
-
-         const result = await createModifierGroupService(branchId, req.body);  
-
-         const serializedResult = JSON.parse(
-               JSON.stringify(
-                 result,
-                 (_, value) =>
-                   typeof value === 'bigint'
-                     ? value.toString()
-                     : value
-               )
-             );
-
-          return res.status(201).json({
-              status: 'success',
-              message: serializedResult.message,
-              data: serializedResult.data,
-          });    
+    if (isNaN(branchId)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid branch id',
+      });
     }
+
+    const result = await createModifierGroupService(branchId, req.body);
+
+    const serializedResult = JSON.parse(
+      JSON.stringify(
+        result,
+        (_, value) =>
+          typeof value === 'bigint'
+            ? value.toString()
+            : value
+      )
+    );
+
+    return res.status(201).json({
+      status: 'success',
+      message: serializedResult.message,
+      data: serializedResult.data,
+    });
+  }
 )
 
 const updateModifierGroup = catchAsync(
-    async(req:Request, res:Response) =>{
+  async (req: Request, res: Response) => {
 
-        const groupId = Number(req.params.id);
+    const groupId = Number(req.params.id);
 
-         if (isNaN(groupId)) {
-             return res.status(400).json({
-               status: 'fail',
-               message: 'Invalid Group id',
-             });
-           }
-
-                const { error, value } =
-               updateModifierGroupSchema.validate(req.body, {
-                 abortEarly: false,
-                 stripUnknown: true,
-               });
-             
-             if (error) {
-               return res.status(400).json({
-                 status: 'fail',
-                 errors: error.details.map(
-                   detail => detail.message
-                 ),
-               });
-             }
-
-             const result = await updateModifierGroupService(groupId, value);
-
-             console.log("===============================", result);
-             const serializedResult = JSON.parse(
-                         JSON.stringify(
-                           result,
-                           (_, value) =>
-                             typeof value === 'bigint'
-                               ? value.toString()
-                               : value
-                         )
-                       );
-
-                    //    console.log(serializedResult.message);
-
-            return res.status(serializedResult ? 200 : 404).json({
-                message1: serializedResult.message,
-                data:serializedResult.data,
-            });
-
+    if (isNaN(groupId)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid Group id',
+      });
     }
+
+    const { error, value } =
+      updateModifierGroupSchema.validate(req.body, {
+        abortEarly: false,
+        stripUnknown: true,
+      });
+
+    if (error) {
+      return res.status(400).json({
+        status: 'fail',
+        errors: error.details.map(
+          detail => detail.message
+        ),
+      });
+    }
+
+    const result = await updateModifierGroupService(groupId, value);
+
+    const serializedResult = JSON.parse(
+      JSON.stringify(
+        result,
+        (_, value) =>
+          typeof value === 'bigint'
+            ? value.toString()
+            : value
+      )
+    );
+
+    return res.status(serializedResult ? 200 : 404).json({
+      message1: serializedResult.message,
+      data: serializedResult.data,
+    });
+
+  }
 )
 
 const deleteModifierGroup = catchAsync(
   async (req: Request, res: Response) => {
 
-    const modifierGroupId =  Number(req.params.id);
+    const modifierGroupId = Number(req.params.id);
 
     if (isNaN(modifierGroupId)) {
       return res.status(400).json({
@@ -133,7 +131,7 @@ const deleteModifierGroup = catchAsync(
       });
     }
 
-    const result =  await deleteModifierGroupService( modifierGroupId );
+    const result = await deleteModifierGroupService(modifierGroupId);
 
     const serializedResult =
       JSON.parse(
@@ -147,15 +145,15 @@ const deleteModifierGroup = catchAsync(
       );
 
     return res.status(serializedResult.data
-          ? 200
-          : 404
-      ).json({
-        status: serializedResult.data
-            ? 'success'
-            : 'fail',
-        message: serializedResult.message,
-        data: serializedResult.data,
-      });
+      ? 200
+      : 404
+    ).json({
+      status: serializedResult.data
+        ? 'success'
+        : 'fail',
+      message: serializedResult.message,
+      data: serializedResult.data,
+    });
   }
 );
 
@@ -173,11 +171,11 @@ const createModifierOption = catchAsync(
     }
 
     const { error, value } = createModifierOptionSchema.validate(
-        req.body,{
-          abortEarly: false,
-          stripUnknown: true,
-        }
-      );
+      req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    }
+    );
 
     if (error) {
       return res.status(400).json({
@@ -188,7 +186,7 @@ const createModifierOption = catchAsync(
       });
     }
 
-    const result = await createModifierOptionService( groupId, value );
+    const result = await createModifierOptionService(groupId, value);
 
     const serializedResult =
       JSON.parse(
@@ -201,18 +199,18 @@ const createModifierOption = catchAsync(
         )
       );
 
-    return res.status( serializedResult.data ? 201 : 404).json({
-        status:serializedResult.data ? 'success' : 'fail',
-        message: serializedResult.message,
-        data: serializedResult.data,
-      });
+    return res.status(serializedResult.data ? 201 : 404).json({
+      status: serializedResult.data ? 'success' : 'fail',
+      message: serializedResult.message,
+      data: serializedResult.data,
+    });
   }
 );
 
 const updateModifierOption = catchAsync(
   async (req: Request, res: Response) => {
 
-    const optionId =  Number(req.params.id);
+    const optionId = Number(req.params.id);
 
     if (isNaN(optionId)) {
       return res.status(400).json({
@@ -223,11 +221,11 @@ const updateModifierOption = catchAsync(
     }
 
     const { error, value } = updateModifierOptionSchema.validate(
-        req.body,{
-          abortEarly: false,
-          stripUnknown: true,
-        }
-      );
+      req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    }
+    );
 
     if (error) {
       return res.status(400).json({
@@ -238,7 +236,7 @@ const updateModifierOption = catchAsync(
       });
     }
 
-    const result =await updateModifierOptionService( optionId, value );
+    const result = await updateModifierOptionService(optionId, value);
 
     const serializedResult =
       JSON.parse(
@@ -251,11 +249,11 @@ const updateModifierOption = catchAsync(
         )
       );
 
-    return res.status(serializedResult.data ? 200: 404).json({
-        status:serializedResult.data ? 'success' : 'fail',
-        message:serializedResult.message,
-        data:serializedResult.data,
-      });
+    return res.status(serializedResult.data ? 200 : 404).json({
+      status: serializedResult.data ? 'success' : 'fail',
+      message: serializedResult.message,
+      data: serializedResult.data,
+    });
   }
 );
 
@@ -272,7 +270,7 @@ const deleteModifierOption = catchAsync(
       });
     }
 
-    const result =await deleteModifierOptionService(optionId);
+    const result = await deleteModifierOptionService(optionId);
 
     const serializedResult =
       JSON.parse(
@@ -285,11 +283,11 @@ const deleteModifierOption = catchAsync(
         )
       );
 
-    return res.status(serializedResult.data? 200: 404).json({
-        status:serializedResult.data ? 'success': 'fail',
-        message:serializedResult.message,
-        data:serializedResult.data,
-      });
+    return res.status(serializedResult.data ? 200 : 404).json({
+      status: serializedResult.data ? 'success' : 'fail',
+      message: serializedResult.message,
+      data: serializedResult.data,
+    });
   }
 );
 
@@ -306,12 +304,12 @@ const attachModifierGroup = catchAsync(
       });
     }
 
-    const { error, value } =  attachModifierGroupSchema.validate(
-        req.body, {
-          abortEarly: false,
-          stripUnknown: true,
-        }
-      );
+    const { error, value } = attachModifierGroupSchema.validate(
+      req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    }
+    );
 
     if (error) {
       return res.status(400).json({
@@ -322,7 +320,7 @@ const attachModifierGroup = catchAsync(
       });
     }
 
-    const result = await attachModifierGroupService(itemId,value.modifierGroupId);
+    const result = await attachModifierGroupService(itemId, value.modifierGroupId);
 
     const serializedResult =
       JSON.parse(
@@ -336,12 +334,12 @@ const attachModifierGroup = catchAsync(
       );
 
     return res.status(serializedResult.data ? 201 : 404).json({
-        status:serializedResult.data ? 'success' : 'fail',
+      status: serializedResult.data ? 'success' : 'fail',
 
-        message:serializedResult.message,
+      message: serializedResult.message,
 
-        data:serializedResult.data,
-      });
+      data: serializedResult.data,
+    });
   }
 );
 
@@ -368,7 +366,7 @@ const detachModifierGroup = catchAsync(
       });
     }
 
-    const result = await detachModifierGroupService(  itemId,  groupId);
+    const result = await detachModifierGroupService(itemId, groupId);
 
     const serializedResult =
       JSON.parse(
@@ -381,10 +379,10 @@ const detachModifierGroup = catchAsync(
         )
       );
 
-    return res.status( 
-       serializedResult.data    ? 200    : 404)
+    return res.status(
+      serializedResult.data ? 200 : 404)
       .json({
-        status: serializedResult.data   ? 'success'   : 'fail',
+        status: serializedResult.data ? 'success' : 'fail',
 
         message: serializedResult.message,
 
@@ -394,7 +392,8 @@ const detachModifierGroup = catchAsync(
 );
 
 
-export {getAllModifierGroups, createModifierGroup, updateModifierGroup, deleteModifierGroup, createModifierOption, updateModifierOption,
+export {
+  getAllModifierGroups, createModifierGroup, updateModifierGroup, deleteModifierGroup, createModifierOption, updateModifierOption,
   deleteModifierOption,
   attachModifierGroup,
   detachModifierGroup

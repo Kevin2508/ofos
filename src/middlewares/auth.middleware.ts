@@ -1,71 +1,102 @@
 import { NextFunction, Request, Response } from 'express';
-// import { env } from '../config/env.ts';
 import jwt from 'jsonwebtoken';
+import { prisma } from '../config/prisma.ts';
 
-const authenticate = (req: Request, res: Response, next: NextFunction) => {
+import { refreshTokenService } from '../modules/auth/auth.service.ts';
+import ms from 'ms';
+
+const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.accessToken;
-  console.log('Access Token from Cookie:', token);
+  const secret = process.env.JWT_ACCESS_SECRET as string;
+
+  if (!secret) {
+    throw new Error('Server configuration error: JWT_ACCESS_SECRET is missing.');
+  }
+
+  // Helper to handle silent token refresh
+  const handleSilentRefresh = async () => {
+    const rawRefreshToken = req.signedCookies.refreshToken;
+    if (!rawRefreshToken) {
+      return res.status(401).render('default/notAuthenticated');
+    }
+
+    try {
+      const data = await refreshTokenService(rawRefreshToken);
+
+      const accessTokenLifeMs = ms(data.expiresIn);
+      res.cookie('accessToken', data.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: accessTokenLifeMs,
+        path: '/',
+      });
+
+      req.user = data.user as any;
+      return next();
+    } catch (refreshErr) {
+      res.clearCookie('refreshToken', { signed: true, httpOnly: true, path: '/' });
+      res.clearCookie('accessToken', { httpOnly: true, path: '/' });
+      return res.status(401).render('default/notAuthenticated');
+    }
+  };
+
   if (!token) {
-    return res.render('default/notAuthenticated')
+    // Attempt to silently refresh if access token is missing but refresh token might exist
+    return await handleSilentRefresh();
   }
 
   try {
-    const secret = process.env.JWT_ACCESS_SECRET as string;
-
-    if (!secret) {
-      throw new Error(
-        'Server configuration error: JWT_ACCESS_SECRET is missing.'
-      );
-    }
-
     const decoded = jwt.verify(token, secret);
     req.user = decoded as any;
-    // console.log('Authenticated user:', req.user);
-
-    next();
-
+    return next();
   } catch (err) {
     if (err instanceof Error) {
       if (err.name === 'TokenExpiredError') {
-        // CRITICAL: The frontend looks for this specific error to know
-        // it's time to quietly hit your /refresh-token endpoint!
-        throw new Error('Access token has expired.');
-      }
-      if (err.name === 'JsonWebTokenError') {
-        throw new Error('Invalid access token.');
+        // Access token expired, attempt silent refresh
+        return await handleSilentRefresh();
       }
     }
-    return res.render('default/notAuthenticated')
+    return res.status(401).render('default/notAuthenticated');
   }
 };
- 
+
 const authorize = (requiredRole: string) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-
-    if (!req.user || !(req.user as any).roles) {
-      return res.render('default/notAuthenticated')
+  return async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !req.user.id) {
+      return res.render('default/notAuthenticated');
     }
 
-    const hasPendingRole = (req.user as any).pendingRoles?.some(
-      (role: string) => role === requiredRole
-    );
+    // Instead of trusting a static JWT, we check their active role cookie
+    const activeRole = req.cookies.activeRole;
 
-    if (hasPendingRole) {
-      // res.status(403).json({ message: 'Verification Pending' });
-      return res.redirect('default/pendingVerification');
+    // If they don't have an active role set, or it's not the required one
+    if (!activeRole || activeRole !== requiredRole) {
+      // Allow passing if requiredRole is not strictly defined, or fail fast
+      if (requiredRole) return res.render('default/notAuthorize');
     }
 
-    // console.log('req.user:', req.user); 
-    // console.log('requiredRole:', requiredRole);
+    // Verify against DB
+    const userRoleRecord = await prisma.userRole.findFirst({
+      where: {
+        userId: BigInt(req.user.id),
+        role: { name: requiredRole }
+      },
+      include: { role: true }
+    });
 
-    const hasRole = (req.user as any).roles?.some(
-      (role: string) => role === requiredRole
-    );
-
-    if (!hasRole) {
-      return res.render('default/notAuthorize')
+    if (!userRoleRecord) {
+      return res.render('default/notAuthorize');
     }
-                       
+
+    if (userRoleRecord.status === 'REQUESTED') {
+      return res.redirect('/default/pendingVerification');
+    }
+
+    if (userRoleRecord.status !== 'ASSIGNED') {
+      return res.render('default/notAuthorize');
+    }
+
     next();
   };
 };

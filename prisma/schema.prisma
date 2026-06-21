@@ -226,7 +226,7 @@ model User {
   id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   firstName             String    @map("first_name") @db.VarChar(100)
   lastName              String?   @map("last_name") @db.VarChar(100)
-  email                 String    @unique @db.VarChar(255)
+  email                 String?   @unique @db.VarChar(255)
   phone                 String    @unique @db.VarChar(20)
   passwordHash          String?   @map("password_hash") @db.VarChar(255)
   profileImageUrl       String?   @map("profile_image_url") @db.VarChar(500)
@@ -529,6 +529,7 @@ model MenuItem {
   images        MenuItemImage[]
   cartItems     CartItem[]
   orderItems    OrderItem[]
+  reviewItems   ReviewItem[]
 
   @@index([categoryId])
   @@index([isAvailable])
@@ -812,6 +813,7 @@ model Order {
   deliveryFee         Decimal       @map("delivery_fee") @db.Decimal(10, 2)
   taxAmount           Decimal       @map("tax_amount") @db.Decimal(10, 2)
   totalAmount         Decimal       @map("total_amount") @db.Decimal(10, 2)
+  otpHash             String?       @map("otp_hash") @db.VarChar(100)
   estimatedDeliveryAt DateTime?     @map("estimated_delivery_at")
   deliveredAt         DateTime?     @map("delivered_at")
   createdAt           DateTime      @default(now()) @map("created_at")
@@ -1107,6 +1109,8 @@ model DeliveryPartner {
   assignments DeliveryAssignment[]
   earnings    PartnerEarning[]
   payouts     PartnerPayout[]
+  reviews     Review[]
+  supportTickets SupportTicket[]
 
   @@map("delivery_partners")
 }
@@ -1217,14 +1221,17 @@ model Review {
   packagingRating Int      @map("packaging_rating") @db.TinyInt
   overallRating   Decimal  @map("overall_rating") @db.Decimal(3, 2)
   reviewText      String?  @map("review_text") @db.VarChar(500)
+  deliveryPartnerUserId BigInt? @map("delivery_partner_user_id") @db.UnsignedBigInt
   isHidden        Boolean  @default(false) @map("is_hidden")
   createdAt       DateTime @default(now()) @map("created_at")
 
   order      Order      @relation(fields: [orderId], references: [id])
   customer   User       @relation(fields: [customerUserId], references: [id])
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  deliveryPartner DeliveryPartner? @relation(fields: [deliveryPartnerUserId], references: [userId])
 
   images ReviewImage[]
+  items  ReviewItem[]
   reply  ReviewReply?
 
   @@index([restaurantId])
@@ -1264,7 +1271,8 @@ model SupportTicket {
   id                  BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
   ticketNumber        String         @unique @map("ticket_number") @db.VarChar(50)
   orderId             BigInt         @map("order_id") @db.UnsignedBigInt
-  customerUserId      BigInt         @map("customer_user_id") @db.UnsignedBigInt
+  customerUserId      BigInt?        @map("customer_user_id") @db.UnsignedBigInt
+  partnerUserId       BigInt?        @map("partner_user_id") @db.UnsignedBigInt
   assignedAdminUserId BigInt?        @map("assigned_admin_user_id") @db.UnsignedBigInt
   category            TicketCategory
   priority            TicketPriority
@@ -1275,7 +1283,8 @@ model SupportTicket {
   updatedAt           DateTime       @updatedAt @map("updated_at")
 
   order    Order @relation(fields: [orderId], references: [id])
-  customer User  @relation("TicketCustomer", fields: [customerUserId], references: [id])
+  customer User?  @relation("TicketCustomer", fields: [customerUserId], references: [id])
+  partner  DeliveryPartner? @relation(fields: [partnerUserId], references: [userId])
   admin    User? @relation("TicketAdmin", fields: [assignedAdminUserId], references: [id])
 
   messages    SupportMessage[]
@@ -1421,4 +1430,20 @@ model ReportExport {
   generatedByUser User @relation(fields: [generatedByUserId], references: [id])
 
   @@map("report_exports")
+}
+
+model ReviewItem {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  reviewId        BigInt   @map("review_id") @db.UnsignedBigInt
+  menuItemId      BigInt   @map("menu_item_id") @db.UnsignedBigInt
+  rating          Int      @db.TinyInt
+  reviewText      String?  @map("review_text") @db.VarChar(500)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  review   Review   @relation(fields: [reviewId], references: [id])
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([reviewId])
+  @@index([menuItemId])
+  @@map("review_items")
 }

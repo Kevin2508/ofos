@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Menu Management | Restaurant Owner | ofos</title>
+  <title>Menu Management | Restaurant Owner | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
@@ -14,7 +14,7 @@
     <aside
       class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
       <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">ofos Partner</h1>
+        <h1 class="text-3xl font-extrabold text-orange-500">epicurePartner</h1>
       </div>
 
       <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -77,9 +77,11 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 ml-64 p-8">
-      <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-800">Menu Management</h2>
-        <p class="text-gray-500 mt-1">Manage categories and menu items for each branch.</p>
+      <div class="mb-8 flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">Menu Management</h2>
+          <p class="text-gray-500 mt-1">Manage categories and menu items for each branch.</p>
+        </div>
       </div>
 
       <!-- Step 1: Select Restaurant & Branch -->
@@ -95,7 +97,8 @@
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">Branch</label>
             <select id="branchSelect"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-colors" disabled>
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-colors"
+              disabled>
               <option value="" disabled selected>Select a restaurant first</option>
             </select>
           </div>
@@ -108,7 +111,9 @@
           <h3 class="text-xl font-bold text-gray-800">Categories</h3>
           <button onclick="openAddCategoryModal()"
             class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
             New Category
           </button>
         </div>
@@ -129,7 +134,8 @@
           </svg>
         </div>
         <h3 class="text-lg font-bold text-gray-700">Select a Restaurant & Branch</h3>
-        <p class="text-gray-500 text-sm mt-1 text-center max-w-xs">Choose a restaurant and branch above to view and manage its menu categories.</p>
+        <p class="text-gray-500 text-sm mt-1 text-center max-w-xs">Choose a restaurant and branch above to view and
+          manage its menu categories.</p>
       </div>
     </main>
   </div>
@@ -156,9 +162,88 @@
         </div>
         <input type="hidden" id="editCategoryId" value="" />
         <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100">
-          <button onclick="closeCategoryModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+          <button onclick="closeCategoryModal()"
+            class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
           <button onclick="saveCategory()" id="saveCategoryBtn"
             class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium shadow">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Menu Item Modal -->
+  <div id="menuItemModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+      <h3 id="itemModalTitle" class="text-xl font-bold text-gray-800 mb-4">Add Menu Item</h3>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Name <span
+                class="text-red-500">*</span></label>
+            <input type="text" id="itemName" placeholder="e.g. Paneer Tikka"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">SKU (Unique) <span
+                class="text-red-500">*</span></label>
+            <input type="text" id="itemSku" placeholder="e.g. PT-001"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+          <textarea id="itemDescription" rows="2" placeholder="Delicious paneer marinated in spices..."
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Base Price (₹) <span
+                class="text-red-500">*</span></label>
+            <input type="number" id="itemPrice" min="0" step="0.01" placeholder="e.g. 250"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Food Type <span
+                class="text-red-500">*</span></label>
+            <select id="itemFoodType"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+              <option value="VEG">Vegetarian</option>
+              <option value="NON_VEG">Non-Vegetarian</option>
+              <option value="VEGAN">Vegan</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <label class="flex items-center cursor-pointer">
+            <input type="checkbox" id="itemIsAvailable" checked
+              class="w-5 h-5 text-orange-500 border-gray-300 rounded focus:ring-orange-500" />
+            <span class="ml-2 text-gray-700 font-medium">Available in stock</span>
+          </label>
+          <label class="flex items-center cursor-pointer">
+            <input type="checkbox" id="itemIsBestseller"
+              class="w-5 h-5 text-orange-500 border-gray-300 rounded focus:ring-orange-500" />
+            <span class="ml-2 text-gray-700 font-medium">Mark as Bestseller</span>
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Item Image (Optional)</label>
+          <input type="file" id="itemImage" accept="image/*"
+            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
+        </div>
+
+        <input type="hidden" id="editItemCategoryId" value="" />
+        <input type="hidden" id="editItemId" value="" />
+
+        <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+          <button onclick="closeItemModal()"
+            class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+          <button onclick="saveItem()" id="saveItemBtn"
+            class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium shadow">Save
+            Item</button>
         </div>
       </div>
     </div>
@@ -204,7 +289,7 @@
             branchSelect.innerHTML = `<option disabled selected>No branches found — create one first</option>`;
           } else {
             branchSelect.innerHTML = `<option value="" disabled selected>Select a branch...</option>` +
-              branches.map(b => `<option value="${b.id}">${b.name || b.city || 'Branch ' + b.id}</option>`).join('');
+              branches.map(b => `<option value="${b.id}">${b.name || b.branchName || b.city || 'Branch ' + b.id}</option>`).join('');
             branchSelect.disabled = false;
           }
         } else {
@@ -234,23 +319,37 @@
             container.innerHTML = `<table class="w-full text-left">
               <thead class="bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider">
                 <tr>
-                  <th class="px-6 py-3">Name</th>
-                  <th class="px-6 py-3">Description</th>
+                  <th class="px-6 py-3 w-1/3">Category Name</th>
+                  <th class="px-6 py-3 w-1/3">Description</th>
                   <th class="px-6 py-3 text-center">Order</th>
                   <th class="px-6 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-50 text-gray-700">
+              <tbody class="divide-y divide-gray-100 text-gray-700">
                 ${categories.map(c => `
                   <tr class="hover:bg-orange-50 transition-colors">
                     <td class="px-6 py-4 font-semibold text-gray-800">${c.name}</td>
                     <td class="px-6 py-4 text-gray-500 text-sm">${c.description || '—'}</td>
                     <td class="px-6 py-4 text-center text-sm">${c.displayOrder ?? 0}</td>
-                    <td class="px-6 py-4 text-right">
+                    <td class="px-6 py-4 text-right space-x-1">
+                      <button onclick="toggleItemsRow('${c.id}')"
+                        class="px-3 py-1.5 text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-medium transition-colors">Items</button>
                       <button onclick="openEditCategoryModal('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${(c.description || '').replace(/'/g, "\\'")}', ${c.displayOrder ?? 0})"
-                        class="px-3 py-1.5 text-xs bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg mr-2 font-medium transition-colors">Edit</button>
+                        class="px-3 py-1.5 text-xs bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg font-medium transition-colors">Edit</button>
                       <button onclick="deleteCategory('${c.id}')"
                         class="px-3 py-1.5 text-xs bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-medium transition-colors">Delete</button>
+                    </td>
+                  </tr>
+                  <tr id="items-row-${c.id}" class="hidden bg-gray-50">
+                    <td colspan="4" class="p-6">
+                      <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-gray-700">Menu Items in ${c.name}</h4>
+                        <button onclick="openAddItemModal('${c.id}')" class="px-3 py-1.5 text-xs bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors">+ Add Item</button>
+                      </div>
+                      <div id="items-container-${c.id}" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <!-- Items rendered here -->
+                        <div class="text-sm text-gray-500 col-span-full">Loading items...</div>
+                      </div>
                     </td>
                   </tr>
                 `).join('')}
@@ -266,6 +365,9 @@
       }
     }
 
+    // ==========================================
+    // CATEGORY MODAL LOGIC
+    // ==========================================
     function openAddCategoryModal() {
       document.getElementById('categoryModalTitle').textContent = 'Add Category';
       document.getElementById('categoryName').value = '';
@@ -295,7 +397,7 @@
       const editId = document.getElementById('editCategoryId').value;
       const btn = document.getElementById('saveCategoryBtn');
 
-      if (!name) return alert('Category name is required');
+      if (!name) return showToast('Category name is required', 'error');
 
       btn.disabled = true;
       btn.textContent = 'Saving...';
@@ -314,13 +416,14 @@
 
         const data = await res.json();
         if (res.ok) {
+          showToast('Category saved!', 'success');
           closeCategoryModal();
           loadCategories();
         } else {
-          alert(data.message || 'Error saving category');
+          showToast(data.message || 'Error saving category', 'error');
         }
       } catch (e) {
-        alert('Error saving category');
+        showToast('Error saving category', 'error');
       } finally {
         btn.disabled = false;
         btn.textContent = 'Save';
@@ -335,14 +438,256 @@
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
+          showToast('Category deleted', 'success');
           loadCategories();
         } else {
           const data = await res.json();
-          alert(data.message || 'Error deleting category');
+          showToast(data.message || 'Error deleting category', 'error');
         }
-      } catch (e) { alert('Error deleting category'); }
+      } catch (e) { showToast('Error deleting category', 'error'); }
     }
 
+    // ==========================================
+    // MENU ITEM LOGIC
+    // ==========================================
+    async function toggleItemsRow(categoryId) {
+      const row = document.getElementById(`items-row-${categoryId}`);
+      row.classList.toggle('hidden');
+      if (!row.classList.contains('hidden')) {
+        await loadItemsForCategory(categoryId);
+      }
+    }
+
+    async function loadItemsForCategory(categoryId) {
+      const container = document.getElementById(`items-container-${categoryId}`);
+      try {
+        const res = await fetch(`/menu-item/categories/${categoryId}/items`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const items = data.data || [];
+
+          // Store items globally for easy access in edit modal without string escaping
+          window.menuItemsData = window.menuItemsData || {};
+          items.forEach(item => window.menuItemsData[item.id] = item);
+
+          if (items.length === 0) {
+            container.innerHTML = `<div class="col-span-full text-sm text-gray-500 py-4">No items found in this category.</div>`;
+          } else {
+            container.innerHTML = items.map(item => `
+              <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex gap-4 items-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  ${item.images && item.images.length > 0
+                ? `<img src="/${item.images[0].imageUrl.replace(/\\\\/g, '/')}" class="w-full h-full object-cover"/>`
+                : `<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>`}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-start">
+                    <h5 class="font-bold text-gray-800 line-clamp-1">${item.name}</h5>
+                    <span class="font-bold text-orange-600">₹${item.basePrice}</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mb-1">SKU: ${item.sku}</p>
+                  <p class="text-xs text-gray-500 line-clamp-1 mb-2">${item.description || ''}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${item.foodType === 'VEG' ? 'bg-green-100 text-green-700' : item.foodType === 'NON_VEG' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">${item.foodType}</span>
+                    ${item.isBestseller ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">★ Bestseller</span>` : ''}
+                    ${item.isAvailable ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Available</span>` : `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-700">Unavailable</span>`}
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <button onclick="openEditItemModal('${item.id}', '${categoryId}')" class="text-xs font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 px-2 py-1 rounded">Edit</button>
+                  <button onclick="toggleAvailability('${item.id}', ${!item.isAvailable}, '${categoryId}')" class="text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">
+                    ${item.isAvailable ? 'Hide' : 'Show'}
+                  </button>
+                  <button onclick="deleteItem('${item.id}', '${categoryId}')" class="text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded">Del</button>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="col-span-full text-sm text-red-500 py-4">Error loading items.</div>`;
+      }
+    }
+
+    function openAddItemModal(categoryId) {
+      document.getElementById('itemModalTitle').textContent = 'Add Menu Item';
+      document.getElementById('editItemCategoryId').value = categoryId;
+      document.getElementById('editItemId').value = '';
+
+      document.getElementById('itemName').value = '';
+      document.getElementById('itemSku').value = '';
+      document.getElementById('itemSku').disabled = false;
+      document.getElementById('itemDescription').value = '';
+      document.getElementById('itemPrice').value = '';
+      document.getElementById('itemFoodType').value = 'VEG';
+      document.getElementById('itemIsAvailable').checked = true;
+      document.getElementById('itemIsBestseller').checked = false;
+      document.getElementById('itemImage').value = '';
+
+      document.getElementById('menuItemModal').classList.remove('hidden');
+    }
+
+    function openEditItemModal(itemId, categoryId) {
+      const item = window.menuItemsData ? window.menuItemsData[itemId] : null;
+      if (!item) return;
+
+      document.getElementById('itemModalTitle').textContent = 'Edit Menu Item';
+      document.getElementById('editItemCategoryId').value = categoryId;
+      document.getElementById('editItemId').value = itemId;
+
+      document.getElementById('itemName').value = item.name;
+      document.getElementById('itemSku').value = item.sku;
+      document.getElementById('itemSku').disabled = true; // Cannot edit SKU
+      document.getElementById('itemDescription').value = item.description || '';
+      document.getElementById('itemPrice').value = item.basePrice;
+      document.getElementById('itemFoodType').value = item.foodType;
+      document.getElementById('itemIsAvailable').checked = item.isAvailable;
+      document.getElementById('itemIsBestseller').checked = item.isBestseller;
+      document.getElementById('itemImage').value = '';
+
+      document.getElementById('menuItemModal').classList.remove('hidden');
+    }
+
+    function closeItemModal() {
+      document.getElementById('menuItemModal').classList.add('hidden');
+    }
+
+    async function saveItem() {
+      const categoryId = document.getElementById('editItemCategoryId').value;
+      const editItemId = document.getElementById('editItemId').value;
+      const isEdit = !!editItemId;
+
+      const name = document.getElementById('itemName').value.trim();
+      const sku = document.getElementById('itemSku').value.trim();
+      const description = document.getElementById('itemDescription').value.trim();
+      const basePrice = parseFloat(document.getElementById('itemPrice').value);
+      const foodType = document.getElementById('itemFoodType').value;
+      const isAvailable = document.getElementById('itemIsAvailable').checked;
+      const isBestseller = document.getElementById('itemIsBestseller').checked;
+      const imageFile = document.getElementById('itemImage').files[0];
+
+      if (!name || (!isEdit && !sku) || isNaN(basePrice)) {
+        return showToast('Name, SKU, and Base Price are required.', 'error');
+      }
+
+      const btn = document.getElementById('saveItemBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        let payload = {
+          name,
+          description: description || undefined,
+          basePrice,
+          foodType
+        };
+
+        if (!isEdit) {
+          payload.sku = sku;
+        }
+
+        const url = isEdit ? `/menu-item/menu-items/${editItemId}` : `/menu-item/categories/${categoryId}/items`;
+        const method = isEdit ? 'PATCH' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          const itemId = isEdit ? editItemId : data.data?.id;
+
+          // Process Image Upload
+          if (imageFile && itemId) {
+            // If editing and uploading a new image, delete old images first
+            if (isEdit) {
+              const item = window.menuItemsData[itemId];
+              if (item && item.images && item.images.length > 0) {
+                for (const img of item.images) {
+                  await fetch(`/menu-item/menu-items/${itemId}/images/${img.id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                  });
+                }
+              }
+            }
+
+            const formData = new FormData();
+            formData.append('menuItemImage', imageFile);
+            await fetch(`/menu-item/menu-items/${itemId}/images`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}` },
+              body: formData
+            });
+          }
+
+          // Optional: Process availability/bestseller if needed
+          // Only process these if creating new, or if updating
+          await fetch(`/menu-item/menu-items/${itemId}/availability`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isAvailable })
+          });
+
+          await fetch(`/menu-item/menu-items/${itemId}/bestseller`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isBestseller })
+          });
+
+          showToast(isEdit ? 'Menu item updated successfully!' : 'Menu item added successfully!', 'success');
+          closeItemModal();
+          loadItemsForCategory(categoryId); // reload the specific accordion
+        } else {
+          showToast(data.message || 'Error saving menu item', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'Error saving menu item', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Item';
+      }
+    }
+
+    async function toggleAvailability(itemId, isAvailable, categoryId) {
+      try {
+        const res = await fetch(`/menu-item/menu-items/${itemId}/availability`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isAvailable })
+        });
+        if (res.ok) {
+          loadItemsForCategory(categoryId);
+        } else {
+          const data = await res.json();
+          showToast(data.message || 'Failed to update availability', 'error');
+        }
+      } catch (e) { showToast('Error', 'error'); }
+    }
+
+    async function deleteItem(itemId, categoryId) {
+      if (!confirm('Delete this item?')) return;
+      try {
+        const res = await fetch(`/menu-item/menu-items/${itemId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          loadItemsForCategory(categoryId);
+        } else {
+          const data = await res.json();
+          showToast(data.message || 'Failed to delete item', 'error');
+        }
+      } catch (e) { showToast('Error', 'error'); }
+    }
+
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
     document.getElementById('restaurantSelect').addEventListener('change', (e) => {
       selectedRestaurantId = e.target.value;
       selectedBranchId = null;

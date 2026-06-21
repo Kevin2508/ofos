@@ -1,0 +1,14 @@
+refine order flow
+1. user click place order
+2. restaurant staff will approve or reject order
+3. show loading until restaurant staff accept order
+4. if order declined show order cancel screen otherwise show show placed order screen to customer and store otp for order in database
+5. when order will creating restaurant staff will update order status to preparing and show it to customer
+6. when order is prepared find nearby online delivery partner to assign order 
+7. if order declined by delivery partner then assign to another delivery partner
+8. if 2 times order declined then send it to fleet manager to manuaaly assign order
+9. after order assign to delivery partner delivery partne will pickup order and change order status to pickedup and also so it to customer
+10. delivery partner will move to customer location for order edlivery. show location with points that order is comming to customer. for that you can use any cdn for map, and distance showing with red line like swiggy or zomato
+11. when order delivered delivery partner take otp from customer and change order status to delivered
+12. if any issue like wrong address or customer not available then delivery partner will raise issue and it will be visible to fleet manager
+13. after successfully delivered order in customer screen show ui to give rating to order, delivery partner. this rating will be reflet to individual menu items stored in database, restaurant(branch)'s rating, delivery partners rating, and order's rating

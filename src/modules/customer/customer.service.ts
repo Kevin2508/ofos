@@ -69,10 +69,8 @@ async function getAddressesByIdService(customerId: number) {
 
 async function updateAdressService(addressID: number, payload: CreateAddressDto) {
 
-  console.log("Hello There===========================================");
   const address = await findAddressesById(addressID);
 
-  console.log('Address Found:', address);
   if (!address) {
     return {
       message: 'Address not found',

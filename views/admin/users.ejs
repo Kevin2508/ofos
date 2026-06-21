@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manage Users | Admin | ofos</title>
+  <title>Manage Users | Admin | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
@@ -14,7 +14,7 @@
     <aside
       class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
       <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
+        <h1 class="text-3xl font-extrabold text-orange-500">epicureAdmin</h1>
       </div>
 
       <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -116,78 +116,71 @@
             </tbody>
           </table>
         </div>
-<<<<<<< HEAD
-      </main>
-    </div>
+    </main>
+  </div>
 
-    <!-- User Details Modal -->
-    <div
-      id="userModal"
-      class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4"
-    >
-      <div class="bg-white w-full max-w-lg rounded-3xl p-6">
-        <div class="flex justify-between items-center mb-5">
-          <h3 class="text-xl font-bold">User Details</h3>
+  <!-- User Details Modal -->
+  <div id="userModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl p-6">
+      <div class="flex justify-between items-center mb-5">
+        <h3 class="text-xl font-bold">User Details</h3>
 
-          <button onclick="closeModal()">✕</button>
-        </div>
-
-        <div id="userDetails" class="space-y-3 text-gray-700"></div>
-
-        <div class="mt-5">
-          <label class="block mb-2 font-semibold"> Role </label>
-
-          <select id="updateRole" class="w-full px-4 py-3 rounded-xl border">
-            <option>customer</option>
-            <option>restaurant_owner</option>
-            <option>restaurant_staff</option>
-            <option>fleet_manager</option>
-            <option>platform_admin</option>
-          </select>
-        </div>
-
-        <div class="mt-4">
-          <label class="block mb-2 font-semibold"> Status </label>
-
-          <select id="updateStatus" class="w-full px-4 py-3 rounded-xl border">
-            <option>active</option>
-            <option>inactive</option>
-            <option>banned</option>
-          </select>
-        </div>
-
-        <button
-          id="updateBtn"
-          onclick="updateUser()"
-          class="w-full mt-6 bg-orange-500 text-white py-3 rounded-xl hover:bg-orange-600"
-        >
-          Update User
-        </button>
+        <button onclick="closeModal()">✕</button>
       </div>
+
+      <div id="userDetails" class="space-y-3 text-gray-700"></div>
+
+      <div class="mt-5">
+        <label class="block mb-2 font-semibold"> Role </label>
+
+        <select id="updateRole" class="w-full px-4 py-3 rounded-xl border">
+          <option>customer</option>
+          <option>restaurant_owner</option>
+          <option>restaurant_staff</option>
+          <option>fleet_manager</option>
+          <option>platform_admin</option>
+        </select>
+      </div>
+
+      <div class="mt-4">
+        <label class="block mb-2 font-semibold"> Status </label>
+
+        <select id="updateStatus" class="w-full px-4 py-3 rounded-xl border">
+          <option>active</option>
+          <option>inactive</option>
+          <option>banned</option>
+        </select>
+      </div>
+
+      <button id="updateBtn" onclick="updateUser()"
+        class="w-full mt-6 bg-orange-500 text-white py-3 rounded-xl hover:bg-orange-600">
+        Update User
+      </button>
     </div>
+  </div>
 
-    <script>
-      let users = [];
-      let selectedUserId = null;
+  <script>
+    let users = [];
+    let selectedUserId = null;
 
-      // Get users
-      async function fetchUsers() {
-        try {
-          const response = await fetch('/admin/users');
+    // Initial Load
+    fetchUsers();
 
-          users = await response.json();
-
-          renderUsers(users);
-        } catch (error) {
-          showToast('Failed to load users', 'error');
-        }
+    // Get users
+    async function fetchUsers() {
+      try {
+        const response = await fetch('/admin/users');
+        json = await response.json();
+        renderUsers(json.data.users);
+      } catch (error) {
+        showToast('Failed to load users', 'error');
       }
+    }
 
-      function renderUsers(data) {
-        const table = document.getElementById('usersTable');
-
-        if (!data.length) {
-          table.innerHTML = `
+    function renderUsers(data) {
+      const table = document.getElementById('usersTable');
+      if (!data.length) {
+        table.innerHTML = `
       <tr>
         <td colspan="6" class="p-6 text-center">
           No users found
@@ -195,23 +188,19 @@
       </tr>
     `;
 
-          return;
-        }
+        return;
+      }
 
-        table.innerHTML = data
-          .map(
-            (user) => `
-
+      table.innerHTML = data
+        .map(
+          (user) => `
     <tr class="border-t">
-
       <td class="p-4">
         ${user.firstName}
       </td>
-
       <td class="p-4">
         ${user.email}
       </td>
-
       <td class="p-4">
         ${user.phone}
       </td>
@@ -239,148 +228,75 @@
     </tr>
 
   `
-          )
-          .join('');
-      }
+        )
+        .join('');
+    }
 
-      // View User
-      async function viewUser(id) {
-        selectedUserId = id;
+    // View User
+    async function viewUser(id) {
+      selectedUserId = id;
 
-        const response = await fetch(`/admin/user/${id}`);
+      const response = await fetch(`/admin/user/${id}`);
 
-        const user = await response.json();
+      const user = await response.json();
 
-        document.getElementById('userDetails').innerHTML = `
+      document.getElementById('userDetails').innerHTML = `
     <p><b>Name:</b> ${user.firstName}</p>
     <p><b>Email:</b> ${user.email}</p>
     <p><b>Phone:</b> ${user.phone}</p>
   `;
 
-        document.getElementById('updateRole').value = user.role;
+      document.getElementById('updateRole').value = user.role;
 
-        document.getElementById('updateStatus').value = user.status;
+      document.getElementById('updateStatus').value = user.status;
 
-        document.getElementById('userModal').classList.remove('hidden');
-      }
+      document.getElementById('userModal').classList.remove('hidden');
+    }
 
-      function closeModal() {
-        document.getElementById('userModal').classList.add('hidden');
-      }
+    function closeModal() {
+      document.getElementById('userModal').classList.add('hidden');
+    }
 
-      // Update user
-      async function updateUser() {
-        const btn = document.getElementById('updateBtn');
+    // Update user
+    async function updateUser() {
+      const btn = document.getElementById('updateBtn');
 
-        btn.disabled = true;
-        btn.textContent = 'Updating...';
+      btn.disabled = true;
+      btn.textContent = 'Updating...';
 
-        try {
-          const response = await fetch(`/admin/user/${selectedUserId}/status`, {
-            method: 'PATCH',
-
-            headers: {
-              'Content-Type': 'application/json',
-            },
-
-            body: JSON.stringify({
-              role: document.getElementById('updateRole').value,
-              status: document.getElementById('updateStatus').value,
-            }),
-          });
-
-          const data = await response.json();
-
-          if (response.ok) {
-            showToast('User updated successfully', 'success');
-            closeModal();
-            fetchUsers();
-          } else {
-            showToast(data.message || 'Failed to update user', 'error');
-          }
-        } catch (err) {
-          showToast('Something went wrong. Please try again.', 'error');
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Update User';
-        }
-      }
-
-      // Initial Load
-      fetchUsers();
-    </script>
-    <%- include('../partials/toast') %>
-  </body>
-</html>
-=======
-      </div>
-    </main>
-  </div>
-
-  <script>
-    async function loadUsers() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const res = await fetch('/admin/users', {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetch(`/admin/user/${selectedUserId}/status`, {
+          method: 'PATCH',
+
+          headers: {
+            'Content-Type': 'application/json',
+          },
+
+          body: JSON.stringify({
+            role: document.getElementById('updateRole').value,
+            status: document.getElementById('updateStatus').value,
+          }),
         });
 
-        const list = document.getElementById('usersList');
-        if (res.ok) {
-          const data = await res.json();
-          const users = data.data?.users || [];
+        const data = await response.json();
 
-          if (users.length === 0) {
-            list.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No users found.</td></tr>`;
-          } else {
-            list.innerHTML = users.map(u => `
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-4">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold">
-                      ${(u.firstName?.[0] || 'U').toUpperCase()}
-                    </div>
-                    <div>
-                      <p class="font-medium text-gray-900">${u.firstName || ''} ${u.lastName || ''}</p>
-                      <p class="text-xs text-gray-500">${u.email}</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-800">
-                    ${u.roles?.[0]?.name || 'User'}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
-                  ${new Date(u.createdAt).toLocaleDateString()}
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <button class="text-orange-600 hover:text-orange-800 text-sm font-medium" onclick="alert('Manage user modal coming soon!')">Manage</button>
-                </td>
-              </tr>
-            `).join('');
-          }
+        if (response.ok) {
+          showToast('User updated successfully', 'success');
+          closeModal();
+          fetchUsers();
+        } else {
+          showToast(data.message || 'Failed to update user', 'error');
         }
       } catch (err) {
-        console.error(err);
+        showToast('Something went wrong. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Update User';
       }
     }
 
-    loadUsers();
-
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      try {
-        const token = localStorage.getItem('token') || '';
-        await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-      } catch (e) { console.error(e); }
-      localStorage.clear();
-      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      window.location.href = '/loginPage';
-    });;
   </script>
+  <%- include('../partials/toast') %>
 </body>
 
 </html>
->>>>>>> dev

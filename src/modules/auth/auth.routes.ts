@@ -17,17 +17,24 @@ import {
   sendOtp,
   verigyOtp,
   getMe,
+  checkPhone,
+  checkEmail,
+  selectRole
 } from './auth.controller.ts';
+import { upload } from '../../middlewares/upload.middleware.ts';
 import {
   forgotPasswordSchema,
   loginSchema,
   registerAdminSchema,
   registerDeliveryPartnerSchema,
   registerFleetManagerSchema,
+  registerRestaurantOwnerSchema,
   registerSchema,
   resetPasswordSchema,
   sendOtpSchema,
   verifyOtpSchema,
+  checkPhoneSchema,
+  checkEmailSchema,
 } from './auth.validation.ts';
 
 const authRouter = Router();
@@ -49,10 +56,16 @@ authRouter.post(
 authRouter.post('/send-otp', validate(sendOtpSchema), sendOtp);
 authRouter.post('/verify-otp', validate(verifyOtpSchema), verigyOtp);
 
+authRouter.post('/check-phone', validate(checkPhoneSchema), checkPhone);
+authRouter.post('/check-email', validate(checkEmailSchema), checkEmail);
+
 authRouter.get('/logout', authenticate, logout);
 authRouter.get('/me', authenticate, getMe);
 
 authRouter.post('/refresh', refresh);
+
+// Role Selection
+authRouter.post('/select-role', authenticate, selectRole);
 
 // Customer
 authRouter.post('/register', validate(registerSchema), register);
@@ -67,7 +80,8 @@ authRouter.post(
 // Restaurant Owner
 authRouter.post(
   '/register/restaurant-owner',
-  validate(registerSchema),
+  upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'cover', maxCount: 1 }]),
+  validate(registerRestaurantOwnerSchema),
   registerRestaurantOwner
 );
 

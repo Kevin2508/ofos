@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register | ofos - Food Ordering System</title>
+  <title>Register | epicure- Food Ordering System</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
@@ -14,44 +14,76 @@
       <!-- Header -->
       <div class="text-center mb-8">
         <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
-        <p class="text-gray-500 text-sm">Sign up to start ordering your favorite food</p>
+        <p class="text-gray-500 text-sm" id="stepDescription">Step 1: Enter your mobile number</p>
       </div>
 
-      <!-- Form -->
-      <form id="registerForm" class="space-y-5">
-        <!-- First Name -->
+      <!-- Step 1: Phone Number -->
+      <form id="step1Form" class="space-y-5 block">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
-            First Name <span class="text-red-500">*</span>
+            Phone Number <span class="text-red-500">*</span>
           </label>
-          <input type="text" id="firstName" name="firstName" placeholder="John"
+          <input type="text" id="phone" name="phone" placeholder="10 digit number"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
-          <p id="firstNameError" class="mt-1 text-sm text-red-500"></p>
+          <p id="phoneError" class="mt-1 text-sm text-red-500"></p>
+        </div>
+        <button type="submit" id="step1Btn"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg mt-2">
+          Verify Phone
+        </button>
+      </form>
+
+      <!-- Step 2: OTP -->
+      <form id="step2Form" class="space-y-5 hidden">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Enter OTP <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="otp" name="otp" placeholder="6 digit OTP"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors tracking-widest text-center text-lg" />
+          <p id="otpError" class="mt-1 text-sm text-red-500"></p>
+        </div>
+        <button type="submit" id="step2Btn"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg mt-2">
+          Submit OTP
+        </button>
+        <div class="text-center mt-4">
+          <button type="button" onclick="goToStep(1)"
+            class="text-sm font-medium text-gray-500 hover:text-gray-700">Change Phone Number</button>
+        </div>
+      </form>
+
+      <!-- Step 3: Details -->
+      <form id="step3Form" class="space-y-5 hidden">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              First Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="firstName" name="firstName" placeholder="John"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+            <p id="firstNameError" class="mt-1 text-sm text-red-500"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Last Name
+            </label>
+            <input type="text" id="lastName" name="lastName" placeholder="Doe"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+            <p id="lastNameError" class="mt-1 text-sm text-red-500"></p>
+          </div>
         </div>
 
-        <!-- Email -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
-            Email <span class="text-red-500">*</span>
+            Email <span class="text-gray-400 font-normal text-xs">(Optional)</span>
           </label>
           <input type="email" id="email" name="email" placeholder="you@example.com"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
           <p id="emailError" class="mt-1 text-sm text-red-500"></p>
         </div>
 
-        <!-- Phone -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Phone <span class="text-red-500">*</span>
-          </label>
-          <input type="text" id="phone" name="phone" placeholder="10 digit number"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
-          <p id="phoneError" class="mt-1 text-sm text-red-500"></p>
-        </div>
-
-        <!-- Password & Confirm Password -->
         <div class="space-y-4">
-          <!-- Password -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Password <span class="text-red-500">*</span>
@@ -60,14 +92,10 @@
               <input type="password" id="password" name="password" placeholder="Min 8 characters"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
               <button type="button" id="togglePassword"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
-                Show
-              </button>
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">Show</button>
             </div>
             <p id="passwordError" class="mt-1 text-sm text-red-500"></p>
           </div>
-
-          <!-- Confirm Password -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Confirm Password <span class="text-red-500">*</span>
@@ -76,16 +104,13 @@
               <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
               <button type="button" id="toggleConfirmPassword"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
-                Show
-              </button>
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">Show</button>
             </div>
             <p id="confirmPasswordError" class="mt-1 text-sm text-red-500"></p>
           </div>
         </div>
 
-        <!-- Register Button -->
-        <button type="submit" id="registerBtn"
+        <button type="submit" id="step3Btn"
           class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg mt-2">
           Create Account
         </button>
@@ -95,33 +120,25 @@
       <div class="text-center mt-6 pt-6 border-t border-gray-200">
         <p class="text-sm text-gray-600">
           Already have an account?
-          <a href="/loginPage" class="font-medium text-orange-500 hover:text-orange-600 transition-colors">
-            Login
-          </a>
+          <a href="/loginPage" class="font-medium text-orange-500 hover:text-orange-600 transition-colors">Login</a>
         </p>
       </div>
     </div>
   </div>
 
   <script>
-    const registerForm = document.getElementById('registerForm');
-    const registerBtn = document.getElementById('registerBtn');
+    const step1Form = document.getElementById('step1Form');
+    const step2Form = document.getElementById('step2Form');
+    const step3Form = document.getElementById('step3Form');
+    const stepDescription = document.getElementById('stepDescription');
 
-    const firstName = document.getElementById('firstName');
-    const email = document.getElementById('email');
     const phone = document.getElementById('phone');
+    const otp = document.getElementById('otp');
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
+    const email = document.getElementById('email');
     const password = document.getElementById('password');
     const confirmPassword = document.getElementById('confirmPassword');
-
-    const firstNameError = document.getElementById('firstNameError');
-    const emailError = document.getElementById('emailError');
-    const phoneError = document.getElementById('phoneError');
-    const passwordError = document.getElementById('passwordError');
-    const confirmPasswordError = document.getElementById(
-      'confirmPasswordError'
-    );
-
-    /* Show / Hide Password */
 
     function togglePassword(buttonId, input) {
       document.getElementById(buttonId).addEventListener('click', () => {
@@ -138,229 +155,213 @@
     togglePassword('togglePassword', password);
     togglePassword('toggleConfirmPassword', confirmPassword);
 
-    /* Validation */
+    function goToStep(step) {
+      step1Form.classList.add('hidden');
+      step2Form.classList.add('hidden');
+      step3Form.classList.add('hidden');
 
-    function clearErrors() {
-      firstNameError.textContent = '';
-      emailError.textContent = '';
-      phoneError.textContent = '';
-      passwordError.textContent = '';
-      confirmPasswordError.textContent = '';
+      if (step === 1) {
+        step1Form.classList.remove('hidden');
+        stepDescription.textContent = 'Step 1: Enter your mobile number';
+      } else if (step === 2) {
+        step2Form.classList.remove('hidden');
+        stepDescription.textContent = 'Step 2: Verify your phone number';
+      } else if (step === 3) {
+        step3Form.classList.remove('hidden');
+        stepDescription.textContent = 'Step 3: Setup your account details';
+      }
     }
 
-    function validate() {
-      let hasError = false;
-
-      const nameValue = firstName.value.trim();
-
-      if (!nameValue) {
-        firstNameError.textContent = 'First name is required';
-        hasError = true;
-      } else if (nameValue.length < 2) {
-        firstNameError.textContent =
-          'First name must be at least 2 characters';
-        hasError = true;
-      } else if (!/^[A-Za-z]+$/.test(nameValue)) {
-        firstNameError.textContent = 'First name can only contain letters';
-        hasError = true;
-      }
-
-      const emailValue = email.value.trim();
-
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
-
-      if (!emailValue) {
-        emailError.textContent = 'Email is required';
-        hasError = true;
-      } else if (!emailRegex.test(emailValue)) {
-        emailError.textContent = 'Please enter valid email address';
-        hasError = true;
-      }
-
+    // --- STEP 1: Phone Verification ---
+    step1Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      document.getElementById('phoneError').textContent = '';
       const phoneValue = phone.value.trim();
 
-      if (phoneValue.length !== 10) {
-        phoneError.textContent = 'Contact number must be exactly 10 digits';
-        hasError = true;
-      } else if (!/^[0-9]+$/.test(phoneValue)) {
-        phoneError.textContent = 'Contact number must only contain digits';
-        hasError = true;
+      if (phoneValue.length !== 10 || !/^[0-9]+$/.test(phoneValue)) {
+        document.getElementById('phoneError').textContent = 'Please enter a valid 10-digit number';
+        return;
       }
 
-      if (password.value.length < 8) {
-        passwordError.textContent = 'Password must be at least 8 characters';
-        hasError = true;
-      }
-
-      if (confirmPassword.value !== password.value) {
-        confirmPasswordError.textContent = 'Passwords do not match';
-        hasError = true;
-      }
-
-      return !hasError;
-    }
-
-    /* Submit */
-
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      clearErrors();
-
-      if (!validate()) return;
-
-      registerBtn.disabled = true;
-      registerBtn.textContent = 'Creating Account...';
+      const btn = document.getElementById('step1Btn');
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
 
       try {
-        const response = await fetch('/auth/register', {
+        // Check if phone is available
+        const checkRes = await fetch('/auth/check-phone', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            firstName: firstName.value.trim(),
-            email: email.value.trim(),
-            phone: phone.value.trim(),
-            password: password.value,
-            confirmPassword: confirmPassword.value,
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phoneValue })
         });
-      }
 
-      togglePassword('togglePassword', password);
-      togglePassword('toggleConfirmPassword', confirmPassword);
-
-<<<<<<< HEAD
-      /* Validation */
-
-      function clearErrors() {
-        firstNameError.textContent = '';
-        emailError.textContent = '';
-        phoneError.textContent = '';
-        passwordError.textContent = '';
-        confirmPasswordError.textContent = '';
-      }
-
-      function validate() {
-        let hasError = false;
-
-        const nameValue = firstName.value.trim();
-
-        if (!nameValue) {
-          firstNameError.textContent = 'First name is required';
-          hasError = true;
-        } else if (nameValue.length < 2) {
-          firstNameError.textContent =
-            'First name must be at least 2 characters';
-          hasError = true;
-        } else if (!/^[A-Za-z]+$/.test(nameValue)) {
-          firstNameError.textContent = 'First name can only contain letters';
-          hasError = true;
-        }
-
-        const emailValue = email.value.trim();
-
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
-
-        if (!emailValue) {
-          emailError.textContent = 'Email is required';
-          hasError = true;
-        } else if (!emailRegex.test(emailValue)) {
-          emailError.textContent = 'Please enter valid email address';
-          hasError = true;
-        }
-
-        const phoneValue = phone.value.trim();
-
-        if (phoneValue.length !== 10) {
-          phoneError.textContent = 'Contact number must be exactly 10 digits';
-          hasError = true;
-        } else if (!/^[0-9]+$/.test(phoneValue)) {
-          phoneError.textContent = 'Contact number must only contain digits';
-          hasError = true;
-        }
-
-        if (password.value.length < 8) {
-          passwordError.textContent = 'Password must be at least 8 characters';
-          hasError = true;
-        }
-
-        if (confirmPassword.value !== password.value) {
-          confirmPasswordError.textContent = 'Passwords do not match';
-          hasError = true;
-        }
-
-        return !hasError;
-      }
-
-      /* Submit */
-=======
-        if (!response.ok) {
-          showToast(data.message || 'Registration failed', 'error');
+        if (!checkRes.ok) {
+          const data = await checkRes.json();
+          document.getElementById('phoneError').textContent = data.message || 'Phone number check failed';
           return;
         }
 
-        showToast(data.message || 'Account created successfully', 'success');
-        setTimeout(() => {
-          window.location.href = '/loginPage';
-        }, 2000);
-      } catch (error) {
-        showToast('Something went wrong. Please try again.', 'error');
+        // Send OTP
+        const otpRes = await fetch('/auth/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phoneValue })
+        });
+
+        const otpData = await otpRes.json();
+        if (otpRes.ok) {
+          // Open new tab to show OTP as requested
+          window.open(`/phone-otp?otp=${otpData.otp}`, '_blank');
+          goToStep(2);
+        } else {
+          document.getElementById('phoneError').textContent = otpData.message || 'Failed to send OTP';
+        }
+      } catch (err) {
+        document.getElementById('phoneError').textContent = 'An error occurred. Try again.';
       } finally {
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'Create Account';
+        btn.disabled = false;
+        btn.textContent = 'Verify Phone';
       }
     });
+
+    // --- STEP 2: OTP Verification ---
+    step2Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      document.getElementById('otpError').textContent = '';
+      const otpValue = otp.value.trim();
+
+      if (otpValue.length !== 6 || !/^[0-9]+$/.test(otpValue)) {
+        document.getElementById('otpError').textContent = 'Please enter a valid 6-digit OTP';
+        return;
+      }
+
+      const btn = document.getElementById('step2Btn');
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+
+      try {
+        const res = await fetch('/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phone.value.trim(), otp: otpValue })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Phone verified successfully', 'success');
+          goToStep(3);
+        } else {
+          document.getElementById('otpError').textContent = data.message || 'Invalid OTP';
+        }
+      } catch (err) {
+        document.getElementById('otpError').textContent = 'An error occurred. Try again.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit OTP';
+      }
+    });
+
+    // --- STEP 3: Details & Final Registration ---
+    step3Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Clear errors
+      ['firstNameError', 'lastNameError', 'emailError', 'passwordError', 'confirmPasswordError'].forEach(id => {
+        document.getElementById(id).textContent = '';
+      });
+
+      let hasError = false;
+      const fName = firstName.value.trim();
+      const lName = lastName.value.trim();
+      const emailVal = email.value.trim();
+      const pass = password.value;
+      const cPass = confirmPassword.value;
+
+      if (!fName || fName.length < 2) {
+        document.getElementById('firstNameError').textContent = 'Valid first name is required';
+        hasError = true;
+      }
+      if (emailVal && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/.test(emailVal)) {
+        document.getElementById('emailError').textContent = 'Please enter a valid email';
+        hasError = true;
+      }
+      if (pass.length < 8) {
+        document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
+        hasError = true;
+      }
+      if (pass !== cPass) {
+        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      const btn = document.getElementById('step3Btn');
+      btn.disabled = true;
+      btn.textContent = 'Creating Account...';
+
+      try {
+        // Optional: Check email uniqueness if provided
+        if (emailVal) {
+          const emailCheck = await fetch('/auth/check-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailVal })
+          });
+          if (!emailCheck.ok) {
+            const data = await emailCheck.json();
+            document.getElementById('emailError').textContent = data.message || 'Email already taken';
+            btn.disabled = false;
+            btn.textContent = 'Create Account';
+            return;
+          }
+        }
+
+        // Final registration
+        const payload = {
+          firstName: fName,
+          lastName: lName || undefined,
+          email: emailVal || undefined,
+          phone: phone.value.trim(),
+          password: pass,
+          confirmPassword: cPass
+        };
+
+        const regRes = await fetch('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const regData = await regRes.json();
+        if (regRes.ok) {
+          // Store token if needed
+          if (regData?.data?.token) {
+            localStorage.setItem('token', regData.data.token);
+          }
+          if (regData?.data?.user) {
+            localStorage.setItem('roles', JSON.stringify(regData.data.user.roles || []));
+            localStorage.setItem('pendingRoles', JSON.stringify(regData.data.user.pendingRoles || []));
+            if (regData.data.user.email) localStorage.setItem('email', regData.data.user.email);
+          }
+
+          showToast('Account created successfully!', 'success');
+          setTimeout(() => {
+            window.location.href = '/setup-profile';
+          }, 1500);
+        } else {
+          showToast(regData.message || 'Registration failed', 'error');
+        }
+      } catch (err) {
+        showToast('An error occurred. Try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    });
+
   </script>
   <%- include('../../partials/toast') %>
 </body>
->>>>>>> dev
 
-      registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        clearErrors();
-
-        if (!validate()) return;
-
-        registerBtn.disabled = true;
-        registerBtn.textContent = 'Creating Account...';
-
-        try {
-          const response = await fetch('/auth/register', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              firstName: firstName.value.trim(),
-              email: email.value.trim(),
-              phone: phone.value.trim(),
-              password: password.value,
-              confirmPassword: confirmPassword.value,
-            }),
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            showToast(data.message || 'Registration failed', 'error');
-            return;
-          }
-
-          showToast(data.message || 'Account created successfully', 'success');
-          setTimeout(() => {
-            window.location.href = '/loginPage';
-          }, 2000);
-        } catch (error) {
-          showToast('Something went wrong. Please try again.', 'error');
-        } finally {
-          registerBtn.disabled = false;
-          registerBtn.textContent = 'Create Account';
-        }
-      });
-    </script>
-  <%- include('../../partials/toast') %>
-  </body>
 </html>

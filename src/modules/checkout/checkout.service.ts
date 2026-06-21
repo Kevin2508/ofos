@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import redisService from '../../services/redisService.ts';
 import {
   createCheckoutSession,
@@ -237,6 +238,10 @@ async function placeOrderService(
     session.couponId ? Number(cartWithBranch.priceBreakdowns[0]?.discountAmount || 0) : 0
   );
 
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const saltRounds = parseInt(process.env.OTP_HASH_SALT || '12', 10);
+  const otpHash = await bcrypt.hash(otp, saltRounds);
+
   const orderNumber = generateOrderNumber();
   const order = await createOrder(userId, sessionId, session.cartId, {
     orderNumber,
@@ -247,6 +252,7 @@ async function placeOrderService(
     deliveryFee: Number(breakdown.deliveryFee),
     taxAmount: Number(breakdown.taxAmount),
     totalAmount: Number(breakdown.totalAmount),
+    otpHash: otpHash,
     estimatedDeliveryMinutes: session.estimatedDeliveryMinutes,
   });
 
@@ -277,6 +283,7 @@ async function placeOrderService(
     deliveryFee: order.deliveryFee.toString(),
     taxAmount: order.taxAmount.toString(),
     totalAmount: order.totalAmount.toString(),
+    otp: otp,
     estimatedDeliveryAt: order.estimatedDeliveryAt,
     createdAt: order.createdAt,
   };

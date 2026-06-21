@@ -6,10 +6,6 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (file.fieldname === 'profilePicture') {
       cb(null, './uploads/users/profiles');
-    } else if (file.fieldname === 'coverPicture') {
-      cb(null, './uploads/users/covers');
-    } else if (file.fieldname === 'postPictures') {
-      cb(null, './uploads/posts');
     } else if (file.fieldname === 'logo') {
       cb(null, './uploads/restaurants/logos');
     } else if (file.fieldname === 'cover') {
@@ -18,6 +14,8 @@ const storage = multer.diskStorage({
       cb(null, './uploads/restaurants/documents');
     } else if (file.fieldname === 'delivery-partner-document') {
       cb(null, './uploads/deliveryPartners/documents');
+    } else if (file.fieldname === 'menuItemImage') {
+      cb(null, './uploads/menu-items');
     } else {
       cb(null, './uploads/any');
     }
@@ -37,18 +35,11 @@ const storage = multer.diskStorage({
       fileName = date.getTime() + '_profile' + ext;
     } else if (file.fieldname === 'coverPicture') {
       fileName = date.getTime() + '_cover' + ext;
-    } else if (file.fieldname === 'postPictures') {
-      fileName = 'post_' + date.getTime() + ext;
     } else {
       fileName = 'any_' + date.getTime() + ext;
-    if (req.body.userName) {
-      fileName = date.getTime() + '_' + req.body.userName + ext;
-    } else {
-      fileName = 'post_' + date.getTime() + ext;
     }
-
     cb(null, fileName);
-  }},
+  },
 });
 
 const fileFilter = (

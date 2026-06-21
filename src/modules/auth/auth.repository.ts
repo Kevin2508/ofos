@@ -213,6 +213,16 @@ async function getValidSessionWithUserByTokenHash(refreshTokenHash: string) {
   });
 }
 
+async function getUserRole(userId: bigint, roleName: string) {
+  return prisma.userRole.findFirst({
+    where: {
+      userId,
+      role: { name: roleName },
+    },
+    include: { role: true },
+  });
+}
+
 export {
   createUserSession,
   deleteOtp,
@@ -228,4 +238,5 @@ export {
   revokeUserSession,
   saveOtp,
   storeResetToken,
+  getUserRole,
 };

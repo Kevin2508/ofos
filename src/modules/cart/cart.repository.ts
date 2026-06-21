@@ -21,14 +21,22 @@ async function getActiveCartByUser(userId: bigint) {
               },
             },
           },
-          menuItem: true,
+          menuItem: {
+            include: {
+              images: true
+            }
+          },
         },
       },
       priceBreakdowns: {
         orderBy: { calculatedAt: 'desc' },
         take: 1,
       },
-      branch: true,
+      branch: {
+        include: {
+          restaurant: true
+        }
+      },
     },
   });
 }
@@ -55,14 +63,22 @@ async function createCart(userId: bigint, branchId: bigint) {
               },
             },
           },
-          menuItem: true,
+          menuItem: {
+            include: {
+              images: true
+            }
+          },
         },
       },
       priceBreakdowns: {
         orderBy: { calculatedAt: 'desc' },
         take: 1,
       },
-      branch: true,
+      branch: {
+        include: {
+          restaurant: true
+        }
+      },
     },
   });
 }

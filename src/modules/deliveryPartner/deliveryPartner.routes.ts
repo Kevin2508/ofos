@@ -11,6 +11,10 @@ import {
   updateProfile,
   updateStatus,
   uploadDocuments,
+  pickupOrder,
+  deliverOrder,
+  reportDeliveryIssue,
+  updateLocation,
 } from './deliveryPartner.controller.ts';
 import { authenticate, authorize } from '../../middlewares/auth.middleware.ts';
 import {
@@ -81,12 +85,29 @@ deliveryPartnerRouter.patch(
   declineAssignment
 );
 
-// deliveryPartnerRouter.patch('/assignments/:assignmentId/pickup', pickupAssignment)
+deliveryPartnerRouter.patch(
+  '/assignments/:assignmentId/pickup',
+  validateParams(assignmentIdSchema),
+  pickupOrder
+);
 
-// mark order delivered with otp or photo
-// deliveryPartnerRouter.patch('/assignments/:assignmentId/deliver', deliverAssignment)
+deliveryPartnerRouter.patch(
+  '/assignments/:assignmentId/deliver',
+  validateParams(assignmentIdSchema),
+  deliverOrder
+);
 
-// deliveryPartnerRouter.post('/assignments/:assignmentId/report-issue', reportDeliveryIssue)
+deliveryPartnerRouter.post(
+  '/assignments/:assignmentId/report-issue',
+  validateParams(assignmentIdSchema),
+  reportDeliveryIssue
+);
+
+deliveryPartnerRouter.post(
+  '/assignments/:assignmentId/location',
+  validateParams(assignmentIdSchema),
+  updateLocation
+);
 
 deliveryPartnerRouter.get(
   '/earnings',

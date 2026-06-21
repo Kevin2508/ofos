@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Delivery Partner Dashboard | ofos</title>
+  <title>Delivery Partner Dashboard | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
@@ -14,7 +14,7 @@
     <aside
       class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
       <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">ofos Delivery</h1>
+        <h1 class="text-3xl font-extrabold text-orange-500">epicureDelivery</h1>
       </div>
 
       <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -311,7 +311,54 @@
 
           if (assignments.length === 0) {
             list.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 bg-gray-50/50">No assignments found yet.</td></tr>`;
-          } else {
+            const active = assignments.find(a => ['PENDING', 'ACCEPTED', 'PICKED_UP'].includes(a.status));
+            if (active) {
+              let actionsHtml = '';
+              if (active.status === 'PENDING') {
+                actionsHtml = `
+                  <button onclick="handleAssignmentAction('${active.id}', 'accept')" class="bg-green-500 text-white px-4 py-2 rounded-lg font-bold">Accept</button>
+                  <button onclick="handleAssignmentAction('${active.id}', 'decline')" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold">Decline</button>
+                `;
+              } else if (active.status === 'ACCEPTED') {
+                actionsHtml = `<button onclick="handleAssignmentAction('${active.id}', 'pickup')" class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold">Mark Picked Up</button>`;
+              } else if (active.status === 'PICKED_UP') {
+                actionsHtml = `
+                  <input type="text" id="deliveryOtp" placeholder="Enter Customer OTP" class="border p-2 rounded mr-2 w-40" />
+                  <button onclick="deliverOrder('${active.id}')" class="bg-green-500 text-white px-4 py-2 rounded-lg font-bold">Complete Delivery</button>
+                `;
+                // Start sending location if not already
+                startLocationPing(active.id);
+              }
+
+              document.getElementById('activeAssignmentContainer').innerHTML = `
+                <div class="w-full text-left">
+                  <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-xl font-bold">Order #${active.orderId}</h4>
+                    <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-bold">${active.status}</span>
+                  </div>
+                  <div class="mb-4">
+                    <p class="text-sm text-gray-500">Earnings: ₹${active.earnings || 0}</p>
+                    <p class="text-sm text-gray-500">Distance: ${active.distance || 0} km</p>
+                  </div>
+                  <div class="flex gap-2">
+                    ${actionsHtml}
+                    <button onclick="reportIssue('${active.id}')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold ml-auto">Report Issue</button>
+                  </div>
+                </div>
+              `;
+            } else {
+              document.getElementById('activeAssignmentContainer').innerHTML = `
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <p class="text-gray-500 text-lg font-medium">No active assignment right now.</p>
+                <p class="text-sm text-gray-400 mt-1">Stay online and wait for incoming orders!</p>
+              `;
+              stopLocationPing();
+            }
+
             list.innerHTML = assignments.map(a => `
                 <tr class="hover:bg-orange-50 transition-colors group cursor-pointer">
                   <td class="px-6 py-4 font-medium text-gray-900 group-hover:text-orange-600">#${a.id}</td>
@@ -352,9 +399,96 @@
       document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       window.location.href = '/loginPage';
     });;
+    // Location pinging
+    let locationInterval = null;
+    function startLocationPing(assignmentId) {
+      if (locationInterval) return;
+      locationInterval = setInterval(() => {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(async (position) => {
+            try {
+              const token = localStorage.getItem('token') || '';
+              await fetch(`/delivery-partner/assignments/${assignmentId}/location`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude
+                })
+              });
+            } catch (e) { console.error('Failed to update location', e); }
+          });
+        }
+      }, 5000);
+    }
+
+    function stopLocationPing() {
+      if (locationInterval) {
+        clearInterval(locationInterval);
+        locationInterval = null;
+      }
+    }
+
+    async function handleAssignmentAction(assignmentId, action) {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch(`/delivery-partner/assignments/${assignmentId}/${action}`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Assignment ${action}ed!`, 'success');
+          loadDashboardData();
+        } else {
+          showToast(data.message || 'Action failed', 'error');
+        }
+      } catch (e) { showToast('Error performing action', 'error'); }
+    }
+
+    async function deliverOrder(assignmentId) {
+      const otp = document.getElementById('deliveryOtp').value;
+      if (!otp) { showToast('Please enter the customer OTP', 'error'); return; }
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch(`/delivery-partner/assignments/${assignmentId}/deliver`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ otp })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Order delivered!`, 'success');
+          stopLocationPing();
+          loadDashboardData();
+        } else {
+          showToast(data.message || 'Delivery failed', 'error');
+        }
+      } catch (e) { showToast('Error delivering order', 'error'); }
+    }
+
+    async function reportIssue(assignmentId) {
+      const issue = prompt('Please describe the issue:');
+      if (!issue) return;
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch(`/delivery-partner/assignments/${assignmentId}/report-issue`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ issueReason: issue })
+        });
+        const data = await res.json();
+        if (res.ok) showToast('Issue reported successfully. Ticket: ' + data.ticketId, 'success');
+        else showToast(data.message || 'Failed to report issue', 'error');
+      } catch (e) { showToast('Error reporting issue', 'error'); }
+    }
+
+    // Polling assignments
+    setInterval(loadDashboardData, parseInt('<%= process.env.POLLING_INTERVAL_MS || 5000 %>'));
+
   </script>
   <%- include('../partials/toast') %>
-    <%- include('../partials/floating-role-switcher') %>
+
 </body>
 
 </html>

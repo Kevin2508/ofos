@@ -134,11 +134,23 @@ const registerSchema = Joi.object({
       'string.pattern.base': 'First name can only contain letters',
     }),
 
+  lastName: Joi.string()
+    .trim()
+    .max(50)
+    .pattern(/^[A-Za-z]+$/)
+    .optional()
+    .allow(null, '')
+    .messages({
+      'string.max': 'Last name cannot exceed 50 characters',
+      'string.pattern.base': 'Last name can only contain letters',
+    }),
+
   email: Joi.string()
     .email({
       minDomainSegments: 2,
     })
-    .required()
+    .optional()
+    .allow(null, '')
     .messages({ 'string.email': 'Please enter valid email address' }),
 
   phone: Joi.string()
@@ -241,6 +253,50 @@ const registerDeliveryPartnerSchema = Joi.object({
   confirmPassword: Joi.string().valid(Joi.ref('password')).min(8).required(),
 });
 
+const checkPhoneSchema = Joi.object({
+  phone: Joi.string()
+    .length(10)
+    .pattern(/^[0-9]+$/)
+    .required()
+    .messages({
+      'string.length': 'Contact number must be exactly 10 digits',
+      'string.pattern.base': 'Contact number must only contain digits',
+      'any.required': 'Phone number is required',
+    }),
+});
+
+const checkEmailSchema = Joi.object({
+  email: Joi.string()
+    .email({ minDomainSegments: 2 })
+    .required()
+    .messages({
+      'string.email': 'Please enter a valid email address',
+      'any.required': 'Email is required',
+    }),
+});
+
+const registerRestaurantOwnerSchema = Joi.object({
+  firstName: Joi.string().max(100).required(),
+  lastName: Joi.string().max(100).allow('', null).optional(),
+  email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org', 'io'] } }).required().messages({ 'string.email': 'Please enter a valid email address' }),
+  phone: Joi.string().length(10).pattern(/^[0-9]+$/).required().messages({
+    'string.length': 'Contact number must be exactly 10 digits',
+    'string.pattern.base': 'Contact number must only contain digits',
+  }),
+  password: Joi.string().min(8).required(),
+  confirmPassword: Joi.string().valid(Joi.ref('password')).min(8).required(),
+  businessName: Joi.string().min(2).max(100).required(),
+  legalBusinessName: Joi.string().min(2).max(100).required(),
+  restaurantPhone: Joi.string().length(10).pattern(/^[0-9]+$/).required(),
+  restaurantEmail: Joi.string().email().required(),
+  addressLine1: Joi.string().required(),
+  city: Joi.string().required(),
+  state: Joi.string().required(),
+  postalCode: Joi.string().required(),
+  gstin: Joi.string().required(),
+  fssaiLicenseNumber: Joi.string().required(),
+});
+
 export {
   forgotPasswordSchema,
   loginSchema,
@@ -251,4 +307,7 @@ export {
   verifyOtpSchema,
   registerAdminSchema,
   registerFleetManagerSchema,
+  registerRestaurantOwnerSchema,
+  checkPhoneSchema,
+  checkEmailSchema,
 };

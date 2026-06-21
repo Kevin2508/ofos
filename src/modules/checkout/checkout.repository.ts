@@ -19,7 +19,7 @@ async function createCheckoutSession(
       cartId,
       customerUserId: userId,
       addressId: data.addressId,
-      deliveryType: data.deliveryType,
+      deliveryType: data.deliveryType as any,
       scheduledFor: data.scheduledFor,
       paymentMethodId: data.paymentMethodId,
       couponId: data.couponId,
@@ -97,6 +97,7 @@ async function createOrder(
     deliveryFee: number;
     taxAmount: number;
     totalAmount: number;
+    otpHash: string;
     estimatedDeliveryMinutes?: number;
   }
 ) {
@@ -121,6 +122,7 @@ async function createOrder(
       deliveryFee: data.deliveryFee,
       taxAmount: data.taxAmount,
       totalAmount: data.totalAmount,
+      otpHash: data.otpHash,
       estimatedDeliveryAt,
     },
   });
@@ -201,7 +203,7 @@ async function createPayment(
   return prisma.payment.create({
     data: {
       orderId,
-      paymentProvider: data.paymentProvider,
+      paymentProvider: data.paymentProvider as any,
       amount: data.amount,
       currency: 'INR',
       status: 'INITIATED',
@@ -212,7 +214,7 @@ async function createPayment(
 async function updateCartStatus(cartId: bigint, status: string) {
   return prisma.cart.update({
     where: { id: cartId },
-    data: { status },
+    data: { status: status as any },
   });
 }
 

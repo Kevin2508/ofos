@@ -2,8 +2,10 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware.ts";
 import {
     getAddresses, getAddressesById, insertAddresses,
-    updateCustomerAddress, deleteCustomerAddress, setDefaultAddress
+    updateCustomerAddress, deleteCustomerAddress, setDefaultAddress,
+    setupCustomerProfile, getCustomerProfile, changePassword
 } from "./customer.controller.ts";
+import { upload } from "../../middlewares/upload.middleware.ts";
 import { authorize } from "../../middlewares/auth.middleware.ts";
 
 const customerRouter = Router();
@@ -30,6 +32,14 @@ customerRouter.delete('/addresses/:id', deleteCustomerAddress);
 //to see the customer address default if its not set.
 customerRouter.patch('/address/:id', authenticate, setDefaultAddress);
 
+// Setup customer profile
+customerRouter.post('/setup-profile', upload.single('profilePicture'), setupCustomerProfile);
+
+// Get full profile data
+customerRouter.get('/profile-data', getCustomerProfile);
+
+// Change password
+customerRouter.post('/change-password', changePassword);
 
 //to see the customer address default if its not set.
 export { customerRouter }

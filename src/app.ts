@@ -7,8 +7,6 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-
-
 import { couponsRouter } from './modules/coupons/coupons.routes.ts';
 import { paymentRouter } from './modules/payment/payment.routes.ts';
 import { errorMiddleware } from './middlewares/error.middleware.ts';
@@ -26,6 +24,7 @@ import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { modifierRouter } from './modules/modifierGroupsAndOptions/modifier.routes.ts';
 import orderRoutes from './modules/orders/order.routes.ts';
 import { refundRouter } from './modules/refund/refund.routes.ts';
+import { restaurantRouter } from './modules/restuarant/restaurant.routes.ts';
 import { restaurantManagementRouter } from './modules/restaurantManagement/management.routes.ts';
 import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
@@ -83,21 +82,16 @@ app.use('/coupons', couponRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);
 app.use('/checkout', checkoutRouter);
 app.use('/restaurant-staff', restaurantStaffRouter);
+app.use('/restaurant', restaurantRouter);
 app.use('/restaurant-management', restaurantManagementRouter);
 app.use('/restaurant-management/:restaurantId/branches', branchRouter);
 app.use('/fleet-manager', fleetManagerRouter);
+app.use('/payments', paymentRouter)
+app.use('/coupons', couponsRouter)
 
 // Routes
 app.use(authPageRouter);
 app.use(defaultPageRouter);
-app.use('/auth', authRouter);
-app.use('/payments', paymentRouter)
-app.use(paymentRouter);
-app.use('/refund', refundRouter)
-app.use(refundRouter);
-app.use('/coupons', couponsRouter)
-app.use(couponsRouter);
-app.use('/delivery-partner', deliveryPartnerRouter);
 app.use(userPageRouter);
 app.use("/c", customerPageRouter);
 app.use("/d", deliveryPartnerPageRouter);
@@ -109,40 +103,6 @@ app.use("/fi", financePageRouter);
 
 app.use(errorMiddleware);
 
-
-app.use(customerPageRouter);
-app.use(adminPageRouter);
-app.use('/admin', adminRouter);
-
-app.use('/customer', customerRouter);
-app.use('/modifier', modifierRouter);
-
-app.use('/orders', orderRoutes);
-app.use('/refund', refundRouter);
-
-app.use('/delivery-partner', deliveryPartnerRouter);
-app.use('/checkout', checkoutRouter);
-
-app.use('/restaurant', restaurantStaffRouter);
-app.use('/restaurant-staff', restaurantStaffRouter);
-
-app.use('/fleet-manager', fleetManagerRouter);
-
-app.use(menuCategoryRouter);
-app.use(menuItemRouter);
-
-app.use('/restaurants/:restaurantId/branches', branchRouter);
-
-// app.use(errorMiddleware);
-
-
-
-app.use('/restaurants/:restaurantId/branches', branchRouter);
-
-
-// app.use((req, res) => {
-//   res.render('default/notFound');
-// });
 app.use((req, res) => {
   res.render('default/notFound');
 });

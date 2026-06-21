@@ -1,21 +1,19 @@
 import { NextFunction, Request, Response } from "express";
-import orderService, { placeOrder } from "./order.service.ts";
-import { AuthenticatedRequest, GetOrdersQuery , OrderParams,CancelOrderBody } from "./order.interface.ts";
+import orderService, { placeOrder, acceptOrder, rejectOrder, markPreparing, markReadyForPickup } from "./order.service.ts";
+import { AuthenticatedRequest, GetOrdersQuery, OrderParams, CancelOrderBody } from "./order.interface.ts";
 // import {User} from "../../types/express.d.ts";
 
 export async function getOrders(
   req: AuthenticatedRequest,
   res: Response
 ) {
-  console.log(req.user)
   try {
-  const customerUserId = BigInt(req.user!.id);
-  console.log("Authenticated user ID:", customerUserId); 
+    const customerUserId = BigInt(req.user!.id);
 
-const query = req.query as GetOrdersQuery;
+    const query = req.query as GetOrdersQuery;
 
-const page = Number(query.page) || 1;
-const limit = Number(query.limit) || 10;
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
 
     const data = await orderService.getOrders(
       customerUserId,
@@ -43,10 +41,8 @@ export async function getOrderDetails(
 ) {
   try {
     const customerUserId = BigInt(req.user!.id);
-// console.log(customerUserId)  
     const orderParams = req.params as OrderParams;
     const orderId = BigInt(orderParams.id);
-    console.log(orderId)
 
     const order =
       await orderService.getOrderDetails(
@@ -84,7 +80,7 @@ export async function getOrderTracking(
   try {
     const customerUserId = BigInt(req.user!.id);
 
-   const orderParams = req.params as OrderParams;
+    const orderParams = req.params as OrderParams;
     const orderId = BigInt(orderParams.id);
 
     const tracking =
@@ -123,9 +119,8 @@ export async function cancelOrder(
 ) {
   try {
     const customerUserId = BigInt(req.user!.id);
-    console.log(customerUserId)
 
-      const orderParams = req.params as OrderParams;
+    const orderParams = req.params as OrderParams;
     const orderId = BigInt(orderParams.id);
 
     const { reason } = req.body as CancelOrderBody;
@@ -158,7 +153,7 @@ export async function cancelOrder(
     if (
       error instanceof Error &&
       error.message ===
-        "ORDER_CANNOT_BE_CANCELLED"
+      "ORDER_CANNOT_BE_CANCELLED"
     ) {
       return res.status(400).json({
         success: false,
@@ -181,14 +176,14 @@ export const placeOrderController = async (
 ): Promise<void> => {
   try {
     const customerUserId = BigInt((req as any).user.id);
- 
+
     const { checkoutSessionId, specialInstructions } = req.body;
 
     const result = await placeOrder(customerUserId, {
       checkoutSessionId: BigInt(checkoutSessionId),
       specialInstructions,
     });
- 
+
     res.status(201).json({
       success: true,
       message: "Order placed successfully.",
@@ -214,5 +209,50 @@ export const placeOrderController = async (
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const staffAcceptOrder = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const staffUserId = BigInt(req.user!.id);
+    const orderId = BigInt(req.params.id);
+    const order = await acceptOrder(orderId, staffUserId);
+    res.status(200).json({ success: true, message: 'Order accepted', data: order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to accept order' });
+  }
+};
+
+export const staffRejectOrder = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const staffUserId = BigInt(req.user!.id);
+    const orderId = BigInt(req.params.id);
+    const { reason } = req.body;
+    const order = await rejectOrder(orderId, staffUserId, reason || 'Rejected by staff');
+    res.status(200).json({ success: true, message: 'Order rejected', data: order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to reject order' });
+  }
+};
+
+export const staffMarkPreparing = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const staffUserId = BigInt(req.user!.id);
+    const orderId = BigInt(req.params.id);
+    const order = await markPreparing(orderId, staffUserId);
+    res.status(200).json({ success: true, message: 'Order is preparing', data: order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to mark preparing' });
+  }
+};
+
+export const staffMarkReady = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const staffUserId = BigInt(req.user!.id);
+    const orderId = BigInt(req.params.id);
+    const order = await markReadyForPickup(orderId, staffUserId);
+    res.status(200).json({ success: true, message: 'Order is ready for pickup', data: order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to mark ready' });
   }
 };

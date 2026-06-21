@@ -11,6 +11,7 @@ import {
   getDeliveryPartnerById,
   reassignDelivery,
   updateDeliveryPartnerStatus,
+  getPartnerLocations,
 } from './fleetManager.controller.ts';
 import {
   assignDeliverySchema,
@@ -53,7 +54,7 @@ fleetManagerRouter.patch(
   reassignDelivery
 );
 
-// Get real-time positions of all Method Endpoint Description online delivery partners (Socket.IO data snapshot).
-// fleetManagerRouter.get("/live-map", getLiveMap);
+// Get real-time positions of all online delivery partners.
+fleetManagerRouter.get("/live-map", getPartnerLocations);
 
 export { fleetManagerRouter };

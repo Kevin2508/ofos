@@ -27,6 +27,12 @@ function formatCartResponse(cart: any): CartResponseDTO {
     customerUserId: cart.customerUserId,
     restaurantBranchId: cart.restaurantBranchId,
     status: cart.status,
+    restaurantBranch: cart.branch ? {
+      id: cart.branch.id,
+      restaurant: {
+        businessName: cart.branch.restaurant?.businessName
+      }
+    } : null,
     items: (cart.items || []).map((item: any) => ({
       id: item.id,
       menuItemId: item.menuItemId,
@@ -34,11 +40,18 @@ function formatCartResponse(cart: any): CartResponseDTO {
       unitPrice: item.unitPrice.toString(),
       lineTotal: item.lineTotal.toString(),
       specialInstructions: item.specialInstructions,
+      menuItem: item.menuItem ? {
+        id: item.menuItem.id,
+        name: item.menuItem.name,
+        imageUrl: item.menuItem.images?.[0]?.imageUrl
+          ? item.menuItem.images[0].imageUrl
+          : item.menuItem.imageUrl || null
+      } : null,
       modifiers: (item.modifiers || []).map((mod: any) => ({
         id: mod.id,
         modifierOptionId: mod.modifierOptionId,
         modifierName: '',
-        optionName: mod.modifierOption.optionName,
+        optionName: mod.modifierOption?.optionName,
         additionalPrice: mod.additionalPrice.toString(),
       })),
     })),

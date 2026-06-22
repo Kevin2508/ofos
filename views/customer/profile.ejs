@@ -320,21 +320,21 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_firstName">First Name</label>
-                  <input type="text" id="pi_firstName" name="firstName" class="if" />
+                  <input type="text" id="pi_firstName" name="firstName"  minlength="2" maxlength="100" pattern="^[A-Za-z]+$" required class="if" />
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_lastName">Last Name</label>
-                  <input type="text" id="pi_lastName" name="lastName" class="if" />
+                  <input type="text" id="pi_lastName" name="lastName"  maxlength="100" pattern="^[A-Za-z]+$" class="if" />
                 </div>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_email">Email</label>
-                  <input type="email" id="pi_email" name="email" class="if" />
+                  <input type="email" id="pi_email" name="email"  pattern="^[^\s@]+@[^\s@]+\.(com|net|org|io)$" class="if" />
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_phone">Phone</label>
-                  <input type="tel" id="pi_phone" name="phone" class="if" />
+                  <input type="tel" id="pi_phone" name="phone"  pattern="^[0-9]{10}$" minlength="10" maxlength="10" required class="if" />
                 </div>
               </div>
               <div>

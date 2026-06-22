@@ -24,7 +24,7 @@
             Phone Number <span class="text-red-500">*</span>
           </label>
           <input type="text" id="phone" name="phone" placeholder="10 digit number"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+             pattern="^[0-9]{10}$" minlength="10" maxlength="10" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
           <p id="phoneError" class="mt-1 text-sm text-red-500"></p>
         </div>
         <button type="submit" id="step1Btn"
@@ -40,7 +40,7 @@
             Enter OTP <span class="text-red-500">*</span>
           </label>
           <input type="text" id="otp" name="otp" placeholder="6 digit OTP"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors tracking-widest text-center text-lg" />
+             pattern="^[0-9]{6}$" minlength="6" maxlength="6" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors tracking-widest text-center text-lg" />
           <p id="otpError" class="mt-1 text-sm text-red-500"></p>
         </div>
         <button type="submit" id="step2Btn"
@@ -61,7 +61,7 @@
               First Name <span class="text-red-500">*</span>
             </label>
             <input type="text" id="firstName" name="firstName" placeholder="John"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+               minlength="2" maxlength="100" pattern="^[A-Za-z]+$" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
             <p id="firstNameError" class="mt-1 text-sm text-red-500"></p>
           </div>
           <div>
@@ -69,7 +69,7 @@
               Last Name
             </label>
             <input type="text" id="lastName" name="lastName" placeholder="Doe"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+               maxlength="100" pattern="^[A-Za-z]+$" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
             <p id="lastNameError" class="mt-1 text-sm text-red-500"></p>
           </div>
         </div>
@@ -79,7 +79,7 @@
             Email <span class="text-gray-400 font-normal text-xs">(Optional)</span>
           </label>
           <input type="email" id="email" name="email" placeholder="you@example.com"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+             pattern="^[^\s@]+@[^\s@]+\.(com|net|org|io)$" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
           <p id="emailError" class="mt-1 text-sm text-red-500"></p>
         </div>
 
@@ -90,7 +90,7 @@
             </label>
             <div class="relative">
               <input type="password" id="password" name="password" placeholder="Min 8 characters"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
+                 minlength="8" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
               <button type="button" id="togglePassword"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">Show</button>
             </div>
@@ -102,7 +102,7 @@
             </label>
             <div class="relative">
               <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
+                 minlength="8" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
               <button type="button" id="toggleConfirmPassword"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">Show</button>
             </div>

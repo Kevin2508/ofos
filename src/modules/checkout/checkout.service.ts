@@ -16,6 +16,8 @@ import {
   calculateCartTotals,
 } from '../cart/cart.repository.ts';
 import { CheckoutSessionDTO, OrderResponseDTO } from './checkout.dto.ts';
+import * as loyaltyService from '../loyalty/loyalty.service.ts';
+import * as loyaltyRepo from '../loyalty/loyalty.repository.ts';
 
 const getCheckoutCacheKey = (sessionId: bigint) => {
   return `checkout:${sessionId}`;
@@ -300,6 +302,32 @@ async function placeOrderService(
   });
 
   await updateCartStatus(session.cartId, 'CHECKED_OUT');
+
+  // Handle Loyalty Points Redeem
+  const appliedLoyaltyPoints = await loyaltyService.getAppliedLoyaltyPoints(session.cartId);
+  if (appliedLoyaltyPoints > 0) {
+    await loyaltyRepo.addLoyaltyTransaction(
+      userId,
+      'REDEEM',
+      appliedLoyaltyPoints,
+      order.id,
+      `Redeemed points for Order ${order.orderNumber}`
+    );
+    await loyaltyService.removeLoyaltyPointsService(session.cartId);
+  }
+
+  // Handle Loyalty Points Earn
+  const earningRate = await loyaltyService.getEarningRate();
+  const earnedPoints = Math.floor(Number(breakdown.totalAmount) * earningRate);
+  if (earnedPoints > 0) {
+    await loyaltyRepo.addLoyaltyTransaction(
+      userId,
+      'EARN',
+      earnedPoints,
+      order.id,
+      `Earned points for Order ${order.orderNumber}`
+    );
+  }
 
   const cacheKey = getCheckoutCacheKey(sessionId);
   await redisService.del(cacheKey);

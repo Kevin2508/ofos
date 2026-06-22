@@ -110,7 +110,7 @@ const redisService: RedisService = {
     unit: 'km' | 'm' = 'km'
   ): Promise<string[]> {
     try {
-      const results = await redisClient.geoRadiusByMember(key, radius, unit as any);
+      const results = await redisClient.geoRadius(key, {longitude, latitude}, radius, unit as any);
       return results || [];
     } catch (error) {
       console.error(`Redis geoRadius error for key ${key}:`, error);

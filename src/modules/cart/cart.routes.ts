@@ -14,7 +14,6 @@ import {
   getPriceBreakdown,
 } from './cart.controller.ts';
 import {
-  getCartSchema,
   addCartItemSchema,
   updateCartItemSchema,
   applyCouponSchema,

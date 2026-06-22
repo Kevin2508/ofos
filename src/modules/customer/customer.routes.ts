@@ -18,7 +18,7 @@ const customerRouter = Router();
 
 customerRouter.use(authenticate);
 
-customerRouter.use(authorize('Customer'));
+customerRouter.use(authorize(['Customer']));
 
 //To get the all addresses of the customer.
 customerRouter.get('/address', authenticate, getAddresses);

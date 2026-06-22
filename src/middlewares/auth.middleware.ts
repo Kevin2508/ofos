@@ -61,28 +61,32 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const authorize = (requiredRole: string) => {
+const authorize = (requiredRoles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !req.user.id) {
       return res.render('default/notAuthenticated');
     }
 
-    // Instead of trusting a static JWT, we check their active role cookie
     const activeRole = req.cookies.activeRole;
 
-    // If they don't have an active role set, or it's not the required one
-    if (!activeRole || activeRole !== requiredRole) {
-      // Allow passing if requiredRole is not strictly defined, or fail fast
-      if (requiredRole) return res.render('default/notAuthorize');
+    // Check if active role is one of the allowed roles
+    if (!activeRole || !requiredRoles.includes(activeRole)) {
+      return res.render('default/notAuthorize');
     }
 
     // Verify against DB
     const userRoleRecord = await prisma.userRole.findFirst({
       where: {
         userId: BigInt(req.user.id),
-        role: { name: requiredRole }
+        role: {
+          name: {
+            in: requiredRoles
+          }
+        }
       },
-      include: { role: true }
+      include: {
+        role: true
+      }
     });
 
     if (!userRoleRecord) {

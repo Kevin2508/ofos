@@ -10,6 +10,8 @@ import { triggerAutoAssignment } from '../deliveryPartner/deliveryPartner.servic
 import redisService from '../../services/redisService.ts';
 import { getActiveCartByUser } from '../cart/cart.repository.ts';
 import { clearCartService, addItemToCartService } from '../cart/cart.service.ts';
+import { prisma } from '../../config/prisma.ts';
+
 
 async function getOrders(customerUserId: bigint, page: number, limit: number) {
   const [orders, total] = await Promise.all([
@@ -23,13 +25,103 @@ async function getOrders(customerUserId: bigint, page: number, limit: number) {
   ]);
 
   return {
-    orders,
+    data: orders,
     pagination: {
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
     },
+  };
+}
+
+export async function getRestaurantOrders(
+  ownerUserId: bigint,
+  page: number,
+  limit: number,
+  status?: string,
+  search?: string,
+  date?: string,
+  payment?: string
+) {
+  const branches = await prisma.restaurantBranch.findMany({
+    where: {
+      restaurant: {
+        ownerUserId: ownerUserId
+      }
+    },
+    select: { id: true }
+  });
+
+  const branchIds = branches.map(b => b.id);
+  const skip = (page - 1) * limit;
+
+  const whereClause: any = {
+    branchId: { in: branchIds }
+  };
+
+  if (status && status !== 'ALL') {
+    if (status === 'ACTIVE') {
+      whereClause.orderStatus = { in: ['PLACED', 'ACCEPTED', 'PREPARING', 'READY_FOR_PICKUP'] };
+    } else {
+      whereClause.orderStatus = status;
+    }
+  }
+
+  if (search) {
+    const parsedId = !isNaN(Number(search)) ? BigInt(search) : undefined;
+    whereClause.OR = [
+      { orderNumber: { contains: search } }
+    ];
+    if (parsedId) {
+      whereClause.OR.push({ id: parsedId });
+    }
+  }
+
+  if (date) {
+    const startDate = new Date(date);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(date);
+    endDate.setHours(23, 59, 59, 999);
+    whereClause.createdAt = {
+      gte: startDate,
+      lte: endDate
+    };
+  }
+
+  if (payment && payment !== 'ALL') {
+    whereClause.paymentStatus = payment;
+  }
+
+  const [orders, total] = await Promise.all([
+    prisma.order.findMany({
+      where: whereClause,
+      include: {
+        customer: {
+          include: { customerProfile: true }
+        },
+        items: {
+          include: {
+            menuItem: true,
+            modifiers: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    prisma.order.count({ where: whereClause })
+  ]);
+
+  return {
+    data: orders,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    }
   };
 }
 
@@ -40,6 +132,12 @@ export async function getOrderDetails(orderId: bigint, customerUserId: bigint) {
     throw new Error('ORDER_NOT_FOUND');
   }
 
+  return order;
+}
+
+export async function getRestaurantOrderDetails(orderId: bigint, ownerUserId: bigint) {
+  const order = await orderRepository.getRestaurantOrderById(orderId, ownerUserId);
+  if (!order) throw new Error('ORDER_NOT_FOUND');
   return order;
 }
 
@@ -145,11 +243,34 @@ export async function cancelOrder(
     throw new Error('ORDER_NOT_FOUND');
   }
 
-  if (order.orderStatus !== 'PLACED') {
+  const allowedStatuses = ['PLACED', 'ACCEPTED', 'PREPARING'];
+  if (!allowedStatuses.includes(order.orderStatus)) {
     throw new Error('ORDER_CANNOT_BE_CANCELLED');
   }
 
-  return orderRepository.cancelOrder(orderId, customerUserId, reason);
+  let refundEligible = false;
+  let refundAmount = 0;
+
+  // Find completed payment
+  const completedPayment = order.payments?.find((p: any) => p.status === 'COMPLETED');
+
+  if (completedPayment) {
+    if (order.orderStatus === 'PLACED') {
+      // 100% refund
+      refundEligible = true;
+      refundAmount = Number(order.totalAmount);
+    } else if (order.orderStatus === 'ACCEPTED') {
+      // 50% refund penalty
+      refundEligible = true;
+      refundAmount = Number(order.totalAmount) * 0.5;
+    } else if (order.orderStatus === 'PREPARING') {
+      // 0% refund
+      refundEligible = false;
+      refundAmount = 0;
+    }
+  }
+
+  return orderRepository.cancelOrder(orderId, customerUserId, reason, refundEligible, refundAmount, completedPayment?.id);
 }
 
 export async function acceptOrder(orderId: bigint, staffUserId: bigint) {
@@ -168,6 +289,10 @@ export async function markReadyForPickup(orderId: bigint, staffUserId: bigint) {
   const order = await orderRepository.updateOrderStatus(orderId, 'READY_FOR_PICKUP', staffUserId, 'Ready for pickup');
   await triggerAutoAssignment(orderId);
   return order;
+}
+
+export async function markItemUnavailable(orderId: bigint, itemId: bigint, staffUserId: bigint) {
+  return orderRepository.markItemUnavailable(orderId, itemId);
 }
 
 const TAX_RATE = 0.05;
@@ -314,7 +439,7 @@ export async function reorderPastOrder(
   const addedItems: string[] = [];
 
   for (const item of order.items) {
-    if (item.menuItem && item.menuItem.isActive && item.menuItem.isAvailable) {
+    if (item.menuItem && item.menuItem.isAvailable && item.menuItem.isAvailable) {
       try {
         await addItemToCartService(customerUserId, {
           menuItemId: item.menuItemId!,
@@ -339,8 +464,31 @@ export async function reorderPastOrder(
   };
 }
 
+export async function raiseDispute(
+  orderId: bigint,
+  customerUserId: bigint,
+  category: string,
+  description: string
+) {
+  const order = await orderRepository.getOrderById(orderId, customerUserId);
+  if (!order) {
+    throw new Error('ORDER_NOT_FOUND');
+  }
+
+  // Validate category
+  const validCategories = ['MISSING_ITEM', 'WRONG_ITEM', 'POOR_QUALITY', 'LATE_DELIVERY', 'REFUND_REQUEST', 'OTHER'];
+  if (!validCategories.includes(category)) {
+    throw new Error('INVALID_CATEGORY');
+  }
+
+  const ticket = await orderRepository.createDisputeTicket(orderId, customerUserId, category, description);
+  return ticket;
+}
+
 export default {
   getOrders,
+  getRestaurantOrders,
+  getRestaurantOrderDetails,
   getOrderDetails,
   getOrderTracking,
   cancelOrder,
@@ -349,5 +497,7 @@ export default {
   rejectOrder,
   markPreparing,
   markReadyForPickup,
+  markItemUnavailable,
   reorderPastOrder,
+  raiseDispute,
 };

@@ -28,6 +28,10 @@ const createMenuItemSchema = Joi.object({
   modifierGroupIds: Joi.array()
     .items(Joi.string())
     .optional(),
+
+  dietaryTags: Joi.array()
+    .items(Joi.string())
+    .optional(),
 });
 
 /**
@@ -48,6 +52,10 @@ const updateMenuItemSchema = Joi.object({
     'NON_VEG',
     'VEGAN'
   ),
+
+  dietaryTags: Joi.array()
+    .items(Joi.string())
+    .optional(),
 }).min(1);
 
 /**

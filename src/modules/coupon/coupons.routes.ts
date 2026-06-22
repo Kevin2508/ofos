@@ -10,7 +10,7 @@ couponRouter.use(authenticate)
 couponRouter.post('/validate', validate(validateCouponSchema), couponController.validateCoupon);
 
 // Admin/Restaurant Endpoints
-couponRouter.post('/',authorize("Admin"), validate(createCouponSchema), couponController.createNewCoupon);
+couponRouter.post('/', authorize(["Admin"]), validate(createCouponSchema), couponController.createNewCoupon);
 couponRouter.get('/:id/usage', couponController.getUsageStats);
 // GET /coupons - List all platform coupons (Admin)
 couponRouter.get('/', couponController.getAllCoupons);

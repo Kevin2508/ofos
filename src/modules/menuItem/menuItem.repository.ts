@@ -150,7 +150,7 @@ async function createMenuItem({
   name,
   description,
   basePrice,
-  foodType,
+  foodType, dietaryTags,
   modifierGroupIds,
 }: {
   categoryId: bigint;
@@ -159,6 +159,7 @@ async function createMenuItem({
   description?: string;
   basePrice: number;
   foodType: FoodType;
+  dietaryTags?: string[];
   modifierGroupIds?: bigint[];
 }) {
   return prisma.$transaction(
@@ -172,6 +173,7 @@ async function createMenuItem({
             description,
             basePrice,
             foodType,
+            dietaryTags: dietaryTags || undefined,
           },
         });
 
@@ -207,12 +209,14 @@ async function updateMenuItem({
   description,
   basePrice,
   foodType,
+  dietaryTags,
 }: {
   id: bigint;
   name?: string;
   description?: string;
   basePrice?: number;
   foodType?: FoodType;
+  dietaryTags?: string[];
 }) {
   return prisma.menuItem.update({
     where: {
@@ -229,6 +233,9 @@ async function updateMenuItem({
       }),
       ...(foodType && {
         foodType,
+      }),
+      ...(dietaryTags !== undefined && {
+        dietaryTags: dietaryTags || null,
       }),
     },
   });
@@ -431,6 +438,7 @@ async function bulkCreateMenuItems(
     description?: string;
     basePrice: number;
     foodType: FoodType;
+    dietaryTags?: string[];
   }[]
 ) {
   return prisma.menuItem.createMany({

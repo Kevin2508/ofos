@@ -38,7 +38,7 @@ const deliveryPartnerRouter = Router();
 
 deliveryPartnerRouter.use(authenticate);
 
-deliveryPartnerRouter.use(authorize('Delivery_partner'));
+deliveryPartnerRouter.use(authorize(['Delivery_partner']));
 
 deliveryPartnerRouter.get('/profile', getProfile);
 

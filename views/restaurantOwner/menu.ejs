@@ -52,13 +52,19 @@
       <div id="categorySection" class="hidden">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-bold text-gray-800">Categories</h3>
-          <button onclick="openAddCategoryModal()"
-            class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            New Category
-          </button>
+          <div class="flex gap-2">
+            <button onclick="openCsvModal()"
+              class="bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
+              Import CSV
+            </button>
+            <button onclick="openAddCategoryModal()"
+              class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              New Category
+            </button>
+          </div>
         </div>
 
         <div id="categoriesContainer" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -175,6 +181,13 @@
               <option value="VEGAN">Vegan</option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Dietary Tags</label>
+          <input type="text" id="itemDietaryTags" placeholder="e.g. Gluten-Free, Dairy-Free"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+          <p class="text-xs text-gray-500 mt-1">Comma separated</p>
         </div>
 
         <div class="flex items-center gap-6">
@@ -352,6 +365,21 @@
     </div>
   </div>
 
+  <!-- CSV Import Modal -->
+  <div id="csvModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Bulk Import Menu Items</h3>
+      <div class="space-y-4">
+        <p class="text-sm text-gray-500">Upload a CSV file containing: categoryId, sku, name, description, basePrice, foodType.</p>
+        <input type="file" id="csvFile" accept=".csv" class="w-full block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
+      </div>
+      <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100">
+        <button onclick="closeCsvModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+        <button onclick="uploadCsv()" id="uploadCsvBtn" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium shadow">Upload</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const token = localStorage.getItem('token') || '';
     let selectedRestaurantId = null;
@@ -431,7 +459,10 @@
               <tbody class="divide-y divide-gray-100 text-gray-700">
                 ${categories.map(c => `
                   <tr class="hover:bg-orange-50 transition-colors">
-                    <td class="px-6 py-4 font-semibold text-gray-800">${c.name}</td>
+                    <td class="px-6 py-4 font-semibold text-gray-800">
+                      ${c.name}
+                      ${c.isActive ? '<span class="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Available</span>' : '<span class="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-700">Unavailable</span>'}
+                    </td>
                     <td class="px-6 py-4 text-gray-500 text-sm">${c.description || '—'}</td>
                     <td class="px-6 py-4 text-center text-sm">${c.displayOrder ?? 0}</td>
                     <td class="px-6 py-4 text-right space-x-1">
@@ -439,6 +470,10 @@
                         class="px-3 py-1.5 text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-medium transition-colors">Items</button>
                       <button onclick="openEditCategoryModal('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${(c.description || '').replace(/'/g, "\\'")}', ${c.displayOrder ?? 0})"
                         class="px-3 py-1.5 text-xs bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg font-medium transition-colors">Edit</button>
+                      <button onclick="duplicateCategory('${c.id}')"
+                        class="px-3 py-1.5 text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-medium transition-colors">Dup</button>
+                      <button onclick="toggleCategoryAvailability('${c.id}', ${!c.isActive})"
+                        class="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg font-medium transition-colors">${c.isActive ? 'Hide' : 'Show'}</button>
                       <button onclick="deleteCategory('${c.id}')"
                         class="px-3 py-1.5 text-xs bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-medium transition-colors">Delete</button>
                     </td>
@@ -552,6 +587,22 @@
 
     // ==========================================
     // MENU ITEM LOGIC
+    async function toggleCategoryAvailability(id, isActive) {
+      try {
+        const res = await fetch(`/menu-category/branches/${selectedBranchId}/categories/${id}/availability`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isActive })
+        });
+        if (res.ok) {
+          loadCategories();
+        } else {
+          const data = await res.json();
+          showToast(data.message || 'Failed to update availability', 'error');
+        }
+      } catch (e) { showToast('Error', 'error'); }
+    }
+
     // ==========================================
     async function toggleItemsRow(categoryId) {
       const row = document.getElementById(`items-row-${categoryId}`);
@@ -592,11 +643,12 @@
                   </div>
                   <p class="text-xs text-gray-500 mb-1">SKU: ${item.sku}</p>
                   <p class="text-xs text-gray-500 line-clamp-1 mb-2">${item.description || ''}</p>
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 mb-2 flex-wrap">
                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${item.foodType === 'VEG' ? 'bg-green-100 text-green-700' : item.foodType === 'NON_VEG' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">${item.foodType}</span>
                     ${item.isBestseller ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">★ Bestseller</span>` : ''}
                     ${item.isAvailable ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Available</span>` : `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-700">Unavailable</span>`}
                   </div>
+                  ${item.dietaryTags && item.dietaryTags.length > 0 ? `<div class="flex gap-1 flex-wrap">${item.dietaryTags.map(t => `<span class="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">${t}</span>`).join('')}</div>` : ''}
                 </div>
                 <div class="flex flex-col gap-2">
                   <button onclick="openAttachModifiersModal('${item.id}', '${categoryId}')" class="text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 px-2 py-1 rounded">Mods</button>
@@ -605,6 +657,7 @@
                   <button onclick="toggleAvailability('${item.id}', ${!item.isAvailable}, '${categoryId}')" class="text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">
                     ${item.isAvailable ? 'Hide' : 'Show'}
                   </button>
+                  <button onclick="duplicateItem('${item.id}', '${categoryId}')" class="text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded">Dup</button>
                   <button onclick="deleteItem('${item.id}', '${categoryId}')" class="text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded">Del</button>
                 </div>
               </div>
@@ -627,6 +680,7 @@
       document.getElementById('itemDescription').value = '';
       document.getElementById('itemPrice').value = '';
       document.getElementById('itemFoodType').value = 'VEG';
+      document.getElementById('itemDietaryTags').value = '';
       document.getElementById('itemIsAvailable').checked = true;
       document.getElementById('itemIsBestseller').checked = false;
       document.getElementById('itemImage').value = '';
@@ -648,6 +702,7 @@
       document.getElementById('itemDescription').value = item.description || '';
       document.getElementById('itemPrice').value = item.basePrice;
       document.getElementById('itemFoodType').value = item.foodType;
+      document.getElementById('itemDietaryTags').value = item.dietaryTags ? item.dietaryTags.join(', ') : '';
       document.getElementById('itemIsAvailable').checked = item.isAvailable;
       document.getElementById('itemIsBestseller').checked = item.isBestseller;
       document.getElementById('itemImage').value = '';
@@ -669,6 +724,8 @@
       const description = document.getElementById('itemDescription').value.trim();
       const basePrice = parseFloat(document.getElementById('itemPrice').value);
       const foodType = document.getElementById('itemFoodType').value;
+      const dietaryTagsStr = document.getElementById('itemDietaryTags').value.trim();
+      const dietaryTags = dietaryTagsStr ? dietaryTagsStr.split(',').map(s => s.trim()).filter(Boolean) : undefined;
       const isAvailable = document.getElementById('itemIsAvailable').checked;
       const isBestseller = document.getElementById('itemIsBestseller').checked;
       const imageFile = document.getElementById('itemImage').files[0];
@@ -686,7 +743,8 @@
           name,
           description: description || undefined,
           basePrice,
-          foodType
+          foodType,
+          dietaryTags
         };
 
         if (!isEdit) {
@@ -788,6 +846,75 @@
           showToast(data.message || 'Failed to delete item', 'error');
         }
       } catch (e) { showToast('Error', 'error'); }
+    }
+
+    async function duplicateCategory(id) {
+      try {
+        const res = await fetch(`/menu-category/branches/${selectedBranchId}/categories/${id}/duplicate`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) { showToast('Category duplicated', 'success'); loadCategories(); }
+        else { showToast(data.message || 'Failed to duplicate', 'error'); }
+      } catch (err) { showToast('Error duplicating', 'error'); }
+    }
+
+    async function duplicateItem(itemId, categoryId) {
+      try {
+        const res = await fetch(`/menu-item/menu-items/${itemId}/duplicate`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) { showToast('Item duplicated', 'success'); loadItemsForCategory(categoryId); }
+        else { showToast(data.message || 'Failed to duplicate', 'error'); }
+      } catch (err) { showToast('Error duplicating', 'error'); }
+    }
+
+    function openCsvModal() {
+      document.getElementById('csvFile').value = '';
+      document.getElementById('csvModal').classList.remove('hidden');
+    }
+
+    function closeCsvModal() {
+      document.getElementById('csvModal').classList.add('hidden');
+    }
+
+    async function uploadCsv() {
+      const fileInput = document.getElementById('csvFile');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        return showToast('Please select a CSV file', 'error');
+      }
+
+      const btn = document.getElementById('uploadCsvBtn');
+      btn.disabled = true;
+      btn.textContent = 'Uploading...';
+
+      try {
+        const formData = new FormData();
+        formData.append('csvFile', fileInput.files[0]);
+
+        const res = await fetch(`/menu-item/branches/${selectedBranchId}/menu-items/import`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Imported ${data.data.inserted} items successfully`, 'success');
+          closeCsvModal();
+          loadCategories(); // Reload all categories
+        } else {
+          showToast(data.message || 'Error importing CSV', 'error');
+        }
+      } catch (e) {
+        showToast('Error uploading CSV', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Upload';
+      }
     }
 
     // ==========================================

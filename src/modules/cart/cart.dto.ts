@@ -53,6 +53,12 @@ interface CartResponseDTO {
   lastActivityAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  applicableCoupons?: {
+    code: string;
+    couponType: string;
+    value: number;
+    description: string;
+  }[];
 }
 
 interface AddCartItemDTO {

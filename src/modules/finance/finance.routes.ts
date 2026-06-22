@@ -13,7 +13,7 @@ import {
 const financeRouter = Router();
 
 financeRouter.use(authenticate);
-financeRouter.use(authorize('Finance_manager'));
+financeRouter.use(authorize(['Finance_manager']));
 
 financeRouter.get('/overview', getFinanceOverview);
 

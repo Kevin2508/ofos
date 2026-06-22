@@ -3,8 +3,7 @@ import { CartStatus, OrderStatus, PaymentStatus } from '../../generated/prisma/b
 import {
   ICheckoutSessionData,
   ICartData,
-  IPlaceOrderRequest,
-  IPlaceOrderResult
+
 } from './order.interface.ts';
 // import { CartStatus, OrderStatus, PaymentStatus } from '@prisma/client';
 
@@ -92,7 +91,6 @@ async function getOrderById(orderId: bigint, customerUserId: bigint) {
           menuItem: {
             select: {
               isAvailable: true,
-              isActive: true,
             }
           }
         },
@@ -169,13 +167,19 @@ async function findOrderForCancellation(
       id: orderId,
       customerUserId,
     },
+    include: {
+      payments: true,
+    }
   });
 }
 
 async function cancelOrder(
   orderId: bigint,
   customerUserId: bigint,
-  reason: string
+  reason: string,
+  refundEligible: boolean,
+  refundAmount: number,
+  paymentId?: bigint
 ) {
   return prisma.$transaction(async (tx) => {
     const order = await tx.order.update({
@@ -193,9 +197,23 @@ async function cancelOrder(
         orderId,
         cancelledByUserId: customerUserId,
         cancellationReason: reason,
-        refundEligible: true,
+        refundEligible,
+        refundAmount,
       },
     });
+
+    if (refundEligible && refundAmount > 0 && paymentId) {
+      await tx.refund.create({
+        data: {
+          orderId,
+          paymentId,
+          amount: refundAmount,
+          reason: 'Order cancelled: ' + reason,
+          status: 'INITIATED',
+          refundReference: `REF-${orderId}-${Date.now()}`
+        }
+      });
+    }
 
     await tx.orderStatusHistory.create({
       data: {
@@ -388,7 +406,7 @@ export const createOrder = async (params: {
     taxAmount,
     totalAmount,
     estimatedDeliveryAt,
-    specialInstructions,
+
     otpHash,
   } = params;
 
@@ -490,10 +508,94 @@ export const createOrder = async (params: {
   });
 };
 
+export const createDisputeTicket = async (
+  orderId: bigint,
+  customerUserId: bigint,
+  category: any,
+  description: string
+) => {
+  const ticketNumber = `TKT-${orderId}-${Date.now()}`;
+  return prisma.supportTicket.create({
+    data: {
+      ticketNumber,
+      orderId,
+      customerUserId,
+      category,
+      priority: 'HIGH',
+      status: 'OPEN',
+      subject: 'Order Dispute',
+      description,
+    }
+  });
+};
+
+export async function markItemUnavailable(orderId: bigint, itemId: bigint) {
+  return prisma.$transaction(async (tx) => {
+    const orderItem = await tx.orderItem.findFirst({ where: { id: itemId, orderId } });
+    if (!orderItem || orderItem.isUnavailable) throw new Error('Item not found or already unavailable');
+
+    await tx.orderItem.update({
+      where: { id: itemId },
+      data: { isUnavailable: true }
+    });
+
+    const order = await tx.order.findUnique({ where: { id: orderId }, include: { payments: true } });
+
+    if (order?.paymentStatus === 'PAID') {
+      const payment = order.payments?.find(p => p.status === 'CAPTURED' || p.status === 'PARTIALLY_REFUNDED');
+      if (payment) {
+        await tx.refund.create({
+          data: {
+            orderId,
+            paymentId: payment.id,
+            refundReference: `REF-${orderId}-${itemId}-${Date.now()}`,
+            amount: orderItem.lineTotal,
+            reason: `Item ${orderItem.itemName} unavailable`,
+            status: 'COMPLETED'
+          }
+        });
+
+        await tx.payment.update({
+          where: { id: payment.id },
+          data: { status: 'PARTIALLY_REFUNDED' }
+        });
+      }
+    }
+
+    return tx.order.findUnique({
+      where: { id: orderId },
+      include: { items: true, payments: true }
+    });
+  });
+}
+
+export async function getRestaurantOrderById(orderId: bigint, ownerUserId: bigint) {
+  // ensure order belongs to owner's branch
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      branch: {
+        restaurant: {
+          ownerUserId
+        }
+      }
+    },
+    include: {
+      customer: { include: { customerProfile: true } },
+      items: { include: { modifiers: true } },
+      payments: true,
+      address: true,
+      branch: true,
+    }
+  });
+  return order;
+}
+
 export default {
   getOrders,
   countOrders,
   getOrderById,
+  getRestaurantOrderById,
   getOrderTrackingData,
   findOrderForCancellation,
   cancelOrder,
@@ -502,4 +604,6 @@ export default {
   findExistingOrderBySession,
   createOrder,
   updateOrderStatus,
+  createDisputeTicket,
+  markItemUnavailable,
 };

@@ -5,7 +5,7 @@ const customerPageRouter = Router();
 
 customerPageRouter.use(authenticate);
 
-customerPageRouter.use(authorize('Customer'));
+customerPageRouter.use(authorize(['Customer']));
 
 customerPageRouter.get("/cart", (req, res) => {
   res.render("customer/cart");

@@ -108,7 +108,15 @@
         </div>
       </div>
     </div>
-
+    <!-- OFFERS SECTION -->
+    <div id="restaurantOffers" class="hidden bg-orange-50 border-b border-orange-100">
+      <div class="max-w-6xl mx-auto px-4 py-4">
+        <h3 class="text-sm font-bold text-orange-800 uppercase tracking-wider mb-3">Available Offers</h3>
+        <div id="offersList" class="flex gap-4 overflow-x-auto pb-2">
+           <!-- Offers injected here -->
+        </div>
+      </div>
+    </div>
     <!-- TABS -->
     <div class="max-w-6xl mx-auto px-4 mt-8 flex gap-6 border-b border-gray-200">
       <button id="tab-menu" onclick="switchTab('menu')" class="px-2 py-3 font-bold text-orange-600 border-b-2 border-orange-500 text-lg transition-colors">Menu</button>
@@ -267,6 +275,19 @@
             // Get the first active branch to use for ordering
             if (r.branches && r.branches.length > 0) {
               branchId = r.branches[0].id;
+            }
+
+            // Render applicable coupons
+            if (r.applicableCoupons && r.applicableCoupons.length > 0) {
+              const offersDiv = document.getElementById('restaurantOffers');
+              const offersList = document.getElementById('offersList');
+              offersList.innerHTML = r.applicableCoupons.map(c => `
+                <div class="bg-white border border-orange-200 rounded-xl p-3 min-w-[200px] shrink-0 shadow-sm flex flex-col justify-center">
+                   <div class="font-extrabold text-orange-600 text-lg border-2 border-dashed border-orange-300 px-2 py-1 text-center rounded-lg mb-2">${c.code}</div>
+                   <p class="text-sm text-gray-700 font-medium text-center">${c.description}</p>
+                </div>
+              `).join('');
+              offersDiv.classList.remove('hidden');
             }
 
           } catch (error) {

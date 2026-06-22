@@ -35,4 +35,6 @@ export type updateBranchDto = {
   longitude?: number;
   minimumOrderValue?: number;
   deliveryFee?: number;
+  isAcceptingOrders?: boolean;
+  autoResumeAt?: Date | null;
 }

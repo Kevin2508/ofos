@@ -36,6 +36,7 @@ interface createMenuItemDto {
   description?: string;
   basePrice: number;
   foodType: FoodType;
+  dietaryTags?: string[];
 
   /**
    * Optional Modifier Groups
@@ -52,6 +53,7 @@ interface updateMenuItemDto {
   description?: string;
   basePrice?: number;
   foodType?: FoodType;
+  dietaryTags?: string[];
 }
 
 /**

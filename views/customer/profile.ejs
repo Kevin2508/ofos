@@ -299,6 +299,15 @@
             </svg>
             Payment Methods
           </button>
+          <button id="tab-loyalty"
+            class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm text-gray-600 hover:bg-orange-50"
+            onclick="switchTab('loyalty')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Loyalty
+          </button>
         </div>
 
         <!-- ── Personal Info Tab ── -->
@@ -510,6 +519,31 @@
           </div>
           <div id="paymentsList" class="space-y-4">
             <!-- Payment Methods Loaded Here -->
+          </div>
+        </div>
+        
+        <!-- ── Loyalty Tab ── -->
+        <div id="section-loyalty" class="profile-section">
+          <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-8 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Loyalty Points
+            </h2>
+            <div class="bg-gradient-to-r from-orange-500 to-orange-400 rounded-2xl p-6 text-white mb-8 shadow-lg">
+              <p class="text-orange-100 font-medium mb-1">Current Balance</p>
+              <div class="flex items-end gap-3">
+                <h3 class="text-4xl font-extrabold" id="loyaltyPointsDisplay">0</h3>
+                <span class="text-orange-100 font-medium mb-1 border-b border-orange-200 pb-0.5">Points</span>
+              </div>
+              <p class="mt-4 text-sm font-medium bg-orange-600/30 px-3 py-1.5 rounded-lg inline-block" id="loyaltyRatesDisplay">Loading rates...</p>
+            </div>
+
+            <h3 class="font-bold text-gray-800 mb-4">Transaction History</h3>
+            <div class="space-y-3" id="loyaltyTransactionsList">
+               <p class="text-gray-500">Loading history...</p>
+            </div>
           </div>
         </div>
 
@@ -815,6 +849,7 @@
           loadSessions();
           loadPreferences();
           loadPaymentMethods();
+          loadLoyaltyData();
           profileContent.classList.remove('hidden');
         } catch {
           profileLoading.classList.add('hidden');
@@ -1356,6 +1391,38 @@
             btn.disabled = false;
          }
       });
+
+      window.loadLoyaltyData = async function () {
+        try {
+          const res = await fetch('/loyalty', { headers: { 'Content-Type': 'application/json' } });
+          const data = await res.json();
+          if (res.ok && data.success) {
+             const loyalty = data.data;
+             document.getElementById('loyaltyPointsDisplay').textContent = loyalty.balance;
+             document.getElementById('loyaltyRatesDisplay').textContent = `Earn ${loyalty.earningRate} pts per ₹1 spent. 1 pt = ₹${loyalty.redemptionRate} off.`;
+             
+             const list = document.getElementById('loyaltyTransactionsList');
+             if (loyalty.transactions && loyalty.transactions.length > 0) {
+                 list.innerHTML = loyalty.transactions.map(t => `
+                    <div class="flex items-center justify-between p-4 border border-orange-50 rounded-xl hover:bg-orange-50/50 transition-colors">
+                      <div>
+                         <p class="font-bold text-gray-800">${t.transactionType === 'EARN' ? 'Points Earned' : t.transactionType === 'REDEEM' ? 'Points Redeemed' : 'Adjustment'}</p>
+                         <p class="text-sm text-gray-500">${t.description || ''}</p>
+                         <p class="text-xs text-gray-400 mt-1">${new Date(t.createdAt).toLocaleString()}</p>
+                      </div>
+                      <div class="${t.transactionType === 'EARN' ? 'text-green-600' : 'text-red-500'} font-bold text-lg">
+                         ${t.transactionType === 'EARN' ? '+' : '-'}${Math.abs(t.points)}
+                      </div>
+                    </div>
+                 `).join('');
+             } else {
+                 list.innerHTML = '<p class="text-gray-500 text-sm">No transactions yet.</p>';
+             }
+          }
+        } catch (e) {
+          console.error('Failed to load loyalty details', e);
+        }
+      };
 
     })();
   </script>

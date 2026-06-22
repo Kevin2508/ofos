@@ -49,7 +49,7 @@ export const updateCoupon = catchAsync(async (req: Request, res: Response) => {
   try {
     const updatedCoupon = await couponService.updateCouponService(id as string, req.body);
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       message: 'Coupon updated successfully',
       data: { coupon: updatedCoupon },
@@ -62,18 +62,8 @@ export const updateCoupon = catchAsync(async (req: Request, res: Response) => {
         message: `Coupon with ID ${id} was not found.`,
       });
     }
+    throw error;
   }
-
-
-  const updatedCoupon = await couponService.updateCouponService(id as string, req.body);
-
-  res.status(200).json({
-    status: 'success',
-    message: 'Coupon updated successfully',
-    data: {
-      coupon: updatedCoupon,
-    },
-  });
 });
 
 
@@ -83,7 +73,7 @@ export const deactivateCoupon = catchAsync(async (req: Request, res: Response) =
   try {
     const coupon = await couponService.deactivateCouponService(id as string);
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       message: `Coupon '${coupon.code}' has been deactivated successfully.`,
       data: { coupon },
@@ -109,7 +99,7 @@ export const getRestaurantCoupons = catchAsync(async (req: Request, res: Respons
 export const createRestaurantCoupon = catchAsync(async (req: Request, res: Response) => {
   try {
     const coupon = await couponService.createRestaurantCouponService(req.body);
-    res.status(201).json({ status: 'success', data: { coupon } });
+    return res.status(201).json({ status: 'success', data: { coupon } });
   } catch (error: any) {
     if (error.code === 'P2002') {
       return res.status(400).json({ status: 'fail', message: 'Coupon code already exists.' });
@@ -117,7 +107,7 @@ export const createRestaurantCoupon = catchAsync(async (req: Request, res: Respo
     if (error.code === 'P2003') {
       return res.status(400).json({ status: 'fail', message: 'One or more provided Restaurant IDs do not exist.' });
     }
-    res.status(400).json({ status: 'fail', message: error.message });
+    return res.status(400).json({ status: 'fail', message: error.message });
   }
 });
 

@@ -29,6 +29,7 @@ import {
   uploadMenuItemImageService,
   deleteMenuItemImageService,
   importMenuItemsService,
+  duplicateMenuItemService,
 } from './menuItem.service.ts';
 
 /**
@@ -387,6 +388,28 @@ const importMenuItems = catchAsync(
 
 
 
+/**
+ * POST /menu-items/:id/duplicate
+ */
+const duplicateMenuItem = catchAsync(
+  async (
+    req: Request<menuItemIdParamsDto>,
+    res: Response
+  ) => {
+    const data =
+      await duplicateMenuItemService(
+        req.params.id
+      );
+
+    return res.status(201).json({
+      status: 'success',
+      message: data.message,
+      data: data.data,
+    });
+  }
+);
+
+
 export {
   getMenuItemsByCategory,
   createMenuItem,
@@ -403,4 +426,5 @@ export {
   deleteMenuItemImage,
 
   importMenuItems,
+  duplicateMenuItem,
 };

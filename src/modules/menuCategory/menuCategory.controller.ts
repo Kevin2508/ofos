@@ -7,6 +7,7 @@ import {
   MenuCategoryParamsDto,
   ReorderMenuCategoryDto,
   UpdateMenuCategoryDto,
+  UpdateMenuCategoryAvailabilityDto,
 } from './menuCategory.dto.ts';
 
 import {
@@ -15,6 +16,8 @@ import {
   getMenuCategoryListService,
   reorderMenuCategoryService,
   updateMenuCategoryService,
+  updateMenuCategoryAvailabilityService,
+  duplicateMenuCategoryService,
 } from './menuCategory.service.ts';
 
 /**
@@ -95,6 +98,34 @@ const updateMenuCategory = catchAsync(
 );
 
 /**
+ * PATCH
+ * /branches/:branchId/categories/:id/availability
+ */
+const updateMenuCategoryAvailability = catchAsync(
+  async (
+    req: Request<
+      MenuCategoryIdParamsDto,
+      {},
+      UpdateMenuCategoryAvailabilityDto
+    >,
+    res: Response
+  ) => {
+    const data =
+      await updateMenuCategoryAvailabilityService(
+        req.params.branchId,
+        req.params.id,
+        req.body
+      );
+
+    return res.status(200).json({
+      status: 'success',
+      message: data.message,
+      data: data.data,
+    });
+  }
+);
+
+/**
  * DELETE
  * /branches/:branchId/categories/:id
  */
@@ -142,10 +173,35 @@ const reorderMenuCategory = catchAsync(
   }
 );
 
+/**
+ * POST
+ * /branches/:branchId/categories/:id/duplicate
+ */
+const duplicateMenuCategory = catchAsync(
+  async (
+    req: Request<MenuCategoryIdParamsDto>,
+    res: Response
+  ) => {
+    const data =
+      await duplicateMenuCategoryService(
+        req.params.branchId,
+        req.params.id
+      );
+
+    return res.status(201).json({
+      status: 'success',
+      message: data.message,
+      data: data.data,
+    });
+  }
+);
+
 export {
   getMenuCategoryList,
   createMenuCategory,
   updateMenuCategory,
+  updateMenuCategoryAvailability,
   deleteMenuCategory,
   reorderMenuCategory,
+  duplicateMenuCategory,
 };

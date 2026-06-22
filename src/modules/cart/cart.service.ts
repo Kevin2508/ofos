@@ -9,11 +9,13 @@ import {
   deleteCartItem,
   clearCart,
   getCouponByCode,
+  getCouponUsageCount,
   calculateCartTotals,
   createPriceBreakdown,
   getCartItemById,
   getMenuItemWithPrice,
 } from "./cart.repository.ts";
+import { findAllCoupons } from "../coupon/coupons.repository.ts";
 
 const getCartCacheKey = (userId: bigint) => {
   return `cart:${userId}`;
@@ -82,6 +84,7 @@ function formatCartResponse(cart: any): CartResponseDTO {
     lastActivityAt: cart.lastActivityAt,
     createdAt: cart.createdAt,
     updatedAt: cart.updatedAt,
+    applicableCoupons: cart.applicableCoupons || [],
   };
 }
 
@@ -119,11 +122,31 @@ async function getCartService(userId: bigint) {
     console.error(`Redis get error: ${error}. Falling back to DB.`);
   }
 
-  let cart = await getActiveCartByUser(userId);
+  let cart: any = await getActiveCartByUser(userId);
 
   if (!cart) {
     throw new Error('No active cart found');
   }
+
+  // Find applicable coupons
+  const allCoupons = await findAllCoupons();
+  const now = new Date();
+  const applicableCoupons = allCoupons.filter(c => {
+    if (!c.isActive) return false;
+    if (c.validFrom > now || c.validUntil < now) return false;
+    if (c.couponRestaurants && c.couponRestaurants.length > 0) {
+       const isApp = c.couponRestaurants.some(cr => String(cr.restaurantId) === String(cart.branch?.restaurant?.id));
+       if (!isApp) return false;
+    }
+    return true;
+  }).map(c => ({
+    code: c.code,
+    couponType: c.couponType,
+    value: Number(c.value),
+    description: c.couponType === 'PERCENTAGE' ? `${c.value}% OFF` : c.couponType === 'FLAT' ? `₹${c.value} OFF` : c.couponType === 'FREE_DELIVERY' ? 'Free Delivery' : 'Buy 1 Get 1 Free'
+  }));
+
+  cart.applicableCoupons = applicableCoupons;
 
   const cartResponse: CartResponseDTO = formatCartResponse(cart);
 
@@ -276,8 +299,28 @@ async function applyCouponService(
   if (coupon.validFrom > now) throw new Error('Coupon is not yet valid');
   if (coupon.validUntil < now) throw new Error('Coupon has expired');
 
+  // 1. Check Restaurant Applicability
+  if (coupon.couponRestaurants && coupon.couponRestaurants.length > 0) {
+    const isApplicable = coupon.couponRestaurants.some(
+      (r: any) => String(r.restaurantId) === String(cart.branch?.restaurant?.id || cart.restaurantBranchId)
+    );
+    if (!isApplicable) throw new Error('Coupon not valid for this restaurant.');
+  }
+
+  // 2. Check Global Usage Limit
+  if (coupon.usageLimit) {
+    const totalUsed = await getCouponUsageCount(coupon.id);
+    if (totalUsed >= coupon.usageLimit) throw new Error('Coupon usage limit reached.');
+  }
+
+  // 3. Check Per User Limit
+  if (coupon.perUserLimit) {
+    const userUsed = await getCouponUsageCount(coupon.id, userId);
+    if (userUsed >= coupon.perUserLimit) throw new Error('You have reached the limit for this coupon.');
+  }
+
   const subtotal = cart.items.reduce(
-    (sum, item) => sum + Number(item.lineTotal),
+    (sum: number, item: any) => sum + Number(item.lineTotal),
     0
   );
   if (coupon.minimumOrderAmount && subtotal < Number(coupon.minimumOrderAmount)) {
@@ -299,7 +342,20 @@ async function applyCouponService(
   } else if (coupon.couponType === 'FLAT') {
     discountAmount = Math.min(Number(coupon.value), subtotal);
   } else if (coupon.couponType === 'FREE_DELIVERY') {
-    discountAmount = Number(cart.branch.deliveryFee);
+    discountAmount = Number(cart.branch?.deliveryFee || 0);
+  } else if (coupon.couponType === 'BOGO') {
+    const totalItems = cart.items.reduce((sum: number, item: any) => sum + Number(item.quantity), 0);
+    if (totalItems >= 2) {
+      const cheapestItem = cart.items.reduce((prev: any, curr: any) => 
+        Number(prev.unitPrice) < Number(curr.unitPrice) ? prev : curr
+      );
+      discountAmount = Number(cheapestItem.unitPrice);
+      if (coupon.maximumDiscountAmount && discountAmount > Number(coupon.maximumDiscountAmount)) {
+        discountAmount = Number(coupon.maximumDiscountAmount);
+      }
+    } else {
+      throw new Error('BOGO coupon requires at least 2 items in the cart');
+    }
   }
 
   // Calculate totals
@@ -396,4 +452,5 @@ export {
   applyCouponService,
   removeCouponService,
   getPriceBreakdownService,
+  syncCartTotalsService,
 };

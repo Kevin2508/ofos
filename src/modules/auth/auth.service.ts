@@ -33,7 +33,7 @@ import {
   getUserRole,
 } from './auth.repository.ts';
 import { createDeliveryPartner } from '../deliveryPartner/deliveryPartner.repository.ts';
-import { createRestaurantOwner } from '../restaurantManagement/management.repository.ts';
+
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const GENERIC_AUTH_ERROR = 'Invalid credentials provided';

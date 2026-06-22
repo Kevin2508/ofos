@@ -5,7 +5,7 @@ const paymentRouter = Router();
 
 paymentRouter.use(authenticate);
 
-paymentRouter.use(authorize("Customer"));
+paymentRouter.use(authorize(["Customer"]));
 
 paymentRouter.post('/initiate', inititatePayment);
 
@@ -13,4 +13,4 @@ paymentRouter.post('/verify', verifyPayment);
 
 paymentRouter.get('/:orderId', getPaymentDetails);
 
-export {paymentRouter}
+export { paymentRouter }

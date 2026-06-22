@@ -1,4 +1,4 @@
-import { prisma } from '../../config/prisma.ts';
+
 import { CreateAddressDto, customerDto } from './customer.dto.ts';
 import {
   createAddress, findAddressesByCustomerID, findAddressesByID, findAddressesById,

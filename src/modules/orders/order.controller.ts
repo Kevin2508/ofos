@@ -42,6 +42,44 @@ export async function getOrders(
   }
 }
 
+export async function getRestaurantOrders(
+  req: AuthenticatedRequest,
+  res: Response
+) {
+  try {
+    const ownerUserId = BigInt(req.user!.id);
+    const query = req.query as GetOrdersQuery;
+    
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 50;
+    const status = query.status as string | undefined;
+    const search = query.search as string | undefined;
+    const date = query.date as string | undefined;
+    const payment = query.payment as string | undefined;
+
+    const data = await orderService.getRestaurantOrders(
+      ownerUserId,
+      page,
+      limit,
+      status,
+      search,
+      date,
+      payment
+    );
+
+    return res.status(200).json({
+      success: true,
+      ...data,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch restaurant orders",
+    });
+  }
+}
+
 export async function getOrderDetails(
   req: AuthenticatedRequest,
   res: Response
@@ -77,6 +115,32 @@ export async function getOrderDetails(
       success: false,
       message: "Failed to fetch order details",
     });
+  }
+}
+
+export async function getRestaurantOrderDetails(
+  req: AuthenticatedRequest,
+  res: Response
+) {
+  try {
+    const ownerUserId = BigInt(req.user!.id);
+    const orderParams = req.params as OrderParams;
+    const orderId = BigInt(orderParams.id);
+
+    const order = await orderService.getRestaurantOrderDetails(
+      orderId,
+      ownerUserId
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: order,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "ORDER_NOT_FOUND") {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+    return res.status(500).json({ success: false, message: "Failed to fetch order details" });
   }
 }
 
@@ -165,7 +229,7 @@ export async function cancelOrder(
       return res.status(400).json({
         success: false,
         message:
-          "Order can only be cancelled before acceptance",
+          "Order can only be cancelled before it is out for delivery",
       });
     }
 
@@ -264,6 +328,18 @@ export const staffMarkReady = async (req: AuthenticatedRequest, res: Response) =
   }
 };
 
+export const staffMarkItemUnavailable = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const staffUserId = BigInt((req.user as any).id);
+    const orderId = BigInt((req.params as any).id);
+    const itemId = BigInt((req.params as any).itemId);
+    const order = await orderService.markItemUnavailable(orderId, itemId, staffUserId);
+    res.status(200).json({ success: true, message: 'Item marked as unavailable and refund initiated', data: order });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to mark item unavailable' });
+  }
+};
+
 export const reorderPastOrderController = async (req: Request, res: Response) => {
   try {
     const customerUserId = BigInt((req as any).user.id);
@@ -274,5 +350,29 @@ export const reorderPastOrderController = async (req: Request, res: Response) =>
     res.status(200).json(result);
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const raiseDisputeController = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const customerUserId = BigInt(req.user!.id);
+    const orderId = BigInt((req.params as any).id as string);
+    const { category, description } = req.body as any;
+
+    const ticket = await orderService.raiseDispute(orderId, customerUserId, category, description);
+    
+    return res.status(201).json({
+      success: true,
+      message: 'Dispute raised successfully. A support ticket has been generated.',
+      data: ticket
+    });
+  } catch (error: any) {
+    if (error.message === 'ORDER_NOT_FOUND') {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    if (error.message === 'INVALID_CATEGORY') {
+      return res.status(400).json({ success: false, message: 'Invalid dispute category' });
+    }
+    return res.status(500).json({ success: false, message: 'Failed to raise dispute' });
   }
 };

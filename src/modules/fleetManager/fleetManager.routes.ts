@@ -24,7 +24,7 @@ const fleetManagerRouter = Router();
 
 fleetManagerRouter.use(authenticate);
 
-fleetManagerRouter.use(authorize('Fleet_manager'));
+fleetManagerRouter.use(authorize(['Fleet_manager']));
 
 fleetManagerRouter.get('/delivery-partners/all', getAllDeliveryPartners);
 

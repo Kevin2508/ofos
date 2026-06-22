@@ -155,6 +155,9 @@ async function getPendingRestaurantsRepo() {
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        documents: true,
+      },
     }),
 
     prisma.restaurant.count({
@@ -181,6 +184,9 @@ async function getAllRestaurantsRepo(status?: string) {
     prisma.restaurant.findMany({
       where,
       orderBy: { createdAt: 'desc' },
+      include: {
+        documents: true,
+      },
     }),
     prisma.restaurant.count({ where }),
   ]);

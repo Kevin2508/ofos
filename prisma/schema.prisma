@@ -368,6 +368,10 @@ model Restaurant {
   logoUrl             String?          @map("logo_url") @db.VarChar(500)
   coverImageUrl       String?          @map("cover_image_url") @db.VarChar(500)
   description         String?          @db.VarChar(300)
+  cuisineTags         String?          @map("cuisine_tags") @db.VarChar(500)
+  bankAccountNumber   String?          @map("bank_account_number") @db.VarChar(50)
+  bankIfscCode        String?          @map("bank_ifsc_code") @db.VarChar(20)
+  bankAccountName     String?          @map("bank_account_name") @db.VarChar(255)
   status              RestaurantStatus @default(PENDING_VERIFICATION)
   approvedBy          BigInt?          @map("approved_by") @db.UnsignedBigInt
   approvedAt          DateTime?        @map("approved_at")
@@ -409,6 +413,8 @@ model RestaurantBranch {
   minimumOrderValue          Decimal   @default(0) @map("minimum_order_value") @db.Decimal(10, 2)
   deliveryFee                Decimal   @default(0) @map("delivery_fee") @db.Decimal(10, 2)
   isActive                   Boolean   @default(true) @map("is_active")
+  isAcceptingOrders          Boolean   @default(true) @map("is_accepting_orders")
+  autoResumeAt               DateTime? @map("auto_resume_at")
   createdAt                  DateTime  @default(now()) @map("created_at")
   updatedAt                  DateTime  @updatedAt @map("updated_at")
   deletedAt                  DateTime? @map("deleted_at")
@@ -876,6 +882,7 @@ model OrderItem {
   unitPrice           Decimal  @map("unit_price") @db.Decimal(10, 2)
   lineTotal           Decimal  @map("line_total") @db.Decimal(10, 2)
   specialInstructions String?  @map("special_instructions") @db.VarChar(150)
+  isUnavailable       Boolean  @default(false) @map("is_unavailable")
 
   order     Order               @relation(fields: [orderId], references: [id])
   menuItem  MenuItem?           @relation(fields: [menuItemId], references: [id])

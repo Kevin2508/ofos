@@ -5,7 +5,7 @@ const fleetManagerPageRouter = Router();
 
 fleetManagerPageRouter.use(authenticate);
 
-fleetManagerPageRouter.use(authorize('Fleet_manager'));
+fleetManagerPageRouter.use(authorize(['Fleet_manager']));
 
 fleetManagerPageRouter.get('/fleet-manager-dashboard', (req, res) => {
   res.render('fleetManager/dashboard');

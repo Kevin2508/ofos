@@ -517,6 +517,65 @@
         }
       }
     },
+    "/menu-category/branches/{branchId}/categories/{id}/duplicate": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/menu-category/branches/{branchId}/categories/{id}/availability": {
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/menu-item/categories/{categoryId}/items": {
       "get": {
         "description": "",
@@ -609,6 +668,26 @@
         }
       },
       "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/menu-item/menu-items/{id}/duplicate": {
+      "post": {
         "description": "",
         "parameters": [
           {
@@ -2013,6 +2092,51 @@
         }
       }
     },
+    "/orders/restaurant": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/orders/restaurant/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/orders/{id}": {
       "get": {
         "description": "",
@@ -2108,6 +2232,95 @@
                 "type": "object",
                 "properties": {
                   "reason": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/dispute": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "example": "any"
+                  },
+                  "description": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/reorder": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "forceClear": {
                     "example": "any"
                   }
                 }
@@ -2231,6 +2444,196 @@
           },
           "500": {
             "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/orders/{id}/items/{itemId}/unavailable": {
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/reviews/restaurants/{restaurantId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rating",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/reviews/orders/{orderId}": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "foodRating": {
+                    "example": "any"
+                  },
+                  "deliveryRating": {
+                    "example": "any"
+                  },
+                  "packagingRating": {
+                    "example": "any"
+                  },
+                  "reviewText": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews/owner": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/reviews/{reviewId}/reply": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "replyText": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2737,6 +3140,32 @@
       }
     },
     "/delivery-partner/assignments/{assignmentId}/pickup": {
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/delivery-partner/assignments/{assignmentId}/out-for-delivery": {
       "patch": {
         "description": "",
         "parameters": [
@@ -3362,6 +3791,32 @@
       }
     },
     "/restaurant-management/mine": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/restaurant-management/dashboard-stats": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/restaurant-management/finance-stats": {
       "get": {
         "description": "",
         "responses": {
@@ -4106,6 +4561,68 @@
         }
       }
     },
+    "/loyalty/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/loyalty/apply": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "points": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loyalty/remove": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
     "/loginPage": {
       "get": {
         "description": "",
@@ -4352,6 +4869,26 @@
         }
       }
     },
+    "/c/order-confirmation/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/c/orders": {
       "get": {
         "description": "",
@@ -4533,6 +5070,36 @@
       }
     },
     "/ro/restaurant-owner-profile": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ro/restaurant-owner-reviews": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ro/restaurant-owner-finance": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ro/restaurant-owner-promotions": {
       "get": {
         "description": "",
         "responses": {
@@ -5088,6 +5655,22 @@
           },
           "fssaiLicenseNumber": {
             "type": "string"
+          },
+          "cuisineTags": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankAccountNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankIfscCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "bankAccountName": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -5343,6 +5926,8 @@
             "format": "date-time",
             "oneOf": [
               {
+                "type": "string",
+                "format": "date-time",
                 "x-required": true
               }
             ]
@@ -5755,6 +6340,18 @@
         ],
         "additionalProperties": false
       },
+      "updateMenuCategoryAvailabilitySchema": {
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "isActive"
+        ],
+        "additionalProperties": false
+      },
       "updateMenuCategorySchema": {
         "type": "object",
         "properties": {
@@ -5833,6 +6430,12 @@
             "items": {
               "type": "string"
             }
+          },
+          "dietaryTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -5891,6 +6494,12 @@
               "NON_VEG",
               "VEGAN"
             ]
+          },
+          "dietaryTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "additionalProperties": false
@@ -6142,6 +6751,14 @@
             "type": "number",
             "format": "float",
             "minimum": 0
+          },
+          "isAcceptingOrders": {
+            "type": "boolean"
+          },
+          "autoResumeAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6213,6 +6830,21 @@
           "primaryEmail": {
             "type": "string",
             "format": "email"
+          },
+          "cuisineTags": {
+            "type": "string"
+          },
+          "bankAccountName": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "bankAccountNumber": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "bankIfscCode": {
+            "type": "string",
+            "maxLength": 20
           }
         },
         "additionalProperties": false

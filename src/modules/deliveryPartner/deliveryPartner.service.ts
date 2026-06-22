@@ -186,7 +186,7 @@ export async function triggerAutoAssignment(orderId: bigint) {
     include: { branch: true },
   });
 
-  if (!order) return null;
+  if (!order) return;
 
   // Find an online delivery partner who is not already declined for this order
   const declinedPartners = await prisma.deliveryAssignment.findMany({

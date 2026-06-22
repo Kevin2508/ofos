@@ -21,6 +21,7 @@ import {
   deleteMenuItemImage,
 
   importMenuItems,
+  duplicateMenuItem,
 } from './menuItem.controller.ts';
 
 import {
@@ -116,6 +117,17 @@ menuItemRouter.patch(
   authenticate,
   validate(updateMenuItemSchema),
   updateMenuItem
+);
+
+/**
+ * POST /menu-items/:id/duplicate
+ *
+ * Duplicate menu item
+ */
+menuItemRouter.post(
+  '/menu-items/:id/duplicate',
+  authenticate,
+  duplicateMenuItem
 );
 
 /**

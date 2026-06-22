@@ -12,7 +12,7 @@ router.get("/restaurants/:restaurantId", reviewsController.getRestaurantReviewsC
 router.post(
   "/orders/:orderId",
   authenticate,
-  authorize("Customer"),
+  authorize(["Customer"]),
   upload.array("images", 3),
   reviewsController.submitReviewController
 );
@@ -21,7 +21,7 @@ router.post(
 router.get(
   "/owner",
   authenticate,
-  authorize("Restaurant_owner"),
+  authorize(["Restaurant_owner"]),
   reviewsController.getOwnerReviewsController
 );
 
@@ -29,7 +29,7 @@ router.get(
 router.post(
   "/:reviewId/reply",
   authenticate,
-  authorize("Restaurant_owner"),
+  authorize(["Restaurant_owner"]),
   reviewsController.replyToReviewController
 );
 

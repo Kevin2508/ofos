@@ -129,6 +129,39 @@
       </div>
     </div>
 
+    <!-- Dispute Modal -->
+    <div id="disputeModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm overflow-y-auto">
+      <div class="min-h-screen px-4 text-center flex items-center justify-center">
+        <div class="fixed inset-0 transition-opacity" onclick="closeDisputeModal()"></div>
+        <div class="relative bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-md my-8">
+          <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-xl font-bold text-gray-900">Raise Dispute</h3>
+            <button onclick="closeDisputeModal()" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div class="p-6">
+            <div class="mb-4">
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Issue Category</label>
+              <select id="disputeCategory" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:border-orange-500 focus:ring-orange-500 outline-none">
+                <option value="MISSING_ITEM">Missing Item</option>
+                <option value="WRONG_ITEM">Wrong Item</option>
+                <option value="POOR_QUALITY">Poor Quality</option>
+                <option value="LATE_DELIVERY">Late Delivery</option>
+                <option value="REFUND_REQUEST">Refund Request</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+            <div class="mb-6">
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+              <textarea id="disputeDescription" rows="4" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:border-orange-500 focus:ring-orange-500 outline-none" placeholder="Please describe the issue in detail..."></textarea>
+            </div>
+            <button id="disputeSubmitBtn" onclick="submitDispute()" class="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-orange-600 transition-colors">Submit Dispute</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <style>
       @media print {
         body * {
@@ -236,8 +269,8 @@
     <script>
       const orderId = window.location.pathname.split('/').pop();
 
-      const ORDER_STEPS = ['PENDING', 'ACCEPTED', 'PREPARING', 'OUT_FOR_DELIVERY', 'DELIVERED'];
-      const STEP_LABELS = { PENDING: 'Order Placed', ACCEPTED: 'Accepted by Restaurant', PREPARING: 'Being Prepared', OUT_FOR_DELIVERY: 'Out for Delivery', DELIVERED: 'Delivered', CANCELLED: 'Cancelled' };
+      const ORDER_STEPS = ['PLACED', 'ACCEPTED', 'PREPARING', 'OUT_FOR_DELIVERY', 'DELIVERED'];
+      const STEP_LABELS = { PLACED: 'Order Placed', ACCEPTED: 'Accepted by Restaurant', PREPARING: 'Being Prepared', OUT_FOR_DELIVERY: 'Out for Delivery', DELIVERED: 'Delivered', CANCELLED: 'Cancelled' };
 
       async function loadOrder() {
         try {
@@ -254,7 +287,7 @@
       function renderOrder(order) {
         document.getElementById('orderDetail').classList.remove('hidden');
 
-        const status = order.orderStatus || 'PENDING';
+        const status = order.orderStatus || 'PLACED';
         const date = new Date(order.createdAt || Date.now()).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
 
         document.getElementById('orderNum').textContent = `#${order.orderNumber || order.id}`;
@@ -336,11 +369,14 @@
 
         if (status !== 'DELIVERED' && status !== 'CANCELLED') {
           actionsHtml += `<a href="/c/tracking/${order.id}" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600 transition-colors">📍 Track Order</a>`;
-          if (status === 'PENDING') {
-            actionsHtml += `<button onclick="cancelOrder()" class="flex-1 border border-red-200 text-red-500 py-3 rounded-xl font-semibold hover:bg-red-50 transition-colors">Cancel Order</button>`;
+          if (['PLACED', 'ACCEPTED', 'PREPARING'].includes(status)) {
+            actionsHtml += `<button onclick="cancelOrder('${status}')" class="flex-1 border border-red-200 text-red-500 py-3 rounded-xl font-semibold hover:bg-red-50 transition-colors">Cancel Order</button>`;
           }
         } else if (status === 'DELIVERED') {
           actionsHtml += `<button onclick="reorderOrder()" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600 transition-colors">Order Again</button>`;
+          actionsHtml += `<button onclick="openDisputeModal()" class="flex-1 border border-blue-200 text-blue-600 py-3 rounded-xl font-bold text-center hover:bg-blue-50 transition-colors">Raise Dispute</button>`;
+        } else if (status === 'CANCELLED') {
+          actionsHtml += `<button onclick="openDisputeModal()" class="flex-1 border border-blue-200 text-blue-600 py-3 rounded-xl font-bold text-center hover:bg-blue-50 transition-colors">Raise Dispute</button>`;
         }
         actions.innerHTML = actionsHtml;
 
@@ -469,13 +505,60 @@
         }
       }
 
-      async function cancelOrder() {
-        if (!confirm('Cancel this order?')) return;
+      async function cancelOrder(currentStatus) {
+        let msg = 'Cancel this order? You will receive a full refund.';
+        if (currentStatus === 'ACCEPTED') msg = 'Cancel this order? A 50% penalty will be applied to your refund because the restaurant has already accepted it.';
+        if (currentStatus === 'PREPARING') msg = 'Cancel this order? No refund will be issued because the food is already being prepared.';
+        
+        if (!confirm(msg)) return;
         try {
           const res = await fetch(`/orders/${orderId}/cancel`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'Customer requested cancellation' }) });
           if (res.ok) { showToast('Order cancelled', 'success'); setTimeout(() => loadOrder(), 1000); }
           else { const d = await res.json(); showToast(d.message || 'Cannot cancel', 'error'); }
         } catch { showToast('Failed', 'error'); }
+      }
+
+      function openDisputeModal() {
+        document.getElementById('disputeModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('disputeCategory').value = 'MISSING_ITEM';
+        document.getElementById('disputeDescription').value = '';
+      }
+
+      function closeDisputeModal() {
+        document.getElementById('disputeModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+
+      async function submitDispute() {
+        const cat = document.getElementById('disputeCategory').value;
+        const desc = document.getElementById('disputeDescription').value;
+        if(!desc.trim()) return showToast('Please provide a description.', 'warning');
+        
+        const btn = document.getElementById('disputeSubmitBtn');
+        const txt = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        try {
+          const res = await fetch(`/orders/${orderId}/dispute`, {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ category: cat, description: desc })
+          });
+          const data = await res.json();
+          if(res.ok && data.success) {
+             showToast('Dispute submitted successfully', 'success');
+             closeDisputeModal();
+          } else {
+             showToast(data.message || 'Failed to submit dispute', 'error');
+          }
+        } catch(e) {
+          showToast('Error submitting dispute', 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = txt;
+        }
       }
 
       loadOrder();

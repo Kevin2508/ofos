@@ -34,7 +34,7 @@ const adminRouter = Router();
 
 adminRouter.use(authenticate);
 
-adminRouter.use(authorize('Admin'));
+adminRouter.use(authorize(['Admin']));
 
 adminRouter.get('/users', validateQuery(getAllUsersSchema), getAllUsers);
 

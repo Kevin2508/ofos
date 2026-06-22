@@ -295,6 +295,10 @@ const registerRestaurantOwnerSchema = Joi.object({
   postalCode: Joi.string().required(),
   gstin: Joi.string().required(),
   fssaiLicenseNumber: Joi.string().required(),
+  cuisineTags: Joi.string().allow('', null).optional(),
+  bankAccountNumber: Joi.string().allow('', null).optional(),
+  bankIfscCode: Joi.string().allow('', null).optional(),
+  bankAccountName: Joi.string().allow('', null).optional(),
 });
 
 export {

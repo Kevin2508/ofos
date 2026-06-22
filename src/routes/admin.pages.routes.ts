@@ -5,7 +5,7 @@ const adminPageRouter = Router();
 
 adminPageRouter.use(authenticate);
 
-adminPageRouter.use(authorize('Admin'));
+adminPageRouter.use(authorize(['Admin']));
 
 adminPageRouter.get('/admin-dashboard', (req, res) => {
   res.render('admin/dashboard');

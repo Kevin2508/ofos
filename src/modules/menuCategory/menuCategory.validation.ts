@@ -66,8 +66,13 @@ const reorderMenuCategorySchema = Joi.object({
     .required(),
 });
 
+const updateMenuCategoryAvailabilitySchema = Joi.object({
+  isActive: Joi.boolean().required(),
+});
+
 export {
   createMenuCategorySchema,
   updateMenuCategorySchema,
   reorderMenuCategorySchema,
+  updateMenuCategoryAvailabilitySchema,
 };

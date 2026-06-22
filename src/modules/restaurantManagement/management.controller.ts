@@ -17,6 +17,8 @@ import {
   uploadCoverService,
   uploadDocumentService,
   uploadLogoService,
+  getDashboardStatsService,
+  getFinanceStatsService,
 } from './management.service.ts';
 
 export const registerRestaurant = catchAsync(
@@ -31,6 +33,20 @@ export const registerRestaurant = catchAsync(
 export const getMyRestaurants = catchAsync(async (req: Request, res: Response) => {
   const ownerUserId = BigInt((req as any).user.id);
   const data = await getMyRestaurantsService(ownerUserId);
+
+  res.status(200).json({ status: 'success', ...data });
+});
+
+export const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
+  const ownerUserId = BigInt((req as any).user.id);
+  const data = await getDashboardStatsService(ownerUserId);
+
+  res.status(200).json({ status: 'success', data });
+});
+
+export const getFinanceStats = catchAsync(async (req: Request, res: Response) => {
+  const ownerUserId = BigInt((req as any).user.id);
+  const data = await getFinanceStatsService(ownerUserId);
 
   res.status(200).json({ status: 'success', ...data });
 });
@@ -64,7 +80,7 @@ export const uploadLogo = catchAsync(
     }
 
     const data = await uploadLogoService(id, ownerUserId, logoUrl);
-    res.status(200).json({ status: 'success', ...data });
+    return res.status(200).json({ status: 'success', ...data });
   }
 );
 
@@ -84,7 +100,7 @@ export const uploadCover = catchAsync(
     }
 
     const data = await uploadCoverService(id, ownerUserId, coverImageUrl);
-    res.status(200).json({ status: 'success', ...data });
+    return res.status(200).json({ status: 'success', ...data });
   }
 );
 
@@ -112,7 +128,7 @@ export const uploadDocument = catchAsync(
       req.body,
       documentUrl
     );
-    res.status(201).json({ status: 'success', ...data });
+    return res.status(201).json({ status: 'success', ...data });
   }
 );
 

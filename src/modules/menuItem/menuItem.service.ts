@@ -129,9 +129,8 @@ async function createMenuItemService(
     description: data.description,
 
     basePrice: data.basePrice,
-
     foodType: data.foodType,
-
+    dietaryTags: data.dietaryTags,
     modifierGroupIds:
       data.modifierGroupIds?.map(
         (id) => BigInt(id)
@@ -199,8 +198,8 @@ async function updateMenuItemService(
       description: data.description,
 
       basePrice: data.basePrice,
-
       foodType: data.foodType,
+      dietaryTags: data.dietaryTags,
     });
 
   return {
@@ -659,6 +658,39 @@ async function importMenuItemsService(
 
 
 
+async function duplicateMenuItemService(
+  menuItemId: string
+): Promise<IMenuItemResponse> {
+  const existingItem = await findMenuItemById(BigInt(menuItemId));
+
+  if (!existingItem) {
+    throw new Error('Menu item not found');
+  }
+
+  let copySku = `${existingItem.sku}-copy`;
+  let counter = 1;
+  while (await findMenuItemBySku(copySku)) {
+    copySku = `${existingItem.sku}-copy-${counter}`;
+    counter++;
+  }
+
+  const duplicated = await createMenuItem({
+    categoryId: existingItem.categoryId,
+    sku: copySku,
+    name: `${existingItem.name} - Copy`,
+    description: existingItem.description || undefined,
+    basePrice: Number(existingItem.basePrice),
+    foodType: existingItem.foodType,
+    dietaryTags: existingItem.dietaryTags as string[] | undefined,
+    modifierGroupIds: existingItem.modifierGroups.map(mg => mg.modifierGroupId)
+  });
+
+  return {
+    message: 'Menu item duplicated successfully',
+    data: duplicated,
+  };
+}
+
 export {
   getMenuItemsByCategoryService,
   createMenuItemService,
@@ -667,6 +699,7 @@ export {
   updateMenuItemAvailabilityService,
   updateMenuItemBestsellerService,
   deleteMenuItemService,
+  duplicateMenuItemService,
 
   getAvailabilitySchedulesService,
   createAvailabilityScheduleService,

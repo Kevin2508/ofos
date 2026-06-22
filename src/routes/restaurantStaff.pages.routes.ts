@@ -5,7 +5,7 @@ const restaurantStaffPageRouter = Router();
 
 restaurantStaffPageRouter.use(authenticate);
 
-restaurantStaffPageRouter.use(authorize('Restaurant_staff'));
+restaurantStaffPageRouter.use(authorize(['Restaurant_staff']));
 
 restaurantStaffPageRouter.get('/restaurant-staff-dashboard', (req, res) => {
   res.render('restaurantStaff/dashboard');

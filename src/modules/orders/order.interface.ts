@@ -4,6 +4,10 @@ import { DeliveryType, OrderStatus, PaymentStatus } from "../../generated/prisma
 export interface GetOrdersQuery {
   page?: string;
   limit?: string;
+  status?: string;
+  search?: string;
+  date?: string;
+  payment?: string;
 }
 
 export interface OrderParams {

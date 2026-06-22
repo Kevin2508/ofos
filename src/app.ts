@@ -7,7 +7,6 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { couponsRouter } from './modules/coupons/coupons.routes.ts';
 import { paymentRouter } from './modules/payment/payment.routes.ts';
 import { errorMiddleware } from './middlewares/error.middleware.ts';
 import { adminRouter } from './modules/admin/admin.routes.ts';
@@ -29,6 +28,7 @@ import { restaurantRouter } from './modules/restuarant/restaurant.routes.ts';
 import { restaurantManagementRouter } from './modules/restaurantManagement/management.routes.ts';
 import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
 import { branchRouter } from './modules/restaurantBranches/branch.routes.ts';
+import { loyaltyRouter } from './modules/loyalty/loyalty.routes.ts';
 import { adminPageRouter } from './routes/admin.pages.routes.ts';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
 import { customerPageRouter } from './routes/customer.pages.routes.ts';
@@ -89,7 +89,7 @@ app.use('/restaurant-management', restaurantManagementRouter);
 app.use('/restaurant-management/:restaurantId/branches', branchRouter);
 app.use('/fleet-manager', fleetManagerRouter);
 app.use('/payments', paymentRouter)
-app.use('/coupons', couponsRouter)
+app.use('/loyalty', loyaltyRouter)
 
 // Routes
 app.use(authPageRouter);

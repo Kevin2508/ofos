@@ -5,7 +5,7 @@ const restaurantOwnerPageRouter = Router();
 
 restaurantOwnerPageRouter.use(authenticate);
 
-restaurantOwnerPageRouter.use(authorize('Restaurant_owner'));
+restaurantOwnerPageRouter.use(authorize(['Restaurant_owner']));
 
 restaurantOwnerPageRouter.get('/restaurant-owner-dashboard', (req, res) => {
   res.render('restaurantOwner/dashboard');
@@ -29,6 +29,14 @@ restaurantOwnerPageRouter.get('/restaurant-owner-profile', (req, res) => {
 
 restaurantOwnerPageRouter.get('/restaurant-owner-reviews', (req, res) => {
   res.render('restaurantOwner/reviews');
+});
+
+restaurantOwnerPageRouter.get('/restaurant-owner-finance', (req, res) => {
+  res.render('restaurantOwner/finance');
+});
+
+restaurantOwnerPageRouter.get('/restaurant-owner-promotions', (req, res) => {
+  res.render('restaurantOwner/promotions');
 });
 
 export { restaurantOwnerPageRouter };

@@ -1,13 +1,18 @@
 import restaurantRepository from './restaurant.repository.ts';
 import { GetRestaurantsQuery } from './restaurant.interface.ts';
-import { RestaurantListDto } from './restaurant.dto.ts';
+
+import { findAllCoupons } from '../coupon/coupons.repository.ts';
 
 export const getRestaurants = async (filters: GetRestaurantsQuery) => {
   const restaurants = await restaurantRepository.getRestaurants(filters);
 
   const total = await restaurantRepository.countRestaurants(filters);
 
-  const data = restaurants.map((restaurant) => {
+  const allCoupons = await findAllCoupons();
+  const now = new Date();
+  const activeCoupons = allCoupons.filter(c => c.isActive && c.validFrom <= now && c.validUntil >= now);
+
+  const data = await Promise.all(restaurants.map(async (restaurant) => {
     const ratings = restaurant.reviews.map((review) =>
       Number(review.overallRating)
     );
@@ -34,8 +39,14 @@ export const getRestaurants = async (filters: GetRestaurantsQuery) => {
       averageRating: Number(averageRating.toFixed(1)),
 
       createdAt: restaurant.createdAt,
+      applicableCoupons: activeCoupons.filter(c => 
+        !c.couponRestaurants.length || c.couponRestaurants.some(cr => String(cr.restaurantId) === String(restaurant.id))
+      ).map(c => ({
+        code: c.code,
+        description: c.couponType === 'PERCENTAGE' ? `${c.value}% OFF` : c.couponType === 'FLAT' ? `₹${c.value} OFF` : c.couponType === 'FREE_DELIVERY' ? 'Free Delivery' : 'Buy 1 Get 1 Free'
+      }))
     };
-  });
+  }));
 
   return {
     total,
@@ -88,6 +99,23 @@ export const getRestaurantDetails = async (id: string) => {
     totalReviews: restaurant.reviews.length,
 
     branches: restaurant.branches,
+    applicableCoupons: await (async () => {
+      const allCoupons = await findAllCoupons();
+      const now = new Date();
+      return allCoupons.filter(c => {
+        if (!c.isActive) return false;
+        if (c.validFrom > now || c.validUntil < now) return false;
+        if (c.couponRestaurants && c.couponRestaurants.length > 0) {
+           return c.couponRestaurants.some(cr => String(cr.restaurantId) === String(restaurant.id));
+        }
+        return true;
+      }).map(c => ({
+        code: c.code,
+        couponType: c.couponType,
+        value: Number(c.value),
+        description: c.couponType === 'PERCENTAGE' ? `${c.value}% OFF` : c.couponType === 'FLAT' ? `₹${c.value} OFF` : c.couponType === 'FREE_DELIVERY' ? 'Free Delivery' : 'Buy 1 Get 1 Free'
+      }));
+    })()
   };
 };
 

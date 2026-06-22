@@ -593,6 +593,27 @@
 
           const data = await res.json();
           if (!res.ok) {
+            if (data.message === 'DIFFERENT_RESTAURANT_CART_EXISTS') {
+              if (confirm('Your cart contains items from a different restaurant. Would you like to clear the cart and add this item instead?')) {
+                btn.innerHTML = 'CLEARING...';
+                await fetch('/cart', { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+                btn.innerHTML = 'ADDING...';
+                const retryRes = await fetch('/cart/items', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    menuItemId: Number(menuItemId),
+                    restaurantBranchId: Number(branchId),
+                    quantity: 1
+                  })
+                });
+                if (!retryRes.ok) throw new Error('Failed to add item after clearing cart');
+                await loadCart();
+                showToast('Cart cleared and new item added', 'success');
+                return;
+              }
+              return;
+            }
             throw new Error(data.message || 'Failed to add item');
           }
 

@@ -27,4 +27,8 @@ restaurantOwnerPageRouter.get('/restaurant-owner-profile', (req, res) => {
   res.render('restaurantOwner/profile');
 });
 
+restaurantOwnerPageRouter.get('/restaurant-owner-reviews', (req, res) => {
+  res.render('restaurantOwner/reviews');
+});
+
 export { restaurantOwnerPageRouter };

@@ -19,6 +19,10 @@ customerPageRouter.get("/tracking/:id", (req, res) => {
   res.render("customer/order-tracking");
 });
 
+customerPageRouter.get("/order-confirmation/:id", (req, res) => {
+  res.render("customer/order-confirmation");
+});
+
 customerPageRouter.get("/orders", (req, res) => {
   res.render("customer/orders");
 });

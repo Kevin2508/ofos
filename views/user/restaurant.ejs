@@ -109,8 +109,14 @@
       </div>
     </div>
 
+    <!-- TABS -->
+    <div class="max-w-6xl mx-auto px-4 mt-8 flex gap-6 border-b border-gray-200">
+      <button id="tab-menu" onclick="switchTab('menu')" class="px-2 py-3 font-bold text-orange-600 border-b-2 border-orange-500 text-lg transition-colors">Menu</button>
+      <button id="tab-reviews" onclick="switchTab('reviews')" class="px-2 py-3 font-bold text-gray-500 hover:text-gray-800 text-lg transition-colors">Reviews</button>
+    </div>
+
     <!-- MENU SECTION -->
-    <div class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+    <div id="section-menu" class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
 
       <!-- CATEGORY SIDEBAR -->
       <div class="md:w-1/4">
@@ -139,6 +145,61 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- REVIEWS SECTION -->
+    <div id="section-reviews" class="max-w-6xl mx-auto px-4 py-8 hidden">
+      <div class="flex flex-col md:flex-row gap-8">
+         <!-- Filters & Sorting -->
+         <div class="md:w-1/4 space-y-8">
+            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+              <h3 class="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">Sort By</h3>
+              <select id="reviewSort" onchange="fetchReviews()" class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400 font-medium text-gray-700 cursor-pointer">
+                 <option value="recent">Most Recent</option>
+                 <option value="highest">Highest Rating</option>
+                 <option value="lowest">Lowest Rating</option>
+              </select>
+            </div>
+            
+            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+              <h3 class="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wider">Filter by Rating</h3>
+              <div class="flex flex-col gap-3">
+                 <label class="flex items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="" onchange="fetchReviews()" checked class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 group-hover:text-gray-900 transition-colors">All Ratings</span>
+                 </label>
+                 <label class="flex items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="5" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">5 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+                 <label class="flex items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="4" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">4 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+                 <label class="flex items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="3" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">3 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+                 <label class="flex items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="2" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">2 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+                 <label class="flex items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="1" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">1 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+              </div>
+            </div>
+         </div>
+         
+         <!-- Reviews List -->
+         <div class="md:w-3/4 space-y-6" id="reviewsList">
+            <div class="animate-pulse space-y-6">
+              <div class="bg-white p-6 rounded-2xl border border-gray-100 h-32"></div>
+              <div class="bg-white p-6 rounded-2xl border border-gray-100 h-32"></div>
+            </div>
+         </div>
+      </div>
     </div>
 
     <!-- VIEW CART FLOATING BAR -->
@@ -412,6 +473,90 @@
           } else {
             badge.classList.add('hidden');
             floatingBar.classList.add('translate-y-full');
+          }
+        }
+
+        function switchTab(tab) {
+          if (tab === 'menu') {
+            document.getElementById('section-menu').classList.remove('hidden');
+            document.getElementById('section-reviews').classList.add('hidden');
+            document.getElementById('tab-menu').className = 'px-2 py-3 font-bold text-orange-600 border-b-2 border-orange-500 text-lg transition-colors';
+            document.getElementById('tab-reviews').className = 'px-2 py-3 font-bold text-gray-500 hover:text-gray-800 text-lg transition-colors border-b-2 border-transparent';
+          } else {
+            document.getElementById('section-menu').classList.add('hidden');
+            document.getElementById('section-reviews').classList.remove('hidden');
+            document.getElementById('tab-reviews').className = 'px-2 py-3 font-bold text-orange-600 border-b-2 border-orange-500 text-lg transition-colors';
+            document.getElementById('tab-menu').className = 'px-2 py-3 font-bold text-gray-500 hover:text-gray-800 text-lg transition-colors border-b-2 border-transparent';
+            fetchReviews();
+          }
+        }
+
+        async function fetchReviews() {
+          const sort = document.getElementById('reviewSort').value;
+          const ratingElement = document.querySelector('input[name="ratingFilter"]:checked');
+          const rating = ratingElement ? ratingElement.value : '';
+          const container = document.getElementById('reviewsList');
+
+          try {
+            const res = await fetch(`/reviews/restaurants/${restaurantId}?sort=${sort}&rating=${rating}`);
+            const data = await res.json();
+            
+            if (!res.ok) throw new Error('Failed to load reviews');
+            
+            const reviews = data.data.reviews;
+            if (reviews.length === 0) {
+              container.innerHTML = `
+                <div class="bg-white p-10 text-center rounded-2xl border border-gray-100">
+                  <div class="text-4xl mb-4">😶</div>
+                  <h3 class="text-lg font-bold text-gray-800 mb-1">No reviews yet</h3>
+                  <p class="text-gray-500">There are no reviews matching your filters.</p>
+                </div>
+              `;
+              return;
+            }
+
+            container.innerHTML = reviews.map(r => `
+              <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-bold text-gray-900 text-lg">${r.customer.firstName} ${r.customer.lastName}</h4>
+                    <div class="flex items-center gap-3 mt-1">
+                      <div class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-lg text-sm font-bold border border-green-100">
+                        <span>${r.overallRating}</span> <span class="text-green-500">★</span>
+                      </div>
+                      <span class="text-sm text-gray-400">•</span>
+                      <span class="text-sm text-gray-500">${new Date(r.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                ${r.reviewText ? `<p class="text-gray-700 leading-relaxed">${r.reviewText}</p>` : ''}
+                
+                ${r.images && r.images.length > 0 ? `
+                  <div class="flex gap-3 overflow-x-auto py-2">
+                    ${r.images.map(img => `
+                      <img src="${img.imageUrl}" class="w-24 h-24 rounded-xl object-cover shadow-sm border border-gray-200 shrink-0" />
+                    `).join('')}
+                  </div>
+                ` : ''}
+
+                ${r.reply ? `
+                  <div class="mt-2 bg-gray-50 p-4 rounded-xl border border-gray-100 flex gap-4 relative">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-300 rounded-l-xl"></div>
+                    <div>
+                      <h5 class="font-bold text-sm text-gray-900 mb-1 flex items-center gap-2">
+                        Response from Owner
+                        <span class="bg-orange-100 text-orange-700 text-[10px] uppercase font-black px-2 py-0.5 rounded-full">Official</span>
+                      </h5>
+                      <p class="text-gray-600 text-sm leading-relaxed">${r.reply.replyText}</p>
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('');
+
+          } catch (error) {
+            container.innerHTML = '<p class="text-red-500 p-6 bg-white rounded-2xl border border-red-100">Failed to load reviews.</p>';
           }
         }
 

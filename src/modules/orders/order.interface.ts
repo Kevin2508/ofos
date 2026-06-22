@@ -93,6 +93,7 @@ export interface ICartData {
     id: bigint;
     isActive: boolean;
     deliveryFee: any;
+    minimumOrderValue: any;
     restaurant: {
       id: bigint;
       status: string;

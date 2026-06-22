@@ -89,10 +89,17 @@ async function getOrderById(orderId: bigint, customerUserId: bigint) {
       items: {
         include: {
           modifiers: true,
+          menuItem: {
+            select: {
+              isAvailable: true,
+              isActive: true,
+            }
+          }
         },
       },
 
       payments: true,
+      refunds: true,
 
       statusHistory: {
         orderBy: {
@@ -111,13 +118,23 @@ async function getOrderTrackingData(orderId: bigint, customerUserId: bigint) {
     },
 
     include: {
+      branch: {
+        select: {
+          latitude: true,
+          longitude: true,
+        },
+      },
+      address: {
+        select: {
+          latitude: true,
+          longitude: true,
+        },
+      },
       deliveryAssignments: {
         orderBy: {
           assignedAt: 'desc',
         },
-
         take: 1,
-
         include: {
           partner: {
             include: {
@@ -131,12 +148,10 @@ async function getOrderTrackingData(orderId: bigint, customerUserId: bigint) {
               },
             },
           },
-
           trackingPoints: {
             orderBy: {
               recordedAt: 'desc',
             },
-
             take: 1,
           },
         },
@@ -321,6 +336,7 @@ export const findActiveCart = async (
           id: true,
           isActive: true,
           deliveryFee: true,
+          minimumOrderValue: true,
           restaurant: {
             select: {
               id: true,

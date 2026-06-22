@@ -208,6 +208,14 @@ async function calculateCartTotals(
   const taxAmount = (subtotal - discountAmount) * 0.05; // 5% tax
   const totalAmount = subtotal + deliveryFee + taxAmount - discountAmount;
 
+  await prisma.cart.update({
+    where: { id: cartId },
+    data: {
+      subtotalAmount: subtotal,
+      totalAmount: totalAmount,
+    },
+  });
+
   return {
     subtotal: subtotal.toFixed(2),
     discountAmount: discountAmount.toFixed(2),

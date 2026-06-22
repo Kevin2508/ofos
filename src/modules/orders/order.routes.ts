@@ -14,6 +14,8 @@ router.patch('/:id/cancel', authenticate, orderController.cancelOrder);
 
 router.post("/", authenticate, orderController.placeOrderController);
 
+router.post("/:id/reorder", authenticate, orderController.reorderPastOrderController);
+
 // Staff Actions
 router.patch('/:id/accept', authenticate, authorize('RestaurantStaff'), orderController.staffAcceptOrder);
 router.patch('/:id/reject', authenticate, authorize('RestaurantStaff'), orderController.staffRejectOrder);

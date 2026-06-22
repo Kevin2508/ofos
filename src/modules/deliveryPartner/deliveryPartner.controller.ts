@@ -13,6 +13,7 @@ import {
   updateProfileService,
   updateStatusService,
   pickupOrderService,
+  markOutForDeliveryService,
   deliverOrderService,
   reportDeliveryIssueService,
   updateLocationService,
@@ -165,6 +166,13 @@ const pickupOrder = catchAsync(async (req: Request, res: Response) => {
   res.status(200).json({ status: 'success', message: data.message });
 });
 
+const outForDeliveryOrder = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user?.id) throw new Error('Unauthorized access');
+  const { assignmentId } = req.params;
+  const data = await markOutForDeliveryService(assignmentId as string, req.user.id as string);
+  res.status(200).json({ status: 'success', message: data.message });
+});
+
 const deliverOrder = catchAsync(async (req: Request, res: Response) => {
   if (!req.user?.id) throw new Error('Unauthorized access');
   const { assignmentId } = req.params;
@@ -232,6 +240,7 @@ export {
   getMyEarningsHistory,
   getMyPerformance,
   pickupOrder,
+  outForDeliveryOrder,
   deliverOrder,
   reportDeliveryIssue,
   updateLocation,

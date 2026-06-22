@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Order Details | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body class="min-h-screen bg-orange-50">
@@ -45,8 +46,8 @@
             <div class="text-right">
               <div id="orderStatusBadge" class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold">—
               </div>
-              <p class="text-xs text-gray-400 mt-1.5">Payment: <span id="paymentStatus" class="font-semibold">—</span>
-              </p>
+              <p class="text-xs text-gray-400 mt-1.5">Payment: <span id="paymentStatus" class="font-semibold">—</span></p>
+              <p id="refundStatusContainer" class="hidden text-xs text-gray-400 mt-1">Refund: <span id="refundStatus" class="font-semibold">—</span></p>
             </div>
           </div>
         </div>
@@ -101,6 +102,10 @@
           <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50 print:hidden">
             <h3 class="text-xl font-bold text-gray-900">Tax Invoice</h3>
             <div class="flex gap-2">
+              <button onclick="downloadInvoicePDF()" class="px-4 py-2 bg-blue-50 text-blue-600 font-bold rounded-xl hover:bg-blue-100 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                PDF
+              </button>
               <button onclick="window.print()"
                 class="px-4 py-2 bg-orange-50 text-orange-600 font-bold rounded-xl hover:bg-orange-100 transition-colors flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,6 +265,22 @@
         badge.textContent = status.replace(/_/g, ' ');
         document.getElementById('paymentStatus').textContent = (order.paymentStatus || '—').replace(/_/g, ' ');
 
+        // Refund Status
+        if (order.refunds && order.refunds.length > 0) {
+          const latestRefund = order.refunds[order.refunds.length - 1];
+          const refundText = latestRefund.status === 'COMPLETED' ? 'Credited' : latestRefund.status.charAt(0).toUpperCase() + latestRefund.status.slice(1).toLowerCase();
+          document.getElementById('refundStatusContainer').classList.remove('hidden');
+          const rsBadge = document.getElementById('refundStatus');
+          rsBadge.textContent = refundText;
+          if (latestRefund.status === 'COMPLETED') {
+            rsBadge.className = 'font-bold text-green-600';
+          } else if (latestRefund.status === 'FAILED') {
+            rsBadge.className = 'font-bold text-red-600';
+          } else {
+            rsBadge.className = 'font-bold text-orange-500';
+          }
+        }
+
         // Timeline
         const timeline = document.getElementById('timeline');
         timeline.innerHTML = '';
@@ -319,7 +340,7 @@
             actionsHtml += `<button onclick="cancelOrder()" class="flex-1 border border-red-200 text-red-500 py-3 rounded-xl font-semibold hover:bg-red-50 transition-colors">Cancel Order</button>`;
           }
         } else if (status === 'DELIVERED') {
-          actionsHtml += `<a href="/" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600 transition-colors">Order Again</a>`;
+          actionsHtml += `<button onclick="reorderOrder()" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600 transition-colors">Order Again</button>`;
         }
         actions.innerHTML = actionsHtml;
 
@@ -398,6 +419,54 @@
       function closeInvoice() {
         document.getElementById('invoiceModal').classList.add('hidden');
         document.body.style.overflow = 'auto';
+      }
+
+      function downloadInvoicePDF() {
+        const element = document.getElementById('invoiceContent');
+        const opt = {
+          margin: 0,
+          filename: `Invoice-${orderId}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+      }
+
+      async function reorderOrder(forceClear = false) {
+        try {
+          const res = await fetch(`/orders/${orderId}/reorder`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ forceClear })
+          });
+          const data = await res.json();
+          
+          if (!res.ok) {
+            showToast(data.message || 'Failed to reorder', 'error');
+            return;
+          }
+
+          if (data.requireConfirmation) {
+            if (confirm(data.message)) {
+              return reorderOrder(true);
+            }
+            return;
+          }
+
+          if (data.success) {
+            if (data.unavailableItems && data.unavailableItems.length > 0) {
+              alert(`Added to cart! The following items are no longer available and were skipped:\n- ${data.unavailableItems.join('\\n- ')}`);
+            } else {
+              showToast('Items added to cart successfully!', 'success');
+            }
+            setTimeout(() => {
+              window.location.href = '/c/cart';
+            }, 1000);
+          }
+        } catch {
+          showToast('Failed to reorder', 'error');
+        }
       }
 
       async function cancelOrder() {

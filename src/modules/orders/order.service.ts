@@ -1,5 +1,5 @@
 import { IPlaceOrderRequest, IPlaceOrderResult } from './order.interface.ts';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import orderRepository, {
   createOrder,
   findActiveCart,
@@ -7,7 +7,9 @@ import orderRepository, {
   findExistingOrderBySession,
 } from './order.repository.ts';
 import { triggerAutoAssignment } from '../deliveryPartner/deliveryPartner.service.ts';
-// import * as orderRepository from "./order.repository.ts";
+import redisService from '../../services/redisService.ts';
+import { getActiveCartByUser } from '../cart/cart.repository.ts';
+import { clearCartService, addItemToCartService } from '../cart/cart.service.ts';
 
 async function getOrders(customerUserId: bigint, page: number, limit: number) {
   const [orders, total] = await Promise.all([
@@ -45,6 +47,7 @@ export async function getOrderTracking(
   orderId: bigint,
   customerUserId: bigint
 ) {
+  // ... existing code ... (no changes needed here, just adding reorderPastOrder below)
   const order = await orderRepository.getOrderTrackingData(
     orderId,
     customerUserId
@@ -56,39 +59,76 @@ export async function getOrderTracking(
 
   const assignment = order.deliveryAssignments[0];
 
+  const payload: any = {
+    orderId: order.id,
+    orderNumber: order.orderNumber,
+    orderStatus: order.orderStatus,
+    customerLat: order.address?.latitude,
+    customerLng: order.address?.longitude,
+    restaurantLat: order.branch?.latitude,
+    restaurantLng: order.branch?.longitude,
+    trackingAvailable: !!assignment,
+  };
+
   if (!assignment) {
-    return {
-      orderStatus: order.orderStatus,
-      trackingAvailable: false,
-    };
+    return payload;
   }
 
   const latestLocation = assignment.trackingPoints[0];
 
-  return {
-    orderId: order.id,
-    orderNumber: order.orderNumber,
-    orderStatus: order.orderStatus,
+  if (latestLocation && order.address?.latitude && order.address?.longitude) {
+    const cacheKey = `tracking:eta:${orderId}`;
+    let eta = await redisService.get(cacheKey);
 
-    trackingAvailable: true,
+    if (!eta) {
+      // Recalculate ETA based on Haversine distance
+      const lat1 = Number(latestLocation.latitude);
+      const lon1 = Number(latestLocation.longitude);
+      const lat2 = Number(order.address.latitude);
+      const lon2 = Number(order.address.longitude);
 
-    partner: assignment.partner
-      ? {
-        id: assignment.partner.user.id,
-        firstName: assignment.partner.user.firstName,
-        lastName: assignment.partner.user.lastName,
-        phone: assignment.partner.user.phone,
-      }
-      : null,
+      const R = 6371; // Radius of the earth in km
+      const dLat = (lat2 - lat1) * (Math.PI / 180);
+      const dLon = (lon2 - lon1) * (Math.PI / 180);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distanceKm = R * c;
 
-    location: latestLocation
-      ? {
-        latitude: latestLocation.latitude,
-        longitude: latestLocation.longitude,
-        recordedAt: latestLocation.recordedAt,
-      }
-      : null,
-  };
+      // Calculate mins: e.g. 15km/h avg speed -> 4 mins per km + 2 mins buffer
+      const mins = Math.ceil(distanceKm * 4) + 2;
+      const calculatedEta = new Date(Date.now() + mins * 60000).toISOString();
+
+      // Store in redis for 2 minutes (120 seconds)
+      await redisService.set(cacheKey, calculatedEta, 120);
+      eta = calculatedEta;
+    }
+    payload.estimatedDeliveryAt = eta;
+  } else {
+    // Fallback if no location data available yet
+    payload.estimatedDeliveryAt = order.estimatedDeliveryAt ? order.estimatedDeliveryAt.toISOString() : null;
+  }
+
+  payload.partner = assignment.partner
+    ? {
+      id: assignment.partner.user.id,
+      firstName: assignment.partner.user.firstName,
+      lastName: assignment.partner.user.lastName,
+      phone: assignment.partner.user.phone,
+    }
+    : null;
+
+  payload.location = latestLocation
+    ? {
+      latitude: latestLocation.latitude,
+      longitude: latestLocation.longitude,
+      recordedAt: latestLocation.recordedAt,
+    }
+    : null;
+
+  return payload;
 }
 
 export async function cancelOrder(
@@ -197,6 +237,11 @@ export const placeOrder = async (
 
   // ── 5. Compute price breakdown ────────────────────────────
   const subtotal = parseFloat(cart.subtotalAmount.toString());
+
+  if (cart.branch.minimumOrderValue && subtotal < Number(cart.branch.minimumOrderValue)) {
+    throw new Error(`Minimum order amount of ${cart.branch.minimumOrderValue} not met.`);
+  }
+
   const deliveryFee = parseFloat(cart.branch.deliveryFee.toString());
   const taxAmount = parseFloat((subtotal * TAX_RATE).toFixed(2));
   const totalAmount = parseFloat(
@@ -244,6 +289,56 @@ export const placeOrder = async (
   };
 };
 
+export async function reorderPastOrder(
+  orderId: bigint,
+  customerUserId: bigint,
+  forceClear: boolean = false
+) {
+  const order = await orderRepository.getOrderById(orderId, customerUserId);
+  if (!order) {
+    throw new Error('Order not found');
+  }
+
+  // Check current cart
+  const currentCart = await getActiveCartByUser(customerUserId);
+  if (currentCart && currentCart.restaurantBranchId !== order.branch!.id) {
+    if (!forceClear) {
+      return { requireConfirmation: true, message: 'Cart contains items from another restaurant. Clear it to reorder?' };
+    }
+    await clearCartService(customerUserId);
+  } else if (currentCart && forceClear) {
+    await clearCartService(customerUserId);
+  }
+
+  const unavailableItems: string[] = [];
+  const addedItems: string[] = [];
+
+  for (const item of order.items) {
+    if (item.menuItem && item.menuItem.isActive && item.menuItem.isAvailable) {
+      try {
+        await addItemToCartService(customerUserId, {
+          menuItemId: item.menuItemId!,
+          restaurantBranchId: order.branch!.id,
+          quantity: item.quantity,
+          specialInstructions: item.specialInstructions || undefined,
+          modifiers: [] // Modifiers are skipped for reorder due to missing option ID mapping
+        });
+        addedItems.push(item.itemName);
+      } catch (err) {
+        unavailableItems.push(item.itemName);
+      }
+    } else {
+      unavailableItems.push(item.itemName);
+    }
+  }
+
+  return {
+    success: true,
+    addedItems,
+    unavailableItems,
+  };
+}
+
 export default {
   getOrders,
   getOrderDetails,
@@ -254,4 +349,5 @@ export default {
   rejectOrder,
   markPreparing,
   markReadyForPickup,
+  reorderPastOrder,
 };

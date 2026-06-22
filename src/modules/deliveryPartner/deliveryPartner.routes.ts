@@ -12,6 +12,7 @@ import {
   updateStatus,
   uploadDocuments,
   pickupOrder,
+  outForDeliveryOrder,
   deliverOrder,
   reportDeliveryIssue,
   updateLocation,
@@ -89,6 +90,12 @@ deliveryPartnerRouter.patch(
   '/assignments/:assignmentId/pickup',
   validateParams(assignmentIdSchema),
   pickupOrder
+);
+
+deliveryPartnerRouter.patch(
+  '/assignments/:assignmentId/out-for-delivery',
+  validateParams(assignmentIdSchema),
+  outForDeliveryOrder
 );
 
 deliveryPartnerRouter.patch(

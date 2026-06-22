@@ -16,5 +16,51 @@ refine order flow
 env: 
 POLLING_INTERVAL_MS=5000
 
-check below functionality is available in my project if not then add it
+check below functionality is available both side frontend+backend in my project if not then add it.
 
+1. The system shall support multiple coupon types:
+percentage discount, flat amount discount, free
+delivery, BOGO (Buy One Get One), and
+minimum order amount discount.
+
+2. The system shall enforce coupon rules: validity
+date range, minimum cart value, per-user usage
+limit, per-coupon total usage cap, and
+restaurant/category scope.
+
+3. The system shall display all applicable active
+offers on the restaurant page and cart/checkout
+page automatically without requiring the
+customer to enter a code.
+
+4. Customers shall earn loyalty points for every
+order (configurable rate per ₹/$ spent - per rs./$ will be configured by admin in congiguration functionality and stored in db) and be
+able to redeem points as a discount on future
+orders.
+
+5. Customers shall be able to view their current
+loyalty point balance and a transaction history of
+points earned and redeemed.
+
+1. Customers shall be able to cancel an order
+without penalty only before the restaurant has
+accepted the order.
+
+2. After restaurant acceptance, order cancellation
+shall be subject to the platform's cancellation
+policy (partial or no refund based on preparation
+stage).
+
+3. Refunds for eligible cancellations shall be
+initiated within 24 hours of cancellation and
+credited to the original payment method within
+5–7 business days
+
+4. Customers shall be able to raise a dispute for
+incorrect, missing, or poor-quality items from the
+order details page; the system shall generate a
+support ticket automatically.
+
+5. The system shall display the refund status
+(Initiated, Processing, Credited) in the customer's
+order detail page.

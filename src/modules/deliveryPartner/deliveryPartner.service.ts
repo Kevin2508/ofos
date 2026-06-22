@@ -272,7 +272,7 @@ async function pickupOrderService(assignmentId: string, partnerUserId: string) {
   if (!assignment || assignment.partnerUserId !== partnerUserId) throw new Error('Invalid assignment');
 
   // Mark assignment as picked up by updating order status
-  await updateOrderStatus(BigInt(assignment.orderId), 'PICKED_UP', BigInt(partnerUserId), 'Picked up by delivery partner');
+  const order = await updateOrderStatus(BigInt(assignment.orderId), 'PICKED_UP', BigInt(partnerUserId), 'Picked up by delivery partner');
 
   await prisma.deliveryEvent.create({
     data: {
@@ -283,7 +283,29 @@ async function pickupOrderService(assignmentId: string, partnerUserId: string) {
     },
   });
 
+  console.log(`[SMS/PUSH NOTIFICATION] To Customer ${order.customerUserId}: Your order #${order.orderNumber || order.id} has been PICKED UP by the delivery partner!`);
+
   return { message: 'Order picked up successfully' };
+}
+
+async function markOutForDeliveryService(assignmentId: string, partnerUserId: string) {
+  const assignment = await getAssignmentByIdRepo(BigInt(assignmentId));
+  if (!assignment || assignment.partnerUserId !== partnerUserId) throw new Error('Invalid assignment');
+
+  const order = await updateOrderStatus(BigInt(assignment.orderId), 'OUT_FOR_DELIVERY', BigInt(partnerUserId), 'Out for delivery');
+
+  await prisma.deliveryEvent.create({
+    data: {
+      orderId: BigInt(assignment.orderId),
+      partnerUserId: BigInt(partnerUserId),
+      eventType: 'ORDER_OUT_FOR_DELIVERY',
+      eventData: { assignmentId: assignmentId.toString() },
+    },
+  });
+
+  console.log(`[SMS/PUSH NOTIFICATION] To Customer ${order.customerUserId}: Your order #${order.orderNumber || order.id} is OUT FOR DELIVERY!`);
+
+  return { message: 'Order marked out for delivery' };
 }
 
 async function deliverOrderService(assignmentId: string, partnerUserId: string, otp: string) {
@@ -315,6 +337,8 @@ async function deliverOrderService(assignmentId: string, partnerUserId: string, 
       eventData: { assignmentId: assignmentId.toString() },
     },
   });
+
+  console.log(`[SMS/PUSH NOTIFICATION] To Customer ${order.customerUserId}: Your order has arrived! Enjoy your meal.`);
 
   const deliveryFeeNum = order.deliveryFee ? Number(order.deliveryFee) : 0;
   const finalEarning = deliveryFeeNum > 0 ? deliveryFeeNum : 40;
@@ -388,6 +412,7 @@ export {
   getPerformanceService,
   getEarningsService,
   pickupOrderService,
+  markOutForDeliveryService,
   deliverOrderService,
   reportDeliveryIssueService,
   updateLocationService,

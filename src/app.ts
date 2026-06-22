@@ -23,6 +23,7 @@ import { menuCategoryRouter } from './modules/menuCategory/menuCategory.routes.t
 import { menuItemRouter } from './modules/menuItem/menuItem.routes.ts';
 import { modifierRouter } from './modules/modifierGroupsAndOptions/modifier.routes.ts';
 import orderRoutes from './modules/orders/order.routes.ts';
+import reviewsRouter from './modules/reviews/reviews.routes.ts';
 import { refundRouter } from './modules/refund/refund.routes.ts';
 import { restaurantRouter } from './modules/restuarant/restaurant.routes.ts';
 import { restaurantManagementRouter } from './modules/restaurantManagement/management.routes.ts';
@@ -77,6 +78,7 @@ app.use('/customer', customerRouter);
 app.use('/modifier', modifierRouter);
 app.use('/cart', cartRouter);
 app.use('/orders', orderRoutes);
+app.use('/reviews', reviewsRouter);
 app.use('/refund', refundRouter);
 app.use('/coupons', couponRouter);
 app.use('/delivery-partner', deliveryPartnerRouter);

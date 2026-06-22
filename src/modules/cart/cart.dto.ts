@@ -47,6 +47,9 @@ interface CartResponseDTO {
   } | null;
   items: CartItemDTO[];
   priceBreakdown: PriceBreakdownDTO;
+  minimumOrderValue?: string;
+  distanceToMinimum?: string;
+  progressPercentage?: number;
   lastActivityAt: Date;
   createdAt: Date;
   updatedAt: Date;

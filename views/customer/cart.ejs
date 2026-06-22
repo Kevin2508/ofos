@@ -99,7 +99,15 @@
                 <span>Total</span><span id="priceTotal">₹0</span>
               </div>
             </div>
-            <a href="/c/checkout"
+            
+            <div id="minOrderProgressContainer" class="hidden mt-4 pt-4 border-t border-gray-100">
+              <p class="text-xs text-gray-600 mb-1 font-medium" id="minOrderText"></p>
+              <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div id="minOrderProgressBar" class="bg-orange-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <a id="checkoutBtn" href="/c/checkout"
               class="mt-5 w-full block text-center bg-orange-500 text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition-all hover:shadow-lg">
               Proceed to Checkout →
             </a>
@@ -180,6 +188,34 @@
         </button>`;
           list.appendChild(card);
         });
+
+        const minOrderVal = Number(cart.minimumOrderValue || 0);
+        const distance = Number(cart.distanceToMinimum || 0);
+        const progress = cart.progressPercentage || 0;
+        
+        const progressContainer = document.getElementById('minOrderProgressContainer');
+        const minOrderText = document.getElementById('minOrderText');
+        const progressBar = document.getElementById('minOrderProgressBar');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+
+        if (minOrderVal > 0) {
+          progressContainer.classList.remove('hidden');
+          progressBar.style.width = `${progress}%`;
+          
+          if (progress < 100) {
+            minOrderText.innerHTML = `Add <span class="text-orange-500 font-bold">₹${distance.toFixed(2)}</span> more to reach the minimum order of ₹${minOrderVal.toFixed(2)}`;
+            checkoutBtn.classList.add('opacity-50', 'pointer-events-none');
+            checkoutBtn.href = "#";
+          } else {
+            minOrderText.innerHTML = `<span class="text-green-600 font-bold">Minimum order reached!</span>`;
+            checkoutBtn.classList.remove('opacity-50', 'pointer-events-none');
+            checkoutBtn.href = "/c/checkout";
+          }
+        } else {
+          progressContainer.classList.add('hidden');
+          checkoutBtn.classList.remove('opacity-50', 'pointer-events-none');
+          checkoutBtn.href = "/c/checkout";
+        }
       }
 
       async function loadPriceBreakdown() {

@@ -71,50 +71,84 @@ async function estimateDeliveryService(
   let estimationMethod = 'unknown';
 
   try {
-    const redisGeoKey = 'delivery:locations';
-    
-    await redisService.geoAdd(
-      redisGeoKey,
-      restaurantLongitude,
-      restaurantLatitude,
-      `restaurant:${session.cartId}`
-    );
-
-    await redisService.geoAdd(
-      redisGeoKey,
-      customerLongitude,
-      customerLatitude,
-      `customer:${userId}`
-    );
-
-    const redisDist = await redisService.geoDist(
-      redisGeoKey,
-      `restaurant:${session.cartId}`,
-      `customer:${userId}`,
-      'km'
-    );
-
-    if (redisDist !== null && redisDist > 0) {
-      distanceKm = redisDist;
-      estimationMethod = 'redis-geo';
-      console.log(
-        `[Delivery Estimate] Using Redis GEO: ${distanceKm.toFixed(2)} km`
-      );
+    const googleApiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (googleApiKey && restaurantLatitude !== 0 && customerLatitude !== 0) {
+      const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${restaurantLatitude},${restaurantLongitude}&destinations=${customerLatitude},${customerLongitude}&key=${googleApiKey}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+      const data: any = await res.json();
+      
+      if (data.status === 'OK' && data.rows[0]?.elements[0]?.status === 'OK') {
+        const element = data.rows[0].elements[0];
+        distanceKm = element.distance.value / 1000;
+        estimationMethod = 'google-maps';
+        const estimatedDeliveryMinutes = Math.ceil(element.duration.value / 60) + 5;
+        
+        await updateCheckoutSession(sessionId, { estimatedDeliveryMinutes });
+        const result = {
+          estimatedDeliveryMinutes,
+          distance: element.distance.text,
+          duration: element.duration.text,
+          method: estimationMethod,
+        };
+        await redisService.set(cacheKey, result, 1800);
+        console.log(`[Delivery Estimate] Using Google Maps: ${result.distance}`);
+        return result;
+      } else {
+        throw new Error(`API error: ${data.status}`);
+      }
     } else {
-      throw new Error('Redis GEO returned no result');
+      throw new Error('API key not configured or coordinates missing');
     }
-  } catch (error) {
-    console.warn(`Redis GEO failed, falling back to Haversine: ${error}`);
-    distanceKm = calculateHaversineDistance(
-      restaurantLatitude,
-      restaurantLongitude,
-      customerLatitude,
-      customerLongitude
-    );
-    estimationMethod = 'haversine';
-    console.log(
-      `[Delivery Estimate] Using Haversine formula: ${distanceKm.toFixed(2)} km`
-    );
+  } catch (apiError: any) {
+    console.warn(`[Delivery Estimate] Google Maps skipped/failed: ${apiError.message}. Falling back.`);
+    
+    try {
+      const redisGeoKey = 'delivery:locations';
+      
+      await redisService.geoAdd(
+        redisGeoKey,
+        restaurantLongitude,
+        restaurantLatitude,
+        `restaurant:${session.cartId}`
+      );
+
+      await redisService.geoAdd(
+        redisGeoKey,
+        customerLongitude,
+        customerLatitude,
+        `customer:${userId}`
+      );
+
+      const redisDist = await redisService.geoDist(
+        redisGeoKey,
+        `restaurant:${session.cartId}`,
+        `customer:${userId}`,
+        'km'
+      );
+
+      if (redisDist !== null && redisDist > 0) {
+        distanceKm = redisDist;
+        estimationMethod = 'redis-geo';
+        console.log(
+          `[Delivery Estimate] Using Redis GEO: ${distanceKm.toFixed(2)} km`
+        );
+      } else {
+        throw new Error('Redis GEO returned no result');
+      }
+    } catch (error) {
+      console.warn(`Redis GEO failed, falling back to Haversine: ${error}`);
+      distanceKm = calculateHaversineDistance(
+        restaurantLatitude,
+        restaurantLongitude,
+        customerLatitude,
+        customerLongitude
+      );
+      estimationMethod = 'haversine';
+      console.log(
+        `[Delivery Estimate] Using Haversine formula: ${distanceKm.toFixed(2)} km`
+      );
+    }
   }
 
   const estimatedDeliveryMinutes = calculateEstimateFromDistance(distanceKm);
@@ -162,8 +196,8 @@ async function initiateCheckoutService(
     paymentMethodId: session.paymentMethodId || undefined,
     couponId: session.couponId || undefined,
     deliveryType: session.deliveryType,
-    scheduledFor: session.scheduledFor,
-    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes,
+    scheduledFor: session.scheduledFor || undefined,
+    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes || undefined,
     expiresAt: session.expiresAt,
     createdAt: session.createdAt,
   };
@@ -201,8 +235,8 @@ async function getCheckoutSessionService(
     paymentMethodId: session.paymentMethodId || undefined,
     couponId: session.couponId || undefined,
     deliveryType: session.deliveryType,
-    scheduledFor: session.scheduledFor,
-    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes,
+    scheduledFor: session.scheduledFor || undefined,
+    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes || undefined,
     expiresAt: session.expiresAt,
     createdAt: session.createdAt,
   };
@@ -253,7 +287,7 @@ async function placeOrderService(
     taxAmount: Number(breakdown.taxAmount),
     totalAmount: Number(breakdown.totalAmount),
     otpHash: otpHash,
-    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes,
+    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes || undefined,
   });
 
   await createOrderItems(order.id, session.cartId);
@@ -284,7 +318,7 @@ async function placeOrderService(
     taxAmount: order.taxAmount.toString(),
     totalAmount: order.totalAmount.toString(),
     otp: otp,
-    estimatedDeliveryAt: order.estimatedDeliveryAt,
+    estimatedDeliveryAt: order.estimatedDeliveryAt || undefined,
     createdAt: order.createdAt,
   };
 

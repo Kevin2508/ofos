@@ -72,10 +72,35 @@ function formatCartResponse(cart: any): CartResponseDTO {
           totalAmount: '0',
           calculatedAt: new Date(),
         },
+    minimumOrderValue: (cart.branch?.minimumOrderValue ? Number(cart.branch.minimumOrderValue) : 0).toFixed(2),
+    distanceToMinimum: (cart.branch?.minimumOrderValue && cart.priceBreakdowns?.[0]?.subtotal
+      ? Math.max(0, Number(cart.branch.minimumOrderValue) - Number(cart.priceBreakdowns[0].subtotal))
+      : (cart.branch?.minimumOrderValue ? Number(cart.branch.minimumOrderValue) : 0)).toFixed(2),
+    progressPercentage: cart.branch?.minimumOrderValue && cart.priceBreakdowns?.[0]?.subtotal && Number(cart.branch.minimumOrderValue) > 0
+      ? Math.min((Number(cart.priceBreakdowns[0].subtotal) / Number(cart.branch.minimumOrderValue)) * 100, 100)
+      : (cart.branch?.minimumOrderValue && Number(cart.branch.minimumOrderValue) === 0 ? 100 : 0),
     lastActivityAt: cart.lastActivityAt,
     createdAt: cart.createdAt,
     updatedAt: cart.updatedAt,
   };
+}
+
+async function syncCartTotalsService(cartId: bigint, userId: bigint) {
+  const cart = await getActiveCartByUser(userId);
+  if (!cart) return;
+
+  const appliedDiscountRaw = cart.priceBreakdowns?.[0]?.discountAmount || 0;
+  const appliedDiscountNum = Number(appliedDiscountRaw) || 0;
+
+  const breakdown = await calculateCartTotals(cartId, appliedDiscountNum);
+
+  await createPriceBreakdown(cartId, {
+    subtotal: Number(breakdown.subtotal),
+    discountAmount: Number(breakdown.discountAmount),
+    deliveryFee: Number(breakdown.deliveryFee),
+    taxAmount: Number(breakdown.taxAmount),
+    totalAmount: Number(breakdown.totalAmount),
+  });
 }
 
 async function getCartService(userId: bigint) {
@@ -125,6 +150,10 @@ async function addItemToCartService(
   // Get or create cart
   let cart = await getActiveCartByUser(userId);
 
+  if (cart && cart.restaurantBranchId !== data.restaurantBranchId) {
+    throw new Error('DIFFERENT_RESTAURANT_CART_EXISTS');
+  }
+
   if (!cart) {
     cart = await createCart(userId, data.restaurantBranchId);
   }
@@ -152,6 +181,9 @@ async function addItemToCartService(
       );
     }
   }
+
+  // Sync totals
+  await syncCartTotalsService(cart.id, userId);
 
   // Invalidate cache
   await invalidateCartCache(userId);
@@ -181,6 +213,9 @@ async function updateCartItemService(
   // Update item
   await updateCartItem(cartItemId, data);
 
+  // Sync totals
+  await syncCartTotalsService(cart.id, userId);
+
   // Invalidate cache
   await invalidateCartCache(userId);
 
@@ -198,6 +233,9 @@ async function removeCartItemService(userId: bigint, cartItemId: bigint) {
 
   // Delete item
   await deleteCartItem(cartItemId);
+
+  // Sync totals
+  await syncCartTotalsService(cart.id, userId);
 
   // Invalidate cache
   await invalidateCartCache(userId);

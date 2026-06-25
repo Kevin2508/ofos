@@ -5,6 +5,7 @@ import {
   getActiveCartByUser,
   addItemToCart,
   addModifierToCartItem,
+  getModifierOptionsByIds,
   updateCartItem,
   deleteCartItem,
   clearCart,
@@ -185,22 +186,44 @@ async function addItemToCartService(
   const menuItem = await getMenuItemWithPrice(data.menuItemId);
   if (!menuItem) throw new Error('Menu item not found');
 
+  const requestedModifiers = data.modifiers || [];
+  const modifierOptions = await getModifierOptionsByIds(
+    requestedModifiers.map((modifier) => modifier.modifierOptionId)
+  );
+
+  if (modifierOptions.length !== requestedModifiers.length) {
+    throw new Error('Invalid modifier option selected');
+  }
+
+  const modifierPriceMap = new Map(
+    modifierOptions.map((option) => [
+      option.id.toString(),
+      Number(option.additionalPrice),
+    ])
+  );
+  const modifierTotal = requestedModifiers.reduce(
+    (sum, modifier) =>
+      sum + (modifierPriceMap.get(modifier.modifierOptionId.toString()) || 0),
+    0
+  );
+  const unitPrice = Number(menuItem.basePrice) + modifierTotal;
+
   // Add item to cart
   const cartItem = await addItemToCart(
     cart.id,
     data.menuItemId,
     data.quantity,
-    Number(menuItem.basePrice),
+    unitPrice,
     data.specialInstructions
   );
 
   // Add modifiers if provided
-  if (data.modifiers && data.modifiers.length > 0) {
-    for (const modifier of data.modifiers) {
+  if (requestedModifiers.length > 0) {
+    for (const modifier of requestedModifiers) {
       await addModifierToCartItem(
         cartItem.id,
         modifier.modifierOptionId,
-        modifier.additionalPrice
+        modifierPriceMap.get(modifier.modifierOptionId.toString()) || 0
       );
     }
   }

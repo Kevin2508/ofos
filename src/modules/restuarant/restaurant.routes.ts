@@ -8,12 +8,12 @@ restaurantRouter.get("/global-menu-items", restaurantController.getGlobalMenuIte
 
 restaurantRouter.get("/featured", restaurantController.getFeaturedRestaurants);
 
-restaurantRouter.get("/:id", restaurantController.getRestaurantDetails);
-
-restaurantRouter.get("/:id/menu", restaurantController.getRestaurantMenu);
-
 restaurantRouter.get("/branch/:id", restaurantController.getBranchDetails);
 
 restaurantRouter.get("/branch/:id/menu", restaurantController.getBranchMenu);
+
+restaurantRouter.get("/:id", restaurantController.getRestaurantDetails);
+
+restaurantRouter.get("/:id/menu", restaurantController.getRestaurantMenu);
 
 export { restaurantRouter };

@@ -135,6 +135,22 @@ async function addModifierToCartItem(
   });
 }
 
+async function getModifierOptionsByIds(ids: bigint[]) {
+  if (!ids.length) return [];
+
+  return prisma.modifierOption.findMany({
+    where: {
+      id: {
+        in: ids,
+      },
+    },
+    select: {
+      id: true,
+      additionalPrice: true,
+    },
+  });
+}
+
 // Update cart item
 async function updateCartItem(
   cartItemId: bigint,
@@ -307,6 +323,7 @@ export {
   getActiveCartByUser,
   addItemToCart,
   addModifierToCartItem,
+  getModifierOptionsByIds,
   updateCartItem,
   deleteCartItem,
   clearCart,

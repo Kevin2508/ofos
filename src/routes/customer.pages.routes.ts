@@ -15,6 +15,10 @@ customerPageRouter.get("/checkout", (req, res) => {
   res.render("customer/checkout");
 });
 
+customerPageRouter.get("/restaurants/:id", (req, res) => {
+  res.render("customer/restaurant");
+});
+
 customerPageRouter.get("/tracking/:id", (req, res) => {
   res.render("customer/order-tracking");
 });

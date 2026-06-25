@@ -339,7 +339,7 @@ async function applyCouponService(
   // 3. Check Per User Limit
   if (coupon.perUserLimit) {
     const userUsed = await getCouponUsageCount(coupon.id, userId);
-    if (userUsed >= coupon.perUserLimit) throw new Error('You have reached the limit for this coupon.');
+    if (userUsed >= coupon.perUserLimit) throw new Error('You have reached the limit for this coupon.'); 
   }
 
   const subtotal = cart.items.reduce(

@@ -95,6 +95,7 @@ authRouter.post(
 // Delivery Partner
 authRouter.post(
   '/register/delivery-partner',
+  upload.single('governmentId'),
   validate(registerDeliveryPartnerSchema),
   registerDeliveryPartner
 );

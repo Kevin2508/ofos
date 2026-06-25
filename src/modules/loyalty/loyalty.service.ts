@@ -3,13 +3,13 @@ import redisService from '../../services/redisService.ts';
 
 // 1 point = ? Rs
 export async function getRedemptionRate(): Promise<number> {
-  const rate = await loyaltyRepo.getSystemConfig('loyalty_redemption_rate');
+  const rate = await loyaltyRepo.getSystemConfig('LOYALTY_REDEMPTION_RATE');
   return rate ? parseFloat(rate) : 1; // default 1 Rs per point
 }
 
 export async function getEarningRate(): Promise<number> {
-  const rate = await loyaltyRepo.getSystemConfig('loyalty_earning_rate');
-  return rate ? parseFloat(rate) : 0.1; // default 0.1 point per Rs spent
+  const rate = await loyaltyRepo.getSystemConfig('LOYALTY_EARNING_RATE');
+  return rate ? parseFloat(rate) : 0.01; // default 0.01 point per Rs spent (1 per 100 Rs)
 }
 
 export async function getLoyaltyDetailsService(userId: bigint) {

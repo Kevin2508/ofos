@@ -188,7 +188,7 @@ const reportDeliveryIssue = catchAsync(async (req: Request, res: Response) => {
   const { issueReason } = req.body;
   if (!issueReason) throw new Error('issueReason is required');
   const data = await reportDeliveryIssueService(assignmentId as string, req.user.id as string, issueReason as string);
-  res.status(200).json({ status: 'success', message: data.message, ticketId: data.ticketId });
+  res.status(200).json({ status: 'success', message: data.message });
 });
 
 const updateLocation = catchAsync(async (req: Request, res: Response) => {

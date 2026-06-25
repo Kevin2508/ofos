@@ -61,12 +61,17 @@
           } else {
             list.innerHTML = logs.map(l => `
               <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-4 font-medium text-orange-600">User #${l.actorUserId || '?'}</td>
+                <td class="px-6 py-4 font-medium text-orange-600">
+                  ${l.actor ? l.actor.firstName + ' ' + (l.actor.lastName || '') : 'User #' + (l.actorUserId || '?')}
+                </td>
                 <td class="px-6 py-4">
                   <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs font-semibold">${l.action}</span>
                 </td>
                 <td class="px-6 py-4 text-gray-500 text-sm max-w-xs truncate" title="${l.entityType} #${l.entityId}">
-                  ${l.entityType} #${l.entityId}
+                  <div><strong>${l.entityType}</strong> #${l.entityId}</div>
+                  <div class="text-xs text-gray-400 truncate mt-1">
+                    ${l.newValues ? 'Updates: ' + JSON.stringify(l.newValues) : ''}
+                  </div>
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500">
                   ${new Date(l.createdAt).toLocaleString()}

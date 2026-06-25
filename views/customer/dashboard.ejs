@@ -65,20 +65,21 @@
             door.
           </p>
 
-          <!-- Unified Search Bar -->
-          <div
-            class="relative max-w-2xl bg-white rounded-2xl shadow-2xl flex items-center p-2 transition-all focus-within:ring-4 focus-within:ring-orange-300/50">
-            <div class="pl-5 text-orange-500">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+            <!-- Unified Search Bar -->
+            <div class="relative max-w-2xl bg-white rounded-2xl shadow-2xl flex items-center p-2 transition-all focus-within:ring-4 focus-within:ring-orange-300/50">
+              <div class="pl-5 text-orange-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input id="searchInput" autocomplete="off" type="text" placeholder="Search for 'Pizza', 'Burger', or a restaurant..." class="w-full px-4 py-3 text-gray-800 text-lg focus:outline-none bg-transparent font-semibold placeholder-gray-400" />
+              <button class="bg-gray-900 hover:bg-black text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-md">Search</button>
+              
+              <!-- Predictive Suggestions Dropdown -->
+              <div id="searchSuggestions" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden hidden z-50">
+                 <!-- Populated dynamically via JS -->
+              </div>
             </div>
-            <input id="searchInput" type="text" placeholder="Search for 'Pizza', 'Burger', or a restaurant..."
-              class="w-full px-4 py-3 text-gray-800 text-lg focus:outline-none bg-transparent font-semibold placeholder-gray-400" />
-            <button
-              class="bg-gray-900 hover:bg-black text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-md">Search</button>
-          </div>
         </div>
       </div>
 
@@ -152,14 +153,15 @@
             <div class="p-2.5 bg-blue-100 text-blue-600 rounded-xl shadow-inner">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                </path>
               </svg>
             </div>
             <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Order Again</h3>
           </div>
         </div>
-        <!-- Horizontal Scroll Container -->
-        <div class="flex overflow-x-auto gap-6 pb-6 pt-2 snap-x px-2 -mx-2" id="orderAgainList">
+        <!-- Wrapped Container -->
+        <div class="flex flex-wrap gap-6 pb-6 pt-2" id="orderAgainList">
           <!-- Populated dynamically -->
         </div>
       </div>
@@ -169,19 +171,19 @@
         <div class="flex items-center gap-3 mb-6">
           <div class="p-2.5 bg-red-100 text-red-600 rounded-xl shadow-inner">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6">
+              </path>
             </svg>
           </div>
           <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Trending This Week</h3>
         </div>
-        <div class="flex overflow-x-auto gap-6 pb-6 pt-2 snap-x px-2 -mx-2" id="trendingList">
+        <div class="flex flex-wrap gap-6 pb-6 pt-2" id="trendingList">
           <!-- Populated dynamically -->
         </div>
       </div>
 
       <!-- RESTAURANTS SECTION -->
-      <div class="mb-14">
+      <div class="mb-14" id="restaurantsSection">
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">
             <div class="p-2.5 bg-orange-100 text-orange-600 rounded-xl">
@@ -190,10 +192,12 @@
                   d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
-            <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight" id="mainRestaurantsTitle">Top Picks Near You</h3>
+            <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight" id="mainRestaurantsTitle">Top Picks Near
+              You</h3>
           </div>
-          
-          <select id="sortSelect" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-xl focus:ring-orange-500 focus:border-orange-500 block p-2.5 font-semibold">
+
+          <select id="sortSelect"
+            class="bg-white border border-gray-300 text-gray-700 text-sm rounded-xl focus:ring-orange-500 focus:border-orange-500 block p-2.5 font-semibold">
             <option value="RELEVANCE">Relevance</option>
             <option value="RATING">Rating (High to Low)</option>
             <option value="DELIVERY_TIME">Delivery Time (Fastest)</option>
@@ -301,11 +305,49 @@
       ---------------------------- */
 
       let currentSearch = '';
+      const searchSuggestionsDiv = document.getElementById('searchSuggestions');
+      let suggestionTimeout;
 
       document.getElementById('searchInput').addEventListener('input', (e) => {
         currentSearch = e.target.value.trim();
         fetchRestaurants();
         fetchGlobalMenuItems();
+        
+        clearTimeout(suggestionTimeout);
+        suggestionTimeout = setTimeout(async () => {
+          if (currentSearch.length >= 2) {
+            try {
+               const res = await fetch(`/c/search/suggestions?query=${encodeURIComponent(currentSearch)}`);
+               if (res.ok) {
+                   const { data } = await res.json();
+                   if (data && data.length > 0) {
+                       searchSuggestionsDiv.innerHTML = data.map(s => 
+                           `<div class="px-4 py-3 hover:bg-orange-50 cursor-pointer text-gray-800 font-medium border-b border-gray-50 last:border-0" onclick="applySuggestion('${s.replace(/'/g, "\\'")}')">${s}</div>`
+                       ).join('');
+                       searchSuggestionsDiv.classList.remove('hidden');
+                   } else {
+                       searchSuggestionsDiv.classList.add('hidden');
+                   }
+               }
+            } catch(err) {}
+          } else {
+            searchSuggestionsDiv.classList.add('hidden');
+          }
+        }, 300); // Debounce
+      });
+
+      function applySuggestion(s) {
+         document.getElementById('searchInput').value = s;
+         currentSearch = s;
+         searchSuggestionsDiv.classList.add('hidden');
+         fetchRestaurants();
+         fetchGlobalMenuItems();
+      }
+
+      document.addEventListener('click', (e) => {
+         if (!e.target.closest('#searchInput') && !e.target.closest('#searchSuggestions')) {
+            searchSuggestionsDiv.classList.add('hidden');
+         }
       });
 
       document.querySelectorAll('.food-type-filter').forEach(checkbox => {
@@ -324,13 +366,27 @@
       async function fetchRestaurants() {
         try {
           const foodTypes = getSelectedFoodTypes();
-          let url = '/restaurant/?';
-          if (currentSearch && currentSearch.length >= 2) url += `search=${encodeURIComponent(currentSearch)}&`;
-          if (foodTypes) url += `foodType=${encodeURIComponent(foodTypes)}&`;
+          let url = '/c/search?';
+          if (currentSearch && currentSearch.length >= 2) url += `query=${encodeURIComponent(currentSearch)}&`;
+          if (foodTypes) url += `cuisine=${encodeURIComponent(foodTypes)}&`;
+
+          const sortVal = document.getElementById('sortSelect')?.value;
+          if (sortVal) url += `sort=${encodeURIComponent(sortVal)}&`;
 
           const res = await fetch(url);
           const { data } = await res.json();
-          renderRestaurants(data?.data || data || []);
+          
+          const mapped = (data || []).map(b => ({
+             id: b.restaurant?.id,
+             coverImageUrl: b.restaurant?.coverImageUrl,
+             logoUrl: b.restaurant?.logoUrl,
+             averageRating: b.avgRating ? Number(b.avgRating).toFixed(1) : 0,
+             businessName: b.restaurant?.businessName,
+             description: b.restaurant?.description,
+             applicableCoupons: b.restaurant?.applicableCoupons
+          }));
+          
+          renderRestaurants(mapped);
         } catch (err) {
           console.error('Failed to load restaurants', err);
         }
@@ -434,7 +490,49 @@
       loadCart().then(() => {
         fetchRestaurants();
         fetchGlobalMenuItems();
+        fetchTrending();
       });
+
+      async function fetchTrending() {
+        try {
+          const res = await fetch('/restaurant/featured');
+          if (!res.ok) return;
+          const { data } = await res.json();
+          const trending = data?.trending || [];
+          if (trending.length > 0) {
+            document.getElementById('trendingSection').classList.remove('hidden');
+            renderTrending(trending);
+          }
+        } catch (e) { console.error('Failed to load trending', e); }
+      }
+
+      function renderTrending(trending) {
+        const list = document.getElementById('trendingList');
+        if(!list) return;
+        list.innerHTML = '';
+
+        trending.forEach(restaurant => {
+          const card = document.createElement('div');
+          card.onclick = () => window.location.href = `/c/restaurants/${restaurant.id}`;
+          card.className = 'w-full sm:w-80 bg-white rounded-3xl p-5 border border-orange-100 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group flex flex-col h-full';
+
+          card.innerHTML = `
+            <div class="h-32 rounded-2xl overflow-hidden mb-4 relative bg-gray-100 flex-shrink-0">
+               <img src="${formatImgUrl(restaurant.logoUrl)}" onerror="this.src='https://placehold.co/400x300?text=Trending'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+               <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
+               <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold shadow-md text-red-600 flex items-center gap-1">
+                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                 Trending #${restaurant.totalOrders || 'Hot'}
+               </div>
+            </div>
+            <div class="flex-grow flex flex-col justify-center">
+              <h4 class="text-xl font-extrabold text-gray-900 truncate mb-1">${restaurant.businessName}</h4>
+              <p class="text-sm font-medium text-gray-500 line-clamp-1">Discover what everyone is loving</p>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      }
 
       async function fetchRecentOrders() {
         try {
@@ -443,14 +541,14 @@
           const { data } = await res.json();
           const orders = data || [];
           if (orders.length > 0) {
-            document.getElementById('recentOrdersSection').classList.remove('hidden');
+            document.getElementById('orderAgainSection').classList.remove('hidden');
             renderRecentOrders(orders.slice(0, 5)); // Show top 5
           }
         } catch (e) { console.error('Failed to load recent orders', e); }
       }
 
       function renderRecentOrders(orders) {
-        const list = document.getElementById('recentOrdersList');
+        const list = document.getElementById('orderAgainList');
         list.innerHTML = '';
 
         orders.forEach(order => {
@@ -467,7 +565,7 @@
 
           const card = document.createElement('div');
           card.onclick = () => window.location.href = `/c/orders/${order.id || order.orderId}`;
-          card.className = 'snap-start flex-shrink-0 w-80 bg-white rounded-3xl p-5 border border-orange-100 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group';
+          card.className = 'w-full sm:w-80 bg-white rounded-3xl p-5 border border-orange-100 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group';
 
           card.innerHTML = `
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>

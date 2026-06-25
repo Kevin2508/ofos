@@ -27,7 +27,22 @@ async function getAllAssignmentsRepo() {
     }),
   ]);
 
-  return { assignments, totalCount };
+  const unassignedOrders = await prisma.order.findMany({
+    where: {
+      orderStatus: 'READY_FOR_PICKUP',
+      deliveryAssignments: {
+        none: {
+          status: { in: activeStatuses },
+        },
+      },
+    },
+    include: {
+      branch: { select: { branchName: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return { assignments, totalCount, unassignedOrders };
 }
 
 async function assignDeliveryRepo(

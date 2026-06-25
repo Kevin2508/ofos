@@ -31,4 +31,20 @@ adminPageRouter.get('/admin-audit-logs', (req, res) => {
   res.render('admin/audit-logs');
 });
 
+adminPageRouter.get('/admin-tickets', (req, res) => {
+  res.render('admin/tickets');
+});
+
+adminPageRouter.get('/admin-coupons', (req, res) => {
+  res.render('admin/coupons');
+});
+
+adminPageRouter.get('/admin-finance-reports', (req, res) => {
+  res.render('admin/financial-reports');
+});
+
+adminPageRouter.get('/admin-heatmap', (req, res) => {
+  res.render('admin/heatmap');
+});
+
 export { adminPageRouter };

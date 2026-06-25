@@ -88,16 +88,18 @@
                 <td class="px-6 py-4 font-bold text-gray-900">#${p.userId}</td>
                 <td class="px-6 py-4">
                   <p class="font-medium text-gray-900 capitalize">${p.vehicleType || 'N/A'}</p>
-                  <p class="text-xs text-gray-500">${p.vehicleNumber || 'N/A'}</p>
+                  <p class="text-xs text-gray-500">${p.vehicleRegistrationNumber || 'N/A'}</p>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-600">${p.drivingLicenseNumber || 'N/A'}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">
+                  ${p.documents && p.documents.length > 0 ? `<a href="${p.documents[0].documentUrl}" target="_blank" class="text-orange-500 hover:underline">View ID</a>` : 'N/A'}
+                </td>
                 <td class="px-6 py-4">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                     ${p.status}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right space-x-2">
-                  <button onclick="updateStatus('${p.userId}', 'APPROVED')" class="text-green-600 hover:text-green-800 text-sm font-medium">Approve</button>
+                  <button onclick="updateStatus('${p.userId}', 'ACTIVE')" class="text-green-600 hover:text-green-800 text-sm font-medium">Activate</button>
                   <button onclick="updateStatus('${p.userId}', 'SUSPENDED')" class="text-red-600 hover:text-red-800 text-sm font-medium">Suspend</button>
                 </td>
               </tr>

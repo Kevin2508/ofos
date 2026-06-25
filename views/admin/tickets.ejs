@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support Tickets | Admin | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans text-gray-800">
+  <div class="flex min-h-screen">
+    <%- include('../partials/admin/sidebar') %>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
+      <div class="mb-8 flex justify-between items-end">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Support Tickets</h2>
+          <p class="text-gray-500 mt-2">Manage customer disputes and trigger refunds.</p>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnOpen" onclick="filterTickets('OPEN')" class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors">Open</button>
+          <button id="btnAll" onclick="filterTickets('ALL')" class="px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">All Tickets</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left whitespace-nowrap">
+            <thead>
+              <tr class="bg-slate-50 border-b border-gray-100 text-slate-500 text-sm uppercase tracking-wider">
+                <th class="px-6 py-4 font-semibold">Ticket #</th>
+                <th class="px-6 py-4 font-semibold">Customer</th>
+                <th class="px-6 py-4 font-semibold">Subject</th>
+                <th class="px-6 py-4 font-semibold">Status</th>
+                <th class="px-6 py-4 font-semibold">Date</th>
+                <th class="px-6 py-4 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ticketsList" class="divide-y divide-gray-50 text-gray-700">
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                  <div class="animate-pulse flex justify-center">Loading tickets...</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Ticket Modal -->
+  <div id="ticketModal" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+    <div class="bg-white w-full max-w-3xl rounded-3xl shadow-xl transform transition-transform duration-300 scale-95 flex flex-col max-h-[90vh]">
+      <!-- Header -->
+      <div class="flex justify-between items-center p-6 border-b border-gray-100">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            Ticket <span id="modalTicketNumber" class="text-orange-500"></span>
+          </h3>
+          <p id="modalSubject" class="text-lg text-gray-800 font-medium mt-1"></p>
+        </div>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="p-6 overflow-y-auto space-y-6 bg-slate-50">
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-gray-100">
+                <p class="text-sm text-gray-500 mb-1">Status</p>
+                <span id="modalStatus" class="font-bold"></span>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-gray-100">
+                <p class="text-sm text-gray-500 mb-1">Order ID</p>
+                <span id="modalOrder" class="font-bold text-gray-800"></span>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+            <h4 class="font-bold text-gray-900 mb-3 border-b pb-2">Description</h4>
+            <p id="modalDescription" class="text-gray-700 whitespace-pre-wrap"></p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+            <h4 class="font-bold text-gray-900 mb-3 border-b pb-2">Messages</h4>
+            <div id="messagesContainer" class="space-y-3 mb-4 max-h-60 overflow-y-auto"></div>
+            
+            <div id="actionArea">
+                <textarea id="replyMessage" rows="3" class="w-full border-gray-200 rounded-xl focus:ring-orange-500 focus:border-orange-500 p-3 text-sm" placeholder="Type your reply..."></textarea>
+                <div class="flex gap-3 mt-3">
+                    <button onclick="respondToTicket()" class="flex-1 bg-gray-900 text-white py-2 rounded-lg font-bold text-sm hover:bg-gray-800">Send Reply</button>
+                    <button onclick="resolveTicket()" class="flex-1 bg-green-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-green-700">Resolve Ticket</button>
+                    <button onclick="triggerRefund()" class="flex-1 bg-orange-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-orange-700">Trigger Refund</button>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let loadedTickets = [];
+    let currentFilter = 'OPEN';
+    let currentTicketId = null;
+    let currentOrderId = null;
+
+    function filterTickets(filter) {
+      currentFilter = filter;
+      document.getElementById('btnOpen').className = filter === 'OPEN' 
+        ? 'px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors' 
+        : 'px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors';
+      document.getElementById('btnAll').className = filter === 'ALL' 
+        ? 'px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors' 
+        : 'px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors';
+      renderTickets();
+    }
+
+    function renderTickets() {
+      const list = document.getElementById('ticketsList');
+      let filtered = loadedTickets;
+      
+      if (currentFilter === 'OPEN') {
+        filtered = loadedTickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS');
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No tickets found.</td></tr>`;
+      } else {
+        list.innerHTML = filtered.map(t => {
+          let statusColor = 'bg-gray-100 text-gray-800';
+          if (t.status === 'RESOLVED' || t.status === 'CLOSED') statusColor = 'bg-green-100 text-green-800';
+          if (t.status === 'OPEN') statusColor = 'bg-red-100 text-red-800';
+          if (t.status === 'IN_PROGRESS') statusColor = 'bg-blue-100 text-blue-800';
+
+          return `
+          <tr class="hover:bg-slate-50 transition-colors border-t border-gray-50">
+            <td class="px-6 py-4 font-bold text-gray-900">${t.ticketNumber}</td>
+            <td class="px-6 py-4">
+              <div class="text-sm font-medium text-gray-900">${t.customer ? t.customer.firstName : 'Unknown'}</div>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">${t.subject}</td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColor}">
+                ${t.status}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500">
+              ${new Date(t.createdAt).toLocaleString()}
+            </td>
+            <td class="px-6 py-4 text-right">
+                <button onclick="viewTicket('${t.id}')" class="text-orange-600 hover:text-orange-800 text-sm font-bold">Manage</button>
+            </td>
+          </tr>
+        `}).join('');
+      }
+    }
+
+    async function loadTickets() {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch('/admin/tickets', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          loadedTickets = data.data?.tickets || [];
+          renderTickets();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function viewTicket(id) {
+      const t = loadedTickets.find(tk => tk.id === id);
+      if (!t) return;
+
+      currentTicketId = id;
+      currentOrderId = t.orderId;
+
+      document.getElementById('modalTicketNumber').textContent = t.ticketNumber;
+      document.getElementById('modalSubject').textContent = t.subject;
+      document.getElementById('modalStatus').textContent = t.status;
+      document.getElementById('modalOrder').textContent = '#' + t.orderId;
+      document.getElementById('modalDescription').textContent = t.description;
+
+      const msgs = document.getElementById('messagesContainer');
+      if (t.messages && t.messages.length > 0) {
+        msgs.innerHTML = t.messages.map(m => `
+            <div class="p-3 rounded-lg \${m.senderUserId == t.customerUserId ? 'bg-orange-50 mr-8' : 'bg-gray-100 ml-8'}">
+                <p class="text-sm text-gray-800">\${m.message}</p>
+            </div>
+        `).join('');
+      } else {
+        msgs.innerHTML = '<p class="text-sm text-gray-400 italic">No messages yet.</p>';
+      }
+
+      if (t.status === 'RESOLVED' || t.status === 'CLOSED') {
+          document.getElementById('actionArea').classList.add('hidden');
+      } else {
+          document.getElementById('actionArea').classList.remove('hidden');
+      }
+
+      const modal = document.getElementById('ticketModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.firstElementChild.classList.remove('scale-95');
+      }, 10);
+    }
+
+    async function respondToTicket() {
+        const msg = document.getElementById('replyMessage').value;
+        if (!msg) return alert('Enter a message');
+        try {
+            const token = localStorage.getItem('token');
+            await fetch(\`/admin/tickets/\${currentTicketId}/respond\`, {
+                method: 'PATCH',
+                headers: { 'Authorization': \`Bearer \${token}\`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg })
+            });
+            document.getElementById('replyMessage').value = '';
+            loadTickets();
+            closeModal();
+        } catch (e) { alert('Error responding'); }
+    }
+
+    async function resolveTicket() {
+        const msg = document.getElementById('replyMessage').value || 'Ticket resolved by admin.';
+        try {
+            const token = localStorage.getItem('token');
+            await fetch(\`/admin/tickets/\${currentTicketId}/resolve\`, {
+                method: 'PATCH',
+                headers: { 'Authorization': \`Bearer \${token}\`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ resolutionMessage: msg })
+            });
+            loadTickets();
+            closeModal();
+        } catch (e) { alert('Error resolving'); }
+    }
+
+    async function triggerRefund() {
+        const amount = prompt('Enter refund amount:');
+        if (!amount || isNaN(amount)) return;
+        const reason = prompt('Enter refund reason:');
+        if (!reason) return;
+        
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(\`/admin/disputes/refund\`, {
+                method: 'POST',
+                headers: { 'Authorization': \`Bearer \${token}\`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: currentOrderId, amount: parseFloat(amount), reason })
+            });
+            if (res.ok) {
+                alert('Refund triggered successfully!');
+                resolveTicket();
+            } else {
+                const err = await res.json();
+                alert(err.message || 'Error triggering refund');
+            }
+        } catch (e) { alert('Error triggering refund'); }
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('ticketModal');
+      modal.classList.add('opacity-0');
+      modal.firstElementChild.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    }
+
+    loadTickets();
+  </script>
+</body>
+</html>

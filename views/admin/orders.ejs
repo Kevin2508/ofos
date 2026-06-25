@@ -14,9 +14,15 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-900">Global Orders</h2>
-        <p class="text-gray-500 mt-2">View all platform orders globally.</p>
+      <div class="mb-8 flex justify-between items-end">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Global Orders</h2>
+          <p class="text-gray-500 mt-2">View all platform orders globally.</p>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnAllOrders" onclick="filterOrders('ALL')" class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors">All Orders</button>
+          <button id="btnActiveOrders" onclick="filterOrders('ACTIVE')" class="px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">Active Orders</button>
+        </div>
       </div>
 
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -29,6 +35,7 @@
                 <th class="px-6 py-4 font-semibold">Restaurant</th>
                 <th class="px-6 py-4 font-semibold">Total Amount</th>
                 <th class="px-6 py-4 font-semibold">Status</th>
+                <th class="px-6 py-4 font-semibold">Elapsed Time</th>
                 <th class="px-6 py-4 font-semibold">Date</th>
               </tr>
             </thead>
@@ -139,6 +146,75 @@
 
   <script>
     let loadedOrders = [];
+    let currentFilter = 'ALL';
+
+    function filterOrders(filter) {
+      currentFilter = filter;
+      document.getElementById('btnAllOrders').className = filter === 'ALL' 
+        ? 'px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors' 
+        : 'px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors';
+      document.getElementById('btnActiveOrders').className = filter === 'ACTIVE' 
+        ? 'px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors' 
+        : 'px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors';
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const list = document.getElementById('ordersList');
+      let filtered = loadedOrders;
+      
+      const activeStatuses = ['PENDING', 'PREPARING', 'READY_FOR_PICKUP', 'OUT_FOR_DELIVERY'];
+      if (currentFilter === 'ACTIVE') {
+        filtered = loadedOrders.filter(o => activeStatuses.includes(o.orderStatus));
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No orders found.</td></tr>`;
+      } else {
+        list.innerHTML = filtered.map(o => {
+          let statusColor = 'bg-gray-100 text-gray-800';
+          if (o.orderStatus === 'DELIVERED') statusColor = 'bg-green-100 text-green-800';
+          if (o.orderStatus === 'CANCELLED' || o.orderStatus === 'REJECTED') statusColor = 'bg-red-100 text-red-800';
+          if (o.orderStatus === 'PREPARING' || o.orderStatus === 'OUT_FOR_DELIVERY') statusColor = 'bg-blue-100 text-blue-800';
+
+          const createdTime = new Date(o.createdAt).getTime();
+          const elapsedMins = Math.floor((Date.now() - createdTime) / 60000);
+          
+          let alertHtml = '';
+          let elapsedText = o.orderStatus === 'DELIVERED' || o.orderStatus === 'CANCELLED' || o.orderStatus === 'REJECTED' 
+            ? '-' 
+            : elapsedMins + ' min';
+
+          if (o.orderStatus === 'PREPARING' && elapsedMins > 45) {
+            alertHtml = `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-500 text-white animate-pulse" title="Stuck for > 45 mins">ALERT</span>`;
+            elapsedText = `<span class="text-red-600 font-bold">${elapsedMins} min</span>`;
+          }
+
+          return `
+          <tr onclick="viewOrder('${o.id}')" class="hover:bg-slate-50 transition-colors cursor-pointer border-t border-gray-50">
+            <td class="px-6 py-4 font-bold text-gray-900">${o.orderNumber || '#' + o.id}</td>
+            <td class="px-6 py-4">
+              <div class="text-sm font-medium text-gray-900">${o.customer ? o.customer.firstName : 'N/A'}</div>
+              <div class="text-xs text-gray-500">${o.customer ? o.customer.phone : ''}</div>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">${o.restaurant ? o.restaurant.businessName : 'N/A'}</td>
+            <td class="px-6 py-4 font-bold text-gray-900">₹${o.totalAmount || 0}</td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColor}">
+                ${o.orderStatus || 'PENDING'}
+              </span>
+              ${alertHtml}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-600 font-medium">
+              ${elapsedText}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500">
+              ${new Date(o.createdAt).toLocaleString()}
+            </td>
+          </tr>
+        `}).join('');
+      }
+    }
 
     async function loadOrders() {
       try {
@@ -151,37 +227,7 @@
         if (res.ok) {
           const data = await res.json();
           loadedOrders = data.data?.orders || [];
-
-          if (loadedOrders.length === 0) {
-            list.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No orders found.</td></tr>`;
-          } else {
-            list.innerHTML = loadedOrders.map(o => {
-              // Status coloring
-              let statusColor = 'bg-gray-100 text-gray-800';
-              if (o.orderStatus === 'DELIVERED') statusColor = 'bg-green-100 text-green-800';
-              if (o.orderStatus === 'CANCELLED' || o.orderStatus === 'REJECTED') statusColor = 'bg-red-100 text-red-800';
-              if (o.orderStatus === 'PREPARING' || o.orderStatus === 'OUT_FOR_DELIVERY') statusColor = 'bg-blue-100 text-blue-800';
-
-              return `
-              <tr onclick="viewOrder('${o.id}')" class="hover:bg-slate-50 transition-colors cursor-pointer border-t border-gray-50">
-                <td class="px-6 py-4 font-bold text-gray-900">${o.orderNumber || '#' + o.id}</td>
-                <td class="px-6 py-4">
-                  <div class="text-sm font-medium text-gray-900">${o.customer ? o.customer.firstName : 'N/A'}</div>
-                  <div class="text-xs text-gray-500">${o.customer ? o.customer.phone : ''}</div>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-700">${o.restaurant ? o.restaurant.businessName : 'N/A'}</td>
-                <td class="px-6 py-4 font-bold text-gray-900">₹${o.totalAmount || 0}</td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColor}">
-                    ${o.orderStatus || 'PENDING'}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
-                  ${new Date(o.createdAt).toLocaleString()}
-                </td>
-              </tr>
-            `}).join('');
-          }
+          renderOrders();
         }
       } catch (err) {
         console.error(err);

@@ -608,55 +608,52 @@ async function registerFleetManagerService(data: any) {
   };
 }
 
-async function registerDeliveryPartnerService(data: any) {
+async function registerDeliveryPartnerService(data: any, file?: any) {
   let user = await findUserByIdentifier(data.email);
   if (!user) {
     user = await findUserByIdentifier(data.phone);
   }
 
   const isExistingUser = !!user;
+  let targetUserId = user?.id;
 
-  if (isExistingUser) {
-    if (user) {
-      await createDeliveryPartner({
-        userId: user.id,
-        vehicleType: data.vehicleType,
-        vehicleRegistrationNumber: data.vehicleRegistrationNumber,
-      });
-    }
-
-    const role = await getRoleIdByRole({ role: 'Delivery_partner' });
-
-    if (user && role) {
-      await assignRole({
-        userId: user.id,
-        roleId: role.id,
-        status: 'REQUESTED',
-      });
-    }
-  } else {
+  if (!isExistingUser) {
     const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    const user = await createUser({
+    const newUser = await createUser({
       firstName: data.firstName,
-      // lastName: data.lastName,
+      lastName: data.lastName,
       email: data.email,
       phone: data.phone,
       passwordHash: hashedPassword,
     });
+    targetUserId = newUser.id;
+  }
 
+  if (targetUserId) {
     await createDeliveryPartner({
-      userId: user.id,
+      userId: targetUserId,
       vehicleType: data.vehicleType,
       vehicleRegistrationNumber: data.vehicleRegistrationNumber,
     });
 
+    if (file) {
+      const { prisma } = await import('../../config/prisma.ts');
+      await prisma.deliveryPartnerDocument.create({
+        data: {
+          partnerUserId: targetUserId,
+          documentType: 'AADHAR',
+          documentUrl: `/uploads/deliveryPartners/documents/${file.filename}`,
+        }
+      });
+    }
+
     const role = await getRoleIdByRole({ role: 'Delivery_partner' });
 
-    if (user && role) {
+    if (role) {
       await assignRole({
-        userId: user.id,
+        userId: targetUserId,
         roleId: role.id,
         status: 'REQUESTED',
       });

@@ -14,52 +14,55 @@
 
       <!-- MAIN CONTENT -->
       <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
-        <div class="mb-8">
-          <h2 class="text-3xl font-bold text-gray-900">Platform Overview</h2>
-          <p class="text-gray-500 mt-2">Manage users, approve restaurants, and configure the platform.</p>
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-900">Platform Overview</h2>
+              <p class="text-gray-500 mt-2">Manage users, approve restaurants, and view KPIs.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="date" id="kpiStartDate" class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
+              <span class="text-gray-400">to</span>
+              <input type="date" id="kpiEndDate" class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
+              <button onclick="loadDashboard()" class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-bold shadow hover:bg-orange-700 transition-colors">Apply Filter</button>
+            </div>
+          </div>
         </div>
 
-        <!-- STAT CARDS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-500">Total Users</p>
-              <h3 id="statUsers" class="text-3xl font-bold text-gray-900 mt-1">0</h3>
-            </div>
-            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-                </path>
-              </svg>
-            </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+          <!-- GMV -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">GMV</p>
+            <h3 id="statGMV" class="text-2xl font-black text-gray-900 mb-1">$0</h3>
+          </div>
+          
+          <!-- Total Orders -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Total Orders</p>
+            <h3 id="statOrders" class="text-2xl font-black text-gray-900 mb-1">0</h3>
           </div>
 
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-500">Pending Restaurants</p>
-              <h3 id="statPending" class="text-3xl font-bold text-gray-900 mt-1">0</h3>
-            </div>
-            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
+          <!-- Active Customers -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Active Customers</p>
+            <h3 id="statCustomers" class="text-2xl font-black text-gray-900 mb-1">0</h3>
           </div>
 
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-500">Active Orders</p>
-              <h3 id="statOrders" class="text-3xl font-bold text-gray-900 mt-1">0</h3>
-            </div>
-            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-                </path>
-              </svg>
-            </div>
+          <!-- New Restaurants -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">New Restaurants</p>
+            <h3 id="statRestaurants" class="text-2xl font-black text-gray-900 mb-1">0</h3>
+          </div>
+
+          <!-- Avg Delivery Time -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Avg Delivery</p>
+            <h3 id="statDeliveryTime" class="text-2xl font-black text-gray-900 mb-1">0 <span class="text-sm font-semibold text-gray-400">mins</span></h3>
+          </div>
+
+          <!-- Cancellation Rate -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Cancel Rate</p>
+            <h3 id="statCancelRate" class="text-2xl font-black text-gray-900 mb-1">0<span class="text-sm font-semibold text-gray-400">%</span></h3>
           </div>
         </div>
 
@@ -107,12 +110,30 @@
         const token = localStorage.getItem('token') || '';
         const headers = { 'Authorization': `Bearer ${token}` };
 
+        // Load KPIs
+        const sDate = document.getElementById('kpiStartDate').value;
+        const eDate = document.getElementById('kpiEndDate').value;
+        let kpiUrl = '/admin/kpis?';
+        if (sDate) kpiUrl += `startDate=${sDate}&`;
+        if (eDate) kpiUrl += `endDate=${eDate}`;
+
+        const kpiRes = await fetch(kpiUrl, { headers });
+        if (kpiRes.ok) {
+            const data = await kpiRes.json();
+            const kpi = data.data;
+            document.getElementById('statGMV').innerText = `$${kpi.gmv.toFixed(2)}`;
+            document.getElementById('statOrders').innerText = kpi.totalOrders;
+            document.getElementById('statCustomers').innerText = kpi.activeCustomers;
+            document.getElementById('statRestaurants').innerText = kpi.newRestaurants;
+            document.getElementById('statDeliveryTime').innerHTML = `${kpi.averageDeliveryTimeMins.toFixed(1)} <span class="text-sm font-semibold text-gray-400">mins</span>`;
+            document.getElementById('statCancelRate').innerHTML = `${kpi.cancellationRate.toFixed(1)}<span class="text-sm font-semibold text-gray-400">%</span>`;
+        }
+
         // Load Users
         const usersRes = await fetch('/admin/users', { headers });
         if (usersRes.ok) {
           const usersData = await usersRes.json();
           const users = usersData.data?.users || [];
-          document.getElementById('statUsers').innerText = users.length;
 
           const uList = document.getElementById('recentUsersList');
           if (users.length === 0) {
@@ -135,12 +156,10 @@
           }
         }
 
-        // Load Pending Restaurants
         const restRes = await fetch('/admin/restaurants/pending', { headers });
         if (restRes.ok) {
           const restData = await restRes.json();
           const pending = restData.data?.restaurants || [];
-          document.getElementById('statPending').innerText = pending.length;
 
           const rList = document.getElementById('recentRestaurantsList');
           if (pending.length === 0) {
@@ -160,12 +179,7 @@
           }
         }
 
-        // Load Orders
-        const ordRes = await fetch('/admin/orders', { headers });
-        if (ordRes.ok) {
-          const ordData = await ordRes.json();
-          document.getElementById('statOrders').innerText = ordData.data?.orders?.length || 0;
-        }
+
 
       } catch (err) {
         console.error(err);

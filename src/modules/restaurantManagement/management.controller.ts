@@ -69,7 +69,7 @@ export const uploadLogo = catchAsync(
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
 
-    let logoUrl: string | undefined = req.file?.path?.replace(/\\/g, '/');
+    let logoUrl: string | undefined = req.file?.path ? '/' + req.file.path.replace(/\\/g, '/') : undefined;
     if (logoUrl && !logoUrl.startsWith('/')) {
       logoUrl = '/' + logoUrl;
     }
@@ -89,7 +89,7 @@ export const uploadCover = catchAsync(
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
 
-    let coverImageUrl: string | undefined = req.file?.path?.replace(/\\/g, '/');
+    let coverImageUrl: string | undefined = req.file?.path ? '/' + req.file.path.replace(/\\/g, '/') : undefined;
     if (coverImageUrl && !coverImageUrl.startsWith('/')) {
       coverImageUrl = '/' + coverImageUrl;
     }
@@ -112,7 +112,7 @@ export const uploadDocument = catchAsync(
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
 
-    let documentUrl: string | undefined = req.file?.path?.replace(/\\/g, '/');
+    let documentUrl: string | undefined = req.file?.path ? '/' + req.file.path.replace(/\\/g, '/') : undefined;
     if (documentUrl && !documentUrl.startsWith('/')) {
       documentUrl = '/' + documentUrl;
     }

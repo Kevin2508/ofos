@@ -12,7 +12,7 @@ import {
 } from "./customer.controller.ts";
 import { upload } from "../../middlewares/upload.middleware.ts";
 import { authenticate, authorize } from "../../middlewares/auth.middleware.ts";
-import { getFeed, search } from './search.controller.ts';
+import { getFeed, search, searchSuggestions } from './search.controller.ts';
 
 const customerRouter = Router();
 
@@ -63,5 +63,6 @@ customerRouter.delete('/payment-methods/:id', authenticate, deletePaymentMethod)
 // Feed & Search
 customerRouter.get('/feed', getFeed); // optional auth inside controller
 customerRouter.get('/search', search);
+customerRouter.get('/search/suggestions', searchSuggestions);
 
 export { customerRouter }

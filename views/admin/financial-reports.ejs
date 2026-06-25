@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Reports | Admin | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans text-gray-800">
+  <div class="flex min-h-screen">
+    <%- include('../partials/admin/sidebar') %>
+      <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
+        <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-3xl font-bold text-gray-900">Financial Reports</h2>
+            <p class="text-gray-500 mt-2">Generate reconciliation reports showing sales and payouts.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input type="date" id="startDate"
+              class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
+            <span class="text-gray-400">to</span>
+            <input type="date" id="endDate"
+              class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
+            <button onclick="loadReport()"
+              class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-bold shadow hover:bg-orange-700 transition-colors">Generate</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm font-bold text-gray-500 uppercase mb-2">Gross Sales</p>
+            <h3 id="grossSales" class="text-3xl font-black text-gray-900">$0.00</h3>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm font-bold text-gray-500 uppercase mb-2">Platform Commission</p>
+            <h3 id="platformCommission" class="text-3xl font-black text-green-600">$0.00</h3>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm font-bold text-gray-500 uppercase mb-2">Restaurant Payouts</p>
+            <h3 id="restaurantPayouts" class="text-3xl font-black text-orange-600">$0.00</h3>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm font-bold text-gray-500 uppercase mb-2">Delivery Payouts</p>
+            <h3 id="deliveryPayouts" class="text-3xl font-black text-blue-600">$0.00</h3>
+          </div>
+        </div>
+      </main>
+  </div>
+  <script>
+    async function loadReport() {
+      const sDate = document.getElementById('startDate').value;
+      const eDate = document.getElementById('endDate').value;
+      let url = '/admin/reports/finance?';
+      if (sDate) url += `startDate=\${sDate}&`;
+      if (eDate) url += `endDate=\${eDate}`;
+
+      try {
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          const report = data.data;
+          document.getElementById('grossSales').innerText = `$\${report.grossSales.toFixed(2)}`;
+          document.getElementById('platformCommission').innerText = `$\${report.platformCommission.toFixed(2)}`;
+          document.getElementById('restaurantPayouts').innerText = `$\${report.restaurantPayouts.toFixed(2)}`;
+          document.getElementById('deliveryPayouts').innerText = `$\${report.deliveryPartnerPayouts.toFixed(2)}`;
+        }
+      } catch (e) { console.error(e); }
+    }
+    loadReport();
+  </script>
+</body>
+
+</html>

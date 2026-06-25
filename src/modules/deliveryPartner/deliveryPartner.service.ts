@@ -166,9 +166,9 @@ async function declineAssignmentService(
     where: { orderId: BigInt(orderId), status: 'DECLINED' },
   });
 
-  if (declineCount >= 2) {
+  if (declineCount >= 3) {
     // Leave it unassigned, Fleet Manager will manually assign
-    console.log(`Order ${orderId} declined 2 or more times. Waiting for manual assignment.`);
+    console.log(`Order ${orderId} declined 3 or more times. Waiting for manual assignment by Fleet Manager.`);
   } else {
     // Attempt auto-assign again
     await triggerAutoAssignment(BigInt(orderId));
@@ -225,7 +225,32 @@ export async function triggerAutoAssignment(orderId: bigint) {
       }
     });
     
+    // Calculate dummy earnings
+    const deliveryFeeNum = order.deliveryFee ? Number(order.deliveryFee) : 0;
+    const finalEarning = deliveryFeeNum > 0 ? deliveryFeeNum : 40;
+
+    console.log(`[PUSH NOTIFICATION/IN-APP ALERT] To Partner ${availablePartner.userId}: New Order Assignment!`);
+    console.log(`- Restaurant: ${order.branch?.branchName || 'Restaurant'}`);
+    console.log(`- Pickup: ${order.branch?.addressLine1 || 'Restaurant Address'}`);
+    console.log(`- Estimated Earnings: ₹${finalEarning}`);
+    console.log(`Tap to Accept or Decline.`);
+    
     console.log(`Order ${orderId} auto-assigned to partner ${availablePartner.userId}`);
+
+    // Set 60 second timeout to automatically decline if no action taken
+    setTimeout(async () => {
+      try {
+        const currentAssignment = await prisma.deliveryAssignment.findUnique({
+          where: { id: assignment.id }
+        });
+        if (currentAssignment && currentAssignment.status === 'PENDING') {
+          console.log(`[TIMEOUT] Assignment ${assignment.id} auto-declined due to no response in 60s`);
+          await declineAssignmentService(assignment.id.toString(), availablePartner.userId.toString());
+        }
+      } catch (err) {
+        console.error('Error in auto-decline timeout:', err);
+      }
+    }, 60 * 1000);
   } else {
     console.log(`No available partners for order ${orderId}`);
   }
@@ -235,7 +260,7 @@ async function reportDeliveryIssueService(assignmentId: string, partnerUserId: s
   const assignment = await getAssignmentByIdRepo(BigInt(assignmentId));
   if (!assignment || assignment.partnerUserId !== partnerUserId) throw new Error('Invalid assignment');
 
-  const ticket = await prisma.supportTicket.create({
+  await prisma.supportTicket.create({
     data: {
       ticketNumber: `TKT-${Date.now()}`,
       orderId: BigInt(assignment.orderId),
@@ -248,7 +273,17 @@ async function reportDeliveryIssueService(assignmentId: string, partnerUserId: s
     }
   });
 
-  return { message: 'Issue reported successfully', ticketId: ticket.id.toString() };
+  const order = await prisma.order.findUnique({
+    where: { id: BigInt(assignment.orderId) }
+  });
+
+  if (order) {
+    console.log(`[SMS/PUSH NOTIFICATION] To Customer ${order.customerUserId}: Your delivery partner reported an issue with your order #${order.orderNumber || order.id}: "${issueReason}". We are looking into it.`);
+  }
+
+  console.log(`[ALERT] To Fleet Manager: Delivery Partner ${partnerUserId} reported an issue for Order #${assignment.orderId}: "${issueReason}".`);
+
+  return { message: 'Issue reported successfully' };
 }
 
 async function updateLocationService(partnerUserId: string, assignmentId: string, latitude: number, longitude: number) {
@@ -341,13 +376,20 @@ async function deliverOrderService(assignmentId: string, partnerUserId: string, 
   console.log(`[SMS/PUSH NOTIFICATION] To Customer ${order.customerUserId}: Your order has arrived! Enjoy your meal.`);
 
   const deliveryFeeNum = order.deliveryFee ? Number(order.deliveryFee) : 0;
-  const finalEarning = deliveryFeeNum > 0 ? deliveryFeeNum : 40;
+  const baseEarning = deliveryFeeNum > 0 ? deliveryFeeNum : 40;
+  
+  // Simulated dynamic additions for demo logic
+  const distanceBonus = Math.floor(Math.random() * 20) + 5; // Random bonus between 5-25
+  const tipAmount = Math.random() > 0.5 ? Math.floor(Math.random() * 30) + 10 : 0; // Random tip or 0
+  const finalEarning = baseEarning + distanceBonus + tipAmount;
 
   await prisma.partnerEarning.create({
     data: {
       partnerUserId: BigInt(partnerUserId),
       orderId: order.id,
-      baseEarning: finalEarning,
+      baseEarning: baseEarning,
+      distanceBonus: distanceBonus,
+      tipAmount: tipAmount,
       incentiveAmount: 0,
       totalEarning: finalEarning,
       status: 'PENDING',

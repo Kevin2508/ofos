@@ -63,6 +63,15 @@ export const updatePartnerPayoutStatus = async (req: Request, res: Response): Pr
   }
 };
 
+export const processWeeklyPartnerPayouts = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await financeService.processWeeklyPartnerPayouts();
+    res.status(200).json({ success: true, ...result });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const getRefunds = async (req: Request, res: Response): Promise<void> => {
   try {
     const formatted = await financeService.getFormattedRefunds();

@@ -408,7 +408,7 @@ async function uploadMenuItemImageService(
   await createMenuItemImages({
     menuItemId: BigInt(menuItemId),
 
-    imageUrls: [file.path],
+    imageUrls: ['/' + file.path.replace(/\\/g, '/')],
   });
 
   /**

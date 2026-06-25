@@ -14,10 +14,27 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
-      <div class="mb-8 flex justify-between items-center">
+      <div class="mb-8 flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
         <div>
           <h2 class="text-3xl font-bold text-gray-900">User Management</h2>
           <p class="text-gray-500 mt-2">View all registered users and manage their status.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <input type="text" id="searchInput" placeholder="Search name, email, phone..." class="px-4 py-2 border border-gray-200 rounded-lg text-sm w-64" onkeyup="if(event.key === 'Enter') fetchUsers()">
+            <select id="roleFilter" class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white" onchange="fetchUsers()">
+                <option value="">All Roles</option>
+                <option value="Customer">Customer</option>
+                <option value="Restaurant_owner">Restaurant Owner</option>
+                <option value="Delivery_partner">Delivery Partner</option>
+                <option value="Admin">Admin</option>
+            </select>
+            <select id="statusFilter" class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white" onchange="fetchUsers()">
+                <option value="">All Statuses</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="SUSPENDED">SUSPENDED</option>
+                <option value="INACTIVE">INACTIVE</option>
+            </select>
+            <button onclick="fetchUsers()" class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-bold">Filter</button>
         </div>
       </div>
 
@@ -29,6 +46,7 @@
                 <th class="px-6 py-4 font-semibold">User Details</th>
                 <th class="px-6 py-4 font-semibold">Role</th>
                 <th class="px-6 py-4 font-semibold">Role Status</th>
+                <th class="px-6 py-4 font-semibold">Account Status</th>
                 <th class="px-6 py-4 font-semibold">Date Joined</th>
                 <th class="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
@@ -60,29 +78,55 @@
 
       <div id="userDetails" class="space-y-3 text-gray-700 bg-slate-50 p-4 rounded-xl border border-gray-100 mb-6"></div>
 
-      <div class="mt-5">
-        <label class="block mb-2 font-semibold"> Role </label>
-
-        <select id="updateRole" class="w-full px-4 py-3 rounded-xl border">
-          <option value="Customer">Customer</option>
-          <option value="Admin">Admin</option>
-          <option value="Restaurant_owner">Restaurant Owner</option>
-          <option value="Restaurant_staff">Restaurant Staff</option>
-          <option value="Fleet_manager">Fleet Manager</option>
-          <option value="Delivery_partner">Delivery Partner</option>
-          <option value="Finance_manager">Finance Manager</option>
-        </select>
+      <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
+        <h4 class="font-bold mb-3">Role Management</h4>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block mb-1 text-sm font-semibold"> Role </label>
+                <select id="updateRole" class="w-full px-3 py-2 text-sm rounded-lg border">
+                    <option value="Customer">Customer</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Restaurant_owner">Restaurant Owner</option>
+                    <option value="Restaurant_staff">Restaurant Staff</option>
+                    <option value="Fleet_manager">Fleet Manager</option>
+                    <option value="Delivery_partner">Delivery Partner</option>
+                    <option value="Finance_manager">Finance Manager</option>
+                </select>
+            </div>
+            <div>
+                <label class="block mb-1 text-sm font-semibold"> Role Status </label>
+                <select id="updateRoleStatus" class="w-full px-3 py-2 text-sm rounded-lg border">
+                    <option value="REQUESTED">REQUESTED</option>
+                    <option value="ASSIGNED">ASSIGNED</option>
+                    <option value="REJECTED">REJECTED</option>
+                    <option value="SUSPENDED">SUSPENDED</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="updateUserRole()" class="w-full mt-3 bg-gray-900 text-white py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors">
+            Update Role Status
+        </button>
       </div>
 
-      <div class="mt-4">
-        <label class="block mb-2 font-semibold"> Role Status </label>
-
-        <select id="updateStatus" class="w-full px-4 py-3 rounded-xl border">
-          <option value="REQUESTED">REQUESTED</option>
-          <option value="ASSIGNED">ASSIGNED</option>
-          <option value="REJECTED">REJECTED</option>
-          <option value="SUSPENDED">SUSPENDED</option>
-        </select>
+      <div class="bg-orange-50 p-4 rounded-xl border border-orange-100">
+        <h4 class="font-bold mb-3 text-orange-900">Account Management</h4>
+        <div class="grid grid-cols-2 gap-4 mb-3">
+            <div class="col-span-2">
+                <label class="block mb-1 text-sm font-semibold text-orange-900"> Account Status </label>
+                <select id="updateAccountStatus" class="w-full px-3 py-2 text-sm rounded-lg border border-orange-200">
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="SUSPENDED">SUSPENDED</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                </select>
+            </div>
+            <div class="col-span-2">
+                <label class="block mb-1 text-sm font-semibold text-orange-900"> Mandatory Reason </label>
+                <textarea id="updateAccountReason" rows="2" class="w-full px-3 py-2 text-sm rounded-lg border border-orange-200" placeholder="Required for suspension/deactivation..."></textarea>
+            </div>
+        </div>
+        <button onclick="updateUserAccount()" class="w-full bg-orange-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-orange-700 transition-colors">
+            Update Account Status
+        </button>
       </div>
 
       <button id="updateBtn" onclick="updateUser()"
@@ -103,10 +147,19 @@
     async function fetchUsers() {
       try {
         const token = localStorage.getItem('token') || '';
-        const response = await fetch('/admin/users', {
+        const search = document.getElementById('searchInput').value;
+        const role = document.getElementById('roleFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        
+        let url = '/admin/users?';
+        if (search) url += `search=${encodeURIComponent(search)}&`;
+        if (role) url += `role=${encodeURIComponent(role)}&`;
+        if (status) url += `status=${encodeURIComponent(status)}&`;
+
+        const response = await fetch(url, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        json = await response.json();
+        const json = await response.json();
         if (response.ok) {
           renderUsers(json.data.users || []);
         } else {
@@ -160,6 +213,11 @@
           ${roleStatus}
         </span>
       </td>
+      <td class="px-6 py-4 capitalize">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+          ${user.status}
+        </span>
+      </td>
       <td class="px-6 py-4 text-sm text-gray-500">
         ${new Date(user.joiningDate).toLocaleDateString()}
       </td>
@@ -206,7 +264,9 @@
           const roleStatus = user.roles && user.roles.length > 0 ? user.roles[0].status : 'REQUESTED';
 
           document.getElementById('updateRole').value = roleName;
-          document.getElementById('updateStatus').value = roleStatus;
+          document.getElementById('updateRoleStatus').value = roleStatus;
+          document.getElementById('updateAccountStatus').value = user.status;
+          document.getElementById('updateAccountReason').value = '';
 
           document.getElementById('userModal').classList.remove('hidden');
         } else {
@@ -221,43 +281,65 @@
       document.getElementById('userModal').classList.add('hidden');
     }
 
-    // Update user
-    async function updateUser() {
-      const btn = document.getElementById('updateBtn');
-
-      btn.disabled = true;
-      btn.textContent = 'Updating...';
-
+    // Update user role
+    async function updateUserRole() {
       try {
         const token = localStorage.getItem('token') || '';
-        const response = await fetch(`/admin/user/${selectedUserId}/status`, {
+        const response = await fetch(`/admin/user/${selectedUserId}/role-status`, {
           method: 'PATCH',
-
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-
           body: JSON.stringify({
             roleName: document.getElementById('updateRole').value,
-            status: document.getElementById('updateStatus').value,
+            status: document.getElementById('updateRoleStatus').value,
           }),
         });
 
         const data = await response.json();
-
         if (response.ok) {
-          showToast('User updated successfully', 'success');
-          closeModal();
+          showToast('User role updated successfully', 'success');
           fetchUsers();
         } else {
           showToast(data.message || 'Failed to update user', 'error');
         }
       } catch (err) {
         showToast('Something went wrong. Please try again.', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Update User';
+      }
+    }
+
+    // Update user account
+    async function updateUserAccount() {
+      const status = document.getElementById('updateAccountStatus').value;
+      const reason = document.getElementById('updateAccountReason').value;
+
+      if ((status === 'SUSPENDED' || status === 'INACTIVE') && !reason.trim()) {
+        showToast('Reason is mandatory for suspension/deactivation', 'error');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token') || '';
+        const response = await fetch(`/admin/user/${selectedUserId}/account-status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status, reason }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          showToast('User account updated successfully', 'success');
+          fetchUsers();
+          closeModal();
+        } else {
+          showToast(data.message || 'Failed to update user', 'error');
+        }
+      } catch (err) {
+        showToast('Something went wrong. Please try again.', 'error');
       }
     }
 

@@ -16,7 +16,7 @@ async function start() {
 
   app.listen(port, () => {
     connectRedis();
-    // startCronJobs();
+    startCronJobs();
     console.log(`🚀 Server is running on http://localhost:${port}`);
     console.log(`Swagger: http://localhost:${port}/docs`);
   });

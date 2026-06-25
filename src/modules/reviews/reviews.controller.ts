@@ -9,7 +9,7 @@ export async function submitReviewController(req: Request, res: Response): Promi
     const { foodRating, deliveryRating, packagingRating, reviewText } = req.body;
 
     const files = req.files as Express.Multer.File[];
-    const imageUrls = files ? files.map((f) => `/uploads/${f.filename}`) : [];
+    const imageUrls = files ? files.map((f) => `/uploads/reviews/${f.filename}`) : [];
 
     const review = await reviewsService.submitReview(
       customerUserId,

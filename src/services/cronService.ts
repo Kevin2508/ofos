@@ -63,8 +63,8 @@ export function startCronJobs() {
             },
           });
           
-          if (order.paymentStatus === 'PAID' || order.paymentStatus === 'COMPLETED') {
-            const payment = await prisma.payment.findFirst({ where: { orderId: order.id, status: 'COMPLETED' } });
+          if (order.paymentStatus === 'PAID') {
+            const payment = await prisma.payment.findFirst({ where: { orderId: order.id, status: 'CAPTURED' } });
             if (payment) {
                await prisma.refund.create({
                  data: {

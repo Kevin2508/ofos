@@ -38,9 +38,36 @@
               </tr>
             </thead>
             <tbody id="assignmentsList" class="divide-y divide-gray-50 text-gray-700">
-              <tr>
+              <tr id="loadingRow">
                 <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                  <div class="animate-pulse flex justify-center">Loading assignments...</div>
+                  <div class="animate-pulse flex justify-center">Loading...</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="mt-8 mb-4">
+        <h2 class="text-2xl font-bold text-gray-900">Unassigned / Escalated Orders</h2>
+        <p class="text-gray-500 mt-1">Orders that need manual assignment.</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left whitespace-nowrap">
+            <thead>
+              <tr class="bg-red-50 border-b border-gray-100 text-gray-600 text-sm uppercase tracking-wider">
+                <th class="px-6 py-4 font-semibold">Order ID</th>
+                <th class="px-6 py-4 font-semibold">Restaurant</th>
+                <th class="px-6 py-4 font-semibold">Status</th>
+                <th class="px-6 py-4 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="unassignedList" class="divide-y divide-gray-50 text-gray-700">
+              <tr>
+                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                  <div class="flex justify-center">Loading...</div>
                 </td>
               </tr>
             </tbody>
@@ -114,10 +141,13 @@
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
+        const unassignedList = document.getElementById('unassignedList');
         const list = document.getElementById('assignmentsList');
+
         if (res.ok) {
           const data = await res.json();
           const assignments = data.data?.assignments || [];
+          const unassignedOrders = data.data?.unassignedOrders || [];
 
           if (assignments.length === 0) {
             list.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No active assignments.</td></tr>`;
@@ -138,10 +168,35 @@
               </tr>
             `).join('');
           }
+
+          if (unassignedOrders.length === 0) {
+            unassignedList.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No unassigned orders.</td></tr>`;
+          } else {
+            unassignedList.innerHTML = unassignedOrders.map(o => `
+              <tr class="hover:bg-red-50/50 transition-colors">
+                <td class="px-6 py-4 font-bold text-gray-900">#${o.id}</td>
+                <td class="px-6 py-4 text-gray-600">${o.branch?.name || 'Restaurant'}</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    UNASSIGNED
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right space-x-2">
+                  <button onclick="openAssignModal('${o.id}')" class="text-green-600 hover:text-green-800 text-sm font-medium">Assign Partner</button>
+                </td>
+              </tr>
+            `).join('');
+          }
         }
       } catch (err) {
         console.error(err);
       }
+    }
+
+    function openAssignModal(orderId) {
+      document.getElementById('assignOrderId').value = orderId || '';
+      document.getElementById('assignPartnerId').value = '';
+      document.getElementById('assignModal').classList.remove('hidden');
     }
 
     document.getElementById('assignForm').addEventListener('submit', async (e) => {

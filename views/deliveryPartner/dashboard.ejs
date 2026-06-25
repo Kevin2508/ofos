@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Delivery Partner Dashboard | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 
 <body class="min-h-screen bg-orange-50 font-sans">
@@ -40,7 +42,7 @@
         </div>
 
         <!-- STAT CARDS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6">
           <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
             <div class="flex justify-between items-start">
               <div>
@@ -82,7 +84,7 @@
           <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
             <div class="flex justify-between items-start">
               <div>
-                <p class="text-gray-500 text-sm font-medium">Current Rating</p>
+                <p class="text-gray-500 text-sm font-medium">Customer Rating</p>
                 <h3 id="currentRating" class="text-3xl font-extrabold text-gray-800 mt-2">0.0</h3>
               </div>
               <div class="p-3 bg-yellow-100 text-yellow-600 rounded-lg">
@@ -105,6 +107,21 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-gray-500 text-sm font-medium">On-Time Delivery Rate</p>
+                <h3 id="onTimeRate" class="text-3xl font-extrabold text-gray-800 mt-2">0%</h3>
+              </div>
+              <div class="p-3 bg-teal-100 text-teal-600 rounded-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
             </div>
@@ -236,8 +253,10 @@
         if (perfRes.ok) {
           const perfData = await perfRes.json();
           document.getElementById('deliveriesCompleted').innerText = perfData.performance?.totalCompleted || 0;
-          document.getElementById('currentRating').innerText = (perfData.performance?.completionRate || 0) + '%';
+          document.getElementById('currentRating').innerText = (profData.user?.deliveryPartner?.averageRating || '0.0');
           document.getElementById('acceptanceRate').innerText = (perfData.performance?.acceptanceRate || 0) + '%';
+          // Mocking on-time delivery rate from completion rate for display
+          document.getElementById('onTimeRate').innerText = (perfData.performance?.completionRate || 0) + '%';
         }
 
         // Earnings
@@ -289,8 +308,13 @@
                     ${actionsHtml}
                     <button onclick="reportIssue('${active.id}')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold ml-auto">Report Issue</button>
                   </div>
+                  <div id="deliveryMap" class="w-full h-64 mt-4 rounded-xl border border-gray-200 z-10 hidden"></div>
                 </div>
               `;
+
+              if (active.status === 'ACCEPTED' || active.status === 'PICKED_UP') {
+                setTimeout(() => initMap(active), 100);
+              }
             } else {
               document.getElementById('activeAssignmentContainer').innerHTML = `
                 <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
@@ -364,13 +388,67 @@
             } catch (e) { console.error('Failed to update location', e); }
           });
         }
-      }, 5000);
+      }, 10000);
     }
 
     function stopLocationPing() {
       if (locationInterval) {
         clearInterval(locationInterval);
         locationInterval = null;
+      }
+    }
+
+    let map = null;
+    let routingLayer = null;
+
+    function initMap(assignment) {
+      document.getElementById('deliveryMap').classList.remove('hidden');
+      if (!map) {
+        map = L.map('deliveryMap').setView([22.3039, 70.8022], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap'
+        }).addTo(map);
+      }
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          let targetLat, targetLng;
+          if (assignment.status === 'ACCEPTED' && assignment.restaurant) {
+            targetLat = assignment.restaurant.lat;
+            targetLng = assignment.restaurant.lng;
+          } else if (assignment.status === 'PICKED_UP' && assignment.customer) {
+            targetLat = assignment.customer.lat;
+            targetLng = assignment.customer.lng;
+          }
+
+          if (targetLat && targetLng) {
+            fetchRoute(lat, lng, targetLat, targetLng);
+          }
+        });
+      }
+    }
+
+    async function fetchRoute(startLat, startLng, endLat, endLng) {
+      try {
+        const url = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.routes && data.routes.length > 0) {
+          const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+
+          if (routingLayer) map.removeLayer(routingLayer);
+          routingLayer = L.polyline(coords, { color: 'blue', weight: 4 }).addTo(map);
+          map.fitBounds(routingLayer.getBounds(), { padding: [20, 20] });
+
+          L.marker([startLat, startLng]).addTo(map).bindPopup('You').openPopup();
+          L.marker([endLat, endLng]).addTo(map).bindPopup('Destination');
+        }
+      } catch (err) {
+        console.error("Failed to fetch route:", err);
       }
     }
 
@@ -423,7 +501,7 @@
           body: JSON.stringify({ issueReason: issue })
         });
         const data = await res.json();
-        if (res.ok) showToast('Issue reported successfully. Ticket: ' + data.ticketId, 'success');
+        if (res.ok) showToast('Issue reported successfully', 'success');
         else showToast(data.message || 'Failed to report issue', 'error');
       } catch (e) { showToast('Error reporting issue', 'error'); }
     }

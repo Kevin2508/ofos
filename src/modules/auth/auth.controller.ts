@@ -268,7 +268,7 @@ const registerAdmin = catchAsync(async (req: Request, res: Response) => {
 
 const registerDeliveryPartner = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerDeliveryPartnerService(req.body);
+    const data = await registerDeliveryPartnerService(req.body, req.file);
 
     res.status(200).json({
       status: 'success',

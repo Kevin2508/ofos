@@ -237,7 +237,7 @@ async function calculateCartTotals(
   const appliedLoyaltyPoints = appliedLoyaltyPointsStr || 0;
 
   let redemptionRateStr = await prisma.systemConfiguration.findUnique({
-    where: { configKey: 'loyalty_redemption_rate' }
+    where: { configKey: 'LOYALTY_REDEMPTION_RATE' }
   });
   const redemptionRate = redemptionRateStr ? parseFloat(redemptionRateStr.configValue) : 1;
   const loyaltyDiscount = appliedLoyaltyPoints * redemptionRate;

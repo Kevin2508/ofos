@@ -37,6 +37,11 @@ async function getAllDeliveryPartnersService(filters: {
           }
         : null,
       assignments: undefined,
+      documents: partner.documents ? partner.documents.map(d => ({
+        ...d,
+        id: d.id.toString(),
+        partnerUserId: d.partnerUserId.toString()
+      })) : [],
     };
   });
 
@@ -64,7 +69,7 @@ async function updateDeliveryPartnerStatusService(
 }
 
 async function getAllAssignmentsService() {
-  const { assignments } = await getAllAssignmentsRepo();
+  const { assignments, unassignedOrders } = await getAllAssignmentsRepo();
 
   const formattedAssignments = assignments.map((assignment) => ({
     ...assignment,
@@ -74,8 +79,15 @@ async function getAllAssignmentsService() {
     assignedByUserId: assignment.assignedByUserId?.toString(),
   }));
 
+  const formattedUnassignedOrders = unassignedOrders ? unassignedOrders.map(order => ({
+    ...order,
+    id: order.id.toString(),
+    customerUserId: order.customerUserId.toString(),
+  })) : [];
+
   return {
     assignments: formattedAssignments,
+    unassignedOrders: formattedUnassignedOrders,
   };
 }
 

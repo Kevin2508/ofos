@@ -16,9 +16,9 @@ import {
   getMenuCategoryListService,
   reorderMenuCategoryService,
   updateMenuCategoryService,
-  updateMenuCategoryAvailabilityService,
+  updateMenuCategoryAvailabilityService,  
   duplicateMenuCategoryService,
-} from './menuCategory.service.ts';
+}  from './menuCategory.service.ts';
 
 /**
  * GET

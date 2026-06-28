@@ -83,8 +83,8 @@
 
       <div class="max-w-6xl mx-auto px-4 -mt-16 relative z-10">
         <div
-          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-          <div class="flex items-center gap-6">
+          class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 flex flex-wrap flex-col md:flex-row gap-3 sm:gap-6 items-start md:items-center justify-between">
+          <div class="flex flex-wrap items-center gap-3 sm:gap-6">
             <div class="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-md bg-gray-50 flex-shrink-0">
               <img id="logoImage" src="" alt="Logo" class="w-full h-full object-cover hidden" />
             </div>
@@ -118,7 +118,8 @@
             </div>
           </div>
           <div id="branchSelectorWrapper" class="hidden w-full md:w-64">
-            <label for="branchSelector" class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Order from</label>
+            <label for="branchSelector"
+              class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Order from</label>
             <select id="branchSelector" onchange="handleBranchChange()"
               class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-orange-500 focus:border-orange-500 p-3 font-bold">
             </select>
@@ -129,30 +130,40 @@
 
     <!-- SEARCH & FILTERS -->
     <div class="max-w-6xl mx-auto px-4 mt-8">
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div
+        class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
         <div class="relative w-full md:w-1/3">
-          <input type="text" id="menuSearchInput" placeholder="Search dishes..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500" oninput="filterMenu()">
-          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input type="text" id="menuSearchInput" placeholder="Search dishes..."
+            class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+            oninput="filterMenu()">
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
         </div>
         <div class="flex flex-wrap gap-2">
           <label class="cursor-pointer">
             <input type="checkbox" class="peer hidden dietary-filter" value="VEG" onchange="filterMenu()">
-            <span class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 peer-checked:bg-green-50 peer-checked:text-green-700 peer-checked:border-green-300 transition-colors">Veg</span>
+            <span
+              class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 peer-checked:bg-green-50 peer-checked:text-green-700 peer-checked:border-green-300 transition-colors">Veg</span>
           </label>
           <label class="cursor-pointer">
             <input type="checkbox" class="peer hidden dietary-filter" value="NON_VEG" onchange="filterMenu()">
-            <span class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 peer-checked:bg-red-50 peer-checked:text-red-700 peer-checked:border-red-300 transition-colors">Non-Veg</span>
+            <span
+              class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 peer-checked:bg-red-50 peer-checked:text-red-700 peer-checked:border-red-300 transition-colors">Non-Veg</span>
           </label>
           <label class="cursor-pointer">
             <input type="checkbox" class="peer hidden dietary-filter" value="VEGAN" onchange="filterMenu()">
-            <span class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 peer-checked:bg-green-50 peer-checked:text-green-700 peer-checked:border-green-300 transition-colors">Vegan</span>
+            <span
+              class="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 peer-checked:bg-green-50 peer-checked:text-green-700 peer-checked:border-green-300 transition-colors">Vegan</span>
           </label>
         </div>
       </div>
     </div>
 
     <!-- MENU SECTION -->
-    <div class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+    <div class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8">
 
       <!-- CATEGORY SIDEBAR -->
       <div class="md:w-1/4">
@@ -202,21 +213,30 @@
     </div>
 
     <!-- MODIFIER MODAL -->
-    <div id="modifierModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-200" id="modifierModalContent">
-        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+    <div id="modifierModal"
+      class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div
+        class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden transform scale-95 opacity-0 transition-all duration-200"
+        id="modifierModalContent">
+        <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
           <h3 class="text-xl font-extrabold text-gray-900" id="modalItemName">Customise Item</h3>
-          <button onclick="closeModifierModal()" class="text-gray-400 hover:text-gray-600 p-2 bg-white rounded-full shadow-sm">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <button onclick="closeModifierModal()"
+            class="text-gray-400 hover:text-gray-600 p-2 bg-white rounded-full shadow-sm">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
           </button>
         </div>
-        <div class="p-6 overflow-y-auto flex-1 space-y-6 bg-white" id="modalModifierGroups">
+        <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6 bg-white" id="modalModifierGroups">
         </div>
-        <div class="p-6 border-t border-gray-100 bg-gray-50">
-           <textarea id="modalSpecialInstructions" maxlength="150" class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 mb-4" placeholder="Add special instructions (optional, max 150 chars)..."></textarea>
-           <button id="modalConfirmBtn" onclick="confirmModalAddToCart()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-             Add to Cart | ₹<span id="modalTotalPrice">0</span>
-           </button>
+        <div class="p-4 sm:p-6 border-t border-gray-100 bg-gray-50">
+          <textarea id="modalSpecialInstructions" maxlength="150"
+            class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 mb-4"
+            placeholder="Add special instructions (optional, max 150 chars)..."></textarea>
+          <button id="modalConfirmBtn" onclick="confirmModalAddToCart()"
+            class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            Add to Cart | ₹<span id="modalTotalPrice">0</span>
+          </button>
         </div>
       </div>
     </div>
@@ -433,7 +453,7 @@
               card.className = `menu-item-card bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between h-full relative ${cardOpacity}`;
               card.setAttribute('data-name', item.name.toLowerCase());
               card.setAttribute('data-foodtype', item.foodType || '');
-              
+
               const dietaryTags = item.dietaryTags || [];
               let dietaryStr = Array.isArray(dietaryTags) ? dietaryTags.join(',') : (typeof dietaryTags === 'string' ? dietaryTags : '');
               card.setAttribute('data-dietary', dietaryStr.toLowerCase());
@@ -499,10 +519,10 @@
           if (!item) return;
 
           if (item.modifierGroups && item.modifierGroups.length > 0) {
-             openModifierModal(item);
+            openModifierModal(item);
           } else {
-             // For standard items without modifiers, open modal anyway to allow special instructions
-             openModifierModal(item);
+            // For standard items without modifiers, open modal anyway to allow special instructions
+            openModifierModal(item);
           }
         }
 
@@ -519,7 +539,7 @@
           currentModalItem = item;
           document.getElementById('modalItemName').textContent = item.name;
           document.getElementById('modalSpecialInstructions').value = '';
-          
+
           const groupsContainer = document.getElementById('modalModifierGroups');
           groupsContainer.innerHTML = '';
 
@@ -528,14 +548,14 @@
               const group = mg.modifierGroup;
               const isRadio = group.maxSelection === 1;
               const requiredLabel = group.isRequired ? '<span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Required</span>' : '<span class="text-xs text-gray-400">Optional</span>';
-              
+
               let optionsHtml = '';
               group.options.forEach(opt => {
                 const inputType = isRadio ? 'radio' : 'checkbox';
                 const inputName = `modifierGroup_${group.id}`;
                 optionsHtml += `
                   <label class="flex items-center justify-between p-3 border border-gray-100 rounded-xl hover:bg-orange-50 cursor-pointer transition-colors group">
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-3">
                       <input type="${inputType}" name="${inputName}" value="${opt.id}" data-price="${opt.additionalPrice}" onchange="calculateModalPrice()" class="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500">
                       <span class="text-gray-700 font-medium group-hover:text-orange-700">${opt.optionName}</span>
                     </div>
@@ -575,7 +595,7 @@
         function closeModifierModal() {
           const modal = document.getElementById('modifierModal');
           const content = document.getElementById('modifierModalContent');
-          
+
           content.classList.remove('scale-100', 'opacity-100');
           content.classList.add('scale-95', 'opacity-0');
           setTimeout(() => {
@@ -629,14 +649,14 @@
           const specialInstructions = document.getElementById('modalSpecialInstructions').value.trim();
 
           try {
-             await addToCart(currentModalItem.id, null, modifiers, specialInstructions);
-             closeModifierModal();
-          } catch(err) {
-             console.error(err);
-             showToast('Failed to add item', 'error');
+            await addToCart(currentModalItem.id, null, modifiers, specialInstructions);
+            closeModifierModal();
+          } catch (err) {
+            console.error(err);
+            showToast('Failed to add item', 'error');
           } finally {
-             btn.innerHTML = originalText;
-             btn.disabled = false;
+            btn.innerHTML = originalText;
+            btn.disabled = false;
           }
         }
 
@@ -647,10 +667,10 @@
           }
 
           if (btn) {
-             // If called directly from button (fallback), add visual feedback
-             const originalText = btn.textContent;
-             btn.textContent = 'ADDING...';
-             btn.disabled = true;
+            // If called directly from button (fallback), add visual feedback
+            const originalText = btn.textContent;
+            btn.textContent = 'ADDING...';
+            btn.disabled = true;
           }
 
           try {
@@ -725,9 +745,9 @@
             throw err; // Propagate to caller
           } finally {
             if (btn) {
-               // Restore button state if it was passed
-               btn.textContent = 'ADD'; // Restore original text... or hardcode 'ADD' since it was the original text
-               btn.disabled = false;
+              // Restore button state if it was passed
+              btn.textContent = 'ADD'; // Restore original text... or hardcode 'ADD' since it was the original text
+              btn.disabled = false;
             }
           }
         }

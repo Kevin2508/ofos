@@ -9,99 +9,113 @@
 </head>
 
 <body class="min-h-screen bg-orange-50 font-sans text-gray-800">
-  <div class="flex min-h-screen">
+  <div class="flex">
     <%- include('../partials/admin/sidebar') %>
 
       <!-- MAIN CONTENT -->
-      <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden" id="mainContentWrapper">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex flex-wrap items-start md:items-center gap-3">
+            <button onclick="toggleSidebar()"
+              class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <div>
               <h2 class="text-3xl font-bold text-gray-900">Platform Overview</h2>
               <p class="text-gray-500 mt-2">Manage users, approve restaurants, and view KPIs.</p>
             </div>
-            <div class="flex items-center gap-3">
-              <input type="date" id="kpiStartDate" class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
-              <span class="text-gray-400">to</span>
-              <input type="date" id="kpiEndDate" class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
-              <button onclick="loadDashboard()" class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-bold shadow hover:bg-orange-700 transition-colors">Apply Filter</button>
-            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
+            <input type="date" id="kpiStartDate"
+              class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
+            <span class="text-gray-400">to</span>
+            <input type="date" id="kpiEndDate"
+              class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
+            <button onclick="loadDashboard()"
+              class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-bold shadow hover:bg-orange-700 transition-colors">Apply
+              Filter</button>
           </div>
         </div>
+  </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
-          <!-- GMV -->
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">GMV</p>
-            <h3 id="statGMV" class="text-2xl font-black text-gray-900 mb-1">$0</h3>
-          </div>
-          
-          <!-- Total Orders -->
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Total Orders</p>
-            <h3 id="statOrders" class="text-2xl font-black text-gray-900 mb-1">0</h3>
-          </div>
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6 mb-8">
+    <!-- GMV -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">GMV</p>
+      <h3 id="statGMV" class="text-2xl font-black text-gray-900 mb-1">$0</h3>
+    </div>
 
-          <!-- Active Customers -->
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Active Customers</p>
-            <h3 id="statCustomers" class="text-2xl font-black text-gray-900 mb-1">0</h3>
-          </div>
+    <!-- Total Orders -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Total Orders</p>
+      <h3 id="statOrders" class="text-2xl font-black text-gray-900 mb-1">0</h3>
+    </div>
 
-          <!-- New Restaurants -->
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">New Restaurants</p>
-            <h3 id="statRestaurants" class="text-2xl font-black text-gray-900 mb-1">0</h3>
-          </div>
+    <!-- Active Customers -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Active Customers</p>
+      <h3 id="statCustomers" class="text-2xl font-black text-gray-900 mb-1">0</h3>
+    </div>
 
-          <!-- Avg Delivery Time -->
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Avg Delivery</p>
-            <h3 id="statDeliveryTime" class="text-2xl font-black text-gray-900 mb-1">0 <span class="text-sm font-semibold text-gray-400">mins</span></h3>
-          </div>
+    <!-- New Restaurants -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">New Restaurants</p>
+      <h3 id="statRestaurants" class="text-2xl font-black text-gray-900 mb-1">0</h3>
+    </div>
 
-          <!-- Cancellation Rate -->
-          <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Cancel Rate</p>
-            <h3 id="statCancelRate" class="text-2xl font-black text-gray-900 mb-1">0<span class="text-sm font-semibold text-gray-400">%</span></h3>
+    <!-- Avg Delivery Time -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Avg Delivery</p>
+      <h3 id="statDeliveryTime" class="text-2xl font-black text-gray-900 mb-1">0 <span
+          class="text-sm font-semibold text-gray-400">mins</span></h3>
+    </div>
+
+    <!-- Cancellation Rate -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Cancel Rate</p>
+      <h3 id="statCancelRate" class="text-2xl font-black text-gray-900 mb-1">0<span
+          class="text-sm font-semibold text-gray-400">%</span></h3>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gray-900">Recent Users</h3>
+        <a href="/a/admin-users" class="text-orange-600 hover:text-orange-700 text-sm font-medium">View All
+          &rarr;</a>
+      </div>
+      <div class="space-y-4" id="recentUsersList">
+        <div class="animate-pulse flex space-x-4">
+          <div class="rounded-full bg-slate-200 h-10 w-10"></div>
+          <div class="flex-1 space-y-2 py-1">
+            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+            <div class="h-4 bg-slate-200 rounded w-1/2"></div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- CONTENT -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold text-gray-900">Recent Users</h3>
-              <a href="/a/admin-users" class="text-orange-600 hover:text-orange-700 text-sm font-medium">View All
-                &rarr;</a>
-            </div>
-            <div class="space-y-4" id="recentUsersList">
-              <div class="animate-pulse flex space-x-4">
-                <div class="rounded-full bg-slate-200 h-10 w-10"></div>
-                <div class="flex-1 space-y-2 py-1">
-                  <div class="h-4 bg-slate-200 rounded w-3/4"></div>
-                  <div class="h-4 bg-slate-200 rounded w-1/2"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-xl font-bold text-gray-900">Action Required: Restaurants</h3>
-              <a href="/a/admin-restaurants" class="text-orange-600 hover:text-orange-700 text-sm font-medium">View All
-                &rarr;</a>
-            </div>
-            <div class="space-y-4" id="recentRestaurantsList">
-              <div class="animate-pulse flex space-x-4">
-                <div class="flex-1 space-y-2 py-1">
-                  <div class="h-4 bg-slate-200 rounded w-full"></div>
-                  <div class="h-4 bg-slate-200 rounded w-5/6"></div>
-                </div>
-              </div>
-            </div>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gray-900">Action Required: Restaurants</h3>
+        <a href="/a/admin-restaurants" class="text-orange-600 hover:text-orange-700 text-sm font-medium">View All
+          &rarr;</a>
+      </div>
+      <div class="space-y-4" id="recentRestaurantsList">
+        <div class="animate-pulse flex space-x-4">
+          <div class="flex-1 space-y-2 py-1">
+            <div class="h-4 bg-slate-200 rounded w-full"></div>
+            <div class="h-4 bg-slate-200 rounded w-5/6"></div>
           </div>
         </div>
-      </main>
+      </div>
+    </div>
+  </div>
+  </main>
   </div>
 
   <script>
@@ -119,14 +133,14 @@
 
         const kpiRes = await fetch(kpiUrl, { headers });
         if (kpiRes.ok) {
-            const data = await kpiRes.json();
-            const kpi = data.data;
-            document.getElementById('statGMV').innerText = `$${kpi.gmv.toFixed(2)}`;
-            document.getElementById('statOrders').innerText = kpi.totalOrders;
-            document.getElementById('statCustomers').innerText = kpi.activeCustomers;
-            document.getElementById('statRestaurants').innerText = kpi.newRestaurants;
-            document.getElementById('statDeliveryTime').innerHTML = `${kpi.averageDeliveryTimeMins.toFixed(1)} <span class="text-sm font-semibold text-gray-400">mins</span>`;
-            document.getElementById('statCancelRate').innerHTML = `${kpi.cancellationRate.toFixed(1)}<span class="text-sm font-semibold text-gray-400">%</span>`;
+          const data = await kpiRes.json();
+          const kpi = data.data;
+          document.getElementById('statGMV').innerText = `$${kpi.gmv.toFixed(2)}`;
+          document.getElementById('statOrders').innerText = kpi.totalOrders;
+          document.getElementById('statCustomers').innerText = kpi.activeCustomers;
+          document.getElementById('statRestaurants').innerText = kpi.newRestaurants;
+          document.getElementById('statDeliveryTime').innerHTML = `${kpi.averageDeliveryTimeMins.toFixed(1)} <span class="text-sm font-semibold text-gray-400">mins</span>`;
+          document.getElementById('statCancelRate').innerHTML = `${kpi.cancellationRate.toFixed(1)}<span class="text-sm font-semibold text-gray-400">%</span>`;
         }
 
         // Load Users

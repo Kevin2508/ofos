@@ -194,13 +194,15 @@ const getAllSystemConfigs = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateSystemConfig = catchAsync(async (req: Request, res: Response) => {
-  const { key, value } = req.body;
+  const { key, value, newKey, description } = req.body;
   const adminUserId = req.user?.id;
 
   const updatedConfig = await updateSystemConfigService(
     key,
     value,
-    BigInt(adminUserId as string)
+    BigInt(adminUserId as string),
+    newKey,
+    description
   );
 
   if (!updatedConfig) {
@@ -302,14 +304,22 @@ const getCoupons = catchAsync(async (req: Request, res: Response) => {
 
 const createCoupon = catchAsync(async (req: Request, res: Response) => {
   const adminUserId = req.user?.id as string;
-  const result = await createCouponService(req.body, adminUserId);
+  const data = req.body;
+  if (data.couponType === 'FIXED_AMOUNT') {
+    data.couponType = 'FLAT';
+  }
+  const result = await createCouponService(data, adminUserId);
   res.status(201).json({ success: true, message: 'Coupon created', data: result });
 });
 
 const updateCoupon = catchAsync(async (req: Request, res: Response) => {
   const adminUserId = req.user?.id as string;
   const { id } = req.params;
-  const result = await updateCouponService(id, req.body, adminUserId);
+  const data = req.body;
+  if (data.couponType === 'FIXED_AMOUNT') {
+    data.couponType = 'FLAT';
+  }
+  const result = await updateCouponService(id, data, adminUserId);
   res.status(200).json({ success: true, message: 'Coupon updated', data: result });
 });
 

@@ -15,7 +15,7 @@ const addCartItemSchema = Joi.object({
     'any.required': 'quantity is required',
     'number.min': 'quantity must be at least 1',
   }),
-  specialInstructions: Joi.string().max(150).optional(),
+  specialInstructions: Joi.string().allow('').max(150).optional(),
   modifiers: Joi.array()
     .items(
       Joi.object({

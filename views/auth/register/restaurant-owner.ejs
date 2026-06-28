@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Restaurant Owner Registration | epicure- Food Ordering System</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
   <style>
     /* Hide all steps by default */
     .step-content {
@@ -109,6 +110,7 @@
                 <div class="mt-1">
                   <input type="text" name="firstName" id="firstName"
                      minlength="2" maxlength="100" pattern="^[A-Za-z]+$" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="firstNameError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
 
@@ -117,6 +119,7 @@
                 <div class="mt-1">
                   <input type="text" name="lastName" id="lastName"
                      maxlength="100" pattern="^[A-Za-z]+$" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="lastNameError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
 
@@ -126,6 +129,7 @@
                 <div class="mt-1">
                   <input type="email" name="email" id="email"
                      pattern="^[^\s@]+@[^\s@]+\.(com|net|org|io)$" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="emailError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
 
@@ -135,6 +139,7 @@
                 <div class="mt-1">
                   <input type="text" name="phone" id="phone" placeholder="10 digits"
                      pattern="^[0-9]{10}$" minlength="10" maxlength="10" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="phoneError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
 
@@ -144,6 +149,7 @@
                 <div class="mt-1">
                   <input type="password" name="password" id="password"
                      minlength="8" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="passwordError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
 
@@ -153,6 +159,7 @@
                 <div class="mt-1">
                   <input type="password" name="confirmPassword" id="confirmPassword"
                      minlength="8" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="confirmPasswordError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
             </div>
@@ -168,6 +175,7 @@
                 <div class="mt-1">
                   <input type="text" name="businessName" id="businessName"
                      minlength="2" maxlength="100" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="businessNameError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
 
@@ -177,6 +185,7 @@
                 <div class="mt-1">
                   <input type="text" name="legalBusinessName" id="legalBusinessName"
                      minlength="2" maxlength="100" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="legalBusinessNameError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
 
@@ -186,6 +195,7 @@
                 <div class="mt-1">
                   <input type="email" name="restaurantEmail" id="restaurantEmail"
                      pattern="^[^\s@]+@[^\s@]+\.(com|net|org|io)$" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="restaurantEmailError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
 
@@ -195,6 +205,7 @@
                 <div class="mt-1">
                   <input type="text" name="restaurantPhone" id="restaurantPhone" placeholder="10 digits"
                      pattern="^[0-9]{10}$" minlength="10" maxlength="10" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="restaurantPhoneError" class="mt-1 text-sm text-red-500"></p>
                 </div>
               </div>
 
@@ -443,54 +454,38 @@
         }
       }
 
+      // Step-specific validation rules
+      const step1Rules = {
+        firstName: { required: true, maxLength: 100, label: 'First name' },
+        lastName: { maxLength: 100, label: 'Last name' },
+        email: { required: true, isEmail: true, emailTlds: ['com','net','org','io'], label: 'Email' },
+        phone: { required: true, exactLength: 10, pattern: /^[0-9]+$/, patternMsg: 'Phone must only contain digits', label: 'Phone' },
+        password: { required: true, minLength: 8, label: 'Password' },
+        confirmPassword: { required: true, minLength: 8, matchField: 'password', matchMsg: 'Passwords do not match', label: 'Confirm password' },
+      };
+      const step2Rules = {
+        businessName: { required: true, minLength: 2, maxLength: 100, label: 'Business name' },
+        legalBusinessName: { required: true, minLength: 2, maxLength: 100, label: 'Legal business name' },
+        restaurantEmail: { required: true, isEmail: true, label: 'Restaurant email' },
+        restaurantPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/, patternMsg: 'Phone must only contain digits', label: 'Restaurant phone' },
+      };
+      const step3Rules = {
+        addressLine1: { required: true, label: 'Address' },
+        city: { required: true, label: 'City' },
+        state: { required: true, label: 'State' },
+        postalCode: { required: true, label: 'Postal code' },
+        fssaiLicenseNumber: { required: true, label: 'FSSAI License Number' },
+        gstin: { required: true, label: 'GSTIN' },
+      };
+
+      FormValidator.bindLiveValidation(step1Rules);
+      FormValidator.bindLiveValidation(step2Rules);
+      FormValidator.bindLiveValidation(step3Rules);
+
       function validateStep(step) {
-        // Basic validation for the fields in the current step
-        if (step === 1) {
-          const fName = document.getElementById('firstName').value.trim();
-          const email = document.getElementById('email').value.trim();
-          const phone = document.getElementById('phone').value.trim();
-          const pass = document.getElementById('password').value;
-          const confirmPass = document.getElementById('confirmPassword').value;
-
-          if (!fName || !email || !phone || !pass || !confirmPass) {
-            showToast('Please fill all mandatory fields.', 'error');
-            return false;
-          }
-          if (pass !== confirmPass) {
-            showToast('Passwords do not match.', 'error');
-            return false;
-          }
-          return true;
-        }
-
-        if (step === 2) {
-          const bName = document.getElementById('businessName').value.trim();
-          const lName = document.getElementById('legalBusinessName').value.trim();
-          const rEmail = document.getElementById('restaurantEmail').value.trim();
-          const rPhone = document.getElementById('restaurantPhone').value.trim();
-
-          if (!bName || !lName || !rEmail || !rPhone) {
-            showToast('Please fill all mandatory restaurant fields.', 'error');
-            return false;
-          }
-          return true;
-        }
-
-        if (step === 3) {
-          const addr = document.getElementById('addressLine1').value.trim();
-          const city = document.getElementById('city').value.trim();
-          const state = document.getElementById('state').value.trim();
-          const zip = document.getElementById('postalCode').value.trim();
-          const fssai = document.getElementById('fssaiLicenseNumber').value.trim();
-          const gstin = document.getElementById('gstin').value.trim();
-
-          if (!addr || !city || !state || !zip || !fssai || !gstin) {
-            showToast('Please fill all mandatory branch and legal details.', 'error');
-            return false;
-          }
-          return true;
-        }
-
+        if (step === 1) return FormValidator.validate(step1Rules);
+        if (step === 2) return FormValidator.validate(step2Rules);
+        if (step === 3) return FormValidator.validate(step3Rules);
         return true;
       }
 

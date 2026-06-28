@@ -36,7 +36,8 @@ async function getOrders(customerUserId: bigint, page: number, limit: number) {
 }
 
 export async function getRestaurantOrders(
-  ownerUserId: bigint,
+  userId: bigint,
+  role: string,
   page: number,
   limit: number,
   status?: string,
@@ -44,16 +45,25 @@ export async function getRestaurantOrders(
   date?: string,
   payment?: string
 ) {
-  const branches = await prisma.restaurantBranch.findMany({
-    where: {
-      restaurant: {
-        ownerUserId: ownerUserId
-      }
-    },
-    select: { id: true }
-  });
+  let branchIds: bigint[] = [];
+  if (role === 'Restaurant_staff') {
+    const staff = await prisma.restaurantStaff.findMany({
+      where: { userId },
+      select: { branchId: true }
+    });
+    branchIds = staff.map(s => s.branchId);
+  } else {
+    const branches = await prisma.restaurantBranch.findMany({
+      where: {
+        restaurant: {
+          ownerUserId: userId
+        }
+      },
+      select: { id: true }
+    });
+    branchIds = branches.map(b => b.id);
+  }
 
-  const branchIds = branches.map(b => b.id);
   const skip = (page - 1) * limit;
 
   const whereClause: any = {
@@ -135,8 +145,33 @@ export async function getOrderDetails(orderId: bigint, customerUserId: bigint) {
   return order;
 }
 
-export async function getRestaurantOrderDetails(orderId: bigint, ownerUserId: bigint) {
-  const order = await orderRepository.getRestaurantOrderById(orderId, ownerUserId);
+export async function getRestaurantOrderDetails(orderId: bigint, userId: bigint, role: string) {
+  let order;
+  if (role === 'Restaurant_staff') {
+    // Check if the order belongs to a branch the staff is assigned to
+    const staff = await prisma.restaurantStaff.findMany({
+      where: { userId },
+      select: { branchId: true }
+    });
+    const branchIds = staff.map(s => s.branchId);
+
+    order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        branchId: { in: branchIds }
+      },
+      include: {
+        customer: { include: { customerProfile: true } },
+        items: { include: { modifiers: true } },
+        payments: true,
+        address: true,
+        branch: true,
+      }
+    });
+  } else {
+    order = await orderRepository.getRestaurantOrderById(orderId, userId);
+  }
+
   if (!order) throw new Error('ORDER_NOT_FOUND');
   return order;
 }
@@ -145,7 +180,6 @@ export async function getOrderTracking(
   orderId: bigint,
   customerUserId: bigint
 ) {
-  // ... existing code ... (no changes needed here, just adding reorderPastOrder below)
   const order = await orderRepository.getOrderTrackingData(
     orderId,
     customerUserId
@@ -485,6 +519,27 @@ export async function raiseDispute(
   return ticket;
 }
 
+export async function processPendingOrderTimeouts() {
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+  const timedOutOrders = await prisma.order.findMany({
+    where: {
+      orderStatus: 'PLACED',
+      createdAt: { lt: fiveMinutesAgo }
+    },
+    select: { id: true }
+  });
+
+  for (const order of timedOutOrders) {
+    // 0 is used as staffUserId for system actions
+    try {
+      await rejectOrder(order.id, BigInt(0), 'Auto-rejected: No action taken within 5 minutes');
+    } catch (err) {
+      console.error(`Failed to auto-reject order ${order.id}:`, err);
+    }
+  }
+}
+
 export default {
   getOrders,
   getRestaurantOrders,
@@ -500,4 +555,5 @@ export default {
   markItemUnavailable,
   reorderPastOrder,
   raiseDispute,
+  processPendingOrderTimeouts,
 };

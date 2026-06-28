@@ -19,7 +19,11 @@ import {
   getMe,
   checkPhone,
   checkEmail,
-  selectRole
+  selectRole,
+  updateProfile,
+  changePassword,
+  getSessions,
+  revokeSession
 } from './auth.controller.ts';
 import { upload } from '../../middlewares/upload.middleware.ts';
 import {
@@ -35,6 +39,8 @@ import {
   verifyOtpSchema,
   checkPhoneSchema,
   checkEmailSchema,
+  updateProfileSchema,
+  changePasswordSchema
 } from './auth.validation.ts';
 
 const authRouter = Router();
@@ -66,6 +72,12 @@ authRouter.post('/refresh', refresh);
 
 // Role Selection
 authRouter.post('/select-role', authenticate, selectRole);
+
+// Profile & Sessions
+authRouter.patch('/profile', authenticate, validate(updateProfileSchema), updateProfile);
+authRouter.post('/change-password', authenticate, validate(changePasswordSchema), changePassword);
+authRouter.get('/sessions', authenticate, getSessions);
+authRouter.delete('/sessions/:id', authenticate, revokeSession);
 
 // Customer
 authRouter.post('/register', validate(registerSchema), register);

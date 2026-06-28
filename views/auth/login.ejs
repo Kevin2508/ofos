@@ -6,11 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login | epicure- Food Ordering System</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
 </head>
 
 <body>
   <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-5 sm:p-8">
       <!-- Header -->
       <div class="text-center mb-8">
         <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
@@ -109,76 +110,34 @@
  Validation
 -------------------------------- */
 
-    function validateUserIdentifier(value) {
-      const trimmed = value.trim();
+    const loginRules = {
+      userIdentifier: {
+        required: true,
+        label: 'Email or Phone',
+        custom: (value) => {
+          const phoneRegex = /^[0-9]{10}$/;
+          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|io)$/i;
+          
+          if (phoneRegex.test(value)) return '';
+          if (/^[0-9]+$/.test(value) && value.length !== 10) return 'Contact number must be exactly 10 digits';
+          if (emailRegex.test(value)) return '';
+          
+          return 'Please enter a valid email address or 10-digit phone number';
+        }
+      },
+      password: { required: true, minLength: 8, label: 'Password' }
+    };
 
-      if (!trimmed) {
-        return 'please enter email or phone as userIdentifier';
-      }
-
-      const phoneRegex = /^[0-9]{10}$/;
-
-      const emailRegex =
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|io)$/;
-
-      if (phoneRegex.test(trimmed)) {
-        return '';
-      }
-
-      if (/^[0-9]+$/.test(trimmed) && trimmed.length !== 10) {
-        return 'Contact number must be exactly 10 digits';
-      }
-
-      if (emailRegex.test(trimmed)) {
-        return '';
-      }
-
-      return 'Please enter a valid email address ending in .com';
-    }
-
-    function validatePassword(value) {
-      if (!value) {
-        return 'Password is required';
-      }
-
-      if (value.length < 8) {
-        return 'Password must be at least 8 characters';
-      }
-
-      return '';
-    }
-
-    function clearErrors() {
-      userIdentifierError.textContent = '';
-      passwordError.textContent = '';
-    }
+    FormValidator.bindLiveValidation(loginRules);
 
     //  Submit
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      clearErrors();
+      if (!FormValidator.validate(loginRules)) return;
 
       const identifierValue = userIdentifier.value.trim();
       const passwordValue = password.value;
-
-      const identifierValidation = validateUserIdentifier(identifierValue);
-
-      const passwordValidation = validatePassword(passwordValue);
-
-      let hasError = false;
-
-      if (identifierValidation) {
-        userIdentifierError.textContent = identifierValidation;
-        hasError = true;
-      }
-
-      if (passwordValidation) {
-        passwordError.textContent = passwordValidation;
-        hasError = true;
-      }
-
-      if (hasError) return;
 
       loginBtn.disabled = true;
       loginBtn.textContent = 'Logging in...';

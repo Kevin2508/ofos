@@ -14,14 +14,19 @@
     <%- include('../partials/restaurantOwner/sidebar') %>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
+    <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden" id="mainContentWrapper">
       <div
-        class="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col md:flex-row md:justify-between md:items-center">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-800">Welcome, Restaurant Owner</h2>
-          <p class="text-gray-500 mt-1">
-            Here is what's happening with your business today.
-          </p>
+        class="mb-8 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col md:flex-row md:justify-between md:items-center">
+        <div class="flex flex-wrap items-start md:items-center gap-3">
+          <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800">Welcome, Restaurant Owner</h2>
+            <p class="text-gray-500 mt-1">
+              Here is what's happening with your business today.
+            </p>
+          </div>
         </div>
         <div class="mt-4 md:mt-0">
           <a href="/ro/restaurant-owner-restaurants"
@@ -32,8 +37,8 @@
       </div>
 
       <!-- STAT CARDS -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-6">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-gray-500 text-sm font-medium">Orders Today</p>
@@ -45,7 +50,7 @@
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-gray-500 text-sm font-medium">Revenue Today</p>
@@ -57,7 +62,7 @@
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-gray-500 text-sm font-medium">Average Order Value</p>
@@ -69,7 +74,7 @@
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-gray-500 text-sm font-medium">Acceptance Rate</p>
@@ -83,7 +88,7 @@
       </div>
 
       <!-- REVENUE TREND GRAPH -->
-      <div class="mt-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <div class="mt-10 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-bold text-gray-800">Revenue Trend (Last 7 Days)</h3>
         </div>

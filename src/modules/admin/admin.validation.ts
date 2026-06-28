@@ -77,6 +77,14 @@ const updateSystemConfigSchema = Joi.object({
       'string.pattern.base':
         'Config key must be 1-50 characters, letters, numbers, space or dash only',
     }),
+  newKey: Joi.string()
+    .pattern(/^[a-zA-Z0-9 \-_]{1,50}$/)
+    .required()
+    .messages({
+      'string.pattern.base':
+        'Config key must be 1-50 characters, letters, numbers, space or dash only',
+    }),
+  description: Joi.string().allow('').optional(),
   value: Joi.string().required().messages({
     'string.empty': 'Config value is required',
   }),

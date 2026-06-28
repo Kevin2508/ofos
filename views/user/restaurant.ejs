@@ -83,8 +83,8 @@
 
       <div class="max-w-6xl mx-auto px-4 -mt-16 relative z-10">
         <div
-          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-          <div class="flex items-center gap-6">
+          class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 flex flex-wrap flex-col md:flex-row gap-3 sm:gap-6 items-start md:items-center justify-between">
+          <div class="flex flex-wrap items-center gap-3 sm:gap-6">
             <div class="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-md bg-gray-50 flex-shrink-0">
               <img id="logoImage" src="" alt="Logo" class="w-full h-full object-cover hidden" />
             </div>
@@ -118,13 +118,13 @@
       </div>
     </div>
     <!-- TABS -->
-    <div class="max-w-6xl mx-auto px-4 mt-8 flex gap-6 border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-4 mt-8 flex gap-3 sm:gap-6 border-b border-gray-200">
       <button id="tab-menu" onclick="switchTab('menu')" class="px-2 py-3 font-bold text-orange-600 border-b-2 border-orange-500 text-lg transition-colors">Menu</button>
       <button id="tab-reviews" onclick="switchTab('reviews')" class="px-2 py-3 font-bold text-gray-500 hover:text-gray-800 text-lg transition-colors">Reviews</button>
     </div>
 
     <!-- MENU SECTION -->
-    <div id="section-menu" class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+    <div id="section-menu" class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8">
 
       <!-- CATEGORY SIDEBAR -->
       <div class="md:w-1/4">
@@ -157,7 +157,7 @@
 
     <!-- REVIEWS SECTION -->
     <div id="section-reviews" class="max-w-6xl mx-auto px-4 py-8 hidden">
-      <div class="flex flex-col md:flex-row gap-8">
+      <div class="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8">
          <!-- Filters & Sorting -->
          <div class="md:w-1/4 space-y-8">
             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
@@ -172,27 +172,27 @@
             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
               <h3 class="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wider">Filter by Rating</h3>
               <div class="flex flex-col gap-3">
-                 <label class="flex items-center gap-3 cursor-pointer group">
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
                    <input type="radio" name="ratingFilter" value="" onchange="fetchReviews()" checked class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
                    <span class="font-medium text-gray-700 group-hover:text-gray-900 transition-colors">All Ratings</span>
                  </label>
-                 <label class="flex items-center gap-3 cursor-pointer group">
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
                    <input type="radio" name="ratingFilter" value="5" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
                    <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">5 <span class="text-yellow-400 text-lg leading-none">★</span></span>
                  </label>
-                 <label class="flex items-center gap-3 cursor-pointer group">
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
                    <input type="radio" name="ratingFilter" value="4" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
                    <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">4 <span class="text-yellow-400 text-lg leading-none">★</span></span>
                  </label>
-                 <label class="flex items-center gap-3 cursor-pointer group">
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
                    <input type="radio" name="ratingFilter" value="3" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
                    <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">3 <span class="text-yellow-400 text-lg leading-none">★</span></span>
                  </label>
-                 <label class="flex items-center gap-3 cursor-pointer group">
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
                    <input type="radio" name="ratingFilter" value="2" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
                    <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">2 <span class="text-yellow-400 text-lg leading-none">★</span></span>
                  </label>
-                 <label class="flex items-center gap-3 cursor-pointer group">
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
                    <input type="radio" name="ratingFilter" value="1" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
                    <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">1 <span class="text-yellow-400 text-lg leading-none">★</span></span>
                  </label>
@@ -203,8 +203,8 @@
          <!-- Reviews List -->
          <div class="md:w-3/4 space-y-6" id="reviewsList">
             <div class="animate-pulse space-y-6">
-              <div class="bg-white p-6 rounded-2xl border border-gray-100 h-32"></div>
-              <div class="bg-white p-6 rounded-2xl border border-gray-100 h-32"></div>
+              <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 h-32"></div>
+              <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 h-32"></div>
             </div>
          </div>
       </div>
@@ -527,7 +527,7 @@
             const reviews = data.data.reviews;
             if (reviews.length === 0) {
               container.innerHTML = `
-                <div class="bg-white p-10 text-center rounded-2xl border border-gray-100">
+                <div class="bg-white p-6 sm:p-10 text-center rounded-2xl border border-gray-100">
                   <div class="text-4xl mb-4">😶</div>
                   <h3 class="text-lg font-bold text-gray-800 mb-1">No reviews yet</h3>
                   <p class="text-gray-500">There are no reviews matching your filters.</p>
@@ -537,11 +537,11 @@
             }
 
             container.innerHTML = reviews.map(r => `
-              <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-4">
+              <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-4">
                 <div class="flex justify-between items-start">
                   <div>
                     <h4 class="font-bold text-gray-900 text-lg">${r.customer.firstName} ${r.customer.lastName}</h4>
-                    <div class="flex items-center gap-3 mt-1">
+                    <div class="flex flex-wrap items-center gap-3 mt-1">
                       <div class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-lg text-sm font-bold border border-green-100">
                         <span>${r.overallRating}</span> <span class="text-green-500">★</span>
                       </div>
@@ -577,7 +577,7 @@
             `).join('');
 
           } catch (error) {
-            container.innerHTML = '<p class="text-red-500 p-6 bg-white rounded-2xl border border-red-100">Failed to load reviews.</p>';
+            container.innerHTML = '<p class="text-red-500 p-4 sm:p-6 bg-white rounded-2xl border border-red-100">Failed to load reviews.</p>';
           }
         }
 

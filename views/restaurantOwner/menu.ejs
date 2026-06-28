@@ -12,104 +12,117 @@
   <div class="flex min-h-screen">
     <%- include('../partials/restaurantOwner/sidebar') %>
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
-      <div class="mb-8 flex justify-between items-center">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-800">Menu Management</h2>
-          <p class="text-gray-500 mt-1">Manage categories and menu items for each branch.</p>
-        </div>
-      </div>
-
-      <!-- Step 1: Select Restaurant & Branch -->
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Restaurant</label>
-            <select id="restaurantSelect"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-colors">
-              <option value="" disabled selected>Loading restaurants...</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Branch</label>
-            <select id="branchSelect"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-colors"
-              disabled>
-              <option value="" disabled selected>Select a restaurant first</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tabs (hidden until branch is selected) -->
-      <div id="branchTabs" class="hidden flex gap-4 mb-6 border-b border-gray-200">
-        <button id="tabCategories" class="py-2 px-4 border-b-2 border-orange-500 font-bold text-orange-600 transition-colors" onclick="switchMenuTab('categories')">Categories & Items</button>
-        <button id="tabModifiers" class="py-2 px-4 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-800 transition-colors" onclick="switchMenuTab('modifiers')">Modifiers</button>
-      </div>
-
-      <!-- Category Management -->
-      <div id="categorySection" class="hidden">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-bold text-gray-800">Categories</h3>
-          <div class="flex gap-2">
-            <button onclick="openCsvModal()"
-              class="bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
-              Import CSV
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+        <div class="mb-8 flex justify-between items-center">
+          <div class="flex flex-wrap items-start md:items-center gap-3">
+            <button onclick="toggleSidebar()"
+              class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
-            <button onclick="openAddCategoryModal()"
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">Menu Management</h2>
+              <p class="text-gray-500 mt-1">Manage categories and menu items for each branch.</p>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 1: Select Restaurant & Branch -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Restaurant</label>
+              <select id="restaurantSelect"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-colors">
+                <option value="" disabled selected>Loading restaurants...</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Branch</label>
+              <select id="branchSelect"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none transition-colors"
+                disabled>
+                <option value="" disabled selected>Select a restaurant first</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs (hidden until branch is selected) -->
+        <div id="branchTabs" class="hidden flex gap-4 mb-6 border-b border-gray-200">
+          <button id="tabCategories"
+            class="py-2 px-4 border-b-2 border-orange-500 font-bold text-orange-600 transition-colors"
+            onclick="switchMenuTab('categories')">Categories & Items</button>
+          <button id="tabModifiers"
+            class="py-2 px-4 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-800 transition-colors"
+            onclick="switchMenuTab('modifiers')">Modifiers</button>
+        </div>
+
+        <!-- Category Management -->
+        <div id="categorySection" class="hidden">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-gray-800">Categories</h3>
+            <div class="flex gap-2">
+              <button onclick="openCsvModal()"
+                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
+                Import CSV
+              </button>
+              <button onclick="openAddCategoryModal()"
+                class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                New Category
+              </button>
+            </div>
+          </div>
+
+          <div id="categoriesContainer" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-5 sm:p-8 text-center text-gray-500">Loading categories...</div>
+          </div>
+        </div>
+
+        <!-- Modifiers Management -->
+        <div id="modifiersSection" class="hidden">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-gray-800">Modifier Groups</h3>
+            <button onclick="openAddModifierGroupModal()"
               class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              New Category
+              New Group
             </button>
+          </div>
+
+          <div id="modifiersContainer" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-5 sm:p-8 text-center text-gray-500">Loading modifiers...</div>
           </div>
         </div>
 
-        <div id="categoriesContainer" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="p-8 text-center text-gray-500">Loading categories...</div>
-        </div>
-      </div>
-
-      <!-- Modifiers Management -->
-      <div id="modifiersSection" class="hidden">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-bold text-gray-800">Modifier Groups</h3>
-          <button onclick="openAddModifierGroupModal()"
-            class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow transition-colors flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <!-- Placeholder when no branch selected -->
+        <div id="placeholderSection"
+          class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center min-h-[300px]">
+          <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+              </path>
             </svg>
-            New Group
-          </button>
+          </div>
+          <h3 class="text-lg font-bold text-gray-700">Select a Restaurant & Branch</h3>
+          <p class="text-gray-500 text-sm mt-1 text-center max-w-xs">Choose a restaurant and branch above to view and
+            manage its menu categories.</p>
         </div>
-
-        <div id="modifiersContainer" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="p-8 text-center text-gray-500">Loading modifiers...</div>
-        </div>
-      </div>
-
-      <!-- Placeholder when no branch selected -->
-      <div id="placeholderSection"
-        class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center min-h-[300px]">
-        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 mb-4">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-            </path>
-          </svg>
-        </div>
-        <h3 class="text-lg font-bold text-gray-700">Select a Restaurant & Branch</h3>
-        <p class="text-gray-500 text-sm mt-1 text-center max-w-xs">Choose a restaurant and branch above to view and
-          manage its menu categories.</p>
-      </div>
-    </main>
+      </main>
   </div>
 
   <!-- Add / Edit Category Modal -->
-  <div id="categoryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+  <div id="categoryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-4 sm:p-6">
       <h3 id="categoryModalTitle" class="text-xl font-bold text-gray-800 mb-4">Add Category</h3>
       <div class="space-y-4">
         <div>
@@ -139,11 +152,11 @@
   </div>
 
   <!-- Add / Edit Menu Item Modal -->
-  <div id="menuItemModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+  <div id="menuItemModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
       <h3 id="itemModalTitle" class="text-xl font-bold text-gray-800 mb-4">Add Menu Item</h3>
       <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Name <span
                 class="text-red-500">*</span></label>
@@ -164,7 +177,7 @@
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Base Price (₹) <span
                 class="text-red-500">*</span></label>
@@ -190,7 +203,7 @@
           <p class="text-xs text-gray-500 mt-1">Comma separated</p>
         </div>
 
-        <div class="flex items-center gap-6">
+        <div class="flex flex-wrap items-center gap-3 sm:gap-6">
           <label class="flex items-center cursor-pointer">
             <input type="checkbox" id="itemIsAvailable" checked
               class="w-5 h-5 text-orange-500 border-gray-300 rounded focus:ring-orange-500" />
@@ -224,8 +237,8 @@
   </div>
 
   <!-- Add / Edit Modifier Group Modal -->
-  <div id="modifierGroupModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+  <div id="modifierGroupModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-4 sm:p-6">
       <h3 id="groupModalTitle" class="text-xl font-bold text-gray-800 mb-4">Add Modifier Group</h3>
       <div class="space-y-4">
         <div>
@@ -238,7 +251,7 @@
           <input type="text" id="groupDescription" placeholder="Optional description"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Min Selection</label>
             <input type="number" id="groupMin" value="0" min="0"
@@ -250,7 +263,7 @@
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
           </div>
         </div>
-        <div class="flex items-center gap-6 mt-2">
+        <div class="flex flex-wrap items-center gap-3 sm:gap-6 mt-2">
           <label class="flex items-center cursor-pointer">
             <input type="checkbox" id="groupIsRequired"
               class="w-5 h-5 text-orange-500 border-gray-300 rounded focus:ring-orange-500" />
@@ -274,17 +287,19 @@
   </div>
 
   <!-- Add / Edit Modifier Option Modal -->
-  <div id="modifierOptionModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+  <div id="modifierOptionModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-4 sm:p-6">
       <h3 id="optionModalTitle" class="text-xl font-bold text-gray-800 mb-4">Add Option</h3>
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Option Name <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Option Name <span
+              class="text-red-500">*</span></label>
           <input type="text" id="optionName" placeholder="e.g. Regular"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Price (₹) <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Price (₹) <span
+              class="text-red-500">*</span></label>
           <input type="number" id="optionPrice" value="0" min="0" step="0.01"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
         </div>
@@ -308,16 +323,18 @@
   </div>
 
   <!-- Attach Modifiers to Menu Item Modal -->
-  <div id="attachModifiersModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6">
+  <div id="attachModifiersModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-4 sm:p-6">
       <h3 class="text-xl font-bold text-gray-800 mb-4">Manage Modifiers for Item</h3>
       <div class="mb-4">
         <label class="block text-sm font-semibold text-gray-700 mb-1">Attach Modifier Group</label>
         <div class="flex gap-2">
-          <select id="attachGroupId" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+          <select id="attachGroupId"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
             <option value="" disabled selected>Select a group...</option>
           </select>
-          <button onclick="attachGroupToItem()" class="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium whitespace-nowrap">Attach</button>
+          <button onclick="attachGroupToItem()"
+            class="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium whitespace-nowrap">Attach</button>
         </div>
       </div>
       <div id="attachedGroupsContainer" class="space-y-2 mb-4 max-h-[40vh] overflow-y-auto">
@@ -325,33 +342,39 @@
       </div>
       <input type="hidden" id="attachModifiersItemId" value="" />
       <div class="flex justify-end border-t border-gray-100 pt-4 mt-2">
-        <button onclick="closeAttachModifiersModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Close</button>
+        <button onclick="closeAttachModifiersModal()"
+          class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Close</button>
       </div>
     </div>
   </div>
 
   <!-- Availability Schedules Modal -->
-  <div id="schedulesModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6">
+  <div id="schedulesModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-4 sm:p-6">
       <h3 class="text-xl font-bold text-gray-800 mb-4">Availability Schedules</h3>
-      <div class="mb-4 grid grid-cols-3 gap-2">
+      <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Day</label>
           <select id="scheduleDay" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-            <option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option>
-            <option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option>
+            <option value="0">Sunday</option>
+            <option value="1">Monday</option>
+            <option value="2">Tuesday</option>
+            <option value="3">Wednesday</option>
+            <option value="4">Thursday</option>
+            <option value="5">Friday</option>
             <option value="6">Saturday</option>
           </select>
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Start Time</label>
-          <input type="time" id="scheduleStart" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"/>
+          <input type="time" id="scheduleStart" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">End Time</label>
           <div class="flex gap-2">
-            <input type="time" id="scheduleEnd" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"/>
-            <button onclick="addSchedule()" class="px-3 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium">+</button>
+            <input type="time" id="scheduleEnd" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+            <button onclick="addSchedule()"
+              class="px-3 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium">+</button>
           </div>
         </div>
       </div>
@@ -360,36 +383,37 @@
       </div>
       <input type="hidden" id="schedulesItemId" value="" />
       <div class="flex justify-end border-t border-gray-100 pt-4 mt-2">
-        <button onclick="closeSchedulesModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Close</button>
+        <button onclick="closeSchedulesModal()"
+          class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Close</button>
       </div>
     </div>
   </div>
 
   <!-- CSV Import Modal -->
-  <div id="csvModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+  <div id="csvModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-4 sm:p-6">
       <h3 class="text-xl font-bold text-gray-800 mb-4">Bulk Import Menu Items</h3>
       <div class="space-y-4">
-        <p class="text-sm text-gray-500">Upload a CSV file containing: categoryId, sku, name, description, basePrice, foodType.</p>
-        <input type="file" id="csvFile" accept=".csv" class="w-full block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
+        <p class="text-sm text-gray-500">Upload a CSV file containing: categoryId, sku, name, description, basePrice,
+          foodType.</p>
+        <input type="file" id="csvFile" accept=".csv"
+          class="w-full block text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
       </div>
       <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100">
         <button onclick="closeCsvModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
-        <button onclick="uploadCsv()" id="uploadCsvBtn" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium shadow">Upload</button>
+        <button onclick="uploadCsv()" id="uploadCsvBtn"
+          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium shadow">Upload</button>
       </div>
     </div>
   </div>
 
   <script>
-    const token = localStorage.getItem('token') || '';
     let selectedRestaurantId = null;
     let selectedBranchId = null;
 
     async function loadRestaurantsForDropdown() {
       try {
-        const res = await fetch('/restaurant-management/mine', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch('/restaurant-management/mine');
         const select = document.getElementById('restaurantSelect');
         if (res.ok) {
           const data = await res.json();
@@ -410,9 +434,7 @@
       branchSelect.innerHTML = `<option disabled selected>Loading branches...</option>`;
 
       try {
-        const res = await fetch(`/restaurant-management/${restaurantId}/branches`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch(`/restaurant-management/${restaurantId}/branches`);
         if (res.ok) {
           const data = await res.json();
           const branches = data.data || data.branches || [];
@@ -435,17 +457,15 @@
     async function loadCategories() {
       if (!selectedBranchId) return;
       const container = document.getElementById('categoriesContainer');
-      container.innerHTML = `<div class="p-8 text-center text-gray-500">Loading...</div>`;
+      container.innerHTML = `<div class="p-5 sm:p-8 text-center text-gray-500">Loading...</div>`;
 
       try {
-        const res = await fetch(`/menu-category/branches/${selectedBranchId}/categories`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch(`/menu-category/branches/${selectedBranchId}/categories`);
         if (res.ok) {
           const data = await res.json();
           const categories = data.data || [];
           if (categories.length === 0) {
-            container.innerHTML = `<div class="p-8 text-center text-gray-500">No categories yet. Click <strong>New Category</strong> to add one.</div>`;
+            container.innerHTML = `<div class="p-5 sm:p-8 text-center text-gray-500">No categories yet. Click <strong>New Category</strong> to add one.</div>`;
           } else {
             container.innerHTML = `<table class="w-full text-left">
               <thead class="bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider">
@@ -479,7 +499,7 @@
                     </td>
                   </tr>
                   <tr id="items-row-${c.id}" class="hidden bg-gray-50">
-                    <td colspan="4" class="p-6">
+                    <td colspan="4" class="p-4 sm:p-6">
                       <div class="flex justify-between items-center mb-4">
                         <h4 class="font-bold text-gray-700">Menu Items in ${c.name}</h4>
                         <button onclick="openAddItemModal('${c.id}')" class="px-3 py-1.5 text-xs bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors">+ Add Item</button>
@@ -495,11 +515,11 @@
             </table>`;
           }
         } else {
-          container.innerHTML = `<div class="p-8 text-center text-red-500">Failed to load categories.</div>`;
+          container.innerHTML = `<div class="p-5 sm:p-8 text-center text-red-500">Failed to load categories.</div>`;
         }
       } catch (err) {
         console.error(err);
-        container.innerHTML = `<div class="p-8 text-center text-red-500">Error loading categories.</div>`;
+        container.innerHTML = `<div class="p-5 sm:p-8 text-center text-red-500">Error loading categories.</div>`;
       }
     }
 
@@ -548,7 +568,7 @@
 
         const res = await fetch(url, {
           method: isEdit ? 'PATCH' : 'POST',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, description: description || null, displayOrder })
         });
 
@@ -573,7 +593,6 @@
       try {
         const res = await fetch(`/menu-category/branches/${selectedBranchId}/categories/${id}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
           showToast('Category deleted', 'success');
@@ -591,7 +610,7 @@
       try {
         const res = await fetch(`/menu-category/branches/${selectedBranchId}/categories/${id}/availability`, {
           method: 'PATCH',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ isActive })
         });
         if (res.ok) {
@@ -615,9 +634,7 @@
     async function loadItemsForCategory(categoryId) {
       const container = document.getElementById(`items-container-${categoryId}`);
       try {
-        const res = await fetch(`/menu-item/categories/${categoryId}/items`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch(`/menu-item/categories/${categoryId}/items`,);
         if (res.ok) {
           const data = await res.json();
           const items = data.data || [];
@@ -756,7 +773,7 @@
 
         const res = await fetch(url, {
           method,
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
@@ -773,7 +790,7 @@
                 for (const img of item.images) {
                   await fetch(`/menu-item/menu-items/${itemId}/images/${img.id}`, {
                     method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
+
                   });
                 }
               }
@@ -783,7 +800,6 @@
             formData.append('menuItemImage', imageFile);
             await fetch(`/menu-item/menu-items/${itemId}/images`, {
               method: 'POST',
-              headers: { 'Authorization': `Bearer ${token}` },
               body: formData
             });
           }
@@ -792,13 +808,13 @@
           // Only process these if creating new, or if updating
           await fetch(`/menu-item/menu-items/${itemId}/availability`, {
             method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ isAvailable })
           });
 
           await fetch(`/menu-item/menu-items/${itemId}/bestseller`, {
             method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ isBestseller })
           });
 
@@ -820,7 +836,7 @@
       try {
         const res = await fetch(`/menu-item/menu-items/${itemId}/availability`, {
           method: 'PATCH',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ isAvailable })
         });
         if (res.ok) {
@@ -837,7 +853,7 @@
       try {
         const res = await fetch(`/menu-item/menu-items/${itemId}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
+
         });
         if (res.ok) {
           loadItemsForCategory(categoryId);
@@ -852,7 +868,7 @@
       try {
         const res = await fetch(`/menu-category/branches/${selectedBranchId}/categories/${id}/duplicate`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
+
         });
         const data = await res.json();
         if (res.ok) { showToast('Category duplicated', 'success'); loadCategories(); }
@@ -864,7 +880,7 @@
       try {
         const res = await fetch(`/menu-item/menu-items/${itemId}/duplicate`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
+
         });
         const data = await res.json();
         if (res.ok) { showToast('Item duplicated', 'success'); loadItemsForCategory(categoryId); }
@@ -893,11 +909,10 @@
 
       try {
         const formData = new FormData();
-        formData.append('csvFile', fileInput.files[0]);
+        formData.append('file', fileInput.files[0]);
 
         const res = await fetch(`/menu-item/branches/${selectedBranchId}/menu-items/import`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
           body: formData
         });
 
@@ -925,7 +940,7 @@
       document.getElementById('tabCategories').classList.add('border-transparent', 'font-medium', 'text-gray-500');
       document.getElementById('tabModifiers').classList.remove('border-orange-500', 'font-bold', 'text-orange-600');
       document.getElementById('tabModifiers').classList.add('border-transparent', 'font-medium', 'text-gray-500');
-      
+
       document.getElementById('categorySection').classList.add('hidden');
       document.getElementById('modifiersSection').classList.add('hidden');
 
@@ -948,17 +963,15 @@
     async function loadModifiers() {
       if (!selectedBranchId) return;
       const container = document.getElementById('modifiersContainer');
-      container.innerHTML = `<div class="p-8 text-center text-gray-500">Loading modifiers...</div>`;
+      container.innerHTML = `<div class="p-5 sm:p-8 text-center text-gray-500">Loading modifiers...</div>`;
 
       try {
-        const res = await fetch(`/modifier/branches/${selectedBranchId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch(`/modifier/branches/${selectedBranchId}`,);
         if (res.ok) {
           const data = await res.json();
           allModifiersData = data.data || [];
           if (allModifiersData.length === 0) {
-            container.innerHTML = `<div class="p-8 text-center text-gray-500">No modifier groups found.</div>`;
+            container.innerHTML = `<div class="p-5 sm:p-8 text-center text-gray-500">No modifier groups found.</div>`;
           } else {
             container.innerHTML = allModifiersData.map(group => `
               <div class="border-b border-gray-100 last:border-0 p-4">
@@ -994,7 +1007,7 @@
           }
         }
       } catch (err) {
-        container.innerHTML = `<div class="p-8 text-center text-red-500">Error loading modifiers.</div>`;
+        container.innerHTML = `<div class="p-5 sm:p-8 text-center text-red-500">Error loading modifiers.</div>`;
       }
     }
 
@@ -1044,7 +1057,7 @@
       try {
         const res = await fetch(url, {
           method,
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(isEdit ? payload : { ...payload, options: [] })
         });
         if (res.ok) {
@@ -1058,11 +1071,11 @@
     }
 
     async function deleteModifierGroup(id) {
-      if(!confirm('Delete this group?')) return;
+      if (!confirm('Delete this group?')) return;
       try {
-        const res = await fetch(`/modifier/modifier-groups/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch(`/modifier/modifier-groups/${id}`, { method: 'DELETE', });
         if (res.ok) { showToast('Deleted', 'success'); loadModifiers(); }
-      } catch(e) {}
+      } catch (e) { }
     }
 
     function openAddModifierOptionModal(groupId) {
@@ -1103,7 +1116,7 @@
       try {
         const res = await fetch(url, {
           method,
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         if (res.ok) {
@@ -1113,15 +1126,15 @@
         } else {
           showToast('Error', 'error');
         }
-      } catch(e) {}
+      } catch (e) { }
     }
 
     async function deleteModifierOption(id) {
-      if(!confirm('Delete option?')) return;
+      if (!confirm('Delete option?')) return;
       try {
-        const res = await fetch(`/modifier/modifier-options/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch(`/modifier/modifier-options/${id}`, { method: 'DELETE', });
         if (res.ok) { showToast('Deleted', 'success'); loadModifiers(); }
-      } catch(e) {}
+      } catch (e) { }
     }
 
     // ==========================================
@@ -1135,10 +1148,10 @@
       currentAttachCategoryId = categoryId;
       document.getElementById('attachModifiersItemId').value = itemId;
       document.getElementById('attachModifiersModal').classList.remove('hidden');
-      
+
       // Ensure modifiers are loaded
       if (allModifiersData.length === 0 && selectedBranchId) {
-        const res = await fetch(`/modifier/branches/${selectedBranchId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch(`/modifier/branches/${selectedBranchId}`, {});
         if (res.ok) {
           const data = await res.json();
           allModifiersData = data.data || [];
@@ -1146,7 +1159,7 @@
       }
 
       const select = document.getElementById('attachGroupId');
-      select.innerHTML = '<option value="" disabled selected>Select a group...</option>' + 
+      select.innerHTML = '<option value="" disabled selected>Select a group...</option>' +
         allModifiersData.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
 
       renderAttachedGroups();
@@ -1181,28 +1194,28 @@
       try {
         const res = await fetch(`/modifier/menu-items/${currentAttachItemId}/modifier-groups`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ modifierGroupId: groupId }) // body not needed actually if it's params, but let's check modifier.controller: body is { modifierGroupId } according to routes: Wait, the route is `/menu-items/:itemId/modifier-groups`, controller `attachModifierGroup` expects `groupId` probably from body or query. Let's send in body. Wait, route is `/:itemId/modifier-groups`. I will send { modifierGroupId: groupId } in body just in case, but usually it's in body.
         });
         // Actually looking at the route `modifierRouter.post('/menu-items/:itemId/modifier-groups',attachModifierGroup);`
         // In modifier.dto.ts it expects `modifierGroupId: number` in body
-        
+
         // I'll send it
         await loadItemsForCategory(currentAttachCategoryId);
         openAttachModifiersModal(currentAttachItemId, currentAttachCategoryId);
-      } catch(e) {}
+      } catch (e) { }
     }
 
     async function detachGroupFromItem(groupId) {
-      if(!confirm('Remove this modifier group from item?')) return;
+      if (!confirm('Remove this modifier group from item?')) return;
       try {
         const res = await fetch(`/modifier/menu-items/${currentAttachItemId}/modifier-groups/${groupId}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
+
         });
         await loadItemsForCategory(currentAttachCategoryId);
         openAttachModifiersModal(currentAttachItemId, currentAttachCategoryId);
-      } catch(e) {}
+      } catch (e) { }
     }
 
     // ==========================================
@@ -1213,7 +1226,7 @@
       document.getElementById('schedulesModal').classList.remove('hidden');
       loadSchedules(itemId);
     }
-    
+
     function closeSchedulesModal() {
       document.getElementById('schedulesModal').classList.add('hidden');
     }
@@ -1222,25 +1235,23 @@
       const container = document.getElementById('schedulesContainer');
       container.innerHTML = '<p class="text-sm text-gray-500">Loading...</p>';
       try {
-        const res = await fetch(`/menu-item/menu-items/${itemId}/availability-schedules`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch(`/menu-item/menu-items/${itemId}/availability-schedules`,);
         if (res.ok) {
           const data = await res.json();
           const schedules = data.data || [];
-          if(schedules.length === 0) {
+          if (schedules.length === 0) {
             container.innerHTML = '<p class="text-sm text-gray-500">No specific schedules found (Available 24/7 if stock is ON).</p>';
           } else {
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             container.innerHTML = schedules.map(s => `
               <div class="bg-gray-50 p-2 rounded flex justify-between items-center border border-gray-100">
-                <span class="text-sm font-medium text-gray-800">${days[s.dayOfWeek]}: ${new Date(s.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${new Date(s.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                <span class="text-sm font-medium text-gray-800">${days[s.dayOfWeek]}: ${new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(s.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 <button onclick="deleteSchedule('${itemId}', '${s.id}')" class="text-xs text-red-600 hover:underline">Del</button>
               </div>
             `).join('');
           }
         }
-      } catch(e) {
+      } catch (e) {
         container.innerHTML = '<p class="text-sm text-red-500">Error loading schedules.</p>';
       }
     }
@@ -1258,7 +1269,7 @@
       try {
         const res = await fetch(`/menu-item/menu-items/${itemId}/availability-schedules`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ dayOfWeek, startTime, endTime })
         });
         if (res.ok) {
@@ -1266,20 +1277,20 @@
         } else {
           showToast('Failed to add schedule', 'error');
         }
-      } catch(e) { showToast('Error', 'error'); }
+      } catch (e) { showToast('Error', 'error'); }
     }
 
     async function deleteSchedule(itemId, scheduleId) {
-      if(!confirm('Delete schedule?')) return;
+      if (!confirm('Delete schedule?')) return;
       try {
         const res = await fetch(`/menu-item/menu-items/${itemId}/availability-schedules/${scheduleId}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
+
         });
         if (res.ok) {
           loadSchedules(itemId);
         }
-      } catch(e) { showToast('Error', 'error'); }
+      } catch (e) { showToast('Error', 'error'); }
     }
 
     // ==========================================
@@ -1309,7 +1320,7 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        await fetch('/auth/logout', { headers: { 'Authorization': `Bearer ${token}` } });
+        await fetch('/auth/logout', {});
       } catch (e) { }
       localStorage.clear();
       document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';

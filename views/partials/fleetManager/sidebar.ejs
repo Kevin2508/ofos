@@ -1,14 +1,14 @@
 <!-- SIDEBAR OVERLAY -->
 <div id="sidebarOverlay"
-  class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[60] hidden opacity-0 transition-opacity duration-300 lg:hidden"
+  class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[60] hidden opacity-0 transition-opacity duration-300 lg:hidden p-4"
   onclick="toggleSidebar()"></div>
 
 <!-- SIDEBAR DRAWER -->
 <div id="fmSidebar"
   class="fixed top-0 left-0 w-72 h-full bg-white/95 backdrop-blur-2xl shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-[70] transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col border-r border-gray-100 lg:shadow-none">
   
-  <div class="p-6 flex items-center justify-between">
-    <div class="flex items-center gap-3">
+  <div class="p-4 sm:p-6 flex items-center justify-between">
+    <div class="flex flex-wrap items-center gap-3">
       <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/30 transform transition-transform hover:scale-105">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -82,9 +82,9 @@
     </a>
   </div>
 
-  <div class="p-6">
+  <div class="p-4 sm:p-6">
     <button id="logoutBtn"
-      class="w-full flex items-center justify-center gap-3 bg-red-50 text-red-600 py-3.5 rounded-2xl font-extrabold hover:bg-red-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-red-500/30 group border border-red-100 hover:border-red-500">
+      class="w-full flex flex-wrap items-center justify-center gap-3 bg-red-50 text-red-600 py-3.5 rounded-2xl font-extrabold hover:bg-red-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-red-500/30 group border border-red-100 hover:border-red-500">
       <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
           d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -137,3 +137,4 @@
     });
   });
 </script>
+

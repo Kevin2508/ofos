@@ -13,15 +13,21 @@
     <%- include('../partials/finance/sidebar') %>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-900">Finance Dashboard</h2>
+    <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden" id="mainContentWrapper">
+      <div class="mb-8 flex flex-wrap items-start md:items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Finance Dashboard</h2>
         <p class="text-gray-500 mt-2">Overview of platform revenue, payouts, and refunds.</p>
+      
+        </div>
       </div>
 
       <!-- STAT CARDS -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Total Revenue</p>
             <h3 id="statRevenue" class="text-2xl font-bold text-gray-900 mt-1">₹0</h3>
@@ -31,7 +37,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Total Orders</p>
             <h3 id="statOrders" class="text-2xl font-bold text-gray-900 mt-1">0</h3>
@@ -44,7 +50,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Pending Payouts</p>
             <h3 id="statPayouts" class="text-2xl font-bold text-gray-900 mt-1">₹0</h3>
@@ -57,7 +63,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Total Refunds</p>
             <h3 id="statRefunds" class="text-2xl font-bold text-gray-900 mt-1">₹0</h3>

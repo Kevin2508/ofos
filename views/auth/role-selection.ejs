@@ -27,7 +27,7 @@
 
 <body class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
 
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center" id="mainContainer">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-5 sm:p-8 text-center" id="mainContainer">
     <h2 class="text-3xl font-bold text-gray-800 mb-2" id="pageTitle">Select Your Role</h2>
     <p class="text-gray-500 text-sm mb-6" id="pageSubtitle">Choose how you'd like to access epicuretoday</p>
 
@@ -121,7 +121,7 @@
           pendingOnlyList.innerHTML = pendingRoles.map(role => {
             const config = ROLE_CONFIG[role] || { name: role, icon: '👤' };
             return `
-              <div class="flex items-center gap-3 p-4 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-xl text-left">
+              <div class="flex flex-wrap items-center gap-3 p-4 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-xl text-left">
                 <svg class="w-6 h-6 flex-shrink-0 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span>Your request for <strong>${config.name}</strong> is sent to admin for review.</span>
               </div>
@@ -138,7 +138,7 @@
             const config = ROLE_CONFIG[role] || { name: role, icon: '👤', path: '/' };
             return `
               <button onclick="selectRole('${role}')" class="w-full flex items-center justify-between p-4 border-2 border-gray-100 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all text-left group">
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
                   <span class="text-2xl">${config.icon}</span>
                   <span class="font-bold text-gray-700 group-hover:text-orange-600">${config.name}</span>
                 </div>
@@ -154,7 +154,7 @@
           pendingContainer.innerHTML = pendingRoles.map(role => {
             const config = ROLE_CONFIG[role] || { name: role };
             return `
-              <div class="flex items-center gap-3 p-3 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg text-sm text-left">
+              <div class="flex flex-wrap items-center gap-3 p-3 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg text-sm text-left">
                 <svg class="w-5 h-5 flex-shrink-0 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span>Your request for <strong>${config.name}</strong> is sent to admin for review.</span>
               </div>

@@ -47,4 +47,10 @@ adminPageRouter.get('/admin-heatmap', (req, res) => {
   res.render('admin/heatmap');
 });
 
+
+
+adminPageRouter.get('/profile', (req, res) => {
+  res.render('admin/profile');
+});
+
 export { adminPageRouter };

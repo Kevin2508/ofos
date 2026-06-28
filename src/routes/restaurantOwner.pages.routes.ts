@@ -39,4 +39,10 @@ restaurantOwnerPageRouter.get('/restaurant-owner-promotions', (req, res) => {
   res.render('restaurantOwner/promotions');
 });
 
+
+
+restaurantOwnerPageRouter.get('/profile', (req, res) => {
+  res.render('restaurantOwner/profile');
+});
+
 export { restaurantOwnerPageRouter };

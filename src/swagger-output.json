@@ -6,7 +6,7 @@
     "version": "1.0.0"
   },
   "servers": [
-    {   
+    {
       "url": "http://localhost:3000",
       "description": "Local server"
     }
@@ -96,25 +96,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "400": {
             "description": "Bad Request"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -123,25 +106,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "400": {
             "description": "Bad Request"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -150,9 +116,6 @@
       "get": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "401": {
             "description": "Unauthorized"
           }
@@ -163,14 +126,8 @@
       "get": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "401": {
             "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
           }
         }
       }
@@ -179,11 +136,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -192,28 +146,64 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/auth/profile": {
+      "patch": {
+        "description": "",
+        "responses": {
           "400": {
             "description": "Bad Request"
           },
           "401": {
             "description": "Unauthorized"
           }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "role": {
-                    "example": "any"
-                  }
-                }
-              }
+        }
+      }
+    },
+    "/auth/change-password": {
+      "post": {
+        "description": "",
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/auth/sessions": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/auth/sessions/{id}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -232,25 +222,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "400": {
             "description": "Bad Request"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -259,25 +232,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "400": {
             "description": "Bad Request"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -286,25 +242,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "400": {
             "description": "Bad Request"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -313,25 +252,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "400": {
             "description": "Bad Request"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -340,25 +262,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "400": {
             "description": "Bad Request"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -367,25 +272,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "400": {
             "description": "Bad Request"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "example": "any"
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -1253,6 +1141,12 @@
                   },
                   "value": {
                     "example": "any"
+                  },
+                  "newKey": {
+                    "example": "any"
+                  },
+                  "description": {
+                    "example": "any"
                   }
                 }
               }
@@ -1473,6 +1367,20 @@
           "401": {
             "description": "Unauthorized"
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "couponType": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1495,6 +1403,20 @@
           },
           "401": {
             "description": "Unauthorized"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "couponType": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2083,6 +2005,16 @@
       }
     },
     "/customer/search": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/customer/search/suggestions": {
       "get": {
         "description": "",
         "responses": {
@@ -2926,6 +2858,32 @@
           },
           {
             "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/orders/{id}/handover": {
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
@@ -4002,104 +3960,6 @@
         }
       }
     },
-    "/restaurant-staff/branches/{branchId}/staff": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "branchId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      },
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "branchId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/restaurant-staff/branches/{branchId}/staff/{id}": {
-      "patch": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "branchId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      },
-      "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "branchId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
     "/restaurant/": {
       "get": {
         "description": "",
@@ -4237,6 +4097,104 @@
           },
           "500": {
             "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/restaurant-staff/branches/{branchId}/staff": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/restaurant-staff/branches/{branchId}/staff/{id}": {
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -5453,6 +5411,16 @@
         }
       }
     },
+    "/d/profile": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/a/admin-dashboard": {
       "get": {
         "description": "",
@@ -5553,6 +5521,16 @@
         }
       }
     },
+    "/a/profile": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/ro/restaurant-owner-dashboard": {
       "get": {
         "description": "",
@@ -5633,6 +5611,16 @@
         }
       }
     },
+    "/ro/profile": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/rs/restaurant-staff-dashboard": {
       "get": {
         "description": "",
@@ -5654,6 +5642,16 @@
       }
     },
     "/rs/restaurant-staff-profile": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/rs/profile": {
       "get": {
         "description": "",
         "responses": {
@@ -5694,6 +5692,16 @@
       }
     },
     "/fl/fleet-manager-profile": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/fl/profile": {
       "get": {
         "description": "",
         "responses": {
@@ -5744,6 +5752,16 @@
       }
     },
     "/fi/finance-profile": {
+      "get": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/fi/profile": {
       "get": {
         "description": "",
         "responses": {
@@ -5902,12 +5920,20 @@
             "type": "string",
             "pattern": "^[a-zA-Z0-9 \\-_]{1,50}$"
           },
+          "newKey": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9 \\-_]{1,50}$"
+          },
+          "description": {
+            "type": "string"
+          },
           "value": {
             "type": "string"
           }
         },
         "required": [
           "key",
+          "newKey",
           "value"
         ],
         "additionalProperties": false
@@ -5968,6 +5994,27 @@
         },
         "required": [
           "id"
+        ],
+        "additionalProperties": false
+      },
+      "changePasswordSchema": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 8
+          },
+          "confirmPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword",
+          "confirmPassword"
         ],
         "additionalProperties": false
       },
@@ -6369,6 +6416,48 @@
         },
         "additionalProperties": false
       },
+      "updateProfileSchema": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100,
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255
+          },
+          "phone": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "profileImageUrl": {
+            "type": "string",
+            "maxLength": 500,
+            "nullable": true
+          },
+          "vehicleType": {
+            "type": "string",
+            "enum": [
+              "BIKE",
+              "SCOOTER",
+              "CAR",
+              "VAN"
+            ]
+          },
+          "vehicleRegistrationNumber": {
+            "type": "string",
+            "maxLength": 50
+          }
+        },
+        "additionalProperties": false
+      },
       "verifyOtpSchema": {
         "type": "object",
         "properties": {
@@ -6752,48 +6841,6 @@
               "monthly"
             ],
             "default": "today"
-          }
-        },
-        "additionalProperties": false
-      },
-      "updateProfileSchema": {
-        "type": "object",
-        "properties": {
-          "firstName": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "lastName": {
-            "type": "string",
-            "maxLength": 100,
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "maxLength": 255
-          },
-          "phone": {
-            "type": "string",
-            "maxLength": 20
-          },
-          "profileImageUrl": {
-            "type": "string",
-            "maxLength": 500,
-            "nullable": true
-          },
-          "vehicleType": {
-            "type": "string",
-            "enum": [
-              "BIKE",
-              "SCOOTER",
-              "CAR",
-              "VAN"
-            ]
-          },
-          "vehicleRegistrationNumber": {
-            "type": "string",
-            "maxLength": 50
           }
         },
         "additionalProperties": false

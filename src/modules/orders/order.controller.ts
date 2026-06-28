@@ -8,6 +8,7 @@ import orderService, {
   reorderPastOrder,
 } from "./order.service.ts";
 import { AuthenticatedRequest, GetOrdersQuery, OrderParams, CancelOrderBody } from "./order.interface.ts";
+import { updateOrderStatus } from "./order.repository.ts";
 // import {User} from "../../types/express.d.ts";
 
 export async function getOrders(
@@ -48,8 +49,9 @@ export async function getRestaurantOrders(
 ) {
   try {
     const ownerUserId = BigInt(req.user!.id);
+    const role = req.cookies.activeRole || 'Restaurant_owner';
     const query = req.query as GetOrdersQuery;
-    
+
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 50;
     const status = query.status as string | undefined;
@@ -59,6 +61,7 @@ export async function getRestaurantOrders(
 
     const data = await orderService.getRestaurantOrders(
       ownerUserId,
+      role,
       page,
       limit,
       status,
@@ -66,7 +69,6 @@ export async function getRestaurantOrders(
       date,
       payment
     );
-
     return res.status(200).json({
       success: true,
       ...data,
@@ -124,12 +126,14 @@ export async function getRestaurantOrderDetails(
 ) {
   try {
     const ownerUserId = BigInt(req.user!.id);
+    const role = req.cookies.activeRole || 'Restaurant_owner';
     const orderParams = req.params as OrderParams;
     const orderId = BigInt(orderParams.id);
 
     const order = await orderService.getRestaurantOrderDetails(
       orderId,
-      ownerUserId
+      ownerUserId,
+      role
     );
 
     return res.status(200).json({
@@ -360,7 +364,7 @@ export const raiseDisputeController = async (req: AuthenticatedRequest, res: Res
     const { category, description } = req.body as any;
 
     const ticket = await orderService.raiseDispute(orderId, customerUserId, category, description);
-    
+
     return res.status(201).json({
       success: true,
       message: 'Dispute raised successfully. A support ticket has been generated.',
@@ -374,5 +378,17 @@ export const raiseDisputeController = async (req: AuthenticatedRequest, res: Res
       return res.status(400).json({ success: false, message: 'Invalid dispute category' });
     }
     return res.status(500).json({ success: false, message: 'Failed to raise dispute' });
+  }
+};
+
+export const staffHandoverOrder = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const staffUserId = BigInt((req.user as any).id);
+    const orderId = BigInt((req.params as any).id as string);
+
+    const order = await updateOrderStatus(orderId, 'PICKED_UP', staffUserId, 'Handed over to delivery partner');
+    res.status(200).json({ success: true, message: 'Order handed over successfully', data: order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to handover order' });
   }
 };

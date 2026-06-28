@@ -7,6 +7,8 @@ interface GetAllUsersParams {
   search?: string;
   role?: string;
   status?: UserStatus;
+  limit?: number
+  page?: number
 }
 
 async function getAllUsersRepo(params: GetAllUsersParams) {
@@ -195,7 +197,7 @@ async function getAllRestaurantsRepo(status?: string) {
   if (status) {
     where.status = status;
   }
-  
+
   const [restaurants, totalCount] = await prisma.$transaction([
     prisma.restaurant.findMany({
       where,
@@ -338,26 +340,24 @@ async function getAllSystemConfigsRepo() {
 
 async function updateSystemConfigRepo(
   key: string,
-  value: string,
-  updatedBy: bigint
+  updatedBy: bigint,
+  dataToUpdate: { value?: string; newKey?: string; description?: string }
 ) {
-  const config = await prisma.systemConfiguration.updateMany({
-    where: { configKey: key },
-    data: {
-      configValue: value,
-      updatedBy: updatedBy,
-    },
-  });
+  const data: any = { updatedBy: updatedBy };
+  if (dataToUpdate.value !== undefined) data.configValue = dataToUpdate.value;
+  if (dataToUpdate.newKey !== undefined) data.configKey = dataToUpdate.newKey;
+  if (dataToUpdate.description !== undefined) data.description = dataToUpdate.description;
 
-  if (config.count === 0) {
+  try {
+    const updatedConfig = await prisma.systemConfiguration.update({
+      where: { configKey: key },
+      data,
+    });
+    return updatedConfig;
+  } catch (error) {
+    // If record not found, Prisma throws a specific error, we can just return null
     return null;
   }
-
-  const updatedConfig = await prisma.systemConfiguration.findUnique({
-    where: { configKey: key },
-  });
-
-  return updatedConfig;
 }
 
 async function createSystemConfigRepo(
@@ -525,7 +525,7 @@ async function overrideOperatingHourRepo(hourId: string, isClosed: boolean, open
   const data: any = { isClosed };
   if (openingTime) data.openingTime = openingTime;
   if (closingTime) data.closingTime = closingTime;
-  
+
   return prisma.restaurantOperatingHour.update({
     where: { id: BigInt(hourId) },
     data
@@ -540,9 +540,9 @@ async function getKpisRepo(startDate?: Date, endDate?: Date) {
 
   const [totalOrders, cancelledOrders, newRestaurants, orders] = await Promise.all([
     prisma.order.count({ where: whereClause }),
-    prisma.order.count({ where: { ...whereClause, orderStatus: 'CANCELLED_BY_CUSTOMER' } }), // Simplifying cancellation
+    prisma.order.count({ where: { ...whereClause, orderStatus: 'CANCELLED' } }), // Simplifying cancellation
     prisma.restaurant.count({ where: whereClause }),
-    prisma.order.findMany({ 
+    prisma.order.findMany({
       where: whereClause,
       select: { totalAmount: true, orderStatus: true, createdAt: true, deliveredAt: true, customerUserId: true }
     })
@@ -586,7 +586,7 @@ async function getFinanceReportsRepo(startDate?: Date, endDate?: Date) {
     select: { amount: true }
   });
   const grossSales = payments.reduce((sum, p) => sum + Number(p.amount), 0);
-  
+
   // Assuming a generic 10% platform commission for this simplified mock
   const platformCommission = grossSales * 0.10;
   const restaurantPayouts = grossSales * 0.70;

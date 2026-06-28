@@ -8,24 +8,30 @@
 <body class="min-h-screen bg-orange-50 font-sans">
   <div class="flex min-h-screen">
     <%- include('../partials/restaurantOwner/sidebar') %>
-    <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
-      <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-800">Finance & Payouts</h2>
+    <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+      <div class="mb-8 flex flex-wrap items-start md:items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">Finance & Payouts</h2>
         <p class="text-gray-500 mt-1">View revenue reports, payout history, and pending amounts.</p>
+      
+        </div>
       </div>
 
       <!-- Stats Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 mb-8">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
           <p class="text-gray-500 text-sm font-medium">Pending Payout Amount</p>
           <h3 class="text-3xl font-bold text-gray-800 mt-2" id="pendingAmount">₹0</h3>
           <p class="text-sm text-gray-400 mt-2">Next scheduled payout: <span id="nextPayoutDate">N/A</span></p>
         </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
           <p class="text-gray-500 text-sm font-medium">Total Paid Out</p>
           <h3 class="text-3xl font-bold text-gray-800 mt-2" id="totalPaid">₹0</h3>
         </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
           <p class="text-gray-500 text-sm font-medium">Platform Commission Deducted</p>
           <h3 class="text-3xl font-bold text-gray-800 mt-2" id="totalCommission">₹0</h3>
         </div>

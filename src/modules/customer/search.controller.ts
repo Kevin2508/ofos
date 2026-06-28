@@ -27,5 +27,6 @@ export const searchSuggestions = catchAsync(async (req: Request, res: Response) 
   const customerId = (req.user as any)?.id ? BigInt((req.user as any).id) : undefined;
 
   const suggestions = await getSearchSuggestions(query as string, customerId);
-  res.status(200).json({ status: 'success', data: suggestions });
+  const serialize = (v: any) => JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+  res.status(200).json({ status: 'success', data: serialize(suggestions) });
 });

@@ -12,7 +12,10 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 export async function searchRestaurantsAndDishes(query: string, filters: any, sort: any, userLat?: number, userLon?: number) {
-  const where: any = { isActive: true };
+  const where: any = { 
+    isActive: true,
+    restaurant: { status: "APPROVED" }
+  };
 
   if (query) {
     where.OR = [
@@ -90,60 +93,72 @@ export async function searchRestaurantsAndDishes(query: string, filters: any, so
 }
 
 export async function getSearchSuggestions(query: string, customerId?: bigint) {
-  if (!query || query.length < 2) return [];
+  if (!query || query.length < 2) return { restaurants: [], dishes: [] };
 
-  const suggestions: string[] = [];
+  const suggestions: { restaurants: any[], dishes: any[] } = {
+    restaurants: [],
+    dishes: []
+  };
 
   const popularBranches = await prisma.restaurantBranch.findMany({
     where: {
+      isActive: true,
+      restaurant: { status: "APPROVED" },
       OR: [
-        { branchName: { startsWith: query } },
-        { restaurant: { businessName: { startsWith: query } } }
+        { branchName: { contains: query } },
+        { restaurant: { businessName: { contains: query } } }
       ]
     },
     orderBy: {
       orders: { _count: 'desc' }
     },
-    take: 3,
+    take: 5,
     include: { restaurant: true }
   });
 
-  popularBranches.forEach(b => {
-    if (!suggestions.includes(b.restaurant.businessName)) {
-      suggestions.push(b.restaurant.businessName);
-    }
-  });
-
-  if (customerId) {
-    const pastOrders = await prisma.orderItem.findMany({
-      where: {
-        order: { customerUserId: customerId },
-        itemName: { contains: query }
-      },
-      distinct: ['itemName'],
-      take: 2,
-      select: { itemName: true }
-    });
-
-    pastOrders.forEach(o => {
-      if (!suggestions.includes(o.itemName)) {
-        suggestions.push(o.itemName);
-      }
-    });
-  }
+  suggestions.restaurants = popularBranches.map(b => ({
+    id: b.restaurant.id,
+    branchId: b.id,
+    name: b.restaurant.businessName,
+    branchName: b.branchName,
+    logoUrl: b.restaurant.logoUrl,
+    cuisineTags: b.restaurant.cuisineTags
+  }));
 
   const menuItems = await prisma.menuItem.findMany({
-    where: { name: { contains: query } },
+    where: { 
+      name: { contains: query },
+      category: {
+        isActive: true,
+        branch: {
+          isActive: true,
+          restaurant: { status: "APPROVED" }
+        }
+      }
+    },
     distinct: ['name'],
-    take: 3,
-    select: { name: true }
-  });
-  
-  menuItems.forEach(m => {
-    if (!suggestions.includes(m.name)) {
-      suggestions.push(m.name);
+    take: 5,
+    include: {
+      category: {
+        include: {
+          branch: {
+            include: { restaurant: true }
+          }
+        }
+      },
+      images: { take: 1, orderBy: { displayOrder: 'asc' } }
     }
   });
 
-  return suggestions.slice(0, 5);
+  suggestions.dishes = menuItems.map(m => ({
+    id: m.id,
+    name: m.name,
+    imageUrl: m.images?.length > 0 ? m.images[0]?.imageUrl : m.imageUrl,
+    basePrice: m.basePrice,
+    restaurantName: m.category?.branch?.restaurant?.businessName,
+    restaurantId: m.category?.branch?.restaurant?.id,
+    branchId: m.category?.branch?.id
+  }));
+
+  return suggestions;
 }

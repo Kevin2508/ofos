@@ -44,7 +44,6 @@ export async function getRestaurantDetails(
 ) {
   try {
     const { id } = req.params;
-
     const restaurant = await restaurantService.getRestaurantDetails(id);
 
     return res.status(200).json({

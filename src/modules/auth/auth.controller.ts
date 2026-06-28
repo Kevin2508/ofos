@@ -12,7 +12,9 @@ import {
   sendOtpDto,
   verigyOtpDto,
 } from './auth.dto.ts';
-import { revokeSessionByTokenHash } from './auth.repository.ts';
+import bcrypt from 'bcryptjs';
+import { updateUser, findUserById, findUserByEmail, findUserByContact } from '../user/user.repository.ts';
+import { revokeSessionByTokenHash, getUserSessions, revokeUserSession } from './auth.repository.ts';
 import {
   forgotPasswordService,
   loginService,
@@ -349,14 +351,27 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
     }
   });
 
+  const serialize = (v: any) =>
+    JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+
   return res.status(200).json({
     status: 'success',
     data: {
-      user: {
-        ...req.user,
+      user: serialize({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        profileImageUrl: user.profileImageUrl,
+        emailVerified: user.emailVerified,
+        phoneVerified: user.phoneVerified,
+        createdAt: user.createdAt,
         roles,
         pendingRoles,
-      },
+        userRoles: user.userRoles,
+        currentRole: (req.user as any).currentRole
+      }),
     },
   });
 });
@@ -389,6 +404,99 @@ const selectRole = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+
+  const userId = BigInt(req.user.id);
+  const { firstName, lastName, email, phone } = req.body;
+
+  const errors: { field: string; message: string }[] = [];
+  
+  if (email) {
+    const existingEmailUser = await findUserByEmail(email);
+    if (existingEmailUser && existingEmailUser.id !== userId) {
+      errors.push({ field: 'email', message: 'This email is already registered to another account' });
+    }
+  }
+
+  if (phone) {
+    const existingPhoneUser = await findUserByContact(phone);
+    if (existingPhoneUser && existingPhoneUser.id !== userId) {
+      errors.push({ field: 'phone', message: 'This phone number is already registered to another account' });
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ status: 'fail', errors });
+  }
+
+  await updateUser({
+    userId,
+    data: {
+      firstName,
+      lastName: lastName || null,
+      email: email || null,
+      phone: phone || null,
+    }
+  });
+
+  return res.status(200).json({ status: 'success', message: 'Profile updated successfully' });
+});
+
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+  
+  const userId = BigInt(req.user.id);
+  const { currentPassword, newPassword } = req.body;
+
+  const user = await findUserById(userId);
+  if (!user || !user.passwordHash) {
+    return res.status(404).json({ status: 'fail', message: 'User not found' });
+  }
+
+  const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!isMatch) {
+    return res.status(400).json({ status: 'fail', message: 'Incorrect current password' });
+  }
+
+  const newHash = await bcrypt.hash(newPassword, 12);
+  await updateUser({
+    userId,
+    data: {
+      passwordHash: newHash,
+    }
+  });
+
+  return res.status(200).json({ status: 'success', message: 'Password updated successfully' });
+});
+
+const getSessions = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+  const sessions = await getUserSessions(BigInt(req.user.id));
+  const serialize = (v: any) => JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+  
+  return res.status(200).json({ status: 'success', data: serialize(sessions) });
+});
+
+const revokeSession = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+  const sessionId = Number(req.params.id);
+  if (isNaN(sessionId)) {
+    return res.status(400).json({ status: 'fail', message: 'Invalid session ID' });
+  }
+  
+  await revokeUserSession(BigInt(sessionId));
+  return res.status(200).json({ status: 'success', message: 'Session revoked successfully' });
+});
+
 export {
   forgotPassword,
   login,
@@ -407,5 +515,9 @@ export {
   checkPhone,
   checkEmail,
   getMe,
-  selectRole
+  selectRole,
+  updateProfile,
+  changePassword,
+  getSessions,
+  revokeSession
 };

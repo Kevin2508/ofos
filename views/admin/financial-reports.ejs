@@ -11,13 +11,13 @@
 <body class="min-h-screen bg-orange-50 font-sans text-gray-800">
   <div class="flex min-h-screen">
     <%- include('../partials/admin/sidebar') %>
-      <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
+      <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 class="text-3xl font-bold text-gray-900">Financial Reports</h2>
             <p class="text-gray-500 mt-2">Generate reconciliation reports showing sales and payouts.</p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-3">
             <input type="date" id="startDate"
               class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
             <span class="text-gray-400">to</span>
@@ -28,20 +28,20 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
+          <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
             <p class="text-sm font-bold text-gray-500 uppercase mb-2">Gross Sales</p>
             <h3 id="grossSales" class="text-3xl font-black text-gray-900">$0.00</h3>
           </div>
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
             <p class="text-sm font-bold text-gray-500 uppercase mb-2">Platform Commission</p>
             <h3 id="platformCommission" class="text-3xl font-black text-green-600">$0.00</h3>
           </div>
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
             <p class="text-sm font-bold text-gray-500 uppercase mb-2">Restaurant Payouts</p>
             <h3 id="restaurantPayouts" class="text-3xl font-black text-orange-600">$0.00</h3>
           </div>
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
             <p class="text-sm font-bold text-gray-500 uppercase mb-2">Delivery Payouts</p>
             <h3 id="deliveryPayouts" class="text-3xl font-black text-blue-600">$0.00</h3>
           </div>

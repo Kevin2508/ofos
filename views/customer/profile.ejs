@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Profile | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
   <style>
     /* Tabs */
     .tab-btn {
@@ -192,7 +193,7 @@
     <!-- Top nav -->
     <nav class="bg-white border-b border-orange-100 shadow-sm sticky top-0 z-40">
       <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
           <button onclick="toggleSidebar()"
             class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,7 +225,7 @@
 
         <!-- Profile header -->
         <div
-          class="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 mb-6 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          class="bg-white rounded-2xl border border-orange-100 shadow-sm p-4 sm:p-6 mb-6 flex flex-wrap flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-6">
           <div id="avatarContainer" class="flex-shrink-0"></div>
           <div class="flex-1 min-w-0 text-center sm:text-left">
             <h2 class="text-2xl font-bold text-gray-800 truncate" id="profileName">—</h2>
@@ -312,7 +313,7 @@
 
         <!-- ── Personal Info Tab ── -->
         <div id="section-personal" class="profile-section">
-          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 mb-6 max-w-2xl">
+          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-4 sm:p-6 mb-6 max-w-2xl">
             <h3 class="text-lg font-bold text-gray-700 mb-1">Personal Information</h3>
             <p class="text-sm text-gray-400 mb-6">Update your display name and contact details.</p>
 
@@ -321,20 +322,24 @@
                 <div>
                   <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_firstName">First Name</label>
                   <input type="text" id="pi_firstName" name="firstName"  minlength="2" maxlength="100" pattern="^[A-Za-z]+$" required class="if" />
+                  <p id="pi_firstNameError" class="text-red-500 text-xs mt-1 font-medium hidden"></p>
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_lastName">Last Name</label>
                   <input type="text" id="pi_lastName" name="lastName"  maxlength="100" pattern="^[A-Za-z]+$" class="if" />
+                  <p id="pi_lastNameError" class="text-red-500 text-xs mt-1 font-medium hidden"></p>
                 </div>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_email">Email</label>
                   <input type="email" id="pi_email" name="email"  pattern="^[^\s@]+@[^\s@]+\.(com|net|org|io)$" class="if" />
+                  <p id="pi_emailError" class="text-red-500 text-xs mt-1 font-medium hidden"></p>
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-gray-600 mb-1" for="pi_phone">Phone</label>
                   <input type="tel" id="pi_phone" name="phone"  pattern="^[0-9]{10}$" minlength="10" maxlength="10" required class="if" />
+                  <p id="pi_phoneError" class="text-red-500 text-xs mt-1 font-medium hidden"></p>
                 </div>
               </div>
               <div>
@@ -348,7 +353,7 @@
             </form>
           </div>
 
-          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 max-w-2xl mt-6">
+          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-4 sm:p-6 max-w-2xl mt-6">
             <h3 class="text-lg font-bold text-gray-700 mb-1">Dietary Preferences</h3>
             <p class="text-sm text-gray-400 mb-6">Filter menus by default based on your preferences.</p>
             <form id="preferencesForm" class="space-y-4">
@@ -399,7 +404,7 @@
 
         <!-- ── Roles Tab ── -->
         <div id="section-roles" class="profile-section">
-          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 mb-6">
+          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-4 sm:p-6 mb-6">
             <h3 class="text-lg font-bold text-gray-700 mb-4">Your Roles</h3>
 
             <div id="profileRolesList" class="space-y-3 mb-6">
@@ -421,7 +426,7 @@
 
         <!-- ── Security Tab ── -->
         <div id="section-security" class="profile-section">
-          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 max-w-lg">
+          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-4 sm:p-6 max-w-lg">
             <h3 class="text-lg font-bold text-gray-700 mb-1">Change Password</h3>
             <p class="text-sm text-gray-400 mb-6">Keep your account safe with a strong, unique password.</p>
 
@@ -443,6 +448,7 @@
                     </svg>
                   </button>
                 </div>
+                <p id="currentPasswordError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
 
               <div>
@@ -461,6 +467,7 @@
                     </svg>
                   </button>
                 </div>
+                <p id="newPasswordError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
                 <div id="pwStrengthBar" class="mt-2 h-1.5 rounded-full bg-gray-100 overflow-hidden hidden">
                   <div id="pwStrengthFill" class="h-full rounded-full transition-all duration-300 w-0"></div>
                 </div>
@@ -484,6 +491,7 @@
                     </svg>
                   </button>
                 </div>
+                <p id="confirmPasswordError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
 
               <div id="pwError"
@@ -496,7 +504,7 @@
             </form>
           </div>
 
-          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 max-w-2xl mt-6">
+          <div class="bg-white rounded-2xl border border-orange-100 shadow-sm p-4 sm:p-6 max-w-2xl mt-6">
             <h3 class="text-lg font-bold text-gray-700 mb-1">Active Sessions</h3>
             <p class="text-sm text-gray-400 mb-4">View and manage devices currently logged into your account.</p>
             <div id="sessionsList" class="space-y-3">
@@ -524,14 +532,14 @@
         
         <!-- ── Loyalty Tab ── -->
         <div id="section-loyalty" class="profile-section">
-          <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-8 mb-6">
+          <div class="bg-white rounded-2xl shadow-sm border border-orange-100 p-5 sm:p-8 mb-6">
             <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Loyalty Points
             </h2>
-            <div class="bg-gradient-to-r from-orange-500 to-orange-400 rounded-2xl p-6 text-white mb-8 shadow-lg">
+            <div class="bg-gradient-to-r from-orange-500 to-orange-400 rounded-2xl p-4 sm:p-6 text-white mb-8 shadow-lg">
               <p class="text-orange-100 font-medium mb-1">Current Balance</p>
               <div class="flex items-end gap-3">
                 <h3 class="text-4xl font-extrabold" id="loyaltyPointsDisplay">0</h3>
@@ -558,7 +566,7 @@
     <div class="modal-box" id="addressModalBox">
 
       <div class="flex items-center justify-between mb-5">
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
           <h3 id="modalTitle" class="text-xl font-bold text-gray-800">Add Address</h3>
           <button type="button" onclick="useCurrentLocation()" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded flex items-center gap-1 font-semibold transition-colors">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-7 13-7 13s-7-9.483-7-13a7 7 0 1114 0z"/><circle cx="12" cy="11" r="3"/></svg>
@@ -594,11 +602,13 @@
           <div>
             <label class="block text-sm font-semibold text-gray-600 mb-1" for="f_contactName">Contact Name</label>
             <input type="text" id="f_contactName" class="if" placeholder="Full name" autocomplete="name" />
+            <p id="f_contactNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-600 mb-1" for="f_contactPhone">Contact Phone</label>
             <input type="tel" id="f_contactPhone" class="if" placeholder="10-digit number" autocomplete="tel"
               maxlength="10" />
+            <p id="f_contactPhoneError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
           </div>
         </div>
 
@@ -606,6 +616,7 @@
           <label class="block text-sm font-semibold text-gray-600 mb-1" for="f_addressLine1">Address Line 1</label>
           <input type="text" id="f_addressLine1" class="if" placeholder="Street, Building, Area"
             autocomplete="address-line1" />
+          <p id="f_addressLine1Error" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
         </div>
 
         <div>
@@ -627,10 +638,12 @@
           <div>
             <label class="block text-sm font-semibold text-gray-600 mb-1" for="f_city">City</label>
             <input type="text" id="f_city" class="if" placeholder="City" autocomplete="address-level2" />
+            <p id="f_cityError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-600 mb-1" for="f_state">State</label>
             <input type="text" id="f_state" class="if" placeholder="State" autocomplete="address-level1" />
+            <p id="f_stateError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
           </div>
         </div>
 
@@ -639,11 +652,13 @@
             <label class="block text-sm font-semibold text-gray-600 mb-1" for="f_postalCode">Postal Code</label>
             <input type="text" id="f_postalCode" class="if" placeholder="PIN Code" autocomplete="postal-code"
               maxlength="10" />
+            <p id="f_postalCodeError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
           </div>
           <div>
             <label class="block text-sm font-semibold text-gray-600 mb-1" for="f_country">Country</label>
             <input type="text" id="f_country" class="if" placeholder="Country" autocomplete="country-name"
               value="India" />
+            <p id="f_countryError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
           </div>
         </div>
 
@@ -703,6 +718,7 @@
         <div>
           <label class="block text-sm font-semibold text-gray-600 mb-1" for="pm_identifier">Card Number / UPI ID</label>
           <input type="text" id="pm_identifier" name="identifier" class="if" placeholder="XXXX-XXXX-XXXX-1234 or name@upi" required />
+          <p id="pm_identifierError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
         </div>
         
         <div>
@@ -726,6 +742,39 @@
 
       // ─── State ────────────────────────────────────────────────────
       let cachedAddresses = [];
+
+      // ─── Form Validator Rules ─────────────────────────────────────
+      const piRules = {
+        pi_firstName: { required: true, minLength: 2, maxLength: 50, pattern: /^[A-Za-z]+$/, patternMsg: 'First name can only contain letters', label: 'First Name' },
+        pi_lastName: { maxLength: 50, pattern: /^[A-Za-z]+$/, patternMsg: 'Last name can only contain letters', label: 'Last Name' },
+        pi_email: { isEmail: true, label: 'Email' },
+        pi_phone: { required: true, exactLength: 10, pattern: /^[0-9]+$/, patternMsg: 'Contact number must only contain digits', label: 'Phone' }
+      };
+
+      const pwRules = {
+        currentPassword: { required: true, label: 'Current Password' },
+        newPassword: { required: true, minLength: 8, label: 'New Password' },
+        confirmPassword: { required: true, minLength: 8, matchField: 'newPassword', matchMsg: 'Passwords do not match', label: 'Confirm Password' }
+      };
+
+      const addrRules = {
+        f_contactName: { required: true, minLength: 2, maxLength: 150, label: 'Contact Name' },
+        f_contactPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/, patternMsg: 'Must be exactly 10 digits', label: 'Contact Phone' },
+        f_addressLine1: { required: true, maxLength: 255, label: 'Address Line 1' },
+        f_city: { required: true, maxLength: 100, label: 'City' },
+        f_state: { required: true, maxLength: 100, label: 'State' },
+        f_postalCode: { required: true, maxLength: 20, label: 'Postal Code' },
+        f_country: { required: true, maxLength: 60, label: 'Country' }
+      };
+
+      const pmRules = {
+        pm_identifier: { required: true, label: 'Card Number / UPI ID' }
+      };
+
+      FormValidator.bindLiveValidation(piRules);
+      FormValidator.bindLiveValidation(pwRules);
+      FormValidator.bindLiveValidation(addrRules);
+      FormValidator.bindLiveValidation(pmRules);
 
       // ─── DOM refs ─────────────────────────────────────────────────
       const profileLoading = document.getElementById('profileLoading');
@@ -904,7 +953,7 @@
 
         if (!addresses.length) {
           addressesList.innerHTML = `
-        <div class="bg-white border border-dashed border-orange-200 rounded-2xl p-10 text-center">
+        <div class="bg-white border border-dashed border-orange-200 rounded-2xl p-6 sm:p-10 text-center">
           <div class="text-5xl mb-3">📭</div>
           <p class="text-gray-500 font-medium">No addresses saved yet</p>
           <p class="text-gray-400 text-sm mt-1">Tap "Add New" to save a delivery address</p>
@@ -964,7 +1013,7 @@
 
         if (roles.length > 0) {
           html += roles.map(role => `
-        <div class="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+        <div class="flex flex-wrap items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
           <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold">✓</div>
           <div>
             <p class="font-bold text-green-800">${role}</p>
@@ -976,7 +1025,7 @@
 
         if (pendingRoles.length > 0) {
           html += pendingRoles.map(role => `
-        <div class="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+        <div class="flex flex-wrap items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
           <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 font-bold">⏱</div>
           <div>
             <p class="font-bold text-yellow-800">${role}</p>
@@ -1045,6 +1094,8 @@
         e.preventDefault();
         addressFormErr.classList.add('hidden');
 
+        if (!FormValidator.validate(addrRules)) return;
+
         const labelEl = addressForm.querySelector('[name="label"]:checked');
         if (!labelEl) {
           addressFormErr.textContent = 'Please select a label (Home / Work / Other).';
@@ -1103,6 +1154,9 @@
       // ─── Change password ──────────────────────────────────────────
       document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
         e.preventDefault();
+        
+        if (!FormValidator.validate(pwRules)) return;
+        
         const errEl = document.getElementById('pwError');
         const btn = document.getElementById('changePwBtn');
         errEl.classList.add('hidden');
@@ -1110,17 +1164,6 @@
         const currentPassword = document.getElementById('currentPassword').value;
         const newPassword = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (newPassword !== confirmPassword) {
-          errEl.textContent = 'New passwords do not match.';
-          errEl.classList.remove('hidden');
-          return;
-        }
-        if (newPassword.length < 8) {
-          errEl.textContent = 'New password must be at least 8 characters.';
-          errEl.classList.remove('hidden');
-          return;
-        }
 
         btn.disabled = true; btn.textContent = 'Updating…';
 
@@ -1214,10 +1257,25 @@
       // ─── Personal Info Form ────────────────────────────────────────
       document.getElementById('personalInfoForm').addEventListener('submit', async function (e) {
         e.preventDefault();
+        
+        if (!FormValidator.validate(piRules)) return;
+
         const btn = document.getElementById('savePersonalInfoBtn');
         const originalText = btn.textContent;
         btn.textContent = 'Saving...';
         btn.disabled = true;
+
+        const errEmail = document.getElementById('pi_emailError');
+        const errPhone = document.getElementById('pi_phoneError');
+        const inpEmail = document.getElementById('pi_email');
+        const inpPhone = document.getElementById('pi_phone');
+
+        errEmail.classList.add('hidden');
+        errPhone.classList.add('hidden');
+        errEmail.textContent = '';
+        errPhone.textContent = '';
+        inpEmail.classList.remove('!border-red-500');
+        inpPhone.classList.remove('!border-red-500');
 
         const formData = new FormData(this);
         
@@ -1237,7 +1295,22 @@
             showToast('Profile updated successfully!', 'success');
             loadProfile(); // reload to show changes
           } else {
-            showToast(json.message || 'Update failed', 'error');
+            if (json.errors && Array.isArray(json.errors)) {
+              json.errors.forEach(err => {
+                if (err.field === 'email') {
+                  errEmail.textContent = err.message;
+                  errEmail.classList.remove('hidden');
+                  inpEmail.classList.add('!border-red-500');
+                } else if (err.field === 'phone') {
+                  errPhone.textContent = err.message;
+                  errPhone.classList.remove('hidden');
+                  inpPhone.classList.add('!border-red-500');
+                }
+              });
+              showToast('Please fix the errors below', 'error');
+            } else {
+              showToast(json.message || 'Update failed', 'error');
+            }
           }
         } catch (err) {
           showToast('Network error', 'error');
@@ -1314,7 +1387,7 @@
           const list = document.getElementById('paymentsList');
           if (!data || data.length === 0) {
             list.innerHTML = `
-              <div class="bg-white border border-dashed border-orange-200 rounded-2xl p-10 text-center">
+              <div class="bg-white border border-dashed border-orange-200 rounded-2xl p-6 sm:p-10 text-center">
                 <div class="text-4xl mb-3">💳</div>
                 <p class="text-gray-500 font-medium">No payment methods saved</p>
                 <p class="text-gray-400 text-sm mt-1">Add a card or UPI ID for faster checkout</p>
@@ -1324,7 +1397,7 @@
 
           list.innerHTML = data.map(pm => `
              <div class="bg-white border border-orange-100 rounded-2xl p-4 shadow-sm flex justify-between items-center">
-               <div class="flex items-center gap-3">
+               <div class="flex flex-wrap items-center gap-3">
                  <div class="p-2 bg-orange-50 rounded-lg text-orange-500 text-xl">
                    ${pm.paymentType === 'CARD' ? '💳' : '📱'}
                  </div>
@@ -1356,6 +1429,9 @@
 
       document.getElementById('paymentForm').addEventListener('submit', async function(e) {
          e.preventDefault();
+         
+         if (!FormValidator.validate(pmRules)) return;
+         
          const formData = new FormData(this);
          
          const payload = {

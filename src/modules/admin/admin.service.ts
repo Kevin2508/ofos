@@ -27,6 +27,9 @@ import {
   getKpisRepo,
   getFinanceReportsRepo,
   getHeatmapRepo,
+  getAllRestaurantsRepo,
+  createSystemConfigRepo,
+  deleteSystemConfigRepo,
 } from './admin.repository.ts';
 
 import { Prisma, UserStatus } from '../../generated/prisma/client.ts';
@@ -365,15 +368,21 @@ async function getAllSystemConfigsService() {
 
 async function updateSystemConfigService(
   key: string,
-  value: string,
+  value: string | undefined,
   updatedBy: bigint,
+  newKey?: string,
+  description?: string,
   ipAddress?: string
 ) {
   const oldConfig = await prisma.systemConfiguration.findUnique({
     where: { configKey: key },
   });
 
-  const updatedConfig = await updateSystemConfigRepo(key, value, updatedBy);
+  const updatedConfig = await updateSystemConfigRepo(key, updatedBy, {
+    value,
+    newKey,
+    description,
+  });
 
   if (!updatedConfig) {
     return null;

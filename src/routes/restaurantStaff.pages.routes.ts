@@ -19,4 +19,10 @@ restaurantStaffPageRouter.get('/restaurant-staff-profile', (req, res) => {
   res.render('restaurantStaff/profile');
 });
 
+
+
+restaurantStaffPageRouter.get('/profile', (req, res) => {
+  res.render('restaurantStaff/profile');
+});
+
 export { restaurantStaffPageRouter };

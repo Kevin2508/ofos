@@ -27,4 +27,10 @@ financePageRouter.get('/finance-profile', (req, res) => {
   res.render('finance/profile');
 });
 
+
+
+financePageRouter.get('/profile', (req, res) => {
+  res.render('finance/profile');
+});
+
 export { financePageRouter };

@@ -23,4 +23,10 @@ fleetManagerPageRouter.get('/fleet-manager-profile', (req, res) => {
   res.render('fleetManager/profile');
 });
 
+
+
+fleetManagerPageRouter.get('/profile', (req, res) => {
+  res.render('fleetManager/profile');
+});
+
 export { fleetManagerPageRouter };

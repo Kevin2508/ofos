@@ -14,7 +14,7 @@
     <nav class="bg-white border-b border-orange-100 shadow-sm">
       <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <!-- Hamburger & Logo -->
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2 md:gap-3">
           <button onclick="toggleSidebar()" id="hamburgerBtn"
             class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,7 +28,7 @@
         <div class="flex-1 mx-6 hidden lg:block"></div>
 
         <!-- Auth Section -->
-        <div id="authSection" class="flex items-center gap-3">
+        <div id="authSection" class="flex flex-wrap items-center gap-2 md:gap-3">
           <!-- Guest Buttons -->
           <a href="/loginPage" class="text-sm font-semibold text-orange-500 hover:text-orange-600" id="loginBtn">
             Login
@@ -47,16 +47,18 @@
     <div class="max-w-6xl mx-auto px-4 py-8">
       <!-- HERO SECTION -->
       <div
-        class="mb-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-[2rem] p-8 md:p-12 shadow-xl text-white relative overflow-hidden border border-orange-400">
+        class="mb-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-[2rem] p-5 sm:p-8 md:p-12 shadow-xl text-white relative border border-orange-400">
         <!-- Abstract Background Shapes -->
-        <svg class="absolute top-0 right-0 opacity-20 w-96 h-96 transform translate-x-32 -translate-y-16"
-          fill="currentColor" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="50" />
-        </svg>
-        <svg class="absolute bottom-0 left-0 opacity-10 w-64 h-64 transform -translate-x-24 translate-y-24"
-          fill="currentColor" viewBox="0 0 100 100">
-          <polygon points="50 15, 100 100, 0 100" />
-        </svg>
+        <div class="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none">
+          <svg class="absolute top-0 right-0 opacity-20 w-[95%] max-w-sm sm:w-96 h-96 transform translate-x-32 -translate-y-16"
+            fill="currentColor" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="50" />
+          </svg>
+          <svg class="absolute bottom-0 left-0 opacity-10 w-64 h-64 transform -translate-x-24 translate-y-24"
+            fill="currentColor" viewBox="0 0 100 100">
+            <polygon points="50 15, 100 100, 0 100" />
+          </svg>
+        </div>
 
         <div class="relative z-10">
           <h2 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Craving something?</h2>
@@ -65,27 +67,33 @@
             door.
           </p>
 
-            <!-- Unified Search Bar -->
-            <div class="relative max-w-2xl bg-white rounded-2xl shadow-2xl flex items-center p-2 transition-all focus-within:ring-4 focus-within:ring-orange-300/50">
-              <div class="pl-5 text-orange-500">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input id="searchInput" autocomplete="off" type="text" placeholder="Search for 'Pizza', 'Burger', or a restaurant..." class="w-full px-4 py-3 text-gray-800 text-lg focus:outline-none bg-transparent font-semibold placeholder-gray-400" />
-              <button class="bg-gray-900 hover:bg-black text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-md">Search</button>
-              
-              <!-- Predictive Suggestions Dropdown -->
-              <div id="searchSuggestions" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden hidden z-50">
-                 <!-- Populated dynamically via JS -->
-              </div>
+          <!-- Unified Search Bar -->
+          <div
+            class="relative max-w-2xl bg-white rounded-2xl shadow-2xl flex items-center p-2 transition-all focus-within:ring-4 focus-within:ring-orange-300/50">
+            <div class="pl-5 text-orange-500">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
+            <input id="searchInput" autocomplete="off" type="text"
+              placeholder="Search for 'Pizza', 'Burger', or a restaurant..."
+              class="w-full px-4 py-3 text-gray-800 text-lg focus:outline-none bg-transparent font-semibold placeholder-gray-400" />
+            <button
+              class="bg-gray-900 hover:bg-black text-white px-4 sm:px-8 py-3 rounded-xl font-bold transition-colors shadow-md">Search</button>
+
+            <!-- Predictive Suggestions Dropdown -->
+            <div id="searchSuggestions"
+              class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden hidden z-50">
+              <!-- Populated dynamically via JS -->
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- CATEGORY FILTERS (INLINE ROW) -->
       <div id="categoryFilters"
-        class="flex gap-3 items-center mb-10 overflow-x-auto hide-scrollbar pb-2 pt-2 -mx-2 px-2 snap-x">
+        class="flex flex-wrap gap-3 items-center mb-10 overflow-x-auto hide-scrollbar pb-2 pt-2 -mx-2 px-2 snap-x">
         <div class="flex items-center gap-1.5 pr-3 border-r border-gray-300 flex-shrink-0 snap-start">
           <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -149,7 +157,7 @@
       <!-- RECENT ORDERS (Hidden by default, shown if logged in and has orders) -->
       <div id="orderAgainSection" class="mb-14 hidden">
         <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
             <div class="p-2.5 bg-blue-100 text-blue-600 rounded-xl shadow-inner">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -161,14 +169,14 @@
           </div>
         </div>
         <!-- Wrapped Container -->
-        <div class="flex flex-wrap gap-6 pb-6 pt-2" id="orderAgainList">
+        <div class="flex flex-wrap gap-3 sm:gap-6 pb-6 pt-2" id="orderAgainList">
           <!-- Populated dynamically -->
         </div>
       </div>
 
       <!-- TRENDING SECTION -->
       <div id="trendingSection" class="mb-14 hidden">
-        <div class="flex items-center gap-3 mb-6">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
           <div class="p-2.5 bg-red-100 text-red-600 rounded-xl shadow-inner">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6">
@@ -177,7 +185,7 @@
           </div>
           <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Trending This Week</h3>
         </div>
-        <div class="flex flex-wrap gap-6 pb-6 pt-2" id="trendingList">
+        <div class="flex flex-wrap gap-3 sm:gap-6 pb-6 pt-2" id="trendingList">
           <!-- Populated dynamically -->
         </div>
       </div>
@@ -185,7 +193,7 @@
       <!-- RESTAURANTS SECTION -->
       <div class="mb-14" id="restaurantsSection">
         <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
             <div class="p-2.5 bg-orange-100 text-orange-600 rounded-xl">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -205,14 +213,14 @@
             <option value="PRICE_HIGH">Price (High to Low)</option>
           </select>
         </div>
-        <div id="restaurantGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="restaurantGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <!-- Cards will be populated here -->
         </div>
       </div>
 
       <!-- MENU ITEMS SECTION -->
       <div class="mb-8">
-        <div class="flex items-center gap-3 mb-6">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
           <div class="p-2.5 bg-orange-100 text-orange-600 rounded-xl">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -221,7 +229,7 @@
           </div>
           <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Explore Dishes</h3>
         </div>
-        <div id="menuItemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div id="menuItemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           <!-- Item Cards will be populated here -->
         </div>
       </div>
@@ -229,7 +237,7 @@
 
     <!-- MENU MODAL -->
     <div id="menuModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-lg rounded-2xl p-6">
+      <div class="bg-white w-full max-w-lg rounded-2xl p-4 sm:p-6">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-bold">Menu</h3>
 
@@ -312,42 +320,67 @@
         currentSearch = e.target.value.trim();
         fetchRestaurants();
         fetchGlobalMenuItems();
-        
+
         clearTimeout(suggestionTimeout);
         suggestionTimeout = setTimeout(async () => {
           if (currentSearch.length >= 2) {
             try {
-               const res = await fetch(`/c/search/suggestions?query=${encodeURIComponent(currentSearch)}`);
-               if (res.ok) {
-                   const { data } = await res.json();
-                   if (data && data.length > 0) {
-                       searchSuggestionsDiv.innerHTML = data.map(s => 
-                           `<div class="px-4 py-3 hover:bg-orange-50 cursor-pointer text-gray-800 font-medium border-b border-gray-50 last:border-0" onclick="applySuggestion('${s.replace(/'/g, "\\'")}')">${s}</div>`
-                       ).join('');
-                       searchSuggestionsDiv.classList.remove('hidden');
-                   } else {
-                       searchSuggestionsDiv.classList.add('hidden');
-                   }
-               }
-            } catch(err) {}
+              const res = await fetch(`/customer/search/suggestions?query=${encodeURIComponent(currentSearch)}`);
+              if (res.ok) {
+                const { data } = await res.json();
+                if (data && (data.restaurants?.length > 0 || data.dishes?.length > 0)) {
+                  let html = '';
+
+                       if (data.restaurants && data.restaurants.length > 0) {
+                           html += `<div class="px-4 py-2 bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">Restaurants</div>`;
+                           html += data.restaurants.map(r => `
+                             <div class="px-4 py-3 hover:bg-orange-50 cursor-pointer flex flex-wrap items-center gap-3 border-b border-gray-100 last:border-0 transition-colors" onclick="window.location.href='/c/restaurants/${r.id}'">
+                               <img src="${formatImgUrl(r.logoUrl)}" onerror="this.src='https://placehold.co/100x100?text=Logo'" class="w-10 h-10 rounded-lg object-cover shadow-sm border border-gray-100" />
+                               <div>
+                                 <div class="font-bold text-gray-900">${r.name}</div>
+                                 <div class="text-xs text-gray-500 line-clamp-1">${r.cuisineTags || ''}</div>
+                               </div>
+                             </div>
+                           `).join('');
+                       }
+
+                  if (data.dishes && data.dishes.length > 0) {
+                    html += `<div class="px-4 py-2 bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-t border-gray-100">Dishes</div>`;
+                    html += data.dishes.map(d => `
+                             <div class="px-4 py-3 hover:bg-orange-50 cursor-pointer flex items-center justify-between border-b border-gray-100 last:border-0 transition-colors" onclick="window.location.href='/c/restaurants/${d.restaurantId}'">
+                               <div class="flex flex-wrap items-center gap-2 md:gap-3">
+                                 <img src="${formatImgUrl(d.imageUrl)}" onerror="this.src='https://placehold.co/100x100?text=Dish'" class="w-10 h-10 rounded-lg object-cover shadow-sm border border-gray-100" />
+                                 <div>
+                                   <div class="font-bold text-gray-900">${d.name}</div>
+                                   <div class="text-xs text-gray-500">from ${d.restaurantName}</div>
+                                 </div>
+                               </div>
+                               <div class="text-orange-500 font-bold whitespace-nowrap">₹${d.basePrice}</div>
+                             </div>
+                           `).join('');
+                  }
+
+                  searchSuggestionsDiv.innerHTML = html;
+                  searchSuggestionsDiv.classList.remove('hidden');
+                } else {
+                  searchSuggestionsDiv.classList.add('hidden');
+                }
+              }
+            } catch (err) {
+              console.error('Failed to fetch suggestions', err);
+            }
           } else {
             searchSuggestionsDiv.classList.add('hidden');
           }
         }, 300); // Debounce
       });
 
-      function applySuggestion(s) {
-         document.getElementById('searchInput').value = s;
-         currentSearch = s;
-         searchSuggestionsDiv.classList.add('hidden');
-         fetchRestaurants();
-         fetchGlobalMenuItems();
-      }
+      // (applySuggestion removed as navigation is handled directly now)
 
       document.addEventListener('click', (e) => {
-         if (!e.target.closest('#searchInput') && !e.target.closest('#searchSuggestions')) {
-            searchSuggestionsDiv.classList.add('hidden');
-         }
+        if (!e.target.closest('#searchInput') && !e.target.closest('#searchSuggestions')) {
+          searchSuggestionsDiv.classList.add('hidden');
+        }
       });
 
       document.querySelectorAll('.food-type-filter').forEach(checkbox => {
@@ -366,7 +399,7 @@
       async function fetchRestaurants() {
         try {
           const foodTypes = getSelectedFoodTypes();
-          let url = '/c/search?';
+          let url = '/customer/search?';
           if (currentSearch && currentSearch.length >= 2) url += `query=${encodeURIComponent(currentSearch)}&`;
           if (foodTypes) url += `cuisine=${encodeURIComponent(foodTypes)}&`;
 
@@ -375,17 +408,17 @@
 
           const res = await fetch(url);
           const { data } = await res.json();
-          
+
           const mapped = (data || []).map(b => ({
-             id: b.restaurant?.id,
-             coverImageUrl: b.restaurant?.coverImageUrl,
-             logoUrl: b.restaurant?.logoUrl,
-             averageRating: b.avgRating ? Number(b.avgRating).toFixed(1) : 0,
-             businessName: b.restaurant?.businessName,
-             description: b.restaurant?.description,
-             applicableCoupons: b.restaurant?.applicableCoupons
+            id: b.restaurant?.id,
+            coverImageUrl: b.restaurant?.coverImageUrl,
+            logoUrl: b.restaurant?.logoUrl,
+            averageRating: b.avgRating ? Number(b.avgRating).toFixed(1) : 0,
+            businessName: b.restaurant?.businessName,
+            description: b.restaurant?.description,
+            applicableCoupons: b.restaurant?.applicableCoupons
           }));
-          
+
           renderRestaurants(mapped);
         } catch (err) {
           console.error('Failed to load restaurants', err);
@@ -508,7 +541,7 @@
 
       function renderTrending(trending) {
         const list = document.getElementById('trendingList');
-        if(!list) return;
+        if (!list) return;
         list.innerHTML = '';
 
         trending.forEach(restaurant => {

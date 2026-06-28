@@ -23,4 +23,10 @@ deliveryPartnerPageRouter.get('/delivery-partner-profile', (req, res) => {
   res.render('deliveryPartner/profile');
 });
 
+
+
+deliveryPartnerPageRouter.get('/profile', (req, res) => {
+  res.render('deliveryPartner/profile');
+});
+
 export { deliveryPartnerPageRouter };

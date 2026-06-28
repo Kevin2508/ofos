@@ -13,7 +13,7 @@
     <%- include('../partials/restaurantOwner/sidebar') %>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
+    <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
       <div class="mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
           <h2 class="text-2xl font-bold text-gray-800">Orders Management</h2>
@@ -208,7 +208,7 @@
                   ${item.specialInstructions ? `<p class="text-xs text-orange-600">Note: ${item.specialInstructions}</p>` : ''}
                   ${item.isUnavailable ? `<span class="text-xs text-red-500 font-bold">Unavailable</span>` : ''}
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
                   <span class="font-semibold">₹${item.lineTotal}</span>
                   ${!item.isUnavailable && order.orderStatus !== 'COMPLETED' && order.orderStatus !== 'CANCELLED' ? 
                     `<button onclick="markItemUnavailable('${order.id}', '${item.id}')" class="text-xs bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded">Mark Unavailable</button>` : ''}
@@ -277,8 +277,8 @@
     });;
   </script>
   <!-- Order Details Modal -->
-  <div id="orderDetailsModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 max-h-[90vh] flex flex-col">
+  <div id="orderDetailsModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-4 sm:p-6 max-h-[90vh] flex flex-col">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-bold text-gray-800" id="modalOrderTitle">Order Details</h3>
         <button onclick="closeOrderDetailsModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>

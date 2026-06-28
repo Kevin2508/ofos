@@ -6,11 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register | epicure- Food Ordering System</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
 </head>
 
 <body>
   <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-5 sm:p-8">
       <!-- Header -->
       <div class="text-center mb-8">
         <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
@@ -55,7 +56,7 @@
 
       <!-- Step 3: Details -->
       <form id="step3Form" class="space-y-5 hidden">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               First Name <span class="text-red-500">*</span>
@@ -172,16 +173,34 @@
       }
     }
 
+    // --- Form Validator Rules ---
+    const step1Rules = {
+      phone: { required: true, exactLength: 10, pattern: /^[0-9]+$/, patternMsg: 'Contact number must only contain digits', label: 'Phone Number' }
+    };
+
+    const step2Rules = {
+      otp: { required: true, exactLength: 6, pattern: /^[0-9]+$/, patternMsg: 'OTP must only contain numbers', label: 'OTP' }
+    };
+
+    const step3Rules = {
+      firstName: { required: true, minLength: 2, maxLength: 50, pattern: /^[A-Za-z]+$/, patternMsg: 'First name can only contain letters', label: 'First Name' },
+      lastName: { maxLength: 50, pattern: /^[A-Za-z]+$/, patternMsg: 'Last name can only contain letters', label: 'Last Name' },
+      email: { isEmail: true, label: 'Email' },
+      password: { required: true, minLength: 8, label: 'Password' },
+      confirmPassword: { required: true, minLength: 8, matchField: 'password', matchMsg: 'Passwords do not match', label: 'Confirm Password' }
+    };
+
+    FormValidator.bindLiveValidation(step1Rules);
+    FormValidator.bindLiveValidation(step2Rules);
+    FormValidator.bindLiveValidation(step3Rules);
+
     // --- STEP 1: Phone Verification ---
     step1Form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      document.getElementById('phoneError').textContent = '';
-      const phoneValue = phone.value.trim();
 
-      if (phoneValue.length !== 10 || !/^[0-9]+$/.test(phoneValue)) {
-        document.getElementById('phoneError').textContent = 'Please enter a valid 10-digit number';
-        return;
-      }
+      if (!FormValidator.validate(step1Rules)) return;
+      
+      const phoneValue = phone.value.trim();
 
       const btn = document.getElementById('step1Btn');
       btn.disabled = true;
@@ -227,13 +246,10 @@
     // --- STEP 2: OTP Verification ---
     step2Form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      document.getElementById('otpError').textContent = '';
-      const otpValue = otp.value.trim();
+      
+      if (!FormValidator.validate(step2Rules)) return;
 
-      if (otpValue.length !== 6 || !/^[0-9]+$/.test(otpValue)) {
-        document.getElementById('otpError').textContent = 'Please enter a valid 6-digit OTP';
-        return;
-      }
+      const otpValue = otp.value.trim();
 
       const btn = document.getElementById('step2Btn');
       btn.disabled = true;
@@ -265,36 +281,13 @@
     step3Form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Clear errors
-      ['firstNameError', 'lastNameError', 'emailError', 'passwordError', 'confirmPasswordError'].forEach(id => {
-        document.getElementById(id).textContent = '';
-      });
+      if (!FormValidator.validate(step3Rules)) return;
 
-      let hasError = false;
       const fName = firstName.value.trim();
       const lName = lastName.value.trim();
       const emailVal = email.value.trim();
       const pass = password.value;
       const cPass = confirmPassword.value;
-
-      if (!fName || fName.length < 2) {
-        document.getElementById('firstNameError').textContent = 'Valid first name is required';
-        hasError = true;
-      }
-      if (emailVal && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/.test(emailVal)) {
-        document.getElementById('emailError').textContent = 'Please enter a valid email';
-        hasError = true;
-      }
-      if (pass.length < 8) {
-        document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
-        hasError = true;
-      }
-      if (pass !== cPass) {
-        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
-        hasError = true;
-      }
-
-      if (hasError) return;
 
       const btn = document.getElementById('step3Btn');
       btn.disabled = true;

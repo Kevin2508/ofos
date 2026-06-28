@@ -14,7 +14,7 @@
     <nav class="bg-white border-b border-orange-100 shadow-sm">
       <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <!-- Logo -->
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2 md:gap-3">
           <h1 class="text-3xl font-extrabold text-orange-500">epicure</h1>
         </div>
 
@@ -22,7 +22,7 @@
         <div class="flex-1 mx-6 hidden lg:block"></div>
 
         <!-- Auth Section -->
-        <div id="authSection" class="flex items-center gap-3">
+        <div id="authSection" class="flex flex-wrap items-center gap-2 md:gap-3">
           <!-- Guest Buttons -->
           <a href="/loginPage" class="text-sm font-semibold text-orange-500 hover:text-orange-600" id="loginBtn">
             Login
@@ -41,9 +41,9 @@
     <div class="max-w-6xl mx-auto px-4 py-8">
       <!-- HERO SECTION -->
       <div
-        class="mb-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-[2rem] p-8 md:p-12 shadow-xl text-white relative overflow-hidden border border-orange-400">
+        class="mb-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-[2rem] p-5 sm:p-8 md:p-12 shadow-xl text-white relative overflow-hidden border border-orange-400">
         <!-- Abstract Background Shapes -->
-        <svg class="absolute top-0 right-0 opacity-20 w-96 h-96 transform translate-x-32 -translate-y-16"
+        <svg class="absolute top-0 right-0 opacity-20 w-[95%] max-w-sm sm:w-96 h-96 transform translate-x-32 -translate-y-16"
           fill="currentColor" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="50" />
         </svg>
@@ -71,7 +71,7 @@
             <input id="searchInput" type="text" placeholder="Search for 'Pizza', 'Burger', or a restaurant..."
               class="w-full px-4 py-3 text-gray-800 text-lg focus:outline-none bg-transparent font-semibold placeholder-gray-400" />
             <button
-              class="bg-gray-900 hover:bg-black text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-md">Search</button>
+              class="bg-gray-900 hover:bg-black text-white px-4 sm:px-8 py-3 rounded-xl font-bold transition-colors shadow-md">Search</button>
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@
 
       <!-- RESTAURANTS SECTION -->
       <div class="mb-14">
-        <div class="flex items-center gap-3 mb-6">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
           <div class="p-2.5 bg-orange-100 text-orange-600 rounded-xl">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -137,14 +137,14 @@
           </div>
           <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Featured Restaurants</h3>
         </div>
-        <div id="restaurantGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="restaurantGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <!-- Cards will be populated here -->
         </div>
       </div>
 
       <!-- MENU ITEMS SECTION -->
       <div class="mb-8">
-        <div class="flex items-center gap-3 mb-6">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
           <div class="p-2.5 bg-orange-100 text-orange-600 rounded-xl">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -153,7 +153,7 @@
           </div>
           <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Explore Dishes</h3>
         </div>
-        <div id="menuItemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div id="menuItemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           <!-- Item Cards will be populated here -->
         </div>
       </div>
@@ -261,7 +261,7 @@
                   ${r.averageRating > 0 ? r.averageRating : 'New'}
                 </div>
             </div>
-            <div class="p-6 flex flex-col flex-grow">
+            <div class="p-4 sm:p-6 flex flex-col flex-grow">
               <h3 class="text-xl font-extrabold text-gray-900 mb-1.5 line-clamp-1 group-hover:text-orange-500 transition-colors">${r.businessName} - ${branch.branchName}</h3>
               <p class="text-gray-500 text-sm mb-5 line-clamp-2 flex-grow font-medium leading-relaxed">${r.description || r.cuisine || 'Delicious food'}</p>
               <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">

@@ -6,30 +6,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Customer Reviews | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
 </head>
 
 <body class="min-h-screen bg-orange-50 font-sans">
   <div class="flex min-h-screen">
     <%- include('../partials/restaurantOwner/sidebar') %>
 
-    <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
-      <div class="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-orange-100">
+    <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+      <div class="mb-8 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100">
         <h2 class="text-2xl font-bold text-gray-800">Customer Reviews</h2>
         <p class="text-gray-500 mt-1">Manage and respond to feedback from your customers.</p>
       </div>
 
       <div class="space-y-6" id="reviewsContainer">
         <div class="animate-pulse space-y-4">
-          <div class="bg-white p-6 rounded-2xl h-32 w-full"></div>
-          <div class="bg-white p-6 rounded-2xl h-32 w-full"></div>
+          <div class="bg-white p-4 sm:p-6 rounded-2xl h-32 w-full"></div>
+          <div class="bg-white p-4 sm:p-6 rounded-2xl h-32 w-full"></div>
         </div>
       </div>
     </main>
   </div>
 
   <!-- Reply Modal -->
-  <div id="replyModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] px-4 backdrop-blur-sm">
-    <div class="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl transform scale-95 transition-transform duration-300 relative">
+  <div id="replyModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] px-4 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-4 sm:p-6 shadow-2xl transform scale-95 transition-transform duration-300 relative">
       <button onclick="closeReplyModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
       </button>
@@ -43,6 +44,7 @@
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-2">Your Response</label>
           <textarea id="replyText" rows="4" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:outline-none resize-none" placeholder="Thank the customer or address their concerns..." required></textarea>
+          <p id="replyTextError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
         </div>
         
         <div class="flex gap-3 justify-end mt-6">
@@ -55,6 +57,12 @@
 
   <script>
     let allReviews = [];
+
+    const replyRules = {
+      replyText: { required: true, minLength: 2, maxLength: 500, label: 'Your Response' }
+    };
+    
+    FormValidator.bindLiveValidation(replyRules);
 
     async function loadReviews() {
       const container = document.getElementById('reviewsContainer');
@@ -70,10 +78,10 @@
           allReviews = data.data;
           renderReviews();
         } else {
-          container.innerHTML = `<p class="text-red-500 bg-white p-6 rounded-xl border border-red-100 text-center">${data.message || 'Failed to load reviews'}</p>`;
+          container.innerHTML = `<p class="text-red-500 bg-white p-4 sm:p-6 rounded-xl border border-red-100 text-center">${data.message || 'Failed to load reviews'}</p>`;
         }
       } catch (err) {
-        container.innerHTML = `<p class="text-red-500 bg-white p-6 rounded-xl border border-red-100 text-center">An error occurred while fetching reviews.</p>`;
+        container.innerHTML = `<p class="text-red-500 bg-white p-4 sm:p-6 rounded-xl border border-red-100 text-center">An error occurred while fetching reviews.</p>`;
       }
     }
 
@@ -92,7 +100,7 @@
       }
       
       container.innerHTML = allReviews.map(r => `
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
           <div class="flex justify-between items-start mb-4">
             <div>
               <div class="flex items-center gap-2 mb-1">
@@ -107,7 +115,7 @@
             </div>
           </div>
           
-          <div class="grid grid-cols-3 gap-4 mb-4 bg-gray-50 p-4 rounded-xl text-sm border border-gray-100">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 bg-gray-50 p-4 rounded-xl text-sm border border-gray-100">
              <div><span class="text-gray-500 block mb-1">Food Quality</span> <span class="font-bold text-gray-800">${r.foodRating} / 5</span></div>
              <div><span class="text-gray-500 block mb-1">Delivery</span> <span class="font-bold text-gray-800">${r.deliveryRating} / 5</span></div>
              <div><span class="text-gray-500 block mb-1">Packaging</span> <span class="font-bold text-gray-800">${r.packagingRating} / 5</span></div>
@@ -162,6 +170,9 @@
 
     document.getElementById('replyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      if (!FormValidator.validate(replyRules)) return;
+      
       const id = document.getElementById('replyReviewId').value;
       const text = document.getElementById('replyText').value;
       const btn = document.getElementById('submitReplyBtn');

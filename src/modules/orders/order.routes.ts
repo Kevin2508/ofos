@@ -30,5 +30,6 @@ router.patch('/:id/reject', authenticate, authorize(['Restaurant_staff', 'Restau
 router.patch('/:id/preparing', authenticate, authorize(['Restaurant_staff', 'Restaurant_owner']), orderController.staffMarkPreparing);
 router.patch('/:id/ready', authenticate, authorize(['Restaurant_staff', 'Restaurant_owner']), orderController.staffMarkReady);
 router.patch('/:id/items/:itemId/unavailable', authenticate, authorize(['Restaurant_staff', 'Restaurant_owner']), orderController.staffMarkItemUnavailable);
+router.patch('/:id/handover', authenticate, authorize(['Restaurant_staff', 'Restaurant_owner']), orderController.staffHandoverOrder);
 
 export default router;

@@ -8,7 +8,7 @@ import {
 } from "./customer.service.ts";
 import { customerDto } from "./customer.dto.ts";
 import { createAddressSchema } from "./customer.valication.ts";
-import { updateUser, findUserById } from "../user/user.repository.ts";
+import { updateUser, findUserById, findUserByEmail, findUserByContact } from "../user/user.repository.ts";
 import { getUserSessions, revokeUserSession } from "../auth/auth.repository.ts";
 import bcrypt from 'bcryptjs';
 
@@ -250,6 +250,27 @@ const setupCustomerProfile = catchAsync(async (req: Request, res: Response) => {
 
   const userDto = req.user as customerDto;
   const { addressLine1, city, postalCode, firstName, lastName, email, phone } = req.body;
+
+  // Validate uniqueness for email and phone
+  const errors: { field: string; message: string }[] = [];
+  
+  if (email) {
+    const existingEmailUser = await findUserByEmail(email);
+    if (existingEmailUser && existingEmailUser.id !== BigInt(userDto.id)) {
+      errors.push({ field: 'email', message: 'This email is already registered to another account' });
+    }
+  }
+
+  if (phone) {
+    const existingPhoneUser = await findUserByContact(phone);
+    if (existingPhoneUser && existingPhoneUser.id !== BigInt(userDto.id)) {
+      errors.push({ field: 'phone', message: 'This phone number is already registered to another account' });
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ status: 'fail', message: 'Validation failed', errors });
+  }
 
   // Update user profileImageUrl if file is uploaded
   const dataToUpdate: any = {};

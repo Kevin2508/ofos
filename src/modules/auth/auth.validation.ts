@@ -301,6 +301,21 @@ const registerRestaurantOwnerSchema = Joi.object({
   bankAccountName: Joi.string().allow('', null).optional(),
 });
 
+const updateProfileSchema = Joi.object({
+  firstName: Joi.string().min(2).max(50).optional(),
+  lastName: Joi.string().allow('', null).optional(),
+  email: Joi.string().email().allow('', null).optional(),
+  phone: Joi.string().pattern(/^[0-9]{10}$/).allow('', null).optional(),
+});
+
+const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string().required(),
+  newPassword: Joi.string().min(8).required(),
+  confirmPassword: Joi.string().valid(Joi.ref('newPassword')).required().messages({
+    'any.only': 'Passwords do not match',
+  }),
+});
+
 export {
   forgotPasswordSchema,
   loginSchema,
@@ -314,4 +329,6 @@ export {
   registerRestaurantOwnerSchema,
   checkPhoneSchema,
   checkEmailSchema,
+  updateProfileSchema,
+  changePasswordSchema,
 };

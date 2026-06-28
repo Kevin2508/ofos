@@ -151,7 +151,6 @@ async function getModifierOptionsByIds(ids: bigint[]) {
   });
 }
 
-// Update cart item
 async function updateCartItem(
   cartItemId: bigint,
   data: {
@@ -159,9 +158,19 @@ async function updateCartItem(
     specialInstructions?: string;
   }
 ) {
+  const updateData: any = { ...data };
+  if (data.quantity !== undefined) {
+    const item = await prisma.cartItem.findUnique({
+      where: { id: cartItemId },
+      select: { unitPrice: true }
+    });
+    if (item) {
+      updateData.lineTotal = Number(item.unitPrice) * data.quantity;
+    }
+  }
   return prisma.cartItem.update({
     where: { id: cartItemId },
-    data,
+    data: updateData,
   });
 }
 

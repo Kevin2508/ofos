@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Restaurants | Restaurant Owner | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
   <style>
     /* Stepper UI styles */
     .step-content {
@@ -48,7 +49,7 @@
     <%- include('../partials/restaurantOwner/sidebar') %>
 
       <!-- MAIN CONTENT -->
-      <main class="flex-1 lg:ml-72 p-8 transition-all duration-300" id="mainContentWrapper">
+      <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
         <div class="mb-2 flex justify-between items-center">
           <div>
             <h2 class="text-2xl font-bold text-gray-800">My Restaurants</h2>
@@ -82,7 +83,7 @@
 
         <!-- RESTAURANTS VIEW -->
         <div id="view-restaurants" class="tab-view active">
-          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="restaurantsContainer">
+          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6" id="restaurantsContainer">
             <div class="col-span-full py-12 text-center text-gray-500">
               Loading restaurants...
             </div>
@@ -119,7 +120,7 @@
           </div>
 
           <!-- Branches List -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="branchesContainer">
+          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6" id="branchesContainer">
             <div class="col-span-full py-12 text-center text-gray-500">
               Loading branches...
             </div>
@@ -131,7 +132,7 @@
 
   <!-- EDIT RESTAURANT MODAL -->
   <div id="editRestaurantModal"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity">
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity p-4">
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
         <h3 class="text-xl font-bold text-gray-800">Edit Restaurant</h3>
@@ -142,36 +143,40 @@
         </button>
       </div>
 
-      <div class="p-6 overflow-y-auto flex-1">
+      <div class="p-4 sm:p-6 overflow-y-auto flex-1">
         <form id="editRestaurantForm" class="space-y-5">
           <input type="hidden" id="editRestId" />
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Business Name <span
                   class="text-red-500">*</span></label>
               <input type="text" id="editBusinessName" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBusinessNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Legal Business Name <span
                   class="text-xs text-gray-400 font-normal">(Cannot be changed)</span></label>
               <input type="text" id="editLegalBusinessName" disabled
                 class="w-full px-4 py-2 border border-gray-200 bg-gray-50 text-gray-500 rounded-lg outline-none cursor-not-allowed" />
+              <p id="editLegalBusinessNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4 mt-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Primary Email <span
                   class="text-red-500">*</span></label>
               <input type="email" id="editPrimaryEmail" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editPrimaryEmailError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Primary Phone <span
                   class="text-red-500">*</span></label>
               <input type="text" id="editPrimaryPhone" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editPrimaryPhoneError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
           </div>
 
@@ -179,36 +184,41 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea id="editDescription" rows="3"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
+              <p id="editDescriptionError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
           </div>
 
           <div class="mt-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Cuisine Tags (comma separated)</label>
             <input type="text" id="editCuisineTags" placeholder="e.g. Italian, Chinese"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editCuisineTagsError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
           </div>
 
-          <div class="grid grid-cols-2 gap-4 mt-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Bank Account Name</label>
               <input type="text" id="editBankAccountName"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBankAccountNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Bank Account Number</label>
               <input type="text" id="editBankAccountNumber"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBankAccountNumberError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4 mt-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Bank IFSC Code</label>
               <input type="text" id="editBankIfscCode"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBankIfscCodeError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4 mt-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Restaurant Logo <span
                   class="text-xs text-gray-400 font-normal">(Optional)</span></label>
@@ -237,7 +247,7 @@
 
   <!-- MULTI-STEP ADD RESTAURANT MODAL -->
   <div id="addRestaurantModal"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity">
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity p-4">
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
         <h3 class="text-xl font-bold text-gray-800">Add New Restaurant</h3>
@@ -248,7 +258,7 @@
         </button>
       </div>
 
-      <div class="p-6 overflow-y-auto flex-1">
+      <div class="p-4 sm:p-6 overflow-y-auto flex-1">
         <!-- Stepper Header -->
         <div class="mb-8">
           <div class="flex items-center justify-center px-4 w-2/3 mx-auto">
@@ -273,33 +283,37 @@
         <form id="addRestaurantForm" class="space-y-5">
           <!-- STEP 1: Basic Info -->
           <div class="step-content active" id="r-step-1">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Business Name <span
                     class="text-red-500">*</span></label>
                 <input type="text" id="businessName" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="businessNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Legal Business Name <span
                     class="text-red-500">*</span></label>
                 <input type="text" id="legalBusinessName" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="legalBusinessNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Primary Email <span
                     class="text-red-500">*</span></label>
                 <input type="email" id="primaryEmail" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="primaryEmailError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Primary Phone <span
                     class="text-red-500">*</span></label>
                 <input type="text" id="primaryPhone" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="primaryPhoneError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
             </div>
 
@@ -307,6 +321,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea id="description" rows="3"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
+              <p id="descriptionError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
           </div>
 
@@ -345,7 +360,7 @@
 
   <!-- MULTI-STEP ADD BRANCH MODAL -->
   <div id="addBranchModal"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity">
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity p-4">
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
         <h3 class="text-xl font-bold text-gray-800">Add New Branch</h3>
@@ -356,7 +371,7 @@
         </button>
       </div>
 
-      <div class="p-6 overflow-y-auto flex-1">
+      <div class="p-4 sm:p-6 overflow-y-auto flex-1">
         <!-- Stepper Header -->
         <div class="mb-8">
           <div class="flex items-center justify-between px-4">
@@ -398,18 +413,21 @@
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none bg-white">
                   <!-- Populated dynamically -->
                 </select>
+              <p id="branchRestaurantIdError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Branch Name <span
                     class="text-red-500">*</span></label>
                 <input type="text" id="branchName" required placeholder="e.g. Downtown Branch"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="branchNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Contact Phone <span
                     class="text-red-500">*</span></label>
                 <input type="text" id="contactPhone" required placeholder="10 digits"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="contactPhoneError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
             </div>
           </div>
@@ -422,29 +440,34 @@
                     class="text-red-500">*</span></label>
                 <input type="text" id="addressLine1" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="addressLine1Error" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Address Line 2</label>
                 <input type="text" id="addressLine2"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="addressLine2Error" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">City <span
                     class="text-red-500">*</span></label>
                 <input type="text" id="city" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="cityError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">State <span
                     class="text-red-500">*</span></label>
                 <input type="text" id="state" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="stateError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code <span
                     class="text-red-500">*</span></label>
                 <input type="text" id="postalCode" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="postalCodeError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
             </div>
           </div>
@@ -457,12 +480,14 @@
                     class="text-red-500">*</span></label>
                 <input type="text" id="fssaiLicenseNumber" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="fssaiLicenseNumberError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">GSTIN <span
                     class="text-red-500">*</span></label>
                 <input type="text" id="gstin" required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="gstinError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
             </div>
           </div>
@@ -484,7 +509,7 @@
 
   <!-- EDIT BRANCH MODAL -->
   <div id="editBranchModal"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity">
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity p-4">
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
         <h3 class="text-xl font-bold text-gray-800">Edit Branch</h3>
@@ -495,7 +520,7 @@
         </button>
       </div>
 
-      <div class="p-6 overflow-y-auto flex-1">
+      <div class="p-4 sm:p-6 overflow-y-auto flex-1">
         <form id="editBranchForm" class="space-y-5">
           <input type="hidden" id="editBranchRestId" />
           <input type="hidden" id="editBranchId" />
@@ -506,41 +531,48 @@
                   class="text-red-500">*</span></label>
               <input type="text" id="editBranchName" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div class="sm:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1">Contact Phone <span
                   class="text-red-500">*</span></label>
               <input type="text" id="editBranchContactPhone" required placeholder="10 digits"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchContactPhoneError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div class="sm:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1">Address Line 1 <span
                   class="text-red-500">*</span></label>
               <input type="text" id="editBranchAddress1" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchAddress1Error" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div class="sm:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1">Address Line 2</label>
               <input type="text" id="editBranchAddress2"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchAddress2Error" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">City <span
                   class="text-red-500">*</span></label>
               <input type="text" id="editBranchCity" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchCityError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">State <span
                   class="text-red-500">*</span></label>
               <input type="text" id="editBranchState" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchStateError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code <span
                   class="text-red-500">*</span></label>
               <input type="text" id="editBranchPostalCode" required
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchPostalCodeError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
 
             <div class="sm:col-span-2 mt-4 pt-4 border-t border-gray-100">
@@ -554,12 +586,14 @@
                 <option value="true">Yes, accepting orders</option>
                 <option value="false">No, paused</option>
               </select>
+              <p id="editBranchIsAcceptingOrdersError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Auto-Resume Time <span
                   class="text-xs text-gray-400">(if paused)</span></label>
               <input type="datetime-local" id="editBranchAutoResumeAt"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchAutoResumeAtError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
             </div>
           </div>
 
@@ -591,6 +625,47 @@
     // Multi-step Restaurant Wizard state
     let restStep = 1;
     const totalRestSteps = 2;
+
+    const restRules = {
+      businessName: { required: true, minLength: 2, maxLength: 255 },
+      legalBusinessName: { required: true, minLength: 2, maxLength: 255 },
+      primaryEmail: { required: true, isEmail: true },
+      primaryPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/ },
+      description: { maxLength: 300 }
+    };
+    const editRestRules = {
+      editBusinessName: { required: true, minLength: 2, maxLength: 255 },
+      editPrimaryEmail: { required: true, isEmail: true },
+      editPrimaryPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/ },
+      editDescription: { maxLength: 300 },
+      editBankAccountName: { maxLength: 255 },
+      editBankAccountNumber: { maxLength: 50 },
+      editBankIfscCode: { maxLength: 20 }
+    };
+    const branchRules = {
+      branchName: { required: true, minLength: 2, maxLength: 150 },
+      contactPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/ },
+      addressLine1: { required: true, maxLength: 255 },
+      city: { required: true, maxLength: 100 },
+      state: { required: true, maxLength: 100 },
+      postalCode: { required: true, maxLength: 20 },
+      fssaiLicenseNumber: { required: true, maxLength: 50 },
+      gstin: { required: true, maxLength: 50 }
+    };
+    const editBranchRules = {
+      editBranchName: { required: true, minLength: 2, maxLength: 150 },
+      editBranchContactPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/ },
+      editBranchAddress1: { required: true, maxLength: 255 },
+      editBranchCity: { required: true, maxLength: 100 },
+      editBranchState: { required: true, maxLength: 100 },
+      editBranchPostalCode: { required: true, maxLength: 20 }
+    };
+
+    FormValidator.bindLiveValidation(restRules);
+    FormValidator.bindLiveValidation(editRestRules);
+    FormValidator.bindLiveValidation(branchRules);
+    FormValidator.bindLiveValidation(editBranchRules);
+
 
     // Tabs
     function switchTab(tabId) {
@@ -684,12 +759,15 @@
       document.getElementById('submitRestaurantBtn').classList.toggle('hidden', step !== totalRestSteps);
     }
 
-    function validateRestStep(step) {
+        function validateRestStep(step) {
       if (step === 1) {
-        if (!document.getElementById('businessName').value.trim()) return false;
-        if (!document.getElementById('legalBusinessName').value.trim()) return false;
-        if (!document.getElementById('primaryEmail').value.trim()) return false;
-        if (!document.getElementById('primaryPhone').value.trim()) return false;
+        return FormValidator.validate({
+          businessName: restRules.businessName,
+          legalBusinessName: restRules.legalBusinessName,
+          primaryEmail: restRules.primaryEmail,
+          primaryPhone: restRules.primaryPhone,
+          description: restRules.description
+        });
       }
       return true;
     }
@@ -731,16 +809,25 @@
       document.getElementById('submitBranchBtn').classList.toggle('hidden', step !== totalBranchSteps);
     }
 
-    function validateBranchStep(step) {
+        function validateBranchStep(step) {
       if (step === 1) {
         if (!document.getElementById('branchRestaurantId').value) return false;
-        if (!document.getElementById('branchName').value.trim()) return false;
-        if (!document.getElementById('contactPhone').value.trim()) return false;
+        return FormValidator.validate({
+          branchName: branchRules.branchName,
+          contactPhone: branchRules.contactPhone
+        });
       } else if (step === 2) {
-        if (!document.getElementById('addressLine1').value.trim()) return false;
-        if (!document.getElementById('city').value.trim()) return false;
-        if (!document.getElementById('state').value.trim()) return false;
-        if (!document.getElementById('postalCode').value.trim()) return false;
+        return FormValidator.validate({
+          addressLine1: branchRules.addressLine1,
+          city: branchRules.city,
+          state: branchRules.state,
+          postalCode: branchRules.postalCode
+        });
+      } else if (step === 3) {
+        return FormValidator.validate({
+          fssaiLicenseNumber: branchRules.fssaiLicenseNumber,
+          gstin: branchRules.gstin
+        });
       }
       return true;
     }
@@ -886,7 +973,7 @@
       }
 
       container.innerHTML = filtered.map(b => `
-        <div class="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col p-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col p-4 sm:p-6">
           <div class="flex justify-between items-start mb-2">
             <div>
               <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-600 mb-2">
@@ -999,6 +1086,8 @@
     // Edit Restaurant form submission
     document.getElementById('editRestaurantForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      if (!FormValidator.validate(editRestRules)) return;
 
       const btn = document.getElementById('submitEditRestaurantBtn');
       btn.disabled = true;
@@ -1133,6 +1222,8 @@
     // Edit Branch form submission
     document.getElementById('editBranchForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (!FormValidator.validate(editBranchRules)) return;
 
       const btn = document.getElementById('submitEditBranchBtn');
       btn.disabled = true;

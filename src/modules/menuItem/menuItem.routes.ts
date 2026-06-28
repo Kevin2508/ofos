@@ -78,13 +78,10 @@ menuItemRouter.post(
  */
 menuItemRouter.post(
   '/branches/:branchId/menu-items/import',
-
   authenticate,
-
   csvUpload.single(
     'file'
   ),
-
   importMenuItems
 );
 

@@ -163,15 +163,18 @@
           const data = await res.json();
           document.getElementById('cartLoading').classList.add('hidden');
           if (!data.data || !data.data.items || data.data.items.length === 0) {
+            document.getElementById('cartContent').classList.add('hidden');
             document.getElementById('cartEmpty').classList.remove('hidden');
             return;
           }
+          document.getElementById('cartEmpty').classList.add('hidden');
           document.getElementById('cartContent').classList.remove('hidden');
           renderCart(data.data);
           loadPriceBreakdown();
           loadLoyalty();
         } catch {
           document.getElementById('cartLoading').classList.add('hidden');
+          document.getElementById('cartContent').classList.add('hidden');
           document.getElementById('cartEmpty').classList.remove('hidden');
         }
       }

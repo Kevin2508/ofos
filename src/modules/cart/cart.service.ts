@@ -3,6 +3,8 @@ import { CartResponseDTO, PriceBreakdownResponseDTO } from "./cart.dto.ts";
 import {
   createCart,
   getActiveCartByUser,
+  countCartItems,
+  abandonCart,
   addItemToCart,
   addModifierToCartItem,
   getModifierOptionsByIds,
@@ -107,6 +109,12 @@ async function syncCartTotalsService(cartId: bigint, userId: bigint) {
   });
 }
 
+async function abandonEmptyCart(cartId: bigint, userId: bigint) {
+  await abandonCart(cartId);
+  await redisService.del(`cart:${cartId}:loyalty`);
+  await invalidateCartCache(userId);
+}
+
 async function getCartService(userId: bigint) {
   const cacheKey = getCartCacheKey(userId);
 
@@ -114,6 +122,11 @@ async function getCartService(userId: bigint) {
     const cachedCart = await redisService.get<CartResponseDTO>(cacheKey);
 
     if (cachedCart) {
+      if (!cachedCart.items || cachedCart.items.length === 0) {
+        await abandonEmptyCart(BigInt(cachedCart.id), userId);
+        throw new Error('No active cart found');
+      }
+
       console.log(`[Cache HIT] Cart loaded from Redis: ${cacheKey}`);
       return cachedCart;
     }
@@ -126,6 +139,11 @@ async function getCartService(userId: bigint) {
   let cart: any = await getActiveCartByUser(userId);
 
   if (!cart) {
+    throw new Error('No active cart found');
+  }
+
+  if (!cart.items || cart.items.length === 0) {
+    await abandonEmptyCart(cart.id, userId);
     throw new Error('No active cart found');
   }
 
@@ -174,12 +192,13 @@ async function addItemToCartService(
   // Get or create cart
   let cart = await getActiveCartByUser(userId);
 
-  if (cart && cart.restaurantBranchId !== data.restaurantBranchId) {
-    throw new Error('DIFFERENT_RESTAURANT_CART_EXISTS');
+  if (cart && (!cart.items || cart.items.length === 0)) {
+    await abandonEmptyCart(cart.id, userId);
+    cart = null;
   }
 
-  if (!cart) {
-    cart = await createCart(userId, data.restaurantBranchId);
+  if (cart && cart.restaurantBranchId !== data.restaurantBranchId) {
+    throw new Error('DIFFERENT_RESTAURANT_CART_EXISTS');
   }
 
   // Verify menu item and get price
@@ -207,6 +226,10 @@ async function addItemToCartService(
     0
   );
   const unitPrice = Number(menuItem.basePrice) + modifierTotal;
+
+  if (!cart) {
+    cart = await createCart(userId, data.restaurantBranchId);
+  }
 
   // Add item to cart
   const cartItem = await addItemToCart(
@@ -256,6 +279,10 @@ async function updateCartItemService(
     throw new Error('Cart item does not belong to user cart');
   }
 
+  if (data.quantity !== undefined && data.quantity < 1) {
+    return removeCartItemService(userId, cartItemId);
+  }
+
   // Update item
   await updateCartItem(cartItemId, data);
 
@@ -280,6 +307,12 @@ async function removeCartItemService(userId: bigint, cartItemId: bigint) {
   // Delete item
   await deleteCartItem(cartItemId);
 
+  const remainingItems = await countCartItems(cart.id);
+  if (remainingItems === 0) {
+    await abandonEmptyCart(cart.id, userId);
+    return null;
+  }
+
   // Sync totals
   await syncCartTotalsService(cart.id, userId);
 
@@ -296,13 +329,12 @@ async function clearCartService(userId: bigint) {
   if (!cart) throw new Error('No active cart found');
 
   await clearCart(cart.id);
+  await redisService.del(`cart:${cart.id}:loyalty`);
 
   // Invalidate cache
   await invalidateCartCache(userId);
 
-  // Return empty cart response
-  const updatedCart = await getActiveCartByUser(userId);
-  return formatCartResponse(updatedCart!);
+  return null;
 }
 
 async function applyCouponService(

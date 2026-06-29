@@ -99,6 +99,23 @@ async function cartExistsByUserAndBranch(
   });
 }
 
+async function countCartItems(cartId: bigint) {
+  return prisma.cartItem.count({
+    where: { cartId },
+  });
+}
+
+async function abandonCart(cartId: bigint) {
+  return prisma.cart.update({
+    where: { id: cartId },
+    data: {
+      status: 'ABANDONED',
+      subtotalAmount: 0,
+      totalAmount: 0,
+    },
+  });
+}
+
 // Add item to cart
 async function addItemToCart(
   cartId: bigint,
@@ -198,6 +215,7 @@ async function clearCart(cartId: bigint) {
   return prisma.cart.update({
     where: { id: cartId },
     data: {
+      status: 'ABANDONED',
       subtotalAmount: 0,
       totalAmount: 0,
     },
@@ -329,6 +347,8 @@ async function getMenuItemWithPrice(menuItemId: bigint) {
 export {
   createCart,
   cartExistsByUserAndBranch,
+  countCartItems,
+  abandonCart,
   getActiveCartByUser,
   addItemToCart,
   addModifierToCartItem,

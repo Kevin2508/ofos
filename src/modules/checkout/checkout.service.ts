@@ -15,6 +15,7 @@ import {
   getActiveCartByUser,
   calculateCartTotals,
 } from '../cart/cart.repository.ts';
+import { invalidateCartCache } from '../cart/cart.service.ts';
 import { CheckoutSessionDTO, OrderResponseDTO } from './checkout.dto.ts';
 import * as loyaltyService from '../loyalty/loyalty.service.ts';
 import * as loyaltyRepo from '../loyalty/loyalty.repository.ts';
@@ -302,6 +303,7 @@ async function placeOrderService(
   });
 
   await updateCartStatus(session.cartId, 'CHECKED_OUT');
+  await invalidateCartCache(userId);
 
   // Handle Loyalty Points Redeem
   const appliedLoyaltyPoints = await loyaltyService.getAppliedLoyaltyPoints(session.cartId);

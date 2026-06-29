@@ -498,10 +498,29 @@ export const createOrder = async (params: {
       },
     });
 
-    // ── 6. Cart → CHECKED_OUT ────────────────────────────────
+    // ── 6. Empty cart items, then Cart → CHECKED_OUT ─────────
+    const cartItemIds = cart.items.map((item) => item.id);
+    if (cartItemIds.length > 0) {
+      await tx.cartItemModifier.deleteMany({
+        where: {
+          cartItemId: {
+            in: cartItemIds,
+          },
+        },
+      });
+
+      await tx.cartItem.deleteMany({
+        where: { cartId: cart.id },
+      });
+    }
+
     await tx.cart.update({
       where: { id: cart.id },
-      data: { status: CartStatus.CHECKED_OUT },
+      data: {
+        status: CartStatus.CHECKED_OUT,
+        subtotalAmount: 0,
+        totalAmount: 0,
+      },
     });
 
     return order;

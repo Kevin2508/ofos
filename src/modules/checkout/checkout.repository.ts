@@ -212,6 +212,39 @@ async function createPayment(
 }
 
 async function updateCartStatus(cartId: bigint, status: string) {
+  if (status === 'CHECKED_OUT') {
+    return prisma.$transaction(async (tx) => {
+      const cartItems = await tx.cartItem.findMany({
+        where: { cartId },
+        select: { id: true },
+      });
+      const cartItemIds = cartItems.map((item) => item.id);
+
+      if (cartItemIds.length > 0) {
+        await tx.cartItemModifier.deleteMany({
+          where: {
+            cartItemId: {
+              in: cartItemIds,
+            },
+          },
+        });
+
+        await tx.cartItem.deleteMany({
+          where: { cartId },
+        });
+      }
+
+      return tx.cart.update({
+        where: { id: cartId },
+        data: {
+          status: status as any,
+          subtotalAmount: 0,
+          totalAmount: 0,
+        },
+      });
+    });
+  }
+
   return prisma.cart.update({
     where: { id: cartId },
     data: { status: status as any },

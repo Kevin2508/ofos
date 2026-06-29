@@ -9,7 +9,7 @@ import orderRepository, {
 import { triggerAutoAssignment } from '../deliveryPartner/deliveryPartner.service.ts';
 import redisService from '../../services/redisService.ts';
 import { getActiveCartByUser } from '../cart/cart.repository.ts';
-import { clearCartService, addItemToCartService } from '../cart/cart.service.ts';
+import { clearCartService, addItemToCartService, invalidateCartCache } from '../cart/cart.service.ts';
 import { prisma } from '../../config/prisma.ts';
 
 
@@ -431,6 +431,8 @@ export const placeOrder = async (
     specialInstructions: req.specialInstructions,
     otpHash,
   });
+
+  await invalidateCartCache(customerUserId);
 
   return {
     orderId: order.id,

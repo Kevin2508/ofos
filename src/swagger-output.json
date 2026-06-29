@@ -7383,7 +7383,8 @@
           },
           "addressLine2": {
             "type": "string",
-            "maxLength": 255
+            "maxLength": 255,
+            "nullable": true
           },
           "city": {
             "type": "string",

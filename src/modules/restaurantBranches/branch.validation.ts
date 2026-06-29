@@ -21,7 +21,7 @@ export const updateBranchSchema = Joi.object({
   branchName: Joi.string(),
   contactPhone: Joi.string().max(20),
   addressLine1: Joi.string().max(255),
-  addressLine2: Joi.string().max(255),
+  addressLine2: Joi.string().max(255).allow("", null),
   city: Joi.string().max(100),
   state: Joi.string().max(100),
   postalCode: Joi.string().max(20),

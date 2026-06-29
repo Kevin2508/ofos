@@ -5194,6 +5194,16 @@
         }
       }
     },
+    "/apply-role": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/pendingVerificationPage": {
       "get": {
         "description": "",

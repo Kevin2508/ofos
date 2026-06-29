@@ -1,8 +1,21 @@
 import crypto from 'crypto';
 import ms from 'ms';
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { catchAsync } from '../../middlewares/catch.async.ts';
 import { prisma } from '../../config/prisma.ts';
+
+function getAuthenticatedUserId(req: Request): bigint | null {
+  const token = req.cookies?.accessToken || (req.headers.authorization ? req.headers.authorization.split(' ')[1] : null);
+  if (!token) return null;
+  try {
+    const secret = process.env.JWT_ACCESS_SECRET as string;
+    const decoded = jwt.verify(token, secret) as { id: string };
+    return decoded && decoded.id ? BigInt(decoded.id) : null;
+  } catch (err) {
+    return null;
+  }
+}
 import {
   forgotPasswordDto,
   loginDto,
@@ -210,7 +223,8 @@ const register = catchAsync(
       userAgent: req.headers['user-agent'] as string,
     };
 
-    const data = await registerService(req.body, reqMeta);
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerService(req.body, reqMeta, authUserId);
 
     const cookieLifeDays = Number(process.env.COOKIE_EXPIRE || 1);
     const cookieLifeMs = cookieLifeDays * 24 * 60 * 60 * 1000;
@@ -247,20 +261,23 @@ const register = catchAsync(
 
 const checkPhone = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await checkPhoneService(req.body);
+    const authUserId = getAuthenticatedUserId(req);
+    const result = await checkPhoneService(req.body, authUserId);
     res.status(200).json({ status: 'success', message: result.message });
   }
 );
 
 const checkEmail = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await checkEmailService(req.body);
+    const authUserId = getAuthenticatedUserId(req);
+    const result = await checkEmailService(req.body, authUserId);
     res.status(200).json({ status: 'success', message: result.message });
   }
 );
 
 const registerAdmin = catchAsync(async (req: Request, res: Response) => {
-  const data = await registerAdminService(req.body);
+  const authUserId = getAuthenticatedUserId(req);
+  const data = await registerAdminService(req.body, authUserId);
 
   res.status(200).json({
     status: 'success',
@@ -270,7 +287,8 @@ const registerAdmin = catchAsync(async (req: Request, res: Response) => {
 
 const registerDeliveryPartner = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerDeliveryPartnerService(req.body, req.file);
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerDeliveryPartnerService(req.body, req.file, authUserId);
 
     res.status(200).json({
       status: 'success',
@@ -281,7 +299,8 @@ const registerDeliveryPartner = catchAsync(
 
 const registerRestaurantOwner = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerRestaurantOwnerService(req.body, req.files);
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerRestaurantOwnerService(req.body, req.files, authUserId);
 
     res.status(200).json({
       status: 'success',
@@ -292,7 +311,8 @@ const registerRestaurantOwner = catchAsync(
 
 const registerRestaurantStaff = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerRestaurantStaffService(req.body);
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerRestaurantStaffService(req.body, authUserId);
 
     res.status(200).json({
       status: 'success',
@@ -303,7 +323,8 @@ const registerRestaurantStaff = catchAsync(
 
 const registerFinanceManager = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerFinanceManagerService(req.body);
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerFinanceManagerService(req.body, authUserId);
 
     res.status(200).json({
       status: 'success',
@@ -314,7 +335,8 @@ const registerFinanceManager = catchAsync(
 
 
 const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
-  const data = await registerFleetManagerService(req.body);
+  const authUserId = getAuthenticatedUserId(req);
+  const data = await registerFleetManagerService(req.body, authUserId);
 
   res.status(200).json({
     status: 'success',

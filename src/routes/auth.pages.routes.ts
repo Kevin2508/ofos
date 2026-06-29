@@ -54,4 +54,8 @@ authPageRouter.get('/role-selection', (req, res) => {
   res.render('auth/role-selection');
 });
 
+authPageRouter.get('/apply-role', (req, res) => {
+  res.render('auth/apply-role');
+});
+
 export { authPageRouter };

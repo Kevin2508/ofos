@@ -135,6 +135,47 @@
   </div>
 
   <script>
+    async function checkAndPrefill() {
+      try {
+        const res = await fetch('/auth/me');
+        if (res.ok) {
+          const json = await res.json();
+          const u = json.data.user;
+          if (u) {
+            if (document.getElementById('firstName')) {
+              document.getElementById('firstName').value = u.firstName || '';
+              document.getElementById('firstName').readOnly = true;
+            }
+            if (document.getElementById('lastName')) {
+              document.getElementById('lastName').value = u.lastName || '';
+              document.getElementById('lastName').readOnly = true;
+            }
+            if (document.getElementById('email')) {
+              document.getElementById('email').value = u.email || '';
+              document.getElementById('email').readOnly = true;
+            }
+            if (document.getElementById('phone')) {
+              document.getElementById('phone').value = u.phone || '';
+              document.getElementById('phone').readOnly = true;
+            }
+            const pwInput = document.getElementById('password');
+            if (pwInput) {
+              pwInput.value = 'ExistingUserPassword123';
+              const container = pwInput.closest('.space-y-4') || pwInput.parentElement?.parentElement;
+              if (container) container.style.display = 'none';
+            }
+            const cpwInput = document.getElementById('confirmPassword');
+            if (cpwInput) {
+              cpwInput.value = 'ExistingUserPassword123';
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error pre-filling profile', e);
+      }
+    }
+    checkAndPrefill();
+
     function setupPasswordToggle(
       toggleBtnId,
       inputId,

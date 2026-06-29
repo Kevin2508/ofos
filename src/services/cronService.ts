@@ -1,5 +1,5 @@
 import { prisma } from '../config/prisma.ts';
-import { EarningStatus } from '@prisma/client';
+import { EarningStatus } from '../generated/prisma/enums.ts';
 
 export function startCronJobs() {
   console.log('Starting background cron jobs...');

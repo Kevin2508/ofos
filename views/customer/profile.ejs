@@ -511,6 +511,14 @@
               <div class="text-sm text-gray-500">Loading sessions...</div>
             </div>
           </div>
+
+          <div class="bg-white rounded-2xl border border-red-200 shadow-sm p-4 sm:p-6 max-w-2xl mt-6">
+            <h3 class="text-lg font-bold text-red-600 mb-1">Danger Zone</h3>
+            <p class="text-sm text-gray-400 mb-4">Permanently delete your account and all associated data. This action is irreversible.</p>
+            <button onclick="deleteAccount()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm">
+              Delete Account
+            </button>
+          </div>
         </div>
 
         <!-- ── Payments Tab ── -->
@@ -1252,6 +1260,24 @@
             showToast('Failed to revoke session', 'error');
           }
         } catch(e) { showToast('Error', 'error'); }
+      };
+
+      window.deleteAccount = async function() {
+        if (!confirm('Are you sure you want to permanently delete your account? This action is irreversible and you will be logged out immediately.')) {
+          return;
+        }
+        try {
+          const res = await fetch('/auth/delete-account', { method: 'DELETE' });
+          if (res.ok) {
+            showToast('Account deleted successfully. Redirecting...', 'success');
+            setTimeout(() => {
+              window.location.href = '/loginPage';
+            }, 1500);
+          } else {
+            const data = await res.json().catch(() => ({}));
+            showToast(data.message || 'Failed to delete account', 'error');
+          }
+        } catch(e) { showToast('Network error occurred', 'error'); }
       };
 
       // ─── Personal Info Form ────────────────────────────────────────

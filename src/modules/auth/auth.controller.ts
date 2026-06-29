@@ -13,7 +13,7 @@ import {
   verigyOtpDto,
 } from './auth.dto.ts';
 import bcrypt from 'bcryptjs';
-import { updateUser, findUserById, findUserByEmail, findUserByContact } from '../user/user.repository.ts';
+import { updateUser, findUserById, findUserByEmail, findUserByContact, revokeAllUserSessions } from '../user/user.repository.ts';
 import { revokeSessionByTokenHash, getUserSessions, revokeUserSession } from './auth.repository.ts';
 import {
   forgotPasswordService,
@@ -497,6 +497,54 @@ const revokeSession = catchAsync(async (req: Request, res: Response) => {
   return res.status(200).json({ status: 'success', message: 'Session revoked successfully' });
 });
 
+const deleteAccount = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+
+  const userId = BigInt(req.user.id);
+
+  // Soft delete user
+  await updateUser({
+    userId,
+    data: {
+      status: 'INACTIVE',
+      deletedAt: new Date(),
+    },
+  });
+
+  // Revoke all sessions
+  await revokeAllUserSessions(userId);
+
+  // Clear authentication cookies
+  res.clearCookie('refreshToken', {
+    signed: true,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+  });
+
+  res.clearCookie('accessToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+  });
+
+  res.clearCookie('activeRole', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    message: 'Account deleted successfully',
+  });
+});
+
 export {
   forgotPassword,
   login,
@@ -519,5 +567,6 @@ export {
   updateProfile,
   changePassword,
   getSessions,
-  revokeSession
+  revokeSession,
+  deleteAccount
 };

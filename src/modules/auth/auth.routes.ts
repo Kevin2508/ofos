@@ -23,7 +23,8 @@ import {
   updateProfile,
   changePassword,
   getSessions,
-  revokeSession
+  revokeSession,
+  deleteAccount
 } from './auth.controller.ts';
 import { upload } from '../../middlewares/upload.middleware.ts';
 import {
@@ -78,6 +79,7 @@ authRouter.patch('/profile', authenticate, validate(updateProfileSchema), update
 authRouter.post('/change-password', authenticate, validate(changePasswordSchema), changePassword);
 authRouter.get('/sessions', authenticate, getSessions);
 authRouter.delete('/sessions/:id', authenticate, revokeSession);
+authRouter.delete('/delete-account', authenticate, deleteAccount);
 
 // Customer
 authRouter.post('/register', validate(registerSchema), register);

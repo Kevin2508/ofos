@@ -208,6 +208,16 @@
         }
       }
     },
+    "/auth/delete-account": {
+      "delete": {
+        "description": "",
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/auth/register": {
       "post": {
         "description": "",

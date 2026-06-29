@@ -311,7 +311,7 @@ export async function acceptOrder(orderId: bigint, staffUserId: bigint) {
   return orderRepository.updateOrderStatus(orderId, 'ACCEPTED', staffUserId, 'Staff accepted order');
 }
 
-export async function rejectOrder(orderId: bigint, staffUserId: bigint, reason: string) {
+export async function rejectOrder(orderId: bigint, staffUserId: bigint | null, reason: string) {
   return orderRepository.updateOrderStatus(orderId, 'REJECTED', staffUserId, reason);
 }
 
@@ -531,9 +531,9 @@ export async function processPendingOrderTimeouts() {
   });
 
   for (const order of timedOutOrders) {
-    // 0 is used as staffUserId for system actions
+    // null is used as staffUserId for system actions
     try {
-      await rejectOrder(order.id, BigInt(0), 'Auto-rejected: No action taken within 5 minutes');
+      await rejectOrder(order.id, null, 'Auto-rejected: No action taken within 5 minutes');
     } catch (err) {
       console.error(`Failed to auto-reject order ${order.id}:`, err);
     }

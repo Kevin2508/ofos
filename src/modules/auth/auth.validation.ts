@@ -227,6 +227,18 @@ const registerDeliveryPartnerSchema = Joi.object({
       'string.pattern.base': 'First name can only contain letters',
     }),
 
+  lastName: Joi.string()
+    .trim()
+    .min(2)
+    .max(50)
+    .pattern(/^[A-Za-z]+$/)
+    .optional().allow(null, '')
+    .messages({
+      'string.min': 'First name must be at least 2 characters',
+      'string.max': 'First name cannot exceed 100 characters',
+      'string.pattern.base': 'First name can only contain letters',
+    }),
+
   email: Joi.string()
     .email({
       minDomainSegments: 2,

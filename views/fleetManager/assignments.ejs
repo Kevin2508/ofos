@@ -100,10 +100,10 @@
                 <p id="assignOrderIdError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Partner ID</label>
-                <input type="number" id="assignPartnerId"
-                  class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 outline-none"
-                  required />
+                <label class="block text-sm font-medium text-gray-700 mb-1">Partner</label>
+                <select id="assignPartnerId" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 outline-none" required>
+                  <option value="">Select a partner</option>
+                </select>
               </div>
               <div class="flex justify-end space-x-3 pt-4">
                 <button type="button" onclick="document.getElementById('assignModal').classList.add('hidden')"
@@ -123,8 +123,10 @@
             <form id="reassignForm" class="space-y-4">
               <input type="hidden" id="reassignAssignmentId" />
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">New Partner ID</label>
-                <input type="number" id="reassignPartnerId" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 outline-none" required />
+                <label class="block text-sm font-medium text-gray-700 mb-1">New Partner</label>
+                <select id="reassignPartnerId" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 outline-none" required>
+                  <option value="">Select a partner</option>
+                </select>
                 <p id="reassignPartnerIdError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
               </div>
               <div>
@@ -146,10 +148,10 @@
 
     const assignRules = {
       assignOrderId: { required: true, min: 1, label: 'Order ID' },
-      assignPartnerId: { required: true, min: 1, label: 'Partner ID' }
+      assignPartnerId: { required: true, label: 'Partner' }
     };
     const reassignRules = {
-      reassignPartnerId: { required: true, min: 1, label: 'New Partner ID' }
+      reassignPartnerId: { required: true, label: 'New Partner' }
     };
     FormValidator.bindLiveValidation(assignRules);
     FormValidator.bindLiveValidation(reassignRules);
@@ -192,6 +194,32 @@
         console.error(err);
       }
     });
+
+    let onlinePartners = [];
+
+    async function loadOnlinePartners() {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const res = await fetch('/fleet-manager/live-map', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          onlinePartners = data.data || [];
+        }
+      } catch (err) {
+        console.error('Failed to load online partners', err);
+      }
+    }
+
+    function populatePartnerSelects() {
+      const options = '<option value="">Select a partner</option>' + onlinePartners.map(p => {
+        return `<option value="${p.userId}">${p.name} (ID: ${p.userId})</option>`;
+      }).join('');
+      
+      document.getElementById('assignPartnerId').innerHTML = options;
+      document.getElementById('reassignPartnerId').innerHTML = options;
+    }
 
     async function loadAssignments() {
       try {
@@ -255,8 +283,15 @@
     function openAssignModal(orderId) {
       document.getElementById('assignOrderId').value = orderId || '';
       document.getElementById('assignPartnerId').value = '';
+      populatePartnerSelects();
       document.getElementById('assignModal').classList.remove('hidden');
     }
+
+    const originalReassign = reassign;
+    reassign = function(id) {
+      populatePartnerSelects();
+      originalReassign(id);
+    };
 
     document.getElementById('assignForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -286,8 +321,9 @@
         console.error(err);
       }
     });
-
-    loadAssignments();
+    loadOnlinePartners().then(() => {
+      loadAssignments();
+    });
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {

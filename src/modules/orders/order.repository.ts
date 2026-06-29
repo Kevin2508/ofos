@@ -239,7 +239,7 @@ async function cancelOrder(
 export async function updateOrderStatus(
   orderId: bigint,
   status: OrderStatus,
-  changedByUserId: bigint,
+  changedByUserId: bigint | null,
   remarks: string
 ) {
   return prisma.$transaction(async (tx) => {
@@ -261,7 +261,7 @@ export async function updateOrderStatus(
       data: {
         orderId,
         eventType: 'ORDER_STATUS_CHANGED',
-        payload: { status, changedByUserId: changedByUserId.toString(), remarks },
+        payload: { status, changedByUserId: changedByUserId ? changedByUserId.toString() : 'SYSTEM', remarks },
       },
     });
 

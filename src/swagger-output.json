@@ -6150,6 +6150,13 @@
             "minLength": 2,
             "maxLength": 50
           },
+          "lastName": {
+            "type": "string",
+            "pattern": "^[A-Za-z]+$",
+            "minLength": 2,
+            "maxLength": 50,
+            "nullable": true
+          },
           "email": {
             "type": "string",
             "format": "email"

@@ -82,8 +82,12 @@ async function assignRole(data: {
   roleId: bigint;
   status: UserRoleStatus;
 }) {
-  return await prisma.userRole.create({
-    data: {
+  return await prisma.userRole.upsert({
+    where: {
+      userId_roleId: { userId: data.userId, roleId: data.roleId },
+    },
+    update: {},
+    create: {
       userId: data.userId,
       roleId: data.roleId,
       status: data.status,

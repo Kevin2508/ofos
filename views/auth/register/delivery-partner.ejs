@@ -265,6 +265,9 @@
 
           showToast('Delivery Partner account created successfully! Redirecting...', 'success');
           document.getElementById('deliveryPartnerRegisterForm').reset();
+          setTimeout(() => {
+            window.location.href = '/loginPage';
+          }, 1500);
         } catch (error) {
           showToast(error.message, 'error');
         } finally {

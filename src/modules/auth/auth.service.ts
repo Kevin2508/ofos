@@ -632,31 +632,42 @@ async function registerDeliveryPartnerService(data: any, file?: any) {
   }
 
   if (targetUserId) {
-    await createDeliveryPartner({
-      userId: targetUserId,
-      vehicleType: data.vehicleType,
-      vehicleRegistrationNumber: data.vehicleRegistrationNumber,
+    const { prisma } = await import('../../config/prisma.ts');
+    const existingPartner = await prisma.deliveryPartner.findUnique({
+      where: { userId: targetUserId }
     });
 
-    if (file) {
-      const { prisma } = await import('../../config/prisma.ts');
-      await prisma.deliveryPartnerDocument.create({
-        data: {
-          partnerUserId: targetUserId,
-          documentType: 'AADHAR',
-          documentUrl: `/uploads/deliveryPartners/documents/${file.filename}`,
-        }
+    if (!existingPartner) {
+      await createDeliveryPartner({
+        userId: targetUserId,
+        vehicleType: data.vehicleType,
+        vehicleRegistrationNumber: data.vehicleRegistrationNumber,
       });
+
+      if (file) {
+        await prisma.deliveryPartnerDocument.create({
+          data: {
+            partnerUserId: targetUserId,
+            documentType: 'AADHAR',
+            documentUrl: `/uploads/deliveryPartners/documents/${file.filename}`,
+          }
+        });
+      }
     }
 
     const role = await getRoleIdByRole({ role: 'Delivery_partner' });
 
     if (role) {
-      await assignRole({
-        userId: targetUserId,
-        roleId: role.id,
-        status: 'REQUESTED',
+      const existingRole = await prisma.userRole.findUnique({
+        where: { userId_roleId: { userId: targetUserId, roleId: role.id } }
       });
+      if (!existingRole) {
+        await assignRole({
+          userId: targetUserId,
+          roleId: role.id,
+          status: 'REQUESTED',
+        });
+      }
     }
   }
 

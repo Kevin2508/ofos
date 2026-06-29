@@ -115,7 +115,6 @@
 
     async function loadCoupons() {
       try {
-        const token = localStorage.getItem('token');
         const res = await fetch('/admin/coupons');
         if (res.ok) {
           const data = await res.json();
@@ -171,7 +170,6 @@
         validUntil: new Date(document.getElementById('validUntil').value).toISOString()
       };
       try {
-        const token = localStorage.getItem('token');
         const res = await fetch('/admin/coupons', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -189,7 +187,6 @@
 
     async function toggleCoupon(id, isActive) {
       try {
-        const token = localStorage.getItem('token');
         const res = await fetch(`/admin/coupons/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },

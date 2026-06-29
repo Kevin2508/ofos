@@ -6934,6 +6934,10 @@
           "partnerUserId": {
             "type": "string",
             "pattern": "^\\d+$"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [

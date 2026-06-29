@@ -53,12 +53,10 @@
   <script>
     async function updateStatus(id, newStatus) {
       if (!confirm(`Change status to ${newStatus}?`)) return;
-      const token = localStorage.getItem('token') || '';
       try {
         const res = await fetch(`/fleet-manager/delivery-partner/${id}/update/status`, {
           method: 'PATCH',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ status: newStatus })
@@ -76,9 +74,8 @@
 
     async function loadPartners() {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch('/fleet-manager/delivery-partners/all', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         const list = document.getElementById('partnersList');
@@ -121,9 +118,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

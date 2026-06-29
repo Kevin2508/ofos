@@ -65,8 +65,7 @@
   <script>
     async function loadFinance() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const res = await fetch('/restaurant-management/finance-stats', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch('/restaurant-management/finance-stats', { headers: {} });
         if (res.ok) {
           const data = await res.json();
           document.getElementById('pendingAmount').innerText = `₹${data.pendingAmount || 0}`;

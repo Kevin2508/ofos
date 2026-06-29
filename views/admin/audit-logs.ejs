@@ -52,9 +52,8 @@
   <script>
     async function loadLogs() {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch('/admin/audit-logs', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         const list = document.getElementById('logsList');
@@ -95,9 +94,8 @@
 
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

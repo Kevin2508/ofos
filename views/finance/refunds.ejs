@@ -54,12 +54,10 @@
   <script>
     async function updateStatus(id, newStatus) {
       if (!confirm(`Mark this refund as ${newStatus}?`)) return;
-      const token = localStorage.getItem('token') || '';
       try {
         const res = await fetch(`/finance/refunds/${id}/status`, {
           method: 'PATCH',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ status: newStatus })
@@ -77,9 +75,8 @@
 
     async function loadRefunds() {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch('/finance/refunds', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         const list = document.getElementById('refundsList');
@@ -121,9 +118,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

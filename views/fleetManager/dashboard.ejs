@@ -105,8 +105,7 @@
   <script>
     async function loadDashboard() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const headers = { 'Authorization': `Bearer ${token}` };
+        const headers = {};
 
         // Load Partners
         const pRes = await fetch('/fleet-manager/delivery-partners/all', { headers });
@@ -174,8 +173,7 @@
 
     async function loadLiveMap() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const res = await fetch('/fleet-manager/live-map', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch('/fleet-manager/live-map', { headers: {} });
         if (!res.ok) return;
         const data = await res.json();
         const partners = data.data || [];
@@ -212,9 +210,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

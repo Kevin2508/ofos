@@ -133,9 +133,8 @@
   <script>
     async function loadDashboard() {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch('/restaurant-management/mine', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         if (res.ok) {
@@ -144,7 +143,7 @@
           const list = document.getElementById('restaurantsList');
 
           // Fetch Stats
-          const statsRes = await fetch('/restaurant-management/dashboard-stats', { headers: { 'Authorization': `Bearer ${token}` } });
+          const statsRes = await fetch('/restaurant-management/dashboard-stats', { headers: {} });
           if (statsRes.ok) {
              const statsData = await statsRes.json();
              document.getElementById('statOrdersToday').innerText = statsData.data.ordersToday;
@@ -207,9 +206,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

@@ -62,9 +62,8 @@
   <script>
     async function loadAssignments() {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch('/delivery-partner/assignments/all', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
         const list = document.getElementById('assignmentsList');
 
@@ -126,11 +125,9 @@
     async function updateAssignmentStatus(assignmentId, action) {
       if (!confirm(`Are you sure you want to ${action} this assignment?`)) return;
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/delivery-partner/assignments/${assignmentId}/${action}`, {
           method: 'PATCH',
           headers: { 
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
@@ -152,11 +149,9 @@
       if (!otp) return;
       
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/delivery-partner/assignments/${assignmentId}/deliver`, {
           method: 'PATCH',
           headers: { 
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ otp })
@@ -176,9 +171,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

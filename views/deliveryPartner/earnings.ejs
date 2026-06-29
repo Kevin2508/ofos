@@ -81,8 +81,7 @@
   <script>
     async function loadEarnings() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const headers = { 'Authorization': `Bearer ${token}` };
+        const headers = {};
 
         // Fetch Today
         const resToday = await fetch('/delivery-partner/earnings?period=today', { headers });
@@ -138,14 +137,15 @@
         document.getElementById('earningsList').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Failed to load data.</td></tr>`;
       }
     }
-
     loadEarnings();
+    
+    // Real-time polling for earnings
+    setInterval(loadEarnings, 15000);
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

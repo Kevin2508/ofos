@@ -115,8 +115,7 @@
       FormValidator.bindLiveValidation(promoRules);
       
       async function loadRestaurants() {
-        const token = localStorage.getItem('token') || '';
-        const res = await fetch('/restaurant-management/mine', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch('/restaurant-management/mine', { headers: {} });
         if (res.ok) {
           const data = await res.json();
           myRestaurantIds = (data.restaurants || []).map(r => String(r.id));
@@ -125,8 +124,7 @@
 
       async function loadPromos() {
         try {
-          const token = localStorage.getItem('token') || '';
-          const res = await fetch('/coupons/restaurant-coupons', { headers: { 'Authorization': `Bearer ${token}` } });
+          const res = await fetch('/coupons/restaurant-coupons', { headers: {} });
           if (res.ok) {
             const data = await res.json();
             const promos = data.data.coupons || [];
@@ -169,10 +167,9 @@
         };
 
         try {
-          const token = localStorage.getItem('token') || '';
           const res = await fetch('/coupons/restaurant-coupons', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
           if (res.ok) {

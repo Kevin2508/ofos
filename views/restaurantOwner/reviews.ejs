@@ -66,11 +66,10 @@
 
     async function loadReviews() {
       const container = document.getElementById('reviewsContainer');
-      const token = localStorage.getItem('token');
       
       try {
         const res = await fetch('/reviews/owner', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
         const data = await res.json();
         
@@ -176,7 +175,6 @@
       const id = document.getElementById('replyReviewId').value;
       const text = document.getElementById('replyText').value;
       const btn = document.getElementById('submitReplyBtn');
-      const token = localStorage.getItem('token');
       
       btn.disabled = true;
       btn.textContent = 'Posting...';
@@ -185,8 +183,7 @@
         const res = await fetch(`/reviews/${id}/reply`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({ replyText: text })
         });

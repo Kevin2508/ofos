@@ -371,7 +371,7 @@
       }
 
       const storedOtp = localStorage.getItem(`order_otp_${orderId}`);
-      if (storedOtp && status !== 'DELIVERED' && status !== 'CANCELLED' && status !== 'REJECTED') {
+      if (storedOtp && status === 'OUT_FOR_DELIVERY') {
         document.getElementById('otpSection').classList.remove('hidden');
         document.getElementById('otpValue').textContent = storedOtp;
       } else {
@@ -417,8 +417,8 @@
     }
 
     function initMap(tracking) {
-      const custLat = tracking.customerLat || 22.3039;
-      const custLng = tracking.customerLng || 70.8022;
+      const custLat = tracking.lat ? parseFloat(tracking.lat) : 22.3039;
+      const custLng = tracking.lng ? parseFloat(tracking.lng) : 70.8022;
 
       if (!map) {
         map = L.map('trackMap').setView([custLat, custLng], 14);
@@ -430,8 +430,8 @@
       const restIcon = L.divIcon({ html: '<div style="background:#F59E0B;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-size:16px">🏪</div>', className: '', iconAnchor: [16, 16] });
 
       // Customer Location
-      if (!destMarker && tracking.customerLat && tracking.customerLng) {
-        destMarker = L.marker([tracking.customerLat, tracking.customerLng], { icon: custIcon }).addTo(map).bindPopup('Delivery Address');
+      if (!destMarker && tracking.lat && tracking.lng) {
+        destMarker = L.marker([parseFloat(tracking.lat), parseFloat(tracking.lng)], { icon: custIcon }).addTo(map).bindPopup('Delivery Address');
       }
 
       // Restaurant Location
@@ -441,8 +441,8 @@
 
       // Partner Location
       if (tracking.partner && tracking.location && tracking.location.latitude && tracking.location.longitude) {
-        const pLat = tracking.location.latitude;
-        const pLng = tracking.location.longitude;
+        const pLat = parseFloat(tracking.location.latitude);
+        const pLng = parseFloat(tracking.location.longitude);
 
         if (!partnerMarker) {
           partnerMarker = L.marker([pLat, pLng], { icon: partnerIcon }).addTo(map).bindPopup('Delivery Partner');
@@ -451,21 +451,23 @@
         }
 
         // Draw route using Routing Machine (Partner -> Customer)
-        if (tracking.customerLat && tracking.customerLng) {
+        if (tracking.lat && tracking.lng) {
+          const cLat = parseFloat(tracking.lat);
+          const cLng = parseFloat(tracking.lng);
           if (routingControl) {
             routingControl.setWaypoints([
               L.latLng(pLat, pLng),
-              L.latLng(tracking.customerLat, tracking.customerLng)
+              L.latLng(cLat, cLng)
             ]);
           } else {
             routingControl = L.Routing.control({
               waypoints: [
                 L.latLng(pLat, pLng),
-                L.latLng(tracking.customerLat, tracking.customerLng)
+                L.latLng(cLat, cLng)
               ],
               createMarker: function () { return null; }, // We already created custom markers
               lineOptions: {
-                styles: [{ color: '#EF4444', opacity: 0.8, weight: 5 }] // Red line like swiggy/zomato
+                styles: [{ color: '#0c0c4d', opacity: 0.8, weight: 5 }] // Blue line
               },
               show: false, // Hide the turn-by-turn instructions box
               addWaypoints: false,

@@ -15,13 +15,17 @@
     <%- include('../partials/deliveryPartner/sidebar') %>
 
       <!-- MAIN CONTENT -->
-      <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden" id="mainContentWrapper">
+      <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden"
+        id="mainContentWrapper">
         <!-- Greeting & Status -->
         <div
           class="mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100">
           <div class="flex flex-wrap items-start md:items-center gap-3">
-            <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <button onclick="toggleSidebar()"
+              class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
             <div>
               <h2 class="text-2xl font-bold text-gray-800">Welcome back, Partner</h2>
@@ -48,7 +52,8 @@
 
         <!-- STAT CARDS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3 sm:gap-6">
-          <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div
+            class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
             <div class="flex justify-between items-start">
               <div>
                 <p class="text-gray-500 text-sm font-medium">Today's Earnings</p>
@@ -71,7 +76,8 @@
             </p>
           </div>
 
-          <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div
+            class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
             <div class="flex justify-between items-start">
               <div>
                 <p class="text-gray-500 text-sm font-medium">Deliveries Completed</p>
@@ -86,7 +92,8 @@
             </div>
           </div>
 
-          <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div
+            class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
             <div class="flex justify-between items-start">
               <div>
                 <p class="text-gray-500 text-sm font-medium">Customer Rating</p>
@@ -102,7 +109,8 @@
             </div>
           </div>
 
-          <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div
+            class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
             <div class="flex justify-between items-start">
               <div>
                 <p class="text-gray-500 text-sm font-medium">Acceptance Rate</p>
@@ -117,7 +125,8 @@
             </div>
           </div>
 
-          <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div
+            class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
             <div class="flex justify-between items-start">
               <div>
                 <p class="text-gray-500 text-sm font-medium">On-Time Delivery Rate</p>
@@ -201,13 +210,10 @@
       const newStatus = isChecked ? 'ONLINE' : 'OFFLINE';
 
       try {
-        const token = localStorage.getItem('token') || '';
-
         const res = await fetch('/delivery-partner/update/status', {
           method: 'PATCH',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({ isOnline: isChecked })
         });
@@ -233,17 +239,19 @@
       }
     });
 
+    let lastAlertedAssignmentId = null;
+
     // Load data
     async function loadDashboardData() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const headers = { 'Authorization': `Bearer ${token}` };
+        const headers = {};
+        let profData = null;
 
         // Profile / Status
         const profRes = await fetch('/delivery-partner/profile', { headers });
         if (profRes.ok) {
-          const profData = await profRes.json();
-          const isOnline = profData.user?.deliveryPartner?.isOnline === true;
+          profData = await profRes.json();
+          const isOnline = profData?.user?.deliveryPartner?.isOnline === true;
           if (isOnline) {
             statusToggle.checked = true;
             statusBg.classList.replace('bg-gray-300', 'bg-green-500');
@@ -258,7 +266,7 @@
         if (perfRes.ok) {
           const perfData = await perfRes.json();
           document.getElementById('deliveriesCompleted').innerText = perfData.performance?.totalCompleted || 0;
-          document.getElementById('currentRating').innerText = (profData.user?.deliveryPartner?.averageRating || '0.0');
+          document.getElementById('currentRating').innerText = (profData?.user?.deliveryPartner?.averageRating || '0.0');
           document.getElementById('acceptanceRate').innerText = (perfData.performance?.acceptanceRate || 0) + '%';
           // Mocking on-time delivery rate from completion rate for display
           document.getElementById('onTimeRate').innerText = (perfData.performance?.completionRate || 0) + '%';
@@ -272,7 +280,7 @@
         }
 
         // Assignments
-        const assgnRes = await fetch('/delivery-partner/assignments/all', { headers });
+        const assgnRes = await fetch('/delivery-partner/assignments/all');
         const list = document.getElementById('recentAssignmentsList');
         if (assgnRes.ok) {
           const assgnData = await assgnRes.json();
@@ -280,59 +288,7 @@
 
           if (assignments.length === 0) {
             list.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 bg-gray-50/50">No assignments found yet.</td></tr>`;
-            const active = assignments.find(a => ['PENDING', 'ACCEPTED', 'PICKED_UP'].includes(a.status));
-            if (active) {
-              let actionsHtml = '';
-              if (active.status === 'PENDING') {
-                actionsHtml = `
-                  <button onclick="handleAssignmentAction('${active.id}', 'accept')" class="bg-green-500 text-white px-4 py-2 rounded-lg font-bold">Accept</button>
-                  <button onclick="handleAssignmentAction('${active.id}', 'decline')" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold">Decline</button>
-                `;
-              } else if (active.status === 'ACCEPTED') {
-                actionsHtml = `<button onclick="handleAssignmentAction('${active.id}', 'pickup')" class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold">Mark Picked Up</button>`;
-              } else if (active.status === 'PICKED_UP') {
-                actionsHtml = `
-                  <input type="text" id="deliveryOtp" placeholder="Enter Customer OTP" class="border p-2 rounded mr-2 w-40" />
-                  <button onclick="deliverOrder('${active.id}')" class="bg-green-500 text-white px-4 py-2 rounded-lg font-bold">Complete Delivery</button>
-                `;
-                // Start sending location if not already
-                startLocationPing(active.id);
-              }
-
-              document.getElementById('activeAssignmentContainer').innerHTML = `
-                <div class="w-full text-left">
-                  <div class="flex justify-between items-center mb-4">
-                    <h4 class="text-xl font-bold">Order #${active.orderId}</h4>
-                    <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-bold">${active.status}</span>
-                  </div>
-                  <div class="mb-4">
-                    <p class="text-sm text-gray-500">Earnings: ₹${active.earnings || 0}</p>
-                    <p class="text-sm text-gray-500">Distance: ${active.distance || 0} km</p>
-                  </div>
-                  <div class="flex gap-2">
-                    ${actionsHtml}
-                    <button onclick="reportIssue('${active.id}')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold ml-auto">Report Issue</button>
-                  </div>
-                  <div id="deliveryMap" class="w-full h-64 mt-4 rounded-xl border border-gray-200 z-10 hidden"></div>
-                </div>
-              `;
-
-              if (active.status === 'ACCEPTED' || active.status === 'PICKED_UP') {
-                setTimeout(() => initMap(active), 100);
-              }
-            } else {
-              document.getElementById('activeAssignmentContainer').innerHTML = `
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
-                <p class="text-gray-500 text-lg font-medium">No active assignment right now.</p>
-                <p class="text-sm text-gray-400 mt-1">Stay online and wait for incoming orders!</p>
-              `;
-              stopLocationPing();
-            }
-
+          } else {
             list.innerHTML = assignments.map(a => `
                 <tr class="hover:bg-orange-50 transition-colors group cursor-pointer">
                   <td class="px-6 py-4 font-medium text-gray-900 group-hover:text-orange-600">#${a.id}</td>
@@ -350,6 +306,82 @@
                 </tr>
               `).join('');
           }
+
+          const active = assignments.find(a => ['PENDING', 'ACCEPTED', 'PICKED_UP', 'OUT_FOR_DELIVERY', 'ASSIGNED'].includes(a.status));
+          if (active) {
+            if (active.status === 'PENDING' && lastAlertedAssignmentId !== active.id) {
+              lastAlertedAssignmentId = active.id;
+              showAlertModal(active);
+            }
+
+            let actionsHtml = '';
+            if (active.status === 'PENDING') {
+              actionsHtml = `
+                  <button onclick="handleAssignmentAction('${active.id}', 'accept')" class="bg-green-500 text-white px-4 py-2 rounded-lg font-bold">Accept</button>
+                  <button onclick="handleAssignmentAction('${active.id}', 'decline')" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold">Decline</button>
+                `;
+            } else if (active.status === 'ACCEPTED') {
+              actionsHtml = `<button onclick="handleAssignmentAction('${active.id}', 'pickup')" class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold">Mark Picked Up</button>`;
+              startLocationPing(active.id);
+            } else if (active.status === 'PICKED_UP') {
+              actionsHtml = `<button onclick="handleAssignmentAction('${active.id}', 'out-for-delivery')" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors hover:bg-blue-600">Mark Out for Delivery</button>`;
+              startLocationPing(active.id);
+            } else if (active.status === 'OUT_FOR_DELIVERY') {
+              actionsHtml = `
+                  <button onclick="showDeliveryOtpModal('${active.id}')" class="bg-green-500 text-white px-6 py-2 rounded-lg font-bold shadow-md transition-colors hover:bg-green-600">Mark as Delivered</button>
+                `;
+              startLocationPing(active.id);
+            }
+
+            document.getElementById('activeAssignmentContainer').innerHTML = `
+                <div class="w-full text-left">
+                  <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-xl font-bold">Order #${active.orderId}</h4>
+                    <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-bold">${active.status}</span>
+                  </div>
+                  <div class="mb-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div class="flex justify-between items-center mb-2">
+                      <p class="text-sm font-semibold text-gray-700">Earnings: <span class="text-green-600">₹${active.earnings || 40}</span></p>
+                      <p class="text-sm font-semibold text-gray-700">Distance: <span class="text-blue-600">${active.distance || 3.2} km</span></p>
+                    </div>
+                    ${active.status === 'ACCEPTED' ? `
+                      <div class="mt-2 text-sm text-gray-600">
+                        <p class="font-bold text-gray-800">Pickup Location:</p>
+                        <p>${active.restaurant?.name || 'Restaurant'}</p>
+                        <p>${active.restaurant?.address || 'Address pending...'}</p>
+                      </div>
+                    ` : ''}
+                    ${(active.status === 'PICKED_UP' || active.status === 'OUT_FOR_DELIVERY') ? `
+                      <div class="mt-2 text-sm text-gray-600">
+                        <p class="font-bold text-gray-800">Delivery Location:</p>
+                        <p>${active.customer?.address || 'Address pending...'}</p>
+                      </div>
+                    ` : ''}
+                  </div>
+                  <div class="flex gap-2">
+                    ${actionsHtml}
+                    <button onclick="reportIssue('${active.id}')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold ml-auto">Report Issue</button>
+                  </div>
+                  <div id="deliveryMap" class="w-full h-64 mt-4 rounded-xl border border-gray-200 z-10 hidden"></div>
+                  <div id="turnByTurnContainer" class="w-full mt-4 max-h-48 overflow-y-auto bg-orange-50 rounded-xl p-4 border border-orange-100 hidden text-sm text-gray-800"></div>
+                </div>
+              `;
+
+            if (active.status === 'ACCEPTED' || active.status === 'PICKED_UP' || active.status === 'OUT_FOR_DELIVERY') {
+              setTimeout(() => initMap(active), 100);
+            }
+          } else {
+            document.getElementById('activeAssignmentContainer').innerHTML = `
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <p class="text-gray-500 text-lg font-medium">No active assignment right now.</p>
+                <p class="text-sm text-gray-400 mt-1">Stay online and wait for incoming orders!</p>
+              `;
+            stopLocationPing();
+          }
         } else {
           list.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 bg-gray-50/50">Could not load assignments.</td></tr>`;
         }
@@ -359,14 +391,59 @@
       }
     }
 
+    function showAlertModal(assignment) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4';
+      const earnings = assignment.earnings || 40; // Default base earning
+      modal.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full animate-[bounce_1s_infinite]">
+          <h2 class="text-2xl font-bold text-orange-600 mb-4 flex items-center gap-2">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+            New Order!
+          </h2>
+          <div class="space-y-3 mb-6 text-gray-700">
+            <p><strong class="text-gray-900">Restaurant:</strong> ${assignment.restaurant?.name || 'Unknown'}</p>
+            <p><strong class="text-gray-900">Pickup:</strong> ${assignment.restaurant?.address || 'Unknown'}</p>
+            <p><strong class="text-gray-900">Customer Area:</strong> ${assignment.customer?.address || 'Unknown'}</p>
+            <p><strong class="text-gray-900">Est. Earnings:</strong> ₹${earnings}</p>
+            <p class="text-sm text-red-500 font-medium mt-2">Auto-declines in 60s if ignored</p>
+          </div>
+          <div class="flex gap-4">
+            <button onclick="handleAssignmentAction('${assignment.id}', 'decline'); this.closest('.fixed').remove()" class="flex-1 bg-red-100 text-red-700 py-3 rounded-xl font-bold hover:bg-red-200 transition-colors">Decline</button>
+            <button onclick="handleAssignmentAction('${assignment.id}', 'accept'); this.closest('.fixed').remove()" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 shadow-md transition-colors">Accept</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Stop bouncing after 3 seconds so it's not too annoying
+      setTimeout(() => {
+        const inner = modal.querySelector('.animate-\\[bounce_1s_infinite\\]');
+        if (inner) {
+          inner.classList.remove('animate-[bounce_1s_infinite]');
+        }
+      }, 3000);
+      
+      try {
+        const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+        audio.play().catch(e => console.log('Audio autoplay blocked'));
+      } catch (e) {}
+    }
+
     loadDashboardData();
+    
+    // Poll for new assignments every 10 seconds if online
+    setInterval(() => {
+      if (document.getElementById('statusToggle').checked) {
+        loadDashboardData();
+      }
+    }, 10000);
 
     // Logout
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();
@@ -381,10 +458,9 @@
         if ("geolocation" in navigator) {
           navigator.geolocation.getCurrentPosition(async (position) => {
             try {
-              const token = localStorage.getItem('token') || '';
               await fetch(`/delivery-partner/assignments/${assignmentId}/location`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   latitude: position.coords.latitude,
                   longitude: position.coords.longitude
@@ -424,7 +500,7 @@
           if (assignment.status === 'ACCEPTED' && assignment.restaurant) {
             targetLat = assignment.restaurant.lat;
             targetLng = assignment.restaurant.lng;
-          } else if (assignment.status === 'PICKED_UP' && assignment.customer) {
+          } else if ((assignment.status === 'PICKED_UP' || assignment.status === 'OUT_FOR_DELIVERY') && assignment.customer) {
             targetLat = assignment.customer.lat;
             targetLng = assignment.customer.lng;
           }
@@ -438,12 +514,13 @@
 
     async function fetchRoute(startLat, startLng, endLat, endLng) {
       try {
-        const url = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
+        const url = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson&steps=true`;
         const res = await fetch(url);
         const data = await res.json();
 
         if (data.routes && data.routes.length > 0) {
-          const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+          const route = data.routes[0];
+          const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
 
           if (routingLayer) map.removeLayer(routingLayer);
           routingLayer = L.polyline(coords, { color: 'blue', weight: 4 }).addTo(map);
@@ -451,6 +528,30 @@
 
           L.marker([startLat, startLng]).addTo(map).bindPopup('You').openPopup();
           L.marker([endLat, endLng]).addTo(map).bindPopup('Destination');
+          
+          const steps = route.legs[0]?.steps || [];
+          const directionsContainer = document.getElementById('turnByTurnContainer');
+          
+          if (directionsContainer && steps.length > 0) {
+            directionsContainer.classList.remove('hidden');
+            let html = '<h5 class="font-bold text-gray-900 mb-2">🧭 Turn-by-Turn Navigation</h5><ul class="list-decimal pl-5 space-y-2">';
+            steps.forEach(step => {
+               if (step.distance === 0 && step.maneuver.type !== 'arrive') return;
+               let type = step.maneuver.type;
+               let modifier = step.maneuver.modifier;
+               let text = type;
+               if (modifier) text += ' ' + modifier;
+               if (step.name) text += ' onto ' + step.name;
+               else if (type === 'arrive') text = 'Arrive at destination';
+               
+               text = text.replace(/-/g, ' ').replace(/_/g, ' ');
+               text = text.charAt(0).toUpperCase() + text.slice(1);
+               
+               html += `<li><span class="font-medium">${text}</span> <span class="text-gray-500">(${(step.distance).toFixed(0)}m)</span></li>`;
+            });
+            html += '</ul>';
+            directionsContainer.innerHTML = html;
+          }
         }
       } catch (err) {
         console.error("Failed to fetch route:", err);
@@ -459,10 +560,9 @@
 
     async function handleAssignmentAction(assignmentId, action) {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/delivery-partner/assignments/${assignmentId}/${action}`, {
           method: 'PATCH',
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
         const data = await res.json();
         if (res.ok) {
@@ -474,14 +574,54 @@
       } catch (e) { showToast('Error performing action', 'error'); }
     }
 
-    async function deliverOrder(assignmentId) {
-      const otp = document.getElementById('deliveryOtp').value;
+    function showDeliveryOtpModal(assignmentId) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4';
+      modal.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Delivery Confirmation</h2>
+          <p class="text-sm text-gray-500 mb-6">Please enter the 6-digit OTP provided by the customer to confirm delivery.</p>
+          <input type="text" id="modalDeliveryOtp" placeholder="e.g. 123456" class="w-full border border-gray-300 p-3 rounded-lg mb-6 text-center text-2xl tracking-[0.5em] font-bold focus:border-orange-500 focus:ring focus:ring-orange-200 outline-none transition-all" />
+          <div class="flex gap-4">
+            <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors">Cancel</button>
+            <button onclick="deliverOrderFromModal('${assignmentId}', this)" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 shadow-md transition-colors">Confirm</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      document.getElementById('modalDeliveryOtp').focus();
+    }
+
+    async function deliverOrderFromModal(assignmentId, btnEl) {
+      const otp = document.getElementById('modalDeliveryOtp').value;
       if (!otp) { showToast('Please enter the customer OTP', 'error'); return; }
+      
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/delivery-partner/assignments/${assignmentId}/deliver`, {
           method: 'PATCH',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ otp })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Order delivered successfully!', 'success');
+          btnEl.closest('.fixed').remove();
+          stopLocationPing();
+          loadDashboardData();
+        } else {
+          showToast(data.message || 'Delivery failed', 'error');
+        }
+      } catch (e) { showToast('Error delivering order', 'error'); }
+    }
+
+    async function deliverOrder(assignmentId) {
+      // Legacy inline function (kept just in case)
+      const otp = document.getElementById('deliveryOtp')?.value;
+      if (!otp) { showToast('Please enter the customer OTP', 'error'); return; }
+      try {
+        const res = await fetch(`/delivery-partner/assignments/${assignmentId}/deliver`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ otp })
         });
         const data = await res.json();
@@ -496,13 +636,12 @@
     }
 
     async function reportIssue(assignmentId) {
-      const issue = prompt('Please describe the issue:');
+      const issue = prompt('Please describe the issue (e.g. Customer unavailable, Wrong address, Restaurant delay):');
       if (!issue) return;
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/delivery-partner/assignments/${assignmentId}/report-issue`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ issueReason: issue })
         });
         const data = await res.json();

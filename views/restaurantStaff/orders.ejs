@@ -370,11 +370,9 @@
     async function updateStatus(orderId, action) {
       if (!confirm(`Are you sure you want to ${action} this order?`)) return;
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/orders/${orderId}/${action}`, {
           method: 'PATCH',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
@@ -395,11 +393,9 @@
     async function markItemUnavailable(orderId, itemId) {
       if (!confirm(`Mark this item as unavailable? A refund will be initiated if paid.`)) return;
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/orders/${orderId}/items/${itemId}/unavailable`, {
           method: 'PATCH',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
@@ -426,9 +422,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

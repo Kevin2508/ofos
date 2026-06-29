@@ -121,8 +121,7 @@
   <script>
     async function loadDashboard() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const headers = { 'Authorization': `Bearer ${token}` };
+        const headers = {};
 
         // Load KPIs
         const sDate = document.getElementById('kpiStartDate').value;
@@ -204,9 +203,8 @@
 
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

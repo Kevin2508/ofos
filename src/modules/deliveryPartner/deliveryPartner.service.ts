@@ -338,7 +338,7 @@ async function markOutForDeliveryService(assignmentId: string, partnerUserId: st
     },
   });
 
-  console.log(`[SMS/PUSH NOTIFICATION] To Customer ${order.customerUserId}: Your order #${order.orderNumber || order.id} is OUT FOR DELIVERY!`);
+  console.log(`[SMS/PUSH NOTIFICATION] To Customer ${order.customerUserId}: Your order #${order.orderNumber || order.id} is OUT FOR DELIVERY! Please provide the OTP shown on your tracking page to the delivery partner.`);
 
   return { message: 'Order marked out for delivery' };
 }

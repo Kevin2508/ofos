@@ -109,8 +109,6 @@
   </div>
 
   <script>
-    const token = localStorage.getItem('token') || '';
-
     function toggleAddModal(show) {
       const modal = document.getElementById('addModal');
       if (show) {
@@ -138,7 +136,7 @@
 
     async function loadConfigs() {
       try {
-        const res = await fetch('/admin/config', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch('/admin/config', { headers: {} });
         const container = document.getElementById('configsContainer');
         if (res.ok) {
           const data = await res.json();
@@ -189,7 +187,7 @@
       try {
         const res = await fetch('/admin/config', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ key, value, description: desc })
         });
         const data = await res.json();
@@ -213,7 +211,7 @@
       try {
         const res = await fetch('/admin/config/update', {
           method: 'PATCH',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ key, newKey, value, description })
         });
         if (res.ok) {
@@ -231,7 +229,7 @@
       try {
         const res = await fetch(`/admin/config/${key}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
         if (res.ok) {
           loadConfigs();
@@ -246,7 +244,7 @@
 
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
       try {
-        await fetch('/auth/logout', { headers: { 'Authorization': `Bearer ${token}` } });
+        await fetch('/auth/logout', { headers: {} });
       } catch (e) { }
       localStorage.clear();
       document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';

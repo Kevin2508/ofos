@@ -73,7 +73,6 @@
 
     async function loadOrders(silent = false) {
       try {
-        const token = localStorage.getItem('token') || '';
         const status = document.getElementById('statusFilter').value;
         const search = document.getElementById('searchFilter').value;
         const date = document.getElementById('dateFilter').value;
@@ -85,7 +84,7 @@
         if (payment) query += `&payment=${encodeURIComponent(payment)}`;
 
         const res = await fetch(query, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         const list = document.getElementById('ordersList');
@@ -166,11 +165,9 @@
     async function updateOrderStatus(orderId, action) {
       if (!confirm(`Are you sure you want to ${action} this order?`)) return;
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/orders/${orderId}/${action}`, {
           method: 'PATCH',
           headers: { 
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ reason: 'Restaurant action' })
@@ -191,9 +188,8 @@
     // Order Details Modal
     async function viewOrderDetails(orderId) {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/orders/restaurant/${orderId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
         if (res.ok) {
           const data = await res.json();
@@ -248,10 +244,9 @@
     async function markItemUnavailable(orderId, itemId) {
       if (!confirm('Mark item as unavailable and process partial refund?')) return;
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch(`/orders/${orderId}/items/${itemId}/unavailable`, {
           method: 'PATCH',
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
         if (res.ok) {
           showToast('Item marked unavailable', 'success');
@@ -266,9 +261,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

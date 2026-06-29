@@ -259,7 +259,6 @@
   <div id="toast" class="fixed bottom-5 right-5 px-6 py-3 rounded-xl text-white font-semibold shadow-xl transition-all duration-300 transform translate-y-10 opacity-0 z-50 flex items-center gap-2"></div>
 
   <script>
-    const token = localStorage.getItem('token');
     
     // Toast
     function showToast(msg, type = 'success') {
@@ -293,7 +292,7 @@
     // Load Profile
     async function loadProfile() {
       try {
-        const res = await fetch('/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch('/auth/me', { headers: {} });
         if (!res.ok) return;
         const data = await res.json();
         const u = data.data.user;
@@ -378,7 +377,7 @@
       try {
         const res = await fetch('/auth/profile', {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
         const resData = await res.json();
@@ -430,7 +429,7 @@
       try {
         const res = await fetch('/auth/change-password', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         const data = await res.json();
@@ -453,7 +452,7 @@
     // Sessions
     async function loadSessions() {
       try {
-        const res = await fetch('/auth/sessions', { headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch('/auth/sessions', { headers: {} });
         if (!res.ok) return;
         const { data } = await res.json();
         const c = document.getElementById('sessionsList');
@@ -493,7 +492,7 @@
     window.revokeSession = async function(id) {
       if(!confirm('Are you sure you want to log out this device?')) return;
       try {
-        const res = await fetch('/auth/sessions/' + id, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+        const res = await fetch('/auth/sessions/' + id, { method: 'DELETE', headers: {} });
         if (res.ok) {
           showToast('Session revoked', 'success');
           loadSessions();

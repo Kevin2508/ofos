@@ -146,7 +146,6 @@
     // Get users
     async function fetchUsers() {
       try {
-        const token = localStorage.getItem('token') || '';
         const search = document.getElementById('searchInput').value;
         const role = document.getElementById('roleFilter').value;
         const status = document.getElementById('statusFilter').value;
@@ -157,7 +156,7 @@
         if (status) url += `status=${encodeURIComponent(status)}&`;
 
         const response = await fetch(url, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
         const json = await response.json();
         if (response.ok) {
@@ -246,9 +245,8 @@
       selectedUserId = id;
 
       try {
-        const token = localStorage.getItem('token') || '';
         const response = await fetch(`/admin/user/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         const json = await response.json();
@@ -284,12 +282,10 @@
     // Update user role
     async function updateUserRole() {
       try {
-        const token = localStorage.getItem('token') || '';
         const response = await fetch(`/admin/user/${selectedUserId}/role-status`, {
           method: 'PATCH',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             roleName: document.getElementById('updateRole').value,
@@ -320,12 +316,10 @@
       }
 
       try {
-        const token = localStorage.getItem('token') || '';
         const response = await fetch(`/admin/user/${selectedUserId}/account-status`, {
           method: 'PATCH',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({ status, reason }),
         });

@@ -206,8 +206,18 @@ async function getAllAssignmentsRepo(
       };
     }
 
+    let computedStatus = assignment.status;
+    if (assignment.status === 'ACCEPTED' && assignment.order) {
+      if (assignment.order.orderStatus === 'PICKED_UP') {
+        computedStatus = 'PICKED_UP';
+      } else if (assignment.order.orderStatus === 'OUT_FOR_DELIVERY') {
+        computedStatus = 'OUT_FOR_DELIVERY';
+      }
+    }
+
     return {
       ...assignment,
+      status: computedStatus,
       id: assignment.id.toString(),
       orderId: assignment.orderId.toString(),
       partnerUserId: assignment.partnerUserId ? assignment.partnerUserId.toString() : null,

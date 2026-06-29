@@ -83,8 +83,7 @@
   <script>
     async function loadDashboard() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const headers = { 'Authorization': `Bearer ${token}` };
+        const headers = {};
 
         const res = await fetch('/finance/overview', { headers });
         if (res.ok) {
@@ -105,9 +104,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

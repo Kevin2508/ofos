@@ -172,12 +172,10 @@
       const newPartnerId = document.getElementById('reassignPartnerId').value;
       const reason = document.getElementById('reassignReason').value;
 
-      const token = localStorage.getItem('token') || '';
       try {
         const res = await fetch(`/fleet-manager/${id}/reassign`, {
           method: 'PATCH',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ partnerUserId: newPartnerId, reason })
@@ -199,9 +197,8 @@
 
     async function loadOnlinePartners() {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch('/fleet-manager/live-map', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
         if (res.ok) {
           const data = await res.json();
@@ -223,9 +220,8 @@
 
     async function loadAssignments() {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch('/fleet-manager/all/assignments', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         const unassignedList = document.getElementById('unassignedList');
@@ -297,13 +293,10 @@
       e.preventDefault();
       const orderId = document.getElementById('assignOrderId').value;
       const partnerId = document.getElementById('assignPartnerId').value;
-      const token = localStorage.getItem('token') || '';
-
       try {
         const res = await fetch(`/fleet-manager/${orderId}/assign`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ partnerUserId: partnerId })
@@ -327,9 +320,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

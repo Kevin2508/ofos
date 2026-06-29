@@ -157,12 +157,10 @@
     async function updateStatus(id, newStatus) {
       if (!confirm(`Are you sure you want to change status to ${newStatus}?`)) return;
 
-      const token = localStorage.getItem('token') || '';
       try {
         const res = await fetch(`/admin/restaurants/${id}/status`, {
           method: 'PATCH',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ status: newStatus })
@@ -184,10 +182,9 @@
       grid.innerHTML = '<div class="col-span-full py-12 text-center text-gray-500">Loading...</div>';
 
       try {
-        const token = localStorage.getItem('token') || '';
         const url = currentTab === 'pending' ? '/admin/restaurants/pending' : '/admin/restaurants';
         const res = await fetch(url, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         if (res.ok) {
@@ -380,9 +377,8 @@
 
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

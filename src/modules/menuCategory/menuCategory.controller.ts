@@ -96,7 +96,7 @@ const updateMenuCategory = catchAsync(
     });
   }
 );
-
+   
 /**
  * PATCH
  * /branches/:branchId/categories/:id/availability

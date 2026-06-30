@@ -29,6 +29,7 @@ import { restaurantManagementRouter } from './modules/restaurantManagement/manag
 import { restaurantStaffRouter } from './modules/restaurantStaff/restaurantStaff.routes.ts';
 import { restaurantRouter } from './modules/restuarant/restaurant.routes.ts';
 import reviewsRouter from './modules/reviews/reviews.routes.ts';
+import { aiRouter } from './modules/ai/ai.routes.ts';
 import { adminPageRouter } from './routes/admin.pages.routes.ts';
 import { authPageRouter } from './routes/auth.pages.routes.ts';
 import { customerPageRouter } from './routes/customer.pages.routes.ts';
@@ -90,6 +91,7 @@ app.use('/restaurant-management/:restaurantId/branches', branchRouter);
 app.use('/fleet-manager', fleetManagerRouter);
 app.use('/payments', paymentRouter)
 app.use('/loyalty', loyaltyRouter)
+app.use('/api/ai', aiRouter);
 
 // Routes
 app.use(authPageRouter);

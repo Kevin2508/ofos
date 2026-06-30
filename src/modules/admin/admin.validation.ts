@@ -1,13 +1,14 @@
 import Joi from 'joi';
+import { UserStatus } from '../../generated/prisma/enums.ts';
 
 const getAllUsersSchema = Joi.object({
-  search: Joi.string().trim().optional(),
-
-  role: Joi.string().trim().optional(),
-
+  search: Joi.string().optional(),
+  role: Joi.string().optional(),
   status: Joi.string()
-    .valid('ACTIVE', 'INACTIVE', 'LOCKED', 'SUSPENDED')
+    .valid(...Object.values(UserStatus))
     .optional(),
+  limit: Joi.number().integer().min(1).max(100).optional(),
+  page: Joi.number().integer().min(1).optional(),
 });
 
 const userIdSchema = Joi.object({
@@ -22,6 +23,13 @@ const updateUserRoleStatusSchema = Joi.object({
     .required(),
 });
 
+const updateUserStatusSchema = Joi.object({
+  status: Joi.string()
+    .valid(...Object.values(UserStatus))
+    .required(),
+  reason: Joi.string().trim().min(5).max(500).required(),
+});
+
 const restaurantIdSchema = Joi.object({
   id: Joi.number().integer().positive().required(),
 });
@@ -30,6 +38,19 @@ const updateRestaurantStatusSchema = Joi.object({
   status: Joi.string()
     .valid('PENDING_VERIFICATION', 'APPROVED', 'REJECTED', 'SUSPENDED')
     .required(),
+  reason: Joi.string().optional()
+});
+
+const documentIdSchema = Joi.object({
+  docId: Joi.number().integer().positive().required(),
+  id: Joi.number().integer().positive().required(),
+});
+
+const updateRestaurantDocumentStatusSchema = Joi.object({
+  status: Joi.string()
+    .valid('APPROVED', 'REJECTED')
+    .required(),
+  remark: Joi.string().optional()
 });
 
 const getAdminOrdersQuerySchema = Joi.object({
@@ -56,6 +77,14 @@ const updateSystemConfigSchema = Joi.object({
       'string.pattern.base':
         'Config key must be 1-50 characters, letters, numbers, space or dash only',
     }),
+  newKey: Joi.string()
+    .pattern(/^[a-zA-Z0-9 \-_]{1,50}$/)
+    .required()
+    .messages({
+      'string.pattern.base':
+        'Config key must be 1-50 characters, letters, numbers, space or dash only',
+    }),
+  description: Joi.string().allow('').optional(),
   value: Joi.string().required().messages({
     'string.empty': 'Config value is required',
   }),
@@ -77,8 +106,11 @@ export {
   getAllUsersSchema,
   userIdSchema,
   updateUserRoleStatusSchema,
+  updateUserStatusSchema,
   restaurantIdSchema,
   updateRestaurantStatusSchema,
+  documentIdSchema,
+  updateRestaurantDocumentStatusSchema,
   getAdminOrdersQuerySchema,
   updateSystemConfigSchema,
   getAuditLogsSchema,

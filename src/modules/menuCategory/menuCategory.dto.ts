@@ -26,10 +26,15 @@ interface ReorderMenuCategoryDto {
   }[];
 }
 
+interface UpdateMenuCategoryAvailabilityDto {
+  isActive: boolean;
+}
+
 export {
   MenuCategoryParamsDto,
   MenuCategoryIdParamsDto,
   CreateMenuCategoryDto,
   UpdateMenuCategoryDto,
   ReorderMenuCategoryDto,
+  UpdateMenuCategoryAvailabilityDto,
 };

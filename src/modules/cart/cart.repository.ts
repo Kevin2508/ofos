@@ -1,6 +1,7 @@
 // src/modules/cart/cart.repository.ts
 
 import { prisma } from '../../config/prisma.ts';
+import redisService from '../../services/redisService.ts';
 
 // Get active cart with all relations
 async function getActiveCartByUser(userId: bigint) {
@@ -21,14 +22,22 @@ async function getActiveCartByUser(userId: bigint) {
               },
             },
           },
-          menuItem: true,
+          menuItem: {
+            include: {
+              images: true
+            }
+          },
         },
       },
       priceBreakdowns: {
         orderBy: { calculatedAt: 'desc' },
         take: 1,
       },
-      branch: true,
+      branch: {
+        include: {
+          restaurant: true
+        }
+      },
     },
   });
 }
@@ -55,14 +64,22 @@ async function createCart(userId: bigint, branchId: bigint) {
               },
             },
           },
-          menuItem: true,
+          menuItem: {
+            include: {
+              images: true
+            }
+          },
         },
       },
       priceBreakdowns: {
         orderBy: { calculatedAt: 'desc' },
         take: 1,
       },
-      branch: true,
+      branch: {
+        include: {
+          restaurant: true
+        }
+      },
     },
   });
 }
@@ -79,6 +96,23 @@ async function cartExistsByUserAndBranch(
       status: 'ACTIVE',
     },
     select: { id: true },
+  });
+}
+
+async function countCartItems(cartId: bigint) {
+  return prisma.cartItem.count({
+    where: { cartId },
+  });
+}
+
+async function abandonCart(cartId: bigint) {
+  return prisma.cart.update({
+    where: { id: cartId },
+    data: {
+      status: 'ABANDONED',
+      subtotalAmount: 0,
+      totalAmount: 0,
+    },
   });
 }
 
@@ -118,7 +152,22 @@ async function addModifierToCartItem(
   });
 }
 
-// Update cart item
+async function getModifierOptionsByIds(ids: bigint[]) {
+  if (!ids.length) return [];
+
+  return prisma.modifierOption.findMany({
+    where: {
+      id: {
+        in: ids,
+      },
+    },
+    select: {
+      id: true,
+      additionalPrice: true,
+    },
+  });
+}
+
 async function updateCartItem(
   cartItemId: bigint,
   data: {
@@ -126,9 +175,19 @@ async function updateCartItem(
     specialInstructions?: string;
   }
 ) {
+  const updateData: any = { ...data };
+  if (data.quantity !== undefined) {
+    const item = await prisma.cartItem.findUnique({
+      where: { id: cartItemId },
+      select: { unitPrice: true }
+    });
+    if (item) {
+      updateData.lineTotal = Number(item.unitPrice) * data.quantity;
+    }
+  }
   return prisma.cartItem.update({
     where: { id: cartItemId },
-    data,
+    data: updateData,
   });
 }
 
@@ -156,6 +215,7 @@ async function clearCart(cartId: bigint) {
   return prisma.cart.update({
     where: { id: cartId },
     data: {
+      status: 'ABANDONED',
       subtotalAmount: 0,
       totalAmount: 0,
     },
@@ -166,13 +226,23 @@ async function clearCart(cartId: bigint) {
 async function getCouponByCode(code: string) {
   return prisma.coupon.findUnique({
     where: { code },
+    include: { couponRestaurants: true }
+  });
+}
+
+async function getCouponUsageCount(couponId: bigint, userId?: bigint) {
+  return prisma.couponUsage.count({
+    where: {
+      couponId,
+      customerUserId: userId,
+    },
   });
 }
 
 // Calculate cart totals
 async function calculateCartTotals(
   cartId: bigint,
-  discountAmount: number = 0
+  couponDiscountAmount: number = 0
 ) {
   const cart = await prisma.cart.findUnique({
     where: { id: cartId },
@@ -188,13 +258,36 @@ async function calculateCartTotals(
     (sum, item) => sum + Number(item.lineTotal),
     0
   );
+
+  // Get loyalty discount
+  const appliedLoyaltyPointsStr = await redisService.get<number>(`cart:${cartId}:loyalty`);
+  const appliedLoyaltyPoints = appliedLoyaltyPointsStr || 0;
+
+  let redemptionRateStr = await prisma.systemConfiguration.findUnique({
+    where: { configKey: 'LOYALTY_REDEMPTION_RATE' }
+  });
+  const redemptionRate = redemptionRateStr ? parseFloat(redemptionRateStr.configValue) : 1;
+  const loyaltyDiscount = appliedLoyaltyPoints * redemptionRate;
+
+  let totalDiscountAmount = couponDiscountAmount + loyaltyDiscount;
+
   const deliveryFee = Number(cart.branch.deliveryFee) || 0;
-  const taxAmount = (subtotal - discountAmount) * 0.05; // 5% tax
-  const totalAmount = subtotal + deliveryFee + taxAmount - discountAmount;
+  const taxAmount = Math.max(0, (subtotal - totalDiscountAmount)) * 0.05; // 5% tax
+
+  // Ensure total doesn't go below 0
+  const totalAmount = Math.max(0, subtotal + deliveryFee + taxAmount - totalDiscountAmount);
+
+  await prisma.cart.update({
+    where: { id: cartId },
+    data: {
+      subtotalAmount: subtotal,
+      totalAmount: totalAmount,
+    },
+  });
 
   return {
     subtotal: subtotal.toFixed(2),
-    discountAmount: discountAmount.toFixed(2),
+    discountAmount: totalDiscountAmount.toFixed(2),
     deliveryFee: deliveryFee.toFixed(2),
     taxAmount: taxAmount.toFixed(2),
     totalAmount: totalAmount.toFixed(2),
@@ -254,13 +347,17 @@ async function getMenuItemWithPrice(menuItemId: bigint) {
 export {
   createCart,
   cartExistsByUserAndBranch,
+  countCartItems,
+  abandonCart,
   getActiveCartByUser,
   addItemToCart,
   addModifierToCartItem,
+  getModifierOptionsByIds,
   updateCartItem,
   deleteCartItem,
   clearCart,
   getCouponByCode,
+  getCouponUsageCount,
   calculateCartTotals,
   createPriceBreakdown,
   getCartItemById,

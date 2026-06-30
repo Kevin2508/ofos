@@ -5,7 +5,7 @@ const fleetManagerPageRouter = Router();
 
 fleetManagerPageRouter.use(authenticate);
 
-fleetManagerPageRouter.use(authorize('Fleet_manager'));
+fleetManagerPageRouter.use(authorize(['Fleet_manager']));
 
 fleetManagerPageRouter.get('/fleet-manager-dashboard', (req, res) => {
   res.render('fleetManager/dashboard');
@@ -20,6 +20,12 @@ fleetManagerPageRouter.get('/fleet-manager-assignments', (req, res) => {
 });
 
 fleetManagerPageRouter.get('/fleet-manager-profile', (req, res) => {
+  res.render('fleetManager/profile');
+});
+
+
+
+fleetManagerPageRouter.get('/profile', (req, res) => {
   res.render('fleetManager/profile');
 });
 

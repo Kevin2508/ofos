@@ -1,14 +1,12 @@
-import { prisma } from '../../config/prisma.ts';
+
 import { CreateAddressDto, customerDto } from './customer.dto.ts';
 import {
   createAddress, findAddressesByCustomerID, findAddressesByID, findAddressesById,
 
   updateCustomerAddress, findAddressById1, deleteAddressById, removeDefaultAddresses,
-  setAddressAsDefault
-
-
-
-
+  setAddressAsDefault,
+  getCustomerPreference, updateCustomerPreference,
+  getPaymentMethods, createPaymentMethod, deletePaymentMethod
 } from './customer.repository.ts';
 
 
@@ -69,10 +67,8 @@ async function getAddressesByIdService(customerId: number) {
 
 async function updateAdressService(addressID: number, payload: CreateAddressDto) {
 
-  console.log("Hello There===========================================");
   const address = await findAddressesById(addressID);
 
-  console.log('Address Found:', address);
   if (!address) {
     return {
       message: 'Address not found',
@@ -136,5 +132,41 @@ async function setDefaultAddressService(customer: customerDto, addressID: number
     data: updatedAddress,
   };
 }
-export { getAddressesService, addAddressService, getAddressesByIdService, updateAdressService, deleteAddressService, setDefaultAddressService, }
 
+// Preferences
+async function getPreferencesService(customerId: number) {
+  const prefs = await getCustomerPreference(customerId);
+  return { success: true, data: prefs };
+}
+
+async function updatePreferencesService(customerId: number, payload: any) {
+  const prefs = await updateCustomerPreference(customerId, payload);
+  return { success: true, message: 'Preferences updated successfully', data: prefs };
+}
+
+// Payments
+async function getPaymentMethodsService(customerId: number) {
+  const methods = await getPaymentMethods(customerId);
+  return { success: true, data: methods };
+}
+
+async function addPaymentMethodService(customerId: number, payload: any) {
+  const existing = await getPaymentMethods(customerId);
+  if (existing.length >= 5) {
+    return { success: false, message: 'Maximum 5 payment methods allowed' };
+  }
+  const method = await createPaymentMethod(customerId, payload);
+  return { success: true, message: 'Payment method added', data: method };
+}
+
+async function deletePaymentMethodService(methodId: number) {
+  await deletePaymentMethod(methodId);
+  return { success: true, message: 'Payment method deleted' };
+}
+
+export { 
+  getAddressesService, addAddressService, getAddressesByIdService, 
+  updateAdressService, deleteAddressService, setDefaultAddressService,
+  getPreferencesService, updatePreferencesService,
+  getPaymentMethodsService, addPaymentMethodService, deletePaymentMethodService
+}

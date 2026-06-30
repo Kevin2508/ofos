@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import redisService from '../../services/redisService.ts';
 import {
   createCheckoutSession,
@@ -14,7 +15,10 @@ import {
   getActiveCartByUser,
   calculateCartTotals,
 } from '../cart/cart.repository.ts';
+import { invalidateCartCache } from '../cart/cart.service.ts';
 import { CheckoutSessionDTO, OrderResponseDTO } from './checkout.dto.ts';
+import * as loyaltyService from '../loyalty/loyalty.service.ts';
+import * as loyaltyRepo from '../loyalty/loyalty.repository.ts';
 
 const getCheckoutCacheKey = (sessionId: bigint) => {
   return `checkout:${sessionId}`;
@@ -70,50 +74,84 @@ async function estimateDeliveryService(
   let estimationMethod = 'unknown';
 
   try {
-    const redisGeoKey = 'delivery:locations';
-    
-    await redisService.geoAdd(
-      redisGeoKey,
-      restaurantLongitude,
-      restaurantLatitude,
-      `restaurant:${session.cartId}`
-    );
-
-    await redisService.geoAdd(
-      redisGeoKey,
-      customerLongitude,
-      customerLatitude,
-      `customer:${userId}`
-    );
-
-    const redisDist = await redisService.geoDist(
-      redisGeoKey,
-      `restaurant:${session.cartId}`,
-      `customer:${userId}`,
-      'km'
-    );
-
-    if (redisDist !== null && redisDist > 0) {
-      distanceKm = redisDist;
-      estimationMethod = 'redis-geo';
-      console.log(
-        `[Delivery Estimate] Using Redis GEO: ${distanceKm.toFixed(2)} km`
-      );
+    const googleApiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (googleApiKey && restaurantLatitude !== 0 && customerLatitude !== 0) {
+      const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${restaurantLatitude},${restaurantLongitude}&destinations=${customerLatitude},${customerLongitude}&key=${googleApiKey}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+      const data: any = await res.json();
+      
+      if (data.status === 'OK' && data.rows[0]?.elements[0]?.status === 'OK') {
+        const element = data.rows[0].elements[0];
+        distanceKm = element.distance.value / 1000;
+        estimationMethod = 'google-maps';
+        const estimatedDeliveryMinutes = Math.ceil(element.duration.value / 60) + 5;
+        
+        await updateCheckoutSession(sessionId, { estimatedDeliveryMinutes });
+        const result = {
+          estimatedDeliveryMinutes,
+          distance: element.distance.text,
+          duration: element.duration.text,
+          method: estimationMethod,
+        };
+        await redisService.set(cacheKey, result, 1800);
+        console.log(`[Delivery Estimate] Using Google Maps: ${result.distance}`);
+        return result;
+      } else {
+        throw new Error(`API error: ${data.status}`);
+      }
     } else {
-      throw new Error('Redis GEO returned no result');
+      throw new Error('API key not configured or coordinates missing');
     }
-  } catch (error) {
-    console.warn(`Redis GEO failed, falling back to Haversine: ${error}`);
-    distanceKm = calculateHaversineDistance(
-      restaurantLatitude,
-      restaurantLongitude,
-      customerLatitude,
-      customerLongitude
-    );
-    estimationMethod = 'haversine';
-    console.log(
-      `[Delivery Estimate] Using Haversine formula: ${distanceKm.toFixed(2)} km`
-    );
+  } catch (apiError: any) {
+    console.warn(`[Delivery Estimate] Google Maps skipped/failed: ${apiError.message}. Falling back.`);
+    
+    try {
+      const redisGeoKey = 'delivery:locations';
+      
+      await redisService.geoAdd(
+        redisGeoKey,
+        restaurantLongitude,
+        restaurantLatitude,
+        `restaurant:${session.cartId}`
+      );
+
+      await redisService.geoAdd(
+        redisGeoKey,
+        customerLongitude,
+        customerLatitude,
+        `customer:${userId}`
+      );
+
+      const redisDist = await redisService.geoDist(
+        redisGeoKey,
+        `restaurant:${session.cartId}`,
+        `customer:${userId}`,
+        'km'
+      );
+
+      if (redisDist !== null && redisDist > 0) {
+        distanceKm = redisDist;
+        estimationMethod = 'redis-geo';
+        console.log(
+          `[Delivery Estimate] Using Redis GEO: ${distanceKm.toFixed(2)} km`
+        );
+      } else {
+        throw new Error('Redis GEO returned no result');
+      }
+    } catch (error) {
+      console.warn(`Redis GEO failed, falling back to Haversine: ${error}`);
+      distanceKm = calculateHaversineDistance(
+        restaurantLatitude,
+        restaurantLongitude,
+        customerLatitude,
+        customerLongitude
+      );
+      estimationMethod = 'haversine';
+      console.log(
+        `[Delivery Estimate] Using Haversine formula: ${distanceKm.toFixed(2)} km`
+      );
+    }
   }
 
   const estimatedDeliveryMinutes = calculateEstimateFromDistance(distanceKm);
@@ -161,8 +199,8 @@ async function initiateCheckoutService(
     paymentMethodId: session.paymentMethodId || undefined,
     couponId: session.couponId || undefined,
     deliveryType: session.deliveryType,
-    scheduledFor: session.scheduledFor,
-    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes,
+    scheduledFor: session.scheduledFor || undefined,
+    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes || undefined,
     expiresAt: session.expiresAt,
     createdAt: session.createdAt,
   };
@@ -200,8 +238,8 @@ async function getCheckoutSessionService(
     paymentMethodId: session.paymentMethodId || undefined,
     couponId: session.couponId || undefined,
     deliveryType: session.deliveryType,
-    scheduledFor: session.scheduledFor,
-    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes,
+    scheduledFor: session.scheduledFor || undefined,
+    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes || undefined,
     expiresAt: session.expiresAt,
     createdAt: session.createdAt,
   };
@@ -237,6 +275,10 @@ async function placeOrderService(
     session.couponId ? Number(cartWithBranch.priceBreakdowns[0]?.discountAmount || 0) : 0
   );
 
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const saltRounds = parseInt(process.env.OTP_HASH_SALT || '12', 10);
+  const otpHash = await bcrypt.hash(otp, saltRounds);
+
   const orderNumber = generateOrderNumber();
   const order = await createOrder(userId, sessionId, session.cartId, {
     orderNumber,
@@ -247,7 +289,8 @@ async function placeOrderService(
     deliveryFee: Number(breakdown.deliveryFee),
     taxAmount: Number(breakdown.taxAmount),
     totalAmount: Number(breakdown.totalAmount),
-    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes,
+    otpHash: otpHash,
+    estimatedDeliveryMinutes: session.estimatedDeliveryMinutes || undefined,
   });
 
   await createOrderItems(order.id, session.cartId);
@@ -260,6 +303,33 @@ async function placeOrderService(
   });
 
   await updateCartStatus(session.cartId, 'CHECKED_OUT');
+  await invalidateCartCache(userId);
+
+  // Handle Loyalty Points Redeem
+  const appliedLoyaltyPoints = await loyaltyService.getAppliedLoyaltyPoints(session.cartId);
+  if (appliedLoyaltyPoints > 0) {
+    await loyaltyRepo.addLoyaltyTransaction(
+      userId,
+      'REDEEM',
+      appliedLoyaltyPoints,
+      order.id,
+      `Redeemed points for Order ${order.orderNumber}`
+    );
+    await loyaltyService.removeLoyaltyPointsService(session.cartId);
+  }
+
+  // Handle Loyalty Points Earn
+  const earningRate = await loyaltyService.getEarningRate();
+  const earnedPoints = Math.floor(Number(breakdown.totalAmount) * earningRate);
+  if (earnedPoints > 0) {
+    await loyaltyRepo.addLoyaltyTransaction(
+      userId,
+      'EARN',
+      earnedPoints,
+      order.id,
+      `Earned points for Order ${order.orderNumber}`
+    );
+  }
 
   const cacheKey = getCheckoutCacheKey(sessionId);
   await redisService.del(cacheKey);
@@ -277,7 +347,8 @@ async function placeOrderService(
     deliveryFee: order.deliveryFee.toString(),
     taxAmount: order.taxAmount.toString(),
     totalAmount: order.totalAmount.toString(),
-    estimatedDeliveryAt: order.estimatedDeliveryAt,
+    otp: otp,
+    estimatedDeliveryAt: order.estimatedDeliveryAt || undefined,
     createdAt: order.createdAt,
   };
 

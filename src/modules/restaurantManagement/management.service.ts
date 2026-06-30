@@ -1,4 +1,5 @@
 import { RestaurantStatus } from "../../generated/prisma/enums.ts";
+import { prisma } from "../../config/prisma.ts";
 import type {
   createRestaurantDto,
   pauseRestaurantDto,
@@ -193,6 +194,98 @@ async function deactivateRestaurantService(id: bigint) {
   };
 }
 
+async function getDashboardStatsService(ownerUserId: bigint) {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const branches = await prisma.restaurantBranch.findMany({
+    where: { restaurant: { ownerUserId } },
+    select: { id: true }
+  });
+  const branchIds = branches.map(b => b.id);
+
+  const todaysOrders = await prisma.order.findMany({
+    where: {
+      branchId: { in: branchIds },
+      createdAt: { gte: startOfDay }
+    }
+  });
+
+  const ordersToday = todaysOrders.length;
+  const revenueToday = todaysOrders.filter(o => o.paymentStatus === 'PAID').reduce((acc, o) => acc + Number(o.totalAmount), 0);
+  const averageOrderValue = ordersToday > 0 ? revenueToday / ordersToday : 0;
+  
+  const acceptedOrders = todaysOrders.filter(o => !['PLACED', 'REJECTED', 'CANCELLED'].includes(o.orderStatus)).length;
+  const acceptanceRate = ordersToday > 0 ? (acceptedOrders / ordersToday) * 100 : 0;
+
+  const last7Days = new Date(startOfDay);
+  last7Days.setDate(last7Days.getDate() - 6);
+
+  const weekOrders = await prisma.order.findMany({
+    where: {
+      branchId: { in: branchIds },
+      createdAt: { gte: last7Days }
+    }
+  });
+
+  const revenueTrends = [];
+  for (let i=0; i<7; i++) {
+    const d = new Date(last7Days);
+    d.setDate(d.getDate() + i);
+    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const dayOrders = weekOrders.filter(o => o.createdAt.getDate() === d.getDate() && o.paymentStatus === 'PAID');
+    const rev = dayOrders.reduce((sum, o) => sum + Number(o.totalAmount), 0);
+    revenueTrends.push({ date: dateStr, revenue: rev });
+  }
+
+  return {
+    ordersToday,
+    revenueToday,
+    averageOrderValue,
+    acceptanceRate,
+    revenueTrends
+  };
+}
+
+async function getFinanceStatsService(ownerUserId: bigint) {
+  const payouts = await prisma.restaurantPayout.findMany({
+    where: {
+      restaurant: {
+        ownerUserId
+      }
+    },
+    orderBy: { payoutPeriodEnd: 'desc' }
+  });
+
+  const pendingAmount = payouts.filter(p => p.status === 'PENDING' || p.status === 'PROCESSING')
+                               .reduce((sum, p) => sum + Number(p.netAmount), 0);
+  
+  const totalPaid = payouts.filter(p => p.status === 'PAID')
+                           .reduce((sum, p) => sum + Number(p.netAmount), 0);
+  
+  const totalCommission = payouts.reduce((sum, p) => sum + Number(p.commissionAmount), 0);
+
+  const d = new Date();
+  d.setDate(d.getDate() + ((1 + 7 - d.getDay()) % 7 || 7));
+  d.setHours(0,0,0,0);
+
+  return {
+    pendingAmount: pendingAmount.toFixed(2),
+    totalPaid: totalPaid.toFixed(2),
+    totalCommission: totalCommission.toFixed(2),
+    nextPayoutDate: d.toDateString(),
+    payouts: payouts.map(p => ({
+      referenceId: p.payoutReference,
+      periodStart: p.payoutPeriodStart,
+      periodEnd: p.payoutPeriodEnd,
+      grossAmount: Number(p.grossAmount).toFixed(2),
+      commissionAmount: Number(p.commissionAmount).toFixed(2),
+      netAmount: Number(p.netAmount).toFixed(2),
+      status: p.status
+    }))
+  };
+}
+
 // ─── Serialise BigInt fields ──────────────────────────────────────────────────
 
 function serializeRestaurant(r: any) {
@@ -214,4 +307,6 @@ export {
   uploadCoverService,
   uploadDocumentService,
   uploadLogoService,
+  getDashboardStatsService,
+  getFinanceStatsService,
 };

@@ -11,18 +11,34 @@ import {
   getPendingRestaurantsService,
   getUserByIdService,
   updateRestaurantStatusService,
+  updateRestaurantDocumentStatusService,
   updateSystemConfigService,
   updateUserRoleStatusService,
+  updateUserStatusService,
   getAllRestaurantsService,
+  getSupportTicketsService,
+  respondToSupportTicketService,
+  resolveSupportTicketService,
+  triggerDisputeRefundService,
+  getCouponsService,
+  createCouponService,
+  updateCouponService,
+  overrideMenuItemService,
+  overrideOperatingHourService,
+  getKpisService,
+  getFinanceReportsService,
+  getHeatmapService,
 } from './admin.service.ts';
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const { search, role, status } = req.query;
+  const { search, role, status, limit, page } = req.query;
 
   const result = await getAllUsersService({
     search: search as string | undefined,
     role: role as string | undefined,
     status: status as UserStatus | undefined,
+    limit: limit ? parseInt(limit as string) : 20,
+    page: page ? parseInt(page as string) : 1,
   });
 
   res.status(200).json({
@@ -65,6 +81,27 @@ const updateUserRoleStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status, reason } = req.body;
+  const adminUserId = req.user?.id as string;
+
+  const result = await updateUserStatusService(
+    {
+      userId: id,
+      status,
+      reason,
+    },
+    adminUserId
+  );
+
+  res.status(200).json({
+    success: true,
+    message: 'User account status updated successfully',
+    data: result,
+  });
+});
+
 const getPendingRestaurants = catchAsync(
   async (req: Request, res: Response) => {
     const result = await getPendingRestaurantsService();
@@ -91,13 +128,14 @@ const getAllRestaurants = catchAsync(async (req: Request, res: Response) => {
 const updateRestaurantStatus = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, reason } = req.body;
 
     const adminUserId = req.user?.id as string;
 
     const result = await updateRestaurantStatusService({
       restaurantId: id as string,
       status,
+      reason,
       adminUserId,
     });
 
@@ -105,6 +143,28 @@ const updateRestaurantStatus = catchAsync(
       success: true,
       message: 'Restaurant status updated successfully',
       data: result,
+    });
+  }
+);
+
+const updateRestaurantDocumentStatus = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id, docId } = req.params;
+    const { status, remark } = req.body;
+    const adminUserId = req.user?.id as string;
+
+    const result = await updateRestaurantDocumentStatusService({
+      restaurantId: id,
+      documentId: docId,
+      status,
+      remark,
+      adminUserId
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Restaurant document status updated successfully',
+      data: result
     });
   }
 );
@@ -134,13 +194,15 @@ const getAllSystemConfigs = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateSystemConfig = catchAsync(async (req: Request, res: Response) => {
-  const { key, value } = req.body;
+  const { key, value, newKey, description } = req.body;
   const adminUserId = req.user?.id;
 
   const updatedConfig = await updateSystemConfigService(
     key,
     value,
-    BigInt(adminUserId as string)
+    BigInt(adminUserId as string),
+    newKey,
+    description
   );
 
   if (!updatedConfig) {
@@ -206,6 +268,104 @@ const getAuditLogs = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSupportTickets = catchAsync(async (req: Request, res: Response) => {
+  const { status } = req.query;
+  const result = await getSupportTicketsService(status as string | undefined);
+  res.status(200).json({ success: true, message: 'Tickets fetched', data: result });
+});
+
+const respondToSupportTicket = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { message } = req.body;
+  const adminUserId = req.user?.id as string;
+  const result = await respondToSupportTicketService(id, message, adminUserId);
+  res.status(200).json({ success: true, message: 'Responded to ticket', data: result });
+});
+
+const resolveSupportTicket = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { resolutionMessage } = req.body;
+  const adminUserId = req.user?.id as string;
+  const result = await resolveSupportTicketService(id, resolutionMessage, adminUserId);
+  res.status(200).json({ success: true, message: 'Ticket resolved', data: result });
+});
+
+const triggerDisputeRefund = catchAsync(async (req: Request, res: Response) => {
+  const { orderId, amount, reason } = req.body;
+  const adminUserId = req.user?.id as string;
+  const result = await triggerDisputeRefundService(orderId, amount, reason, adminUserId);
+  res.status(200).json({ success: true, message: 'Dispute refund triggered', data: result });
+});
+
+const getCoupons = catchAsync(async (req: Request, res: Response) => {
+  const result = await getCouponsService();
+  res.status(200).json({ success: true, data: result });
+});
+
+const createCoupon = catchAsync(async (req: Request, res: Response) => {
+  const adminUserId = req.user?.id as string;
+  const data = req.body;
+  if (data.couponType === 'FIXED_AMOUNT') {
+    data.couponType = 'FLAT';
+  }
+  const result = await createCouponService(data, adminUserId);
+  res.status(201).json({ success: true, message: 'Coupon created', data: result });
+});
+
+const updateCoupon = catchAsync(async (req: Request, res: Response) => {
+  const adminUserId = req.user?.id as string;
+  const { id } = req.params;
+  const data = req.body;
+  if (data.couponType === 'FIXED_AMOUNT') {
+    data.couponType = 'FLAT';
+  }
+  const result = await updateCouponService(id, data, adminUserId);
+  res.status(200).json({ success: true, message: 'Coupon updated', data: result });
+});
+
+const overrideMenuItem = catchAsync(async (req: Request, res: Response) => {
+  const adminUserId = req.user?.id as string;
+  const { id } = req.params;
+  const { isAvailable } = req.body;
+  const result = await overrideMenuItemService(id, isAvailable, adminUserId);
+  res.status(200).json({ success: true, message: 'Menu item overridden', data: result });
+});
+
+const overrideOperatingHour = catchAsync(async (req: Request, res: Response) => {
+  const adminUserId = req.user?.id as string;
+  const { id } = req.params;
+  const { isClosed } = req.body;
+  const result = await overrideOperatingHourService(id, isClosed, adminUserId);
+  res.status(200).json({ success: true, message: 'Operating hour overridden', data: result });
+});
+
+const getKpis = catchAsync(async (req: Request, res: Response) => {
+  const { startDate, endDate } = req.query;
+  const result = await getKpisService(
+    startDate ? new Date(startDate as string) : undefined,
+    endDate ? new Date(endDate as string) : undefined
+  );
+  res.status(200).json({ success: true, data: result });
+});
+
+const getFinanceReports = catchAsync(async (req: Request, res: Response) => {
+  const { startDate, endDate } = req.query;
+  const result = await getFinanceReportsService(
+    startDate ? new Date(startDate as string) : undefined,
+    endDate ? new Date(endDate as string) : undefined
+  );
+  res.status(200).json({ success: true, data: result });
+});
+
+const getHeatmap = catchAsync(async (req: Request, res: Response) => {
+  const { startDate, endDate } = req.query;
+  const result = await getHeatmapService(
+    startDate ? new Date(startDate as string) : undefined,
+    endDate ? new Date(endDate as string) : undefined
+  );
+  res.status(200).json({ success: true, data: result });
+});
+
 export {
   getAllUsers,
   getAdminOrders,
@@ -213,10 +373,24 @@ export {
   getAllRestaurants,
   getUserById,
   updateRestaurantStatus,
+  updateRestaurantDocumentStatus,
   updateUserRoleStatus,
+  updateUserStatus,
   getAllSystemConfigs,
   updateSystemConfig,
   createSystemConfig,
   deleteSystemConfig,
   getAuditLogs,
+  getSupportTickets,
+  respondToSupportTicket,
+  resolveSupportTicket,
+  triggerDisputeRefund,
+  getCoupons,
+  createCoupon,
+  updateCoupon,
+  overrideMenuItem,
+  overrideOperatingHour,
+  getKpis,
+  getFinanceReports,
+  getHeatmap,
 };

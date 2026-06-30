@@ -107,19 +107,28 @@ async function updateProfileRepo(id: bigint, data: IupdateProfilePayload) {
 }
 
 async function updateStatusRepo(userId: bigint, isOnline: boolean) {
-  const deliveryPartner = await prisma.deliveryPartner.update({
-    where: {
-      userId: userId,
-    },
-    data: {
-      isOnline: isOnline,
-    },
-    select: {
-      isOnline: true,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const deliveryPartner = await tx.deliveryPartner.update({
+      where: {
+        userId: userId,
+      },
+      data: {
+        isOnline: isOnline,
+      },
+      select: {
+        isOnline: true,
+      },
+    });
 
-  return deliveryPartner;
+    await tx.partnerStatusLog.create({
+      data: {
+        partnerUserId: userId,
+        status: isOnline ? 'ONLINE' : 'OFFLINE',
+      },
+    });
+
+    return deliveryPartner;
+  });
 }
 
 async function uploadDocumentRepo(
@@ -162,6 +171,14 @@ async function getAllAssignmentsRepo(
 
   const assignments = await prisma.deliveryAssignment.findMany({
     where: whereClause,
+    include: {
+      order: {
+        include: {
+          branch: true,
+          address: true
+        }
+      }
+    },
     orderBy: {
       id: 'desc',
     },
@@ -169,17 +186,47 @@ async function getAllAssignmentsRepo(
 
   if (!assignments.length) return [];
 
-  return assignments.map((assignment) => ({
-    ...assignment,
-    id: assignment.id.toString(),
-    orderId: assignment.orderId.toString(),
-    partnerUserId: assignment.partnerUserId
-      ? assignment.partnerUserId.toString()
-      : null,
-    assignedByUserId: assignment.assignedByUserId
-      ? assignment.assignedByUserId.toString()
-      : null,
-  }));
+  return assignments.map((assignment: any) => {
+    let restaurantLoc = null;
+    let customerLoc = null;
+    
+    if (assignment.order?.branch) {
+      restaurantLoc = {
+        name: assignment.order.branch.name || assignment.order.branch.branchName,
+        address: assignment.order.branch.addressLine1,
+        lat: assignment.order.branch.latitude,
+        lng: assignment.order.branch.longitude
+      };
+    }
+    if (assignment.order?.address) {
+      customerLoc = {
+        address: assignment.order.address.addressLine1,
+        lat: assignment.order.address.latitude,
+        lng: assignment.order.address.longitude
+      };
+    }
+
+    let computedStatus = assignment.status;
+    if (assignment.status === 'ACCEPTED' && assignment.order) {
+      if (assignment.order.orderStatus === 'PICKED_UP') {
+        computedStatus = 'PICKED_UP';
+      } else if (assignment.order.orderStatus === 'OUT_FOR_DELIVERY') {
+        computedStatus = 'OUT_FOR_DELIVERY';
+      }
+    }
+
+    return {
+      ...assignment,
+      status: computedStatus,
+      id: assignment.id.toString(),
+      orderId: assignment.orderId.toString(),
+      partnerUserId: assignment.partnerUserId ? assignment.partnerUserId.toString() : null,
+      assignedByUserId: assignment.assignedByUserId ? assignment.assignedByUserId.toString() : null,
+      order: undefined, // remove full order to avoid bigint issues if unhandled
+      restaurant: restaurantLoc,
+      customer: customerLoc,
+    };
+  });
 }
 
 async function getAssignmentByIdRepo(assignmentId: bigint) {
@@ -208,54 +255,77 @@ async function acceptAssignmentRepo(
   assignmentId: bigint,
   partnerUserId: bigint
 ) {
-  const assignment = await prisma.deliveryAssignment.update({
-    where: {
-      id: assignmentId,
-    },
-    data: {
-      status: 'ACCEPTED',
-      partnerUserId: partnerUserId,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const assignment = await tx.deliveryAssignment.update({
+      where: {
+        id: assignmentId,
+      },
+      data: {
+        status: 'ACCEPTED',
+        partnerUserId: partnerUserId,
+        acceptedAt: new Date(),
+      },
+    });
 
-  return {
-    ...assignment,
-    id: assignment.id.toString(),
-    orderId: assignment.orderId.toString(),
-    partnerUserId: assignment.partnerUserId
-      ? assignment.partnerUserId.toString()
-      : null,
-    assignedByUserId: assignment.assignedByUserId
-      ? assignment.assignedByUserId.toString()
-      : null,
-  };
+    await tx.deliveryEvent.create({
+      data: {
+        orderId: assignment.orderId,
+        partnerUserId: partnerUserId,
+        eventType: 'ASSIGNMENT_ACCEPTED',
+        eventData: { assignmentId: assignmentId.toString() },
+      },
+    });
+
+    return {
+      ...assignment,
+      id: assignment.id.toString(),
+      orderId: assignment.orderId.toString(),
+      partnerUserId: assignment.partnerUserId
+        ? assignment.partnerUserId.toString()
+        : null,
+      assignedByUserId: assignment.assignedByUserId
+        ? assignment.assignedByUserId.toString()
+        : null,
+    };
+  });
 }
 
 async function declineAssignmentRepo(
   assignmentId: bigint,
   partnerUserId: bigint
 ) {
-  const assignment = await prisma.deliveryAssignment.update({
-    where: {
-      id: assignmentId,
-    },
-    data: {
-      status: 'DECLINED',
-      partnerUserId: partnerUserId,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const assignment = await tx.deliveryAssignment.update({
+      where: {
+        id: assignmentId,
+      },
+      data: {
+        status: 'DECLINED',
+        partnerUserId: partnerUserId,
+      },
+    });
 
-  return {
-    ...assignment,
-    id: assignment.id.toString(),
-    orderId: assignment.orderId.toString(),
-    partnerUserId: assignment.partnerUserId
-      ? assignment.partnerUserId.toString()
-      : null,
-    assignedByUserId: assignment.assignedByUserId
-      ? assignment.assignedByUserId.toString()
-      : null,
-  };
+    await tx.deliveryEvent.create({
+      data: {
+        orderId: assignment.orderId,
+        partnerUserId: partnerUserId,
+        eventType: 'ASSIGNMENT_DECLINED',
+        eventData: { assignmentId: assignmentId.toString() },
+      },
+    });
+
+    return {
+      ...assignment,
+      id: assignment.id.toString(),
+      orderId: assignment.orderId.toString(),
+      partnerUserId: assignment.partnerUserId
+        ? assignment.partnerUserId.toString()
+        : null,
+      assignedByUserId: assignment.assignedByUserId
+        ? assignment.assignedByUserId.toString()
+        : null,
+    };
+  });
 }
 
 async function getDeliveryPartnerByIdRepo(partnerId: bigint) {
@@ -296,6 +366,7 @@ async function getAllDeliveryPartnersRepo() {
           },
           take: 1,
         },
+        documents: true,
       },
     }),
     prisma.deliveryPartner.count(),
@@ -352,6 +423,8 @@ async function getEarningsRepo(partnerUserId: bigint, startDate: Date) {
     },
     _sum: {
       baseEarning: true,
+      distanceBonus: true,
+      tipAmount: true,
       incentiveAmount: true,
       totalEarning: true,
     },
@@ -363,6 +436,8 @@ async function getEarningsRepo(partnerUserId: bigint, startDate: Date) {
   return {
     totalDeliveries: aggregations._count.id,
     baseEarning: aggregations._sum.baseEarning?.toNumber() || 0,
+    distanceBonus: aggregations._sum.distanceBonus?.toNumber() || 0,
+    tipAmount: aggregations._sum.tipAmount?.toNumber() || 0,
     incentiveAmount: aggregations._sum.incentiveAmount?.toNumber() || 0,
     totalEarning: aggregations._sum.totalEarning?.toNumber() || 0,
   };
@@ -384,6 +459,8 @@ async function getEarningsHistoryRepo(
     id: earning.id.toString(),
     orderId: earning.orderId.toString(),
     baseEarning: earning.baseEarning.toNumber(),
+    distanceBonus: earning.distanceBonus.toNumber(),
+    tipAmount: earning.tipAmount.toNumber(),
     incentiveAmount: earning.incentiveAmount.toNumber(),
     totalEarning: earning.totalEarning.toNumber(),
     status: earning.status,

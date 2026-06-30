@@ -1,208 +1,571 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Details | ofos</title>
+  <title>Order Details | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
+
 <body class="min-h-screen bg-orange-50">
-<div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen">
-<nav class="bg-white border-b border-orange-100 shadow-sm sticky top-0 z-40">
-  <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <button onclick="toggleSidebar()" class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <a href="/" class="text-3xl font-extrabold text-orange-500 lg:hidden">ofos</a>
-    </div>
-    <a href="/c/orders" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">← My Orders</a>
-  </div>
-</nav>
-
-<div class="max-w-4xl mx-auto px-4 py-8">
-  <div id="loading" class="text-center py-24">
-    <div class="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-    <p class="text-gray-500">Loading order…</p>
-  </div>
-
-  <div id="orderDetail" class="hidden space-y-5">
-
-    <!-- Header -->
-    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
-      <div class="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-800">Order <span id="orderNum" class="text-orange-500">—</span></h1>
-          <p class="text-sm text-gray-400 mt-1" id="orderDate">—</p>
+  <div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen">
+    <nav class="bg-white border-b border-orange-100 shadow-sm sticky top-0 z-40">
+      <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="flex flex-wrap items-center gap-3">
+          <button onclick="toggleSidebar()"
+            class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <a href="/" class="text-3xl font-extrabold text-orange-500 lg:hidden">epicure</a>
         </div>
-        <div class="text-right">
-          <div id="orderStatusBadge" class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold">—</div>
-          <p class="text-xs text-gray-400 mt-1.5">Payment: <span id="paymentStatus" class="font-semibold">—</span></p>
+        <a href="/c/orders" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">← My Orders</a>
+      </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      <div id="loading" class="text-center py-24">
+        <div class="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4">
+        </div>
+        <p class="text-gray-500">Loading order…</p>
+      </div>
+
+      <div id="orderDetail" class="hidden space-y-5">
+
+        <!-- Header -->
+        <div class="bg-white rounded-2xl p-4 sm:p-6 border border-orange-100 shadow-sm">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 class="text-2xl font-bold text-gray-800">Order <span id="orderNum" class="text-orange-500">—</span>
+              </h1>
+              <p class="text-sm text-gray-400 mt-1" id="orderDate">—</p>
+            </div>
+            <div class="text-right">
+              <div id="orderStatusBadge" class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold">—
+              </div>
+              <p class="text-xs text-gray-400 mt-1.5">Payment: <span id="paymentStatus" class="font-semibold">—</span></p>
+              <p id="refundStatusContainer" class="hidden text-xs text-gray-400 mt-1">Refund: <span id="refundStatus" class="font-semibold">—</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div id="timelineSection" class="bg-white rounded-2xl p-4 sm:p-6 border border-orange-100 shadow-sm">
+          <h2 class="font-bold text-gray-800 mb-5">Order Progress</h2>
+          <div id="timeline" class="relative space-y-4"></div>
+        </div>
+
+        <!-- Items -->
+        <div class="bg-white rounded-2xl p-4 sm:p-6 border border-orange-100 shadow-sm">
+          <h2 class="font-bold text-gray-800 mb-4">Items Ordered</h2>
+          <div id="itemsList" class="divide-y divide-gray-50"></div>
+        </div>
+
+        <!-- Price Breakdown -->
+        <div class="bg-white rounded-2xl p-4 sm:p-6 border border-orange-100 shadow-sm">
+          <h2 class="font-bold text-gray-800 mb-4">Price Breakdown</h2>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between text-gray-600"><span>Subtotal</span><span id="detSubtotal">—</span></div>
+            <div class="flex justify-between text-gray-600"><span>Delivery Fee</span><span id="detDelivery">—</span>
+            </div>
+            <div class="flex justify-between text-gray-600"><span>Tax</span><span id="detTax">—</span></div>
+            <div id="detDiscountRow" class="hidden flex justify-between text-green-600 font-medium">
+              <span>Discount</span><span id="detDiscount">—</span>
+            </div>
+            <div class="border-t border-gray-100 pt-2 flex justify-between font-bold text-gray-800 text-base">
+              <span>Total</span><span id="detTotal">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivery Address -->
+        <div class="bg-white rounded-2xl p-4 sm:p-6 border border-orange-100 shadow-sm">
+          <h2 class="font-bold text-gray-800 mb-3">Delivery Address</h2>
+          <p id="deliveryAddress" class="text-gray-600 text-sm leading-relaxed">—</p>
+        </div>
+
+        <!-- Actions -->
+        <div id="actionsSection" class="flex gap-3"></div>
+
+      </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div id="invoiceModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm overflow-y-auto p-4">
+      <div class="min-h-screen px-4 text-center flex items-center justify-center">
+        <div class="fixed inset-0 transition-opacity p-4" onclick="closeInvoice()"></div>
+        <div
+          class="relative bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-2xl my-8">
+          <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-100 bg-gray-50/50 print:hidden">
+            <h3 class="text-xl font-bold text-gray-900">Tax Invoice</h3>
+            <div class="flex gap-2">
+              <button onclick="downloadInvoicePDF()" class="px-4 py-2 bg-blue-50 text-blue-600 font-bold rounded-xl hover:bg-blue-100 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                PDF
+              </button>
+              <button onclick="window.print()"
+                class="px-4 py-2 bg-orange-50 text-orange-600 font-bold rounded-xl hover:bg-orange-100 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Print
+              </button>
+              <button onclick="closeInvoice()"
+                class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="invoiceContent" class="p-5 sm:p-8 bg-white print:p-0">
+            <!-- Rendered via JS -->
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Timeline -->
-    <div id="timelineSection" class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
-      <h2 class="font-bold text-gray-800 mb-5">Order Progress</h2>
-      <div id="timeline" class="relative space-y-4"></div>
-    </div>
-
-    <!-- Items -->
-    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
-      <h2 class="font-bold text-gray-800 mb-4">Items Ordered</h2>
-      <div id="itemsList" class="divide-y divide-gray-50"></div>
-    </div>
-
-    <!-- Price Breakdown -->
-    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
-      <h2 class="font-bold text-gray-800 mb-4">Price Breakdown</h2>
-      <div class="space-y-2 text-sm">
-        <div class="flex justify-between text-gray-600"><span>Subtotal</span><span id="detSubtotal">—</span></div>
-        <div class="flex justify-between text-gray-600"><span>Delivery Fee</span><span id="detDelivery">—</span></div>
-        <div class="flex justify-between text-gray-600"><span>Tax</span><span id="detTax">—</span></div>
-        <div id="detDiscountRow" class="hidden flex justify-between text-green-600 font-medium"><span>Discount</span><span id="detDiscount">—</span></div>
-        <div class="border-t border-gray-100 pt-2 flex justify-between font-bold text-gray-800 text-base"><span>Total</span><span id="detTotal">—</span></div>
+    <!-- Dispute Modal -->
+    <div id="disputeModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm overflow-y-auto p-4">
+      <div class="min-h-screen px-4 text-center flex items-center justify-center">
+        <div class="fixed inset-0 transition-opacity p-4" onclick="closeDisputeModal()"></div>
+        <div class="relative bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-md my-8">
+          <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-xl font-bold text-gray-900">Raise Dispute</h3>
+            <button onclick="closeDisputeModal()" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div class="p-4 sm:p-6">
+            <div class="mb-4">
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Issue Category</label>
+              <select id="disputeCategory" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:border-orange-500 focus:ring-orange-500 outline-none">
+                <option value="MISSING_ITEM">Missing Item</option>
+                <option value="WRONG_ITEM">Wrong Item</option>
+                <option value="POOR_QUALITY">Poor Quality</option>
+                <option value="LATE_DELIVERY">Late Delivery</option>
+                <option value="REFUND_REQUEST">Refund Request</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+            <div class="mb-6">
+              <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+              <textarea id="disputeDescription" rows="4" class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:border-orange-500 focus:ring-orange-500 outline-none" placeholder="Please describe the issue in detail..."></textarea>
+            </div>
+            <button id="disputeSubmitBtn" onclick="submitDispute()" class="w-full bg-orange-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-orange-600 transition-colors">Submit Dispute</button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Delivery Address -->
-    <div class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm">
-      <h2 class="font-bold text-gray-800 mb-3">Delivery Address</h2>
-      <p id="deliveryAddress" class="text-gray-600 text-sm leading-relaxed">—</p>
-    </div>
+    <style>
+      @media print {
+        body * {
+          visibility: hidden;
+        }
 
-    <!-- Actions -->
-    <div id="actionsSection" class="flex gap-3"></div>
+        #invoiceContent,
+        #invoiceContent * {
+          visibility: visible;
+        }
 
-  </div>
-</div>
+        #invoiceContent {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          margin: 0;
+          padding: 20px;
+        }
+      }
 
-<style>
-  .status-badge { display: inline-flex; align-items: center; padding: 4px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; }
-  .status-PENDING { background: #FEF3C7; color: #92400E; }
-  .status-ACCEPTED { background: #DBEAFE; color: #1E40AF; }
-  .status-PREPARING { background: #E0E7FF; color: #3730A3; }
-  .status-OUT_FOR_DELIVERY { background: #D1FAE5; color: #065F46; }
-  .status-DELIVERED { background: #D1FAE5; color: #065F46; }
-  .status-CANCELLED { background: #FEE2E2; color: #991B1B; }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
 
-  .timeline-step { display: flex; gap: 12px; position: relative; }
-  .timeline-step:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 28px; bottom: -16px; width: 2px; background: #E5E7EB; }
-  .timeline-step.done::before { background: #F97316; }
-  .timeline-dot { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-  .timeline-dot.done { background: #F97316; }
-  .timeline-dot.active { background: #F97316; box-shadow: 0 0 0 4px rgba(249,115,22,0.2); }
-  .timeline-dot.pending { background: #E5E7EB; }
-</style>
+      .status-PENDING {
+        background: #FEF3C7;
+        color: #92400E;
+      }
 
-<script>
-  const token = localStorage.getItem('token');
-  const authH = () => ({ 'Authorization': `Bearer ${token}` });
-  const orderId = window.location.pathname.split('/').pop();
+      .status-ACCEPTED {
+        background: #DBEAFE;
+        color: #1E40AF;
+      }
 
-  const ORDER_STEPS = ['PENDING','ACCEPTED','PREPARING','OUT_FOR_DELIVERY','DELIVERED'];
-  const STEP_LABELS = { PENDING: 'Order Placed', ACCEPTED: 'Accepted by Restaurant', PREPARING: 'Being Prepared', OUT_FOR_DELIVERY: 'Out for Delivery', DELIVERED: 'Delivered', CANCELLED: 'Cancelled' };
+      .status-PREPARING {
+        background: #E0E7FF;
+        color: #3730A3;
+      }
 
-  async function loadOrder() {
-    try {
-      const res = await fetch(`/orders/${orderId}`, { headers: authH() });
-      const data = await res.json();
-      document.getElementById('loading').classList.add('hidden');
-      if (!res.ok || !data.data) return;
-      renderOrder(data.data);
-    } catch {
-      document.getElementById('loading').classList.add('hidden');
-    }
-  }
+      .status-OUT_FOR_DELIVERY {
+        background: #D1FAE5;
+        color: #065F46;
+      }
 
-  function renderOrder(order) {
-    document.getElementById('orderDetail').classList.remove('hidden');
+      .status-DELIVERED {
+        background: #D1FAE5;
+        color: #065F46;
+      }
 
-    const status = order.orderStatus || 'PENDING';
-    const date = new Date(order.createdAt || Date.now()).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+      .status-CANCELLED {
+        background: #FEE2E2;
+        color: #991B1B;
+      }
 
-    document.getElementById('orderNum').textContent = `#${order.orderNumber || order.id}`;
-    document.getElementById('orderDate').textContent = date;
+      .timeline-step {
+        display: flex;
+        gap: 12px;
+        position: relative;
+      }
 
-    const badge = document.getElementById('orderStatusBadge');
-    badge.className = `status-badge status-${status}`;
-    badge.textContent = status.replace(/_/g, ' ');
-    document.getElementById('paymentStatus').textContent = (order.paymentStatus || '—').replace(/_/g, ' ');
+      .timeline-step:not(:last-child)::before {
+        content: '';
+        position: absolute;
+        left: 11px;
+        top: 28px;
+        bottom: -16px;
+        width: 2px;
+        background: #E5E7EB;
+      }
 
-    // Timeline
-    const timeline = document.getElementById('timeline');
-    timeline.innerHTML = '';
-    if (status === 'CANCELLED') {
-      const step = document.createElement('div');
-      step.className = 'timeline-step';
-      step.innerHTML = `<div class="timeline-dot" style="background:#EF4444;"><svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></div>
+      .timeline-step.done::before {
+        background: #F97316;
+      }
+
+      .timeline-dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .timeline-dot.done {
+        background: #F97316;
+      }
+
+      .timeline-dot.active {
+        background: #F97316;
+        box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
+      }
+
+      .timeline-dot.pending {
+        background: #E5E7EB;
+      }
+    </style>
+
+    <script>
+      const orderId = window.location.pathname.split('/').pop();
+
+      const ORDER_STEPS = ['PLACED', 'ACCEPTED', 'PREPARING', 'OUT_FOR_DELIVERY', 'DELIVERED'];
+      const STEP_LABELS = { PLACED: 'Order Placed', ACCEPTED: 'Accepted by Restaurant', PREPARING: 'Being Prepared', OUT_FOR_DELIVERY: 'Out for Delivery', DELIVERED: 'Delivered', CANCELLED: 'Cancelled' };
+
+      async function loadOrder() {
+        try {
+          const res = await fetch(`/orders/${orderId}`,);
+          const data = await res.json();
+          document.getElementById('loading').classList.add('hidden');
+          if (!res.ok || !data.data) return;
+          renderOrder(data.data);
+        } catch {
+          document.getElementById('loading').classList.add('hidden');
+        }
+      }
+
+      function renderOrder(order) {
+        document.getElementById('orderDetail').classList.remove('hidden');
+
+        const status = order.orderStatus || 'PLACED';
+        const date = new Date(order.createdAt || Date.now()).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+
+        document.getElementById('orderNum').textContent = `#${order.orderNumber || order.id}`;
+        document.getElementById('orderDate').textContent = date;
+
+        const badge = document.getElementById('orderStatusBadge');
+        badge.className = `status-badge status-${status}`;
+        badge.textContent = status.replace(/_/g, ' ');
+        document.getElementById('paymentStatus').textContent = (order.paymentStatus || '—').replace(/_/g, ' ');
+
+        // Refund Status
+        if (order.refunds && order.refunds.length > 0) {
+          const latestRefund = order.refunds[order.refunds.length - 1];
+          const refundText = latestRefund.status === 'COMPLETED' ? 'Credited' : latestRefund.status.charAt(0).toUpperCase() + latestRefund.status.slice(1).toLowerCase();
+          document.getElementById('refundStatusContainer').classList.remove('hidden');
+          const rsBadge = document.getElementById('refundStatus');
+          rsBadge.textContent = refundText;
+          if (latestRefund.status === 'COMPLETED') {
+            rsBadge.className = 'font-bold text-green-600';
+          } else if (latestRefund.status === 'FAILED') {
+            rsBadge.className = 'font-bold text-red-600';
+          } else {
+            rsBadge.className = 'font-bold text-orange-500';
+          }
+        }
+
+        // Timeline
+        const timeline = document.getElementById('timeline');
+        timeline.innerHTML = '';
+        if (status === 'CANCELLED') {
+          const step = document.createElement('div');
+          step.className = 'timeline-step';
+          step.innerHTML = `<div class="timeline-dot" style="background:#EF4444;"><svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></div>
         <div class="pb-4"><p class="font-semibold text-sm text-red-600">Cancelled</p><p class="text-xs text-gray-400">${order.cancellationReason || 'Order was cancelled'}</p></div>`;
-      timeline.appendChild(step);
-    } else {
-      const currentIdx = ORDER_STEPS.indexOf(status);
-      ORDER_STEPS.forEach((s, i) => {
-        const done = i < currentIdx;
-        const active = i === currentIdx;
-        const step = document.createElement('div');
-        step.className = `timeline-step${done ? ' done' : ''}`;
-        step.innerHTML = `<div class="timeline-dot ${done ? 'done' : active ? 'active' : 'pending'}">
+          timeline.appendChild(step);
+        } else {
+          const currentIdx = ORDER_STEPS.indexOf(status);
+          ORDER_STEPS.forEach((s, i) => {
+            const done = i < currentIdx;
+            const active = i === currentIdx;
+            const step = document.createElement('div');
+            step.className = `timeline-step${done ? ' done' : ''}`;
+            step.innerHTML = `<div class="timeline-dot ${done ? 'done' : active ? 'active' : 'pending'}">
           ${done ? `<svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>` : active ? `<div class="w-2.5 h-2.5 bg-white rounded-full"></div>` : ''}
         </div>
         <div class="pb-4"><p class="font-semibold text-sm ${done ? 'text-orange-600' : active ? 'text-gray-800' : 'text-gray-400'}">${STEP_LABELS[s]}</p></div>`;
-        timeline.appendChild(step);
-      });
-    }
+            timeline.appendChild(step);
+          });
+        }
 
-    // Items
-    const itemsList = document.getElementById('itemsList');
-    itemsList.innerHTML = '';
-    (order.items || []).forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'flex justify-between items-center py-3';
-      div.innerHTML = `<div><p class="font-semibold text-gray-800 text-sm">${item.menuItem?.name || item.name || '—'}</p>
+        // Items
+        const itemsList = document.getElementById('itemsList');
+        itemsList.innerHTML = '';
+        (order.items || []).forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'flex justify-between items-center py-3';
+          div.innerHTML = `<div><p class="font-semibold text-gray-800 text-sm">${item.itemName || '—'}</p>
         <p class="text-xs text-gray-400">Qty: ${item.quantity}</p></div>
-        <p class="font-bold text-orange-500">₹${Number(item.subtotal || (item.unitPrice * item.quantity) || 0).toFixed(2)}</p>`;
-      itemsList.appendChild(div);
-    });
+        <p class="font-bold text-orange-500">₹${Number(item.lineTotal || (item.unitPrice * item.quantity) || 0).toFixed(2)}</p>`;
+          itemsList.appendChild(div);
+        });
 
-    // Prices
-    document.getElementById('detSubtotal').textContent = `₹${Number(order.subtotalAmount || 0).toFixed(2)}`;
-    document.getElementById('detDelivery').textContent = `₹${Number(order.deliveryFee || 0).toFixed(2)}`;
-    document.getElementById('detTax').textContent = `₹${Number(order.taxAmount || 0).toFixed(2)}`;
-    document.getElementById('detTotal').textContent = `₹${Number(order.totalAmount || 0).toFixed(2)}`;
-    if (order.discountAmount > 0) { document.getElementById('detDiscountRow').classList.remove('hidden'); document.getElementById('detDiscount').textContent = `-₹${Number(order.discountAmount).toFixed(2)}`; }
+        // Prices
+        document.getElementById('detSubtotal').textContent = `₹${Number(order.subtotalAmount || 0).toFixed(2)}`;
+        document.getElementById('detDelivery').textContent = `₹${Number(order.deliveryFee || 0).toFixed(2)}`;
+        document.getElementById('detTax').textContent = `₹${Number(order.taxAmount || 0).toFixed(2)}`;
+        document.getElementById('detTotal').textContent = `₹${Number(order.totalAmount || 0).toFixed(2)}`;
+        if (order.discountAmount > 0) { document.getElementById('detDiscountRow').classList.remove('hidden'); document.getElementById('detDiscount').textContent = `-₹${Number(order.discountAmount).toFixed(2)}`; }
 
-    // Address
-    const addr = order.deliveryAddress;
-    if (addr) {
-      document.getElementById('deliveryAddress').textContent = `${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}, ${addr.city}, ${addr.state} — ${addr.postalCode}`;
-    }
+        // Address
+        const addr = order.address;
+        if (addr) {
+          document.getElementById('deliveryAddress').textContent = `${addr.addressLine1}${addr.addressLine2 ? ', ' + addr.addressLine2 : ''}, ${addr.city}, ${addr.state} — ${addr.postalCode}`;
+        }
 
-    // Actions
-    const actions = document.getElementById('actionsSection');
-    if (status !== 'DELIVERED' && status !== 'CANCELLED') {
-      actions.innerHTML = `<a href="/c/tracking/${order.id}" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600 transition-colors">📍 Track Order</a>
-        ${status === 'PENDING' ? `<button onclick="cancelOrder()" class="flex-1 border border-red-200 text-red-500 py-3 rounded-xl font-semibold hover:bg-red-50 transition-colors">Cancel Order</button>` : ''}`;
-    } else if (status === 'DELIVERED') {
-      actions.innerHTML = `<a href="/" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600">Order Again</a>`;
-    }
-  }
+        // Actions
+        const actions = document.getElementById('actionsSection');
+        let actionsHtml = `<button onclick="openInvoice()" class="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors">📄 View Invoice</button>`;
 
-  async function cancelOrder() {
-    if (!confirm('Cancel this order?')) return;
-    try {
-      const res = await fetch(`/orders/${orderId}/cancel`, { method: 'PATCH', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'Customer requested cancellation' }) });
-      if (res.ok) { showToast('Order cancelled', 'success'); setTimeout(() => loadOrder(), 1000); }
-      else { const d = await res.json(); showToast(d.message || 'Cannot cancel', 'error'); }
-    } catch { showToast('Failed', 'error'); }
-  }
+        if (status !== 'DELIVERED' && status !== 'CANCELLED') {
+          actionsHtml += `<a href="/c/tracking/${order.id}" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600 transition-colors">📍 Track Order</a>`;
+          if (['PLACED', 'ACCEPTED', 'PREPARING'].includes(status)) {
+            actionsHtml += `<button onclick="cancelOrder('${status}')" class="flex-1 border border-red-200 text-red-500 py-3 rounded-xl font-semibold hover:bg-red-50 transition-colors">Cancel Order</button>`;
+          }
+        } else if (status === 'DELIVERED') {
+          actionsHtml += `<button onclick="reorderOrder()" class="flex-1 bg-orange-500 text-white py-3 rounded-xl font-bold text-center hover:bg-orange-600 transition-colors">Order Again</button>`;
+          actionsHtml += `<button onclick="openDisputeModal()" class="flex-1 border border-blue-200 text-blue-600 py-3 rounded-xl font-bold text-center hover:bg-blue-50 transition-colors">Raise Dispute</button>`;
+        } else if (status === 'CANCELLED') {
+          actionsHtml += `<button onclick="openDisputeModal()" class="flex-1 border border-blue-200 text-blue-600 py-3 rounded-xl font-bold text-center hover:bg-blue-50 transition-colors">Raise Dispute</button>`;
+        }
+        actions.innerHTML = actionsHtml;
 
-  if (!token) window.location.href = '/loginPage';
-  else loadOrder();
-</script>
-</div>
-<%- include('../partials/toast') %>
-<%- include('../partials/customer-sidebar') %>
+        buildInvoice(order, date);
+      }
+
+      function buildInvoice(order, formattedDate) {
+        const restName = order.restaurant?.businessName || order.restaurantBranch?.restaurant?.businessName || 'Restaurant';
+        const branchAddr = order.branch ? `${order.branch.city || ''}, ${order.branch.state || ''}` : '';
+        const orderNum = order.orderNumber || order.id;
+        const paymentStatus = (order.paymentStatus || 'PENDING').replace(/_/g, ' ');
+        const custAddr = order.address ? `${order.address.addressLine1}, ${order.address.city}, ${order.address.postalCode}` : 'N/A';
+
+        let itemsHtml = (order.items || []).map(item => `
+          <tr>
+            <td class="py-4 text-sm font-semibold text-gray-800">${item.itemName || 'Item'}</td>
+            <td class="py-4 text-sm text-center text-gray-600">${item.quantity}</td>
+            <td class="py-4 text-sm text-right text-gray-600">₹${Number(item.unitPrice).toFixed(2)}</td>
+            <td class="py-4 text-sm text-right font-bold text-gray-800">₹${Number(item.lineTotal || (item.unitPrice * item.quantity)).toFixed(2)}</td>
+          </tr>
+        `).join('');
+
+        document.getElementById('invoiceContent').innerHTML = `
+          <div class="text-center mb-8">
+            <h1 class="text-3xl font-black text-gray-900 mb-2">${restName}</h1>
+            <p class="text-gray-500 text-sm">${branchAddr}</p>
+            <p class="text-gray-500 text-sm font-mono mt-1">GSTIN: 22AAAAA0000A1Z5</p>
+          </div>
+
+          <div class="flex justify-between items-start mb-8 pb-8 border-b border-gray-100">
+            <div class="text-left">
+              <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Billed To</p>
+              <p class="text-sm text-gray-600 max-w-[200px]">${custAddr}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Invoice Details</p>
+              <p class="font-bold text-gray-800 font-mono">#${orderNum}</p>
+              <p class="text-sm text-gray-600">${formattedDate}</p>
+              <p class="text-xs font-bold text-green-600 mt-1 bg-green-50 inline-block px-2 py-0.5 rounded">${paymentStatus}</p>
+            </div>
+          </div>
+
+          <table class="w-full mb-8">
+            <thead>
+              <tr class="border-b-2 border-gray-100">
+                <th class="text-left py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Item</th>
+                <th class="text-center py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Qty</th>
+                <th class="text-right py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Price</th>
+                <th class="text-right py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <div class="flex justify-end pt-6 border-t-2 border-gray-100">
+            <div class="w-64 space-y-3 text-sm">
+              <div class="flex justify-between text-gray-600"><span>Subtotal</span><span>₹${Number(order.subtotalAmount || 0).toFixed(2)}</span></div>
+              <div class="flex justify-between text-gray-600"><span>Delivery Fee</span><span>₹${Number(order.deliveryFee || 0).toFixed(2)}</span></div>
+              <div class="flex justify-between text-gray-600"><span>Taxes</span><span>₹${Number(order.taxAmount || 0).toFixed(2)}</span></div>
+              ${order.discountAmount > 0 ? `<div class="flex justify-between text-green-600 font-medium"><span>Discount</span><span>-₹${Number(order.discountAmount).toFixed(2)}</span></div>` : ''}
+              <div class="flex justify-between font-black text-xl text-gray-900 pt-3 border-t border-gray-100">
+                <span>Total</span><span>₹${Number(order.totalAmount || 0).toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function openInvoice() {
+        document.getElementById('invoiceModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeInvoice() {
+        document.getElementById('invoiceModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+
+      function downloadInvoicePDF() {
+        const element = document.getElementById('invoiceContent');
+        const opt = {
+          margin: 0,
+          filename: `Invoice-${orderId}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+      }
+
+      async function reorderOrder(forceClear = false) {
+        try {
+          const res = await fetch(`/orders/${orderId}/reorder`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ forceClear })
+          });
+          const data = await res.json();
+          
+          if (!res.ok) {
+            showToast(data.message || 'Failed to reorder', 'error');
+            return;
+          }
+
+          if (data.requireConfirmation) {
+            if (confirm(data.message)) {
+              return reorderOrder(true);
+            }
+            return;
+          }
+
+          if (data.success) {
+            if (data.unavailableItems && data.unavailableItems.length > 0) {
+              alert(`Added to cart! The following items are no longer available and were skipped:\n- ${data.unavailableItems.join('\\n- ')}`);
+            } else {
+              showToast('Items added to cart successfully!', 'success');
+            }
+            setTimeout(() => {
+              window.location.href = '/c/cart';
+            }, 1000);
+          }
+        } catch {
+          showToast('Failed to reorder', 'error');
+        }
+      }
+
+      async function cancelOrder(currentStatus) {
+        let msg = 'Cancel this order? You will receive a full refund.';
+        if (currentStatus === 'ACCEPTED') msg = 'Cancel this order? A 50% penalty will be applied to your refund because the restaurant has already accepted it.';
+        if (currentStatus === 'PREPARING') msg = 'Cancel this order? No refund will be issued because the food is already being prepared.';
+        
+        if (!confirm(msg)) return;
+        try {
+          const res = await fetch(`/orders/${orderId}/cancel`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason: 'Customer requested cancellation' }) });
+          if (res.ok) { showToast('Order cancelled', 'success'); setTimeout(() => loadOrder(), 1000); }
+          else { const d = await res.json(); showToast(d.message || 'Cannot cancel', 'error'); }
+        } catch { showToast('Failed', 'error'); }
+      }
+
+      function openDisputeModal() {
+        document.getElementById('disputeModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('disputeCategory').value = 'MISSING_ITEM';
+        document.getElementById('disputeDescription').value = '';
+      }
+
+      function closeDisputeModal() {
+        document.getElementById('disputeModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+
+      async function submitDispute() {
+        const cat = document.getElementById('disputeCategory').value;
+        const desc = document.getElementById('disputeDescription').value;
+        if(!desc.trim()) return showToast('Please provide a description.', 'warning');
+        
+        const btn = document.getElementById('disputeSubmitBtn');
+        const txt = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        try {
+          const res = await fetch(`/orders/${orderId}/dispute`, {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ category: cat, description: desc })
+          });
+          const data = await res.json();
+          if(res.ok && data.success) {
+             showToast('Dispute submitted successfully', 'success');
+             closeDisputeModal();
+          } else {
+             showToast(data.message || 'Failed to submit dispute', 'error');
+          }
+        } catch(e) {
+          showToast('Error submitting dispute', 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = txt;
+        }
+      }
+
+      loadOrder();
+    </script>
+  </div>
+  <%- include('../partials/toast') %>
+    <%- include('../partials/customer-sidebar') %>
 </body>
+
 </html>

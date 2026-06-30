@@ -2,6 +2,7 @@ import {
   CreateMenuCategoryDto,
   ReorderMenuCategoryDto,
   UpdateMenuCategoryDto,
+  UpdateMenuCategoryAvailabilityDto,
 } from './menuCategory.dto.ts';
 
 import {
@@ -13,6 +14,7 @@ import {
   getMenuCategoryList,
   reorderMenuCategories,
   updateMenuCategory,
+  updateMenuCategoryAvailability,
 } from './menuCategory.repository.ts';
 
 import { IMenuCategoryResponse } from './menuCategory.interface.ts';
@@ -145,6 +147,30 @@ async function updateMenuCategoryService(
   };
 }
 
+async function updateMenuCategoryAvailabilityService(
+  branchId: string,
+  categoryId: string,
+  data: UpdateMenuCategoryAvailabilityDto
+): Promise<IMenuCategoryResponse> {
+  const branch = await findBranchById(BigInt(branchId));
+  if (!branch) throw new Error('Branch not found');
+
+  const category = await getMenuCategoryById(BigInt(categoryId));
+  if (!category || category.branchId !== BigInt(branchId)) {
+    throw new Error('Category not found');
+  }
+
+  const updated = await updateMenuCategoryAvailability({
+    id: BigInt(categoryId),
+    isActive: data.isActive,
+  });
+
+  return {
+    message: 'Menu category availability updated successfully',
+    data: updated,
+  };
+}
+
 async function deleteMenuCategoryService(
   branchId: string,
   categoryId: string
@@ -249,10 +275,48 @@ async function reorderMenuCategoryService(
   };
 }
 
+async function duplicateMenuCategoryService(
+  branchId: string,
+  categoryId: string
+): Promise<IMenuCategoryResponse> {
+  const branch = await findBranchById(BigInt(branchId));
+  if (!branch) {
+    throw new Error('Branch not found');
+  }
+
+  const category = await getMenuCategoryById(BigInt(categoryId));
+  if (!category || category.branchId !== BigInt(branchId)) {
+    throw new Error('Category not found');
+  }
+
+  let copyName = `${category.name} - Copy`;
+  let existing = await findCategoryByName({ branchId: BigInt(branchId), name: copyName });
+  let counter = 1;
+  while (existing) {
+    copyName = `${category.name} - Copy ${counter}`;
+    existing = await findCategoryByName({ branchId: BigInt(branchId), name: copyName });
+    counter++;
+  }
+
+  const duplicated = await createMenuCategory({
+    branchId: BigInt(branchId),
+    name: copyName,
+    description: category.description || undefined,
+    displayOrder: category.displayOrder + 1,
+  });
+
+  return {
+    message: 'Menu category duplicated successfully',
+    data: duplicated,
+  };
+}
+
 export {
   getMenuCategoryListService,
   createMenuCategoryService,
   updateMenuCategoryService,
+  updateMenuCategoryAvailabilityService,
   deleteMenuCategoryService,
   reorderMenuCategoryService,
+  duplicateMenuCategoryService,
 };

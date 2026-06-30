@@ -161,6 +161,26 @@ async function revokeUserSession(sessionId: bigint) {
   });
 }
 
+// Extends a specific session's expiry date
+async function extendUserSession(sessionId: bigint, expiresAt: Date) {
+  return prisma.userSession.update({
+    where: { id: sessionId },
+    data: { expiresAt },
+  });
+}
+
+// Fetches all active sessions for a user
+async function getUserSessions(userId: bigint) {
+  return prisma.userSession.findMany({
+    where: {
+      userId,
+      revokedAt: null,
+      expiresAt: { gt: new Date() }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+}
+
 // Fetches an OTP strictly checking that it hasn't expired or been verified
 async function getValidOtp(email: string, purpose: OtpPurpose) {
   return prisma.otpVerification.findFirst({
@@ -213,10 +233,21 @@ async function getValidSessionWithUserByTokenHash(refreshTokenHash: string) {
   });
 }
 
+async function getUserRole(userId: bigint, roleName: string) {
+  return prisma.userRole.findFirst({
+    where: {
+      userId,
+      role: { name: roleName },
+    },
+    include: { role: true },
+  });
+}
+
 export {
   createUserSession,
   deleteOtp,
   deleteResetToken,
+  extendUserSession,
   getOtp,
   getToken,
   getValidOtp,
@@ -224,8 +255,10 @@ export {
   getValidOtpByPhone,
   getValidResetRecordByPhone,
   getValidSessionWithUserByTokenHash,
+  getUserSessions,
   revokeSessionByTokenHash,
   revokeUserSession,
   saveOtp,
   storeResetToken,
+  getUserRole,
 };

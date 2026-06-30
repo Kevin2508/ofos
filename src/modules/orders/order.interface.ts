@@ -4,6 +4,10 @@ import { DeliveryType, OrderStatus, PaymentStatus } from "../../generated/prisma
 export interface GetOrdersQuery {
   page?: string;
   limit?: string;
+  status?: string;
+  search?: string;
+  date?: string;
+  payment?: string;
 }
 
 export interface OrderParams {
@@ -93,6 +97,7 @@ export interface ICartData {
     id: bigint;
     isActive: boolean;
     deliveryFee: any;
+    minimumOrderValue: any;
     restaurant: {
       id: bigint;
       status: string;
@@ -109,11 +114,12 @@ export interface IPlaceOrderResult {
   orderNumber: string;
   orderStatus: OrderStatus;
   paymentStatus: PaymentStatus;
-  totalAmount: number;
+  subtotalAmount: number;
   deliveryFee: number;
   taxAmount: number;
-  subtotalAmount: number;
+  totalAmount: number;
   estimatedDeliveryAt: Date | null;
-  deliveryType: DeliveryType;
+  deliveryType: string;
   scheduledFor: Date | null;
+  otp?: string;
 }

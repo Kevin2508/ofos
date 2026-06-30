@@ -47,6 +47,7 @@ interface OrderResponseDTO {
   deliveryFee: string;
   taxAmount: string;
   totalAmount: string;
+  otp?: string;
   estimatedDeliveryAt?: Date;
   createdAt: Date;
 }

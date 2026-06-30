@@ -4,13 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Delivery Partner Registration | ofos - Food Ordering System</title>
+  <title>Delivery Partner Registration | epicure- Food Ordering System</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
 </head>
 
 <body>
   <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-5 sm:p-8">
       <!-- Header -->
       <div class="text-center mb-8">
         <h2 class="text-3xl font-bold text-gray-800 mb-2">Register Delivery Partner</h2>
@@ -18,22 +19,24 @@
       </div>
 
       <!-- Form -->
-      <form id="deliveryPartnerRegisterForm" class="space-y-5">
+      <form id="deliveryPartnerRegisterForm" class="space-y-5" enctype="multipart/form-data">
         <!-- Name Fields Row -->
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               First Name <span class="text-red-500">*</span>
             </label>
             <input type="text" id="firstName" name="firstName" placeholder="John"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+               minlength="2" maxlength="100" pattern="^[A-Za-z]+$" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+            <p id="firstNameError" class="mt-1 text-sm text-red-500"></p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Last Name
             </label>
             <input type="text" id="lastName" name="lastName" placeholder="Doe"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+               maxlength="100" pattern="^[A-Za-z]+$" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+            <p id="lastNameError" class="mt-1 text-sm text-red-500"></p>
           </div>
         </div>
 
@@ -43,7 +46,8 @@
             Email <span class="text-red-500">*</span>
           </label>
           <input type="email" id="email" name="email" placeholder="partner@example.com"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+             pattern="^[^\s@]+@[^\s@]+\.(com|net|org|io)$" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          <p id="emailError" class="mt-1 text-sm text-red-500"></p>
         </div>
 
         <!-- Phone -->
@@ -52,22 +56,24 @@
             Phone <span class="text-red-500">*</span>
           </label>
           <input type="text" id="phone" name="phone" placeholder="10 digit number"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+             pattern="^[0-9]{10}$" minlength="10" maxlength="10" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          <p id="phoneError" class="mt-1 text-sm text-red-500"></p>
         </div>
 
         <!-- Vehicle Info Row -->
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Vehicle Type <span class="text-red-500">*</span>
             </label>
-            <select id="vehicleType" name="vehicleType"
+            <select id="vehicleType" name="vehicleType" required
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
               <option value="" disabled selected>Select vehicle</option>
               <option value="BICYCLE">Bicycle</option>
               <option value="MOTORCYCLE">Motorcycle</option>
               <option value="CAR">Car</option>
             </select>
+            <p id="vehicleTypeError" class="mt-1 text-sm text-red-500"></p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -75,8 +81,18 @@
             </label>
             <input type="text" id="vehicleRegistrationNumber" name="vehicleRegistrationNumber"
               placeholder="e.g. AB12CD3456"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+               maxlength="50" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+            <p id="vehicleRegistrationNumberError" class="mt-1 text-sm text-red-500"></p>
           </div>
+        </div>
+
+        <!-- Government ID Upload -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Government-Issued ID Document (Aadhar/PAN/Driving License) <span class="text-red-500">*</span>
+          </label>
+          <input type="file" id="governmentId" name="governmentId" accept="image/*,.pdf" required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
         </div>
 
         <!-- Password & Confirm Password -->
@@ -88,7 +104,7 @@
             </label>
             <div class="relative">
               <input type="password" id="password" name="password" placeholder="Min 8 characters"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-12" />
+                 minlength="8" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-12" />
               <button type="button" id="togglePassword"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
                 <!-- Eye Icon (Visible) -->
@@ -114,7 +130,7 @@
             </label>
             <div class="relative">
               <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-12" />
+                 minlength="8" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-12" />
               <button type="button" id="toggleConfirmPassword"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
                 <!-- Eye Icon (Visible) -->
@@ -154,6 +170,47 @@
   </div>
 
   <script>
+    async function checkAndPrefill() {
+      try {
+        const res = await fetch('/auth/me');
+        if (res.ok) {
+          const json = await res.json();
+          const u = json.data.user;
+          if (u) {
+            if (document.getElementById('firstName')) {
+              document.getElementById('firstName').value = u.firstName || '';
+              document.getElementById('firstName').readOnly = true;
+            }
+            if (document.getElementById('lastName')) {
+              document.getElementById('lastName').value = u.lastName || '';
+              document.getElementById('lastName').readOnly = true;
+            }
+            if (document.getElementById('email')) {
+              document.getElementById('email').value = u.email || '';
+              document.getElementById('email').readOnly = true;
+            }
+            if (document.getElementById('phone')) {
+              document.getElementById('phone').value = u.phone || '';
+              document.getElementById('phone').readOnly = true;
+            }
+            const pwInput = document.getElementById('password');
+            if (pwInput) {
+              pwInput.value = 'ExistingUserPassword123';
+              const container = pwInput.closest('.space-y-4') || pwInput.parentElement?.parentElement;
+              if (container) container.style.display = 'none';
+            }
+            const cpwInput = document.getElementById('confirmPassword');
+            if (cpwInput) {
+              cpwInput.value = 'ExistingUserPassword123';
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error pre-filling profile', e);
+      }
+    }
+    checkAndPrefill();
+
     function setupPasswordToggle(
       toggleBtnId,
       inputId,
@@ -187,13 +244,27 @@
       'eyeSlashIcon2'
     );
 
+    const formRules = {
+      firstName: { required: true, minLength: 2, maxLength: 50, pattern: /^[A-Za-z]+$/, patternMsg: 'First name can only contain letters', label: 'First name' },
+      lastName: { maxLength: 100, label: 'Last name' },
+      email: { required: true, isEmail: true, label: 'Email' },
+      phone: { required: true, exactLength: 10, pattern: /^[0-9]+$/, patternMsg: 'Contact number must only contain digits', label: 'Phone' },
+      vehicleType: { required: true, oneOf: ['BICYCLE', 'MOTORCYCLE', 'CAR'], label: 'Vehicle type' },
+      vehicleRegistrationNumber: { required: true, maxLength: 50, label: 'Registration number' },
+      password: { required: true, minLength: 8, label: 'Password' },
+      confirmPassword: { required: true, minLength: 8, matchField: 'password', matchMsg: 'Passwords do not match', label: 'Confirm password' },
+    };
+
+    FormValidator.bindLiveValidation(formRules);
+
     document
       .getElementById('deliveryPartnerRegisterForm')
       .addEventListener('submit', async function (event) {
         event.preventDefault();
 
-        const submitBtn = document.getElementById('submitBtn');
+        if (!FormValidator.validate(formRules)) return;
 
+        const submitBtn = document.getElementById('submitBtn');
         const firstName = document.getElementById('firstName').value.trim();
         const lastName = document.getElementById('lastName').value.trim();
         const email = document.getElementById('email').value.trim();
@@ -201,88 +272,43 @@
         const vehicleType = document.getElementById('vehicleType').value;
         const vehicleRegistrationNumber = document.getElementById('vehicleRegistrationNumber').value.trim();
         const password = document.getElementById('password').value;
-        const confirmPassword =
-          document.getElementById('confirmPassword').value;
-
-        const phoneRegex = /^[0-9]{10}$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|io)$/i;
-
-        if (!firstName || firstName.length > 100) {
-          showToast('First name is required and cannot exceed 100 characters.', 'error');
-          return;
-        }
-
-        if (lastName.length > 100) {
-          showToast('Last name cannot exceed 100 characters.', 'error');
-          return;
-        }
-
-        if (!email || !emailRegex.test(email)) {
-          showToast('Please enter a valid email address ending in .com, .net, .org, or .io.', 'error');
-          return;
-        }
-
-        if (!phone || !phoneRegex.test(phone)) {
-          showToast('Contact number must be exactly 10 digits and contain only numbers.', 'error');
-          return;
-        }
-
-        if (!vehicleType) {
-          showToast('Please select a vehicle type.', 'error');
-          return;
-        }
-
-        if (!vehicleRegistrationNumber) {
-          showToast('Vehicle registration number is required.', 'error');
-          return;
-        }
-
-        if (password.length < 8) {
-          showToast('Password must be at least 8 characters long.', 'error');
-          return;
-        }
-
-        if (password !== confirmPassword) {
-          showToast('Passwords do not match.', 'error');
-          return;
-        }
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
         try {
           submitBtn.disabled = true;
           submitBtn.textContent = 'Registering Delivery Partner...';
 
-          const payload = {
-            firstName,
-            email,
-            phone,
-            vehicleType,
-            vehicleRegistrationNumber,
-            password,
-            confirmPassword,
-          };
-
-          if (lastName) {
-            payload.lastName = lastName;
+          const formData = new FormData();
+          formData.append('firstName', firstName);
+          if (lastName) formData.append('lastName', lastName);
+          formData.append('email', email);
+          formData.append('phone', phone);
+          formData.append('vehicleType', vehicleType);
+          formData.append('vehicleRegistrationNumber', vehicleRegistrationNumber);
+          formData.append('password', password);
+          formData.append('confirmPassword', confirmPassword);
+          
+          const fileInput = document.getElementById('governmentId');
+          if (fileInput.files.length > 0) {
+            formData.append('governmentId', fileInput.files[0]);
           }
 
           const response = await fetch('/auth/register/delivery-partner', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
+            body: formData,
           });
 
           const data = await response.json();
 
           if (!response.ok) {
-            throw new Error(
-              data.message || 'Delivery Partner registration failed. Please try again.'
-            );
+            throw new Error(data.message || 'Delivery Partner registration failed. Please try again.');
           }
 
           showToast('Delivery Partner account created successfully! Redirecting...', 'success');
           document.getElementById('deliveryPartnerRegisterForm').reset();
+          setTimeout(() => {
+            window.location.href = '/loginPage';
+          }, 1500);
         } catch (error) {
           showToast(error.message, 'error');
         } finally {

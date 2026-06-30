@@ -12,17 +12,22 @@ import {
   getMenuItemsByCategory,
   updateMenuItem,
   updateMenuItemAvailability,
+  getAvailabilitySchedules,
+  createAvailabilitySchedule,
+  deleteAvailabilitySchedule,
   updateMenuItemBestseller,
 
   uploadMenuItemImage,
   deleteMenuItemImage,
 
   importMenuItems,
+  duplicateMenuItem,
 } from './menuItem.controller.ts';
 
 import {
   createMenuItemSchema,
   updateAvailabilitySchema,
+  createAvailabilityScheduleSchema,
   updateBestsellerSchema,
   updateMenuItemSchema,
 
@@ -73,13 +78,10 @@ menuItemRouter.post(
  */
 menuItemRouter.post(
   '/branches/:branchId/menu-items/import',
-
   authenticate,
-
   csvUpload.single(
     'file'
   ),
-
   importMenuItems
 );
 
@@ -115,6 +117,17 @@ menuItemRouter.patch(
 );
 
 /**
+ * POST /menu-items/:id/duplicate
+ *
+ * Duplicate menu item
+ */
+menuItemRouter.post(
+  '/menu-items/:id/duplicate',
+  authenticate,
+  duplicateMenuItem
+);
+
+/**
  * PATCH /menu-items/:id/availability
  *
  * Toggle stock availability
@@ -124,6 +137,42 @@ menuItemRouter.patch(
   authenticate,
   validate(updateAvailabilitySchema),
   updateMenuItemAvailability
+);
+
+/**
+ * ============================================================
+ * AVAILABILITY SCHEDULES
+ * ============================================================
+ */
+
+/**
+ * GET /menu-items/:id/availability-schedules
+ * Fetch schedules
+ */
+menuItemRouter.get(
+  '/menu-items/:id/availability-schedules',
+  getAvailabilitySchedules
+);
+
+/**
+ * POST /menu-items/:id/availability-schedules
+ * Create schedule
+ */
+menuItemRouter.post(
+  '/menu-items/:id/availability-schedules',
+  authenticate,
+  validate(createAvailabilityScheduleSchema),
+  createAvailabilitySchedule
+);
+
+/**
+ * DELETE /menu-items/:id/availability-schedules/:scheduleId
+ * Delete schedule
+ */
+menuItemRouter.delete(
+  '/menu-items/:id/availability-schedules/:scheduleId',
+  authenticate,
+  deleteAvailabilitySchedule
 );
 
 /**

@@ -11,6 +11,8 @@ import {
   uploadCover,
   uploadDocument,
   uploadLogo,
+  getDashboardStats,
+  getFinanceStats,
 } from "./management.controller.ts";
 import {
   createRestaurantSchema,
@@ -30,6 +32,8 @@ restaurantManagementRouter.post(
 );
 
 restaurantManagementRouter.get("/mine", authenticate, getMyRestaurants);
+restaurantManagementRouter.get("/dashboard-stats", authenticate, getDashboardStats);
+restaurantManagementRouter.get("/finance-stats", authenticate, getFinanceStats);
 
 restaurantManagementRouter.patch(
   "/:id",

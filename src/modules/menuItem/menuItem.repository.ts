@@ -150,7 +150,7 @@ async function createMenuItem({
   name,
   description,
   basePrice,
-  foodType,
+  foodType, dietaryTags,
   modifierGroupIds,
 }: {
   categoryId: bigint;
@@ -159,6 +159,7 @@ async function createMenuItem({
   description?: string;
   basePrice: number;
   foodType: FoodType;
+  dietaryTags?: string[];
   modifierGroupIds?: bigint[];
 }) {
   return prisma.$transaction(
@@ -172,6 +173,7 @@ async function createMenuItem({
             description,
             basePrice,
             foodType,
+            dietaryTags: dietaryTags || undefined,
           },
         });
 
@@ -207,12 +209,14 @@ async function updateMenuItem({
   description,
   basePrice,
   foodType,
+  dietaryTags,
 }: {
   id: bigint;
   name?: string;
   description?: string;
   basePrice?: number;
   foodType?: FoodType;
+  dietaryTags?: string[];
 }) {
   return prisma.menuItem.update({
     where: {
@@ -229,6 +233,9 @@ async function updateMenuItem({
       }),
       ...(foodType && {
         foodType,
+      }),
+      ...(dietaryTags !== undefined && {
+        dietaryTags: dietaryTags || null,
       }),
     },
   });
@@ -272,6 +279,52 @@ async function updateMenuItemBestseller({
 
     data: {
       isBestseller,
+    },
+  });
+}
+
+/**
+ * ============================================================
+ * AVAILABILITY SCHEDULES
+ * ============================================================
+ */
+
+async function getMenuItemAvailabilitySchedules(menuItemId: bigint) {
+  return prisma.menuItemAvailability.findMany({
+    where: {
+      menuItemId,
+    },
+    orderBy: {
+      dayOfWeek: 'asc',
+    },
+  });
+}
+
+async function createMenuItemAvailabilitySchedule({
+  menuItemId,
+  dayOfWeek,
+  startTime,
+  endTime,
+}: {
+  menuItemId: bigint;
+  dayOfWeek: number;
+  startTime: Date;
+  endTime: Date;
+}) {
+  return prisma.menuItemAvailability.create({
+    data: {
+      menuItemId,
+      dayOfWeek,
+      startTime,
+      endTime,
+    },
+  });
+}
+
+async function deleteMenuItemAvailabilitySchedule(scheduleId: bigint) {
+  return prisma.menuItemAvailability.delete({
+    where: {
+      id: scheduleId,
     },
   });
 }
@@ -385,6 +438,7 @@ async function bulkCreateMenuItems(
     description?: string;
     basePrice: number;
     foodType: FoodType;
+    dietaryTags?: string[];
   }[]
 ) {
   return prisma.menuItem.createMany({
@@ -409,6 +463,10 @@ export {
   updateMenuItemAvailability,
   updateMenuItemBestseller,
   softDeleteMenuItem,
+
+  getMenuItemAvailabilitySchedules,
+  createMenuItemAvailabilitySchedule,
+  deleteMenuItemAvailabilitySchedule,
 
   createMenuItemImages,
   findMenuItemImageById,

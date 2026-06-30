@@ -4,79 +4,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fleet Manager Dashboard | ofos</title>
+  <title>Fleet Manager Dashboard | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 
 <body class="min-h-screen bg-orange-50 font-sans text-gray-800">
   <div class="flex min-h-screen">
-    <!-- SIDEBAR -->
-    <aside
-      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
-      <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">Fleet Control</h1>
-      </div>
-
-      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        <a href="/fl/fleet-manager-dashboard"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-            </path>
-          </svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="/fl/fleet-manager-partners"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-            </path>
-          </svg>
-          <span>Delivery Partners</span>
-        </a>
-        <a href="/fl/fleet-manager-assignments"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
-            </path>
-          </svg>
-          <span>Assignments</span>
-        </a>
-        <a href="/fl/fleet-manager-profile"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-          <span>Profile</span>
-        </a>
-      </nav>
-
-      <div class="p-4 border-t border-orange-50">
-        <button id="logoutBtn"
-          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          <span class="font-semibold">Logout</span>
-        </button>
-      </div>
-    </aside>
+    <%- include('../partials/fleetManager/sidebar') %>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 ml-64 p-8">
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-900">Fleet Operations</h2>
+    <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden" id="mainContentWrapper">
+      <div class="mb-8 flex flex-wrap items-start md:items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Fleet Operations</h2>
         <p class="text-gray-500 mt-2">Monitor delivery partners and active assignments.</p>
+      
+        </div>
       </div>
 
       <!-- STAT CARDS -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Total Partners</p>
             <h3 id="statPartners" class="text-3xl font-bold text-gray-900 mt-1">0</h3>
@@ -90,7 +43,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Active Assignments</p>
             <h3 id="statAssignments" class="text-3xl font-bold text-gray-900 mt-1">0</h3>
@@ -106,8 +59,8 @@
       </div>
 
       <!-- CONTENT -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-gray-900">Recent Partners</h3>
             <a href="/fl/fleet-manager-partners" class="text-orange-600 hover:text-orange-700 text-sm font-medium">View
@@ -124,7 +77,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-gray-900">Recent Assignments</h3>
             <a href="/fl/fleet-manager-assignments"
@@ -140,14 +93,19 @@
           </div>
         </div>
       </div>
+
+      <!-- LIVE MAP -->
+      <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Live Partner Tracking</h3>
+        <div id="liveMap" style="height: 500px; border-radius: 12px; z-index: 1;"></div>
+      </div>
     </main>
   </div>
 
   <script>
     async function loadDashboard() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const headers = { 'Authorization': `Bearer ${token}` };
+        const headers = {};
 
         // Load Partners
         const pRes = await fetch('/fleet-manager/delivery-partners/all', { headers });
@@ -208,11 +166,52 @@
 
     loadDashboard();
 
+    // Live Map
+    let liveMap;
+    const partnerMarkers = {};
+    const partnerIcon = L.divIcon({ html: '<div style="background:#10B981;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-size:16px">🛵</div>', className: '', iconAnchor: [16, 16] });
+
+    async function loadLiveMap() {
+      try {
+        const res = await fetch('/fleet-manager/live-map', { headers: {} });
+        if (!res.ok) return;
+        const data = await res.json();
+        const partners = data.data || [];
+
+        if (!liveMap) {
+          liveMap = L.map('liveMap').setView([22.3039, 70.8022], 12);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(liveMap);
+        }
+
+        partners.forEach(p => {
+          if (p.location) {
+            const lat = p.location.latitude;
+            const lng = p.location.longitude;
+            const popupHtml = `<b>${p.name}</b><br>ID: ${p.userId}<br>Assignment: ${p.activeAssignment || 'None'}`;
+
+            if (partnerMarkers[p.userId]) {
+              partnerMarkers[p.userId].setLatLng([lat, lng]).bindPopup(popupHtml);
+            } else {
+              partnerMarkers[p.userId] = L.marker([lat, lng], { icon: partnerIcon }).addTo(liveMap).bindPopup(popupHtml);
+            }
+          } else if (partnerMarkers[p.userId]) {
+            // Partner went offline or has no location
+            liveMap.removeLayer(partnerMarkers[p.userId]);
+            delete partnerMarkers[p.userId];
+          }
+        });
+      } catch (e) {
+        console.error('Error loading live map', e);
+      }
+    }
+
+    loadLiveMap();
+    setInterval(loadLiveMap, parseInt('<%= process.env.POLLING_INTERVAL_MS || 5000 %>'));
+
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();
@@ -220,7 +219,7 @@
       window.location.href = '/loginPage';
     });;
   </script>
-  <%- include('../partials/floating-role-switcher') %>
+
 </body>
 
 </html>

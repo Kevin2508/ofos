@@ -28,6 +28,10 @@ const createMenuItemSchema = Joi.object({
   modifierGroupIds: Joi.array()
     .items(Joi.string())
     .optional(),
+
+  dietaryTags: Joi.array()
+    .items(Joi.string())
+    .optional(),
 });
 
 /**
@@ -48,6 +52,10 @@ const updateMenuItemSchema = Joi.object({
     'NON_VEG',
     'VEGAN'
   ),
+
+  dietaryTags: Joi.array()
+    .items(Joi.string())
+    .optional(),
 }).min(1);
 
 /**
@@ -56,6 +64,20 @@ const updateMenuItemSchema = Joi.object({
 
 const updateAvailabilitySchema = Joi.object({
   isAvailable: Joi.boolean().required(),
+});
+
+/**
+ * Availability Schedule Create
+ */
+
+const createAvailabilityScheduleSchema = Joi.object({
+  dayOfWeek: Joi.number().integer().min(0).max(6).required(),
+  startTime: Joi.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/).required().messages({
+    'string.pattern.base': 'startTime must be in HH:mm or HH:mm:ss format',
+  }),
+  endTime: Joi.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/).required().messages({
+    'string.pattern.base': 'endTime must be in HH:mm or HH:mm:ss format',
+  }),
 });
 
 /**
@@ -87,6 +109,7 @@ export {
   createMenuItemSchema,
   updateMenuItemSchema,
   updateAvailabilitySchema,
+  createAvailabilityScheduleSchema,
   updateBestsellerSchema,
 
   uploadMenuItemImageSchema,

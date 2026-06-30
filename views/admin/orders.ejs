@@ -4,94 +4,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Global Orders | Admin | ofos</title>
+  <title>Global Orders | Admin | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
 <body class="min-h-screen bg-orange-50 font-sans text-gray-800">
   <div class="flex min-h-screen">
-    <!-- SIDEBAR -->
-    <aside
-      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
-      <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
-      </div>
-
-      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        <a href="/a/admin-dashboard"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-            </path>
-          </svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="/a/admin-users"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-            </path>
-          </svg>
-          <span>Users</span>
-        </a>
-        <a href="/a/admin-restaurants"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-            </path>
-          </svg>
-          <span>Restaurants</span>
-        </a>
-        <a href="/a/admin-orders"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-          </svg>
-          <span>Global Orders</span>
-        </a>
-        <a href="/a/admin-configs"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-            </path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
-            </path>
-          </svg>
-          <span>Configurations</span>
-        </a>
-        <a href="/a/admin-audit-logs"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-            </path>
-          </svg>
-          <span>Audit Logs</span>
-        </a>
-      </nav>
-
-      <div class="p-4 border-t border-orange-50">
-        <button id="logoutBtn"
-          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          <span class="font-semibold">Logout</span>
-        </button>
-      </div>
-    </aside>
+    <%- include('../partials/admin/sidebar') %>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 ml-64 p-8">
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-900">Global Orders</h2>
-        <p class="text-gray-500 mt-2">View all platform orders globally.</p>
+    <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+      <div class="mb-8 flex justify-between items-end">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Global Orders</h2>
+          <p class="text-gray-500 mt-2">View all platform orders globally.</p>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnAllOrders" onclick="filterOrders('ALL')" class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors">All Orders</button>
+          <button id="btnActiveOrders" onclick="filterOrders('ACTIVE')" class="px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">Active Orders</button>
+        </div>
       </div>
 
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -99,15 +30,18 @@
           <table class="w-full text-left whitespace-nowrap">
             <thead>
               <tr class="bg-slate-50 border-b border-gray-100 text-slate-500 text-sm uppercase tracking-wider">
-                <th class="px-6 py-4 font-semibold">Order ID</th>
+                <th class="px-6 py-4 font-semibold">Order #</th>
+                <th class="px-6 py-4 font-semibold">Customer</th>
+                <th class="px-6 py-4 font-semibold">Restaurant</th>
                 <th class="px-6 py-4 font-semibold">Total Amount</th>
                 <th class="px-6 py-4 font-semibold">Status</th>
+                <th class="px-6 py-4 font-semibold">Elapsed Time</th>
                 <th class="px-6 py-4 font-semibold">Date</th>
               </tr>
             </thead>
             <tbody id="ordersList" class="divide-y divide-gray-50 text-gray-700">
               <tr>
-                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                   <div class="animate-pulse flex justify-center">Loading orders...</div>
                 </td>
               </tr>
@@ -118,56 +52,269 @@
     </main>
   </div>
 
+  <!-- Order Details Modal -->
+  <div id="orderModal" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-xl transform transition-transform duration-300 scale-95 flex flex-col max-h-[90vh]">
+      <!-- Header -->
+      <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-100">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900 flex flex-wrap items-center gap-3">
+            Order <span id="modalOrderNumber" class="text-orange-500"></span>
+          </h3>
+          <p id="modalDate" class="text-sm text-gray-500 mt-1"></p>
+        </div>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="p-4 sm:p-6 overflow-y-auto space-y-6">
+        
+        <!-- Status Row -->
+        <div class="flex flex-wrap gap-4 bg-slate-50 p-4 rounded-2xl border border-gray-100">
+          <div>
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-wide mb-1">Order Status</p>
+            <span id="modalOrderStatus" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"></span>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-wide mb-1">Payment Status</p>
+            <span id="modalPaymentStatus" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"></span>
+          </div>
+        </div>
+
+        <!-- Participants -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
+          <div class="border border-gray-100 rounded-2xl p-4">
+            <h4 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              Customer
+            </h4>
+            <p id="modalCustomerName" class="font-medium text-gray-800"></p>
+            <p id="modalCustomerPhone" class="text-sm text-gray-500"></p>
+          </div>
+          <div class="border border-gray-100 rounded-2xl p-4">
+            <h4 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              Restaurant
+            </h4>
+            <p id="modalRestaurantName" class="font-medium text-gray-800"></p>
+          </div>
+        </div>
+
+        <!-- Delivery Partner Info -->
+        <div id="modalDeliveryContainer" class="border border-gray-100 bg-orange-50/50 rounded-2xl p-4 hidden">
+          <h4 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Delivery Details
+          </h4>
+          <p class="text-sm text-gray-700"><strong>Delivered By (Partner ID):</strong> #<span id="modalDeliveryPartner"></span></p>
+          <p class="text-sm text-gray-700"><strong>Assignment Status:</strong> <span id="modalAssignmentStatus"></span></p>
+          <p class="text-sm text-gray-700 mt-1"><strong>Latest Event:</strong> <span id="modalLatestEvent" class="italic"></span></p>
+        </div>
+
+        <!-- Financial Breakdown -->
+        <div>
+          <h4 class="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Financial Breakdown</h4>
+          <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-2">
+            <div class="flex justify-between text-sm text-gray-600">
+              <span>Subtotal</span>
+              <span>₹<span id="modalSubtotal"></span></span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600">
+              <span>Tax</span>
+              <span>₹<span id="modalTax"></span></span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600">
+              <span>Delivery Fee</span>
+              <span>₹<span id="modalDeliveryFee"></span></span>
+            </div>
+            <div class="flex justify-between text-sm text-green-600">
+              <span>Discount</span>
+              <span>-₹<span id="modalDiscount"></span></span>
+            </div>
+            <div class="flex justify-between font-bold text-gray-900 pt-3 border-t border-gray-200 mt-2 text-lg">
+              <span>Total</span>
+              <span>₹<span id="modalTotal"></span></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <script>
+    let loadedOrders = [];
+    let currentFilter = 'ALL';
+
+    function filterOrders(filter) {
+      currentFilter = filter;
+      document.getElementById('btnAllOrders').className = filter === 'ALL' 
+        ? 'px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors' 
+        : 'px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors';
+      document.getElementById('btnActiveOrders').className = filter === 'ACTIVE' 
+        ? 'px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors' 
+        : 'px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors';
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const list = document.getElementById('ordersList');
+      let filtered = loadedOrders;
+      
+      const activeStatuses = ['PENDING', 'PREPARING', 'READY_FOR_PICKUP', 'OUT_FOR_DELIVERY'];
+      if (currentFilter === 'ACTIVE') {
+        filtered = loadedOrders.filter(o => activeStatuses.includes(o.orderStatus));
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No orders found.</td></tr>`;
+      } else {
+        list.innerHTML = filtered.map(o => {
+          let statusColor = 'bg-gray-100 text-gray-800';
+          if (o.orderStatus === 'DELIVERED') statusColor = 'bg-green-100 text-green-800';
+          if (o.orderStatus === 'CANCELLED' || o.orderStatus === 'REJECTED') statusColor = 'bg-red-100 text-red-800';
+          if (o.orderStatus === 'PREPARING' || o.orderStatus === 'OUT_FOR_DELIVERY') statusColor = 'bg-blue-100 text-blue-800';
+
+          const createdTime = new Date(o.createdAt).getTime();
+          const elapsedMins = Math.floor((Date.now() - createdTime) / 60000);
+          
+          let alertHtml = '';
+          let elapsedText = o.orderStatus === 'DELIVERED' || o.orderStatus === 'CANCELLED' || o.orderStatus === 'REJECTED' 
+            ? '-' 
+            : elapsedMins + ' min';
+
+          if (o.orderStatus === 'PREPARING' && elapsedMins > 45) {
+            alertHtml = `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-500 text-white animate-pulse" title="Stuck for > 45 mins">ALERT</span>`;
+            elapsedText = `<span class="text-red-600 font-bold">${elapsedMins} min</span>`;
+          }
+
+          return `
+          <tr onclick="viewOrder('${o.id}')" class="hover:bg-slate-50 transition-colors cursor-pointer border-t border-gray-50">
+            <td class="px-6 py-4 font-bold text-gray-900">${o.orderNumber || '#' + o.id}</td>
+            <td class="px-6 py-4">
+              <div class="text-sm font-medium text-gray-900">${o.customer ? o.customer.firstName : 'N/A'}</div>
+              <div class="text-xs text-gray-500">${o.customer ? o.customer.phone : ''}</div>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-700">${o.restaurant ? o.restaurant.businessName : 'N/A'}</td>
+            <td class="px-6 py-4 font-bold text-gray-900">₹${o.totalAmount || 0}</td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColor}">
+                ${o.orderStatus || 'PENDING'}
+              </span>
+              ${alertHtml}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-600 font-medium">
+              ${elapsedText}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500">
+              ${new Date(o.createdAt).toLocaleString()}
+            </td>
+          </tr>
+        `}).join('');
+      }
+    }
+
     async function loadOrders() {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch('/admin/orders', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         const list = document.getElementById('ordersList');
         if (res.ok) {
           const data = await res.json();
-          const orders = data.data?.orders || [];
-
-          if (orders.length === 0) {
-            list.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No orders found.</td></tr>`;
-          } else {
-            list.innerHTML = orders.map(o => `
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-4 font-medium">#${o.id}</td>
-                <td class="px-6 py-4 font-bold text-gray-900">₹${o.totalAmount || 0}</td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
-                    ${o.status || 'PENDING'}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
-                  ${new Date(o.createdAt).toLocaleString()}
-                </td>
-              </tr>
-            `).join('');
-          }
+          loadedOrders = data.data?.orders || [];
+          renderOrders();
         }
       } catch (err) {
         console.error(err);
       }
     }
 
+    function viewOrder(id) {
+      const o = loadedOrders.find(ord => ord.id === id);
+      if (!o) return;
+
+      // Header
+      document.getElementById('modalOrderNumber').textContent = o.orderNumber || o.id;
+      document.getElementById('modalDate').textContent = new Date(o.createdAt).toLocaleString();
+
+      // Status
+      const osEl = document.getElementById('modalOrderStatus');
+      osEl.textContent = o.orderStatus || 'PENDING';
+      osEl.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ' + 
+        (o.orderStatus === 'DELIVERED' ? 'bg-green-100 text-green-800' :
+        (o.orderStatus === 'CANCELLED' || o.orderStatus === 'REJECTED') ? 'bg-red-100 text-red-800' :
+        (o.orderStatus === 'PREPARING' || o.orderStatus === 'OUT_FOR_DELIVERY') ? 'bg-blue-100 text-blue-800' :
+        'bg-gray-100 text-gray-800');
+
+      const psEl = document.getElementById('modalPaymentStatus');
+      psEl.textContent = o.paymentStatus || 'PENDING';
+      psEl.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ' + 
+        (o.paymentStatus === 'PAID' ? 'bg-green-100 text-green-800' :
+        o.paymentStatus === 'FAILED' ? 'bg-red-100 text-red-800' :
+        'bg-yellow-100 text-yellow-800');
+
+      // Participants
+      document.getElementById('modalCustomerName').textContent = o.customer ? `${o.customer.firstName} ${o.customer.lastName || ''}` : 'N/A';
+      document.getElementById('modalCustomerPhone').textContent = o.customer ? o.customer.phone : 'N/A';
+      document.getElementById('modalRestaurantName').textContent = o.restaurant ? o.restaurant.businessName : 'N/A';
+
+      // Financials
+      document.getElementById('modalSubtotal').textContent = o.subtotalAmount || '0';
+      document.getElementById('modalTax').textContent = o.taxAmount || '0';
+      document.getElementById('modalDeliveryFee').textContent = o.deliveryFee || '0';
+      document.getElementById('modalDiscount').textContent = o.discountAmount || '0';
+      document.getElementById('modalTotal').textContent = o.totalAmount || '0';
+
+      // Delivery Partner
+      const deliveryContainer = document.getElementById('modalDeliveryContainer');
+      if (o.deliveryAssignment || o.deliveryPartner) {
+        deliveryContainer.classList.remove('hidden');
+        document.getElementById('modalDeliveryPartner').textContent = o.deliveryPartner?.userId || o.deliveryAssignment?.partnerUserId || 'Unassigned';
+        document.getElementById('modalAssignmentStatus').textContent = o.deliveryAssignment?.status || 'N/A';
+        
+        let eventText = 'No delivery events yet';
+        if (o.latestEvent) {
+           eventText = `${o.latestEvent.eventType.replace('_', ' ')} at ${new Date(o.latestEvent.createdAt).toLocaleTimeString()}`;
+        }
+        document.getElementById('modalLatestEvent').textContent = eventText;
+      } else {
+        deliveryContainer.classList.add('hidden');
+      }
+
+      // Show Modal
+      const modal = document.getElementById('orderModal');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.firstElementChild.classList.remove('scale-95');
+      }, 10);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('orderModal');
+      modal.classList.add('opacity-0');
+      modal.firstElementChild.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    }
+
     loadOrders();
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();
       document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       window.location.href = '/loginPage';
-    });;
+    });
   </script>
 </body>
 

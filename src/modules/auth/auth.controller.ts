@@ -1,7 +1,21 @@
 import crypto from 'crypto';
 import ms from 'ms';
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { catchAsync } from '../../middlewares/catch.async.ts';
+import { prisma } from '../../config/prisma.ts';
+
+function getAuthenticatedUserId(req: Request): bigint | null {
+  const token = req.cookies?.accessToken || (req.headers.authorization ? req.headers.authorization.split(' ')[1] : null);
+  if (!token) return null;
+  try {
+    const secret = process.env.JWT_ACCESS_SECRET as string;
+    const decoded = jwt.verify(token, secret) as { id: string };
+    return decoded && decoded.id ? BigInt(decoded.id) : null;
+  } catch (err) {
+    return null;
+  }
+}
 import {
   forgotPasswordDto,
   loginDto,
@@ -11,7 +25,9 @@ import {
   sendOtpDto,
   verigyOtpDto,
 } from './auth.dto.ts';
-import { revokeSessionByTokenHash } from './auth.repository.ts';
+import bcrypt from 'bcryptjs';
+import { updateUser, findUserById, findUserByEmail, findUserByContact, revokeAllUserSessions } from '../user/user.repository.ts';
+import { revokeSessionByTokenHash, getUserSessions, revokeUserSession } from './auth.repository.ts';
 import {
   forgotPasswordService,
   loginService,
@@ -26,6 +42,9 @@ import {
   resetPasswordService,
   sendOtpService,
   verifyOtpService,
+  checkPhoneService,
+  checkEmailService,
+  selectRoleService,
 } from './auth.service.ts';
 
 const login = catchAsync(
@@ -162,6 +181,15 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
   try {
     const data = await refreshTokenService(rawRefreshToken);
 
+    const accessTokenLifeMs = ms(data.expiresIn);
+    res.cookie('accessToken', data.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: accessTokenLifeMs,
+      path: '/',
+    });
+
     return res.status(200).json({
       status: 'success',
       message: 'Token refreshed successfully',
@@ -190,17 +218,66 @@ const refresh = catchAsync(async (req: Request, res: Response) => {
 
 const register = catchAsync(
   async (req: Request<{}, {}, registerDto>, res: Response) => {
-    const result = await registerService(req.body);
+    const reqMeta: { ipAddress: string; userAgent: string } = {
+      ipAddress: req.ip || (req.socket.remoteAddress as string),
+      userAgent: req.headers['user-agent'] as string,
+    };
+
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerService(req.body, reqMeta, authUserId);
+
+    const cookieLifeDays = Number(process.env.COOKIE_EXPIRE || 1);
+    const cookieLifeMs = cookieLifeDays * 24 * 60 * 60 * 1000;
+
+    res.cookie('refreshToken', data.tokens.refreshToken, {
+      signed: true,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: cookieLifeMs,
+      path: '/',
+    });
+
+    const accessTokenLifeMs = ms(data.tokens.expiresIn);                                             
+
+    res.cookie('accessToken', data.tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: accessTokenLifeMs,
+      path: '/',
+    });
 
     return res.status(201).json({
       status: 'success',
-      message: result.message,
+      message: data.message,
+      data: {
+        user: data.user,
+        token: data.tokens.accessToken,
+      },
     });
   }
 );
 
+const checkPhone = catchAsync(
+  async (req: Request, res: Response) => {
+    const authUserId = getAuthenticatedUserId(req);
+    const result = await checkPhoneService(req.body, authUserId);
+    res.status(200).json({ status: 'success', message: result.message });
+  }
+);
+
+const checkEmail = catchAsync(
+  async (req: Request, res: Response) => {
+    const authUserId = getAuthenticatedUserId(req);
+    const result = await checkEmailService(req.body, authUserId);
+    res.status(200).json({ status: 'success', message: result.message });
+  }
+);
+
 const registerAdmin = catchAsync(async (req: Request, res: Response) => {
-  const data = await registerAdminService(req.body);
+  const authUserId = getAuthenticatedUserId(req);
+  const data = await registerAdminService(req.body, authUserId);
 
   res.status(200).json({
     status: 'success',
@@ -210,7 +287,8 @@ const registerAdmin = catchAsync(async (req: Request, res: Response) => {
 
 const registerDeliveryPartner = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerDeliveryPartnerService(req.body);
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerDeliveryPartnerService(req.body, req.file, authUserId);
 
     res.status(200).json({
       status: 'success',
@@ -221,7 +299,8 @@ const registerDeliveryPartner = catchAsync(
 
 const registerRestaurantOwner = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerRestaurantOwnerService(req.body);
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerRestaurantOwnerService(req.body, req.files, authUserId);
 
     res.status(200).json({
       status: 'success',
@@ -232,7 +311,8 @@ const registerRestaurantOwner = catchAsync(
 
 const registerRestaurantStaff = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerRestaurantStaffService(req.body);
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerRestaurantStaffService(req.body, authUserId);
 
     res.status(200).json({
       status: 'success',
@@ -243,7 +323,8 @@ const registerRestaurantStaff = catchAsync(
 
 const registerFinanceManager = catchAsync(
   async (req: Request, res: Response) => {
-    const data = await registerFinanceManagerService(req.body);
+    const authUserId = getAuthenticatedUserId(req);
+    const data = await registerFinanceManagerService(req.body, authUserId);
 
     res.status(200).json({
       status: 'success',
@@ -254,7 +335,8 @@ const registerFinanceManager = catchAsync(
 
 
 const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
-  const data = await registerFleetManagerService(req.body);
+  const authUserId = getAuthenticatedUserId(req);
+  const data = await registerFleetManagerService(req.body, authUserId);
 
   res.status(200).json({
     status: 'success',
@@ -263,11 +345,225 @@ const registerFleetManager = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
-  res.status(200).json({
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: BigInt(req.user.id) },
+    include: {
+      userRoles: {
+        include: { role: true },
+      },
+    },
+  });
+
+  if (!user) {
+    return res.status(404).json({ status: 'fail', message: 'User not found' });
+  }
+
+  const roles: string[] = [];
+  const pendingRoles: string[] = [];
+
+  user.userRoles.forEach(ur => {
+    if (ur.status === 'ASSIGNED') {
+      roles.push(ur.role.name);
+    } else if (ur.status === 'REQUESTED') {
+      pendingRoles.push(ur.role.name);
+    }
+  });
+
+  const serialize = (v: any) =>
+    JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+
+  return res.status(200).json({
     status: 'success',
     data: {
-      user: req.user,
+      user: serialize({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        profileImageUrl: user.profileImageUrl,
+        emailVerified: user.emailVerified,
+        phoneVerified: user.phoneVerified,
+        createdAt: user.createdAt,
+        roles,
+        pendingRoles,
+        userRoles: user.userRoles,
+        currentRole: (req.user as any).currentRole
+      }),
     },
+  });
+});
+
+const selectRole = catchAsync(async (req: Request, res: Response) => {
+  const { role } = req.body;
+  if (!role) {
+    return res.status(400).json({ status: 'fail', message: 'Role is required' });
+  }
+
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
+  }
+
+  const result = await selectRoleService(String(req.user.id), role);
+
+  // Set activeRole cookie
+  res.cookie('activeRole', result.role, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    path: '/',
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    message: 'Role selected successfully',
+    data: { role: result.role },
+  });
+});
+
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+
+  const userId = BigInt(req.user.id);
+  const { firstName, lastName, email, phone } = req.body;
+
+  const errors: { field: string; message: string }[] = [];
+  
+  if (email) {
+    const existingEmailUser = await findUserByEmail(email);
+    if (existingEmailUser && existingEmailUser.id !== userId) {
+      errors.push({ field: 'email', message: 'This email is already registered to another account' });
+    }
+  }
+
+  if (phone) {
+    const existingPhoneUser = await findUserByContact(phone);
+    if (existingPhoneUser && existingPhoneUser.id !== userId) {
+      errors.push({ field: 'phone', message: 'This phone number is already registered to another account' });
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ status: 'fail', errors });
+  }
+
+  await updateUser({
+    userId,
+    data: {
+      firstName,
+      lastName: lastName || null,
+      email: email || null,
+      phone: phone || null,
+    }
+  });
+
+  return res.status(200).json({ status: 'success', message: 'Profile updated successfully' });
+});
+
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+  
+  const userId = BigInt(req.user.id);
+  const { currentPassword, newPassword } = req.body;
+
+  const user = await findUserById(userId);
+  if (!user || !user.passwordHash) {
+    return res.status(404).json({ status: 'fail', message: 'User not found' });
+  }
+
+  const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!isMatch) {
+    return res.status(400).json({ status: 'fail', message: 'Incorrect current password' });
+  }
+
+  const newHash = await bcrypt.hash(newPassword, 12);
+  await updateUser({
+    userId,
+    data: {
+      passwordHash: newHash,
+    }
+  });
+
+  return res.status(200).json({ status: 'success', message: 'Password updated successfully' });
+});
+
+const getSessions = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+  const sessions = await getUserSessions(BigInt(req.user.id));
+  const serialize = (v: any) => JSON.parse(JSON.stringify(v, (_, val) => (typeof val === 'bigint' ? val.toString() : val)));
+  
+  return res.status(200).json({ status: 'success', data: serialize(sessions) });
+});
+
+const revokeSession = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+  const sessionId = Number(req.params.id);
+  if (isNaN(sessionId)) {
+    return res.status(400).json({ status: 'fail', message: 'Invalid session ID' });
+  }
+  
+  await revokeUserSession(BigInt(sessionId));
+  return res.status(200).json({ status: 'success', message: 'Session revoked successfully' });
+});
+
+const deleteAccount = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+
+  const userId = BigInt(req.user.id);
+
+  // Soft delete user
+  await updateUser({
+    userId,
+    data: {
+      status: 'INACTIVE',
+      deletedAt: new Date(),
+    },
+  });
+
+  // Revoke all sessions
+  await revokeAllUserSessions(userId);
+
+  // Clear authentication cookies
+  res.clearCookie('refreshToken', {
+    signed: true,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+  });
+
+  res.clearCookie('accessToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+  });
+
+  res.clearCookie('activeRole', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    message: 'Account deleted successfully',
   });
 });
 
@@ -286,5 +582,13 @@ export {
   registerRestaurantOwner,
   registerRestaurantStaff,
   registerFinanceManager,
-  getMe
+  checkPhone,
+  checkEmail,
+  getMe,
+  selectRole,
+  updateProfile,
+  changePassword,
+  getSessions,
+  revokeSession,
+  deleteAccount
 };

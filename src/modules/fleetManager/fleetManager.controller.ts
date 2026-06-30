@@ -6,6 +6,7 @@ import {
   getAllDeliveryPartnersService,
   reassignDeliveryService,
   updateDeliveryPartnerStatusService,
+  getPartnerLocationsService,
 } from './fleetManager.service.ts';
 import { getDeliveryPartnerByIdService } from '../deliveryPartner/deliveryPartner.repository.ts';
 
@@ -121,6 +122,15 @@ const reassignDelivery = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getPartnerLocations = catchAsync(async (req: Request, res: Response) => {
+  const result = await getPartnerLocationsService();
+  res.status(200).json({
+    success: true,
+    message: 'Partner locations fetched successfully',
+    data: result,
+  });
+});
+
 export {
   getAllDeliveryPartners,
   getDeliveryPartnerById,
@@ -128,4 +138,5 @@ export {
   assignDelivery,
   getAllAssignments,
   updateDeliveryPartnerStatus,
+  getPartnerLocations,
 };

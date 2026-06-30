@@ -21,13 +21,29 @@ export const getRestaurants = async (req: Request, res: Response) => {
   }
 };
 
+export const getGlobalMenuItems = async (req: Request, res: Response) => {
+  try {
+    const items = await restaurantService.getGlobalMenuItems(req.query);
+    return res.status(200).json({
+      success: true,
+      message: 'Menu items fetched successfully',
+      data: items,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export async function getRestaurantDetails(
   req: Request<RestaurantParams>,
   res: Response
 ) {
   try {
     const { id } = req.params;
-
     const restaurant = await restaurantService.getRestaurantDetails(id);
 
     return res.status(200).json({
@@ -50,6 +66,46 @@ export async function getRestaurantMenu(
     const { id } = req.params;
 
     const menu = await restaurantService.getRestaurantMenu(id);
+
+    return res.status(200).json({
+      success: true,
+      data: menu,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+export async function getBranchDetails(
+  req: Request<RestaurantParams>,
+  res: Response
+) {
+  try {
+    const { id } = req.params;
+    const branch = await restaurantService.getBranchDetails(id);
+
+    return res.status(200).json({
+      success: true,
+      data: branch,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+export async function getBranchMenu(
+  req: Request<RestaurantParams>,
+  res: Response
+) {
+  try {
+    const { id } = req.params;
+    const menu = await restaurantService.getBranchMenu(id);
 
     return res.status(200).json({
       success: true,

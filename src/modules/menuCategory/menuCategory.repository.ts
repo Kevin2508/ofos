@@ -110,6 +110,23 @@ async function updateMenuCategory({
   });
 }
 
+async function updateMenuCategoryAvailability({
+  id,
+  isActive,
+}: {
+  id: bigint;
+  isActive: boolean;
+}) {
+  return prisma.menuCategory.update({
+    where: {
+      id,
+    },
+    data: {
+      isActive,
+    },
+  });
+}
+
 async function deleteMenuCategory(
   id: bigint
 ) {
@@ -148,6 +165,7 @@ export {
   getMenuCategoryList,
   getMenuCategoryById,
   updateMenuCategory,
+  updateMenuCategoryAvailability,
   deleteMenuCategory,
   reorderMenuCategories,
 };

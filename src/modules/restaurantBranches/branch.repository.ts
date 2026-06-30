@@ -54,6 +54,8 @@ async function updateBranch(
     longitude?: number;
     minimumOrderValue?: number;
     deliveryFee?: number;
+    isAcceptingOrders?: boolean;
+    autoResumeAt?: Date | null;
   }
 ) {
   return prisma.restaurantBranch.update({ where: { id }, data });

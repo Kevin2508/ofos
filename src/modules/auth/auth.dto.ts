@@ -1,5 +1,6 @@
 interface registerDto {
   firstName: string;
+  lastName?: string;
   email?: string;
   phone: string;
   password: string;
@@ -26,12 +27,22 @@ interface resetPasswordParamsDto {
 }
 
 interface sendOtpDto {
-  email: string;
+  email?: string;
+  phone?: string;
 }
 
 interface verigyOtpDto {
-  email: string;
+  email?: string;
+  phone?: string;
   otp: string;
+}
+
+interface checkPhoneDto {
+  phone: string;
+}
+
+interface checkEmailDto {
+  email: string;
 }
 
 export {
@@ -42,4 +53,6 @@ export {
   resetPasswordParamsDto,
   sendOtpDto,
   verigyOtpDto,
+  checkPhoneDto,
+  checkEmailDto,
 };

@@ -4,6 +4,7 @@ import {
   createMenuItemDto,
   importMenuItemsDto,
   updateAvailabilityDto,
+  createAvailabilityScheduleDto,
   updateBestsellerDto,
   updateMenuItemDto,
 } from './menuItem.dto.ts';
@@ -26,6 +27,10 @@ import {
   createMenuItemImages,
   findMenuItemImageById,
   deleteMenuItemImage,
+
+  getMenuItemAvailabilitySchedules,
+  createMenuItemAvailabilitySchedule,
+  deleteMenuItemAvailabilitySchedule,
 } from './menuItem.repository.ts';
 
 import { IMenuItemResponse } from './menuItem.interface.ts';
@@ -124,9 +129,8 @@ async function createMenuItemService(
     description: data.description,
 
     basePrice: data.basePrice,
-
     foodType: data.foodType,
-
+    dietaryTags: data.dietaryTags,
     modifierGroupIds:
       data.modifierGroupIds?.map(
         (id) => BigInt(id)
@@ -194,8 +198,8 @@ async function updateMenuItemService(
       description: data.description,
 
       basePrice: data.basePrice,
-
       foodType: data.foodType,
+      dietaryTags: data.dietaryTags,
     });
 
   return {
@@ -280,6 +284,76 @@ async function updateMenuItemBestsellerService(
  * SOFT DELETE MENU ITEM
  * ============================================================
  */
+
+/**
+ * ============================================================
+ * MENU ITEM AVAILABILITY SCHEDULES
+ * ============================================================
+ */
+
+async function getAvailabilitySchedulesService(menuItemId: string): Promise<IMenuItemResponse> {
+  const existingItem = await findMenuItemById(BigInt(menuItemId));
+  if (!existingItem) {
+    throw new Error('Menu item not found');
+  }
+
+  const schedules = await getMenuItemAvailabilitySchedules(BigInt(menuItemId));
+
+  return {
+    message: 'Availability schedules fetched successfully',
+    data: schedules,
+  };
+}
+
+async function createAvailabilityScheduleService(
+  menuItemId: string,
+  data: createAvailabilityScheduleDto
+): Promise<IMenuItemResponse> {
+  const existingItem = await findMenuItemById(BigInt(menuItemId));
+  if (!existingItem) {
+    throw new Error('Menu item not found');
+  }
+
+  // Convert "HH:mm" to Date objects for Prisma
+  const now = new Date();
+  const startTimeObj = new Date(now.toDateString() + ' ' + data.startTime);
+  const endTimeObj = new Date(now.toDateString() + ' ' + data.endTime);
+
+  const schedule = await createMenuItemAvailabilitySchedule({
+    menuItemId: BigInt(menuItemId),
+    dayOfWeek: data.dayOfWeek,
+    startTime: startTimeObj,
+    endTime: endTimeObj,
+  });
+
+  return {
+    message: 'Availability schedule created successfully',
+    data: schedule,
+  };
+}
+
+async function deleteAvailabilityScheduleService(
+  menuItemId: string,
+  scheduleId: string
+): Promise<IMenuItemResponse> {
+  const existingItem = await findMenuItemById(BigInt(menuItemId));
+  if (!existingItem) {
+    throw new Error('Menu item not found');
+  }
+
+  // Optionally verify schedule belongs to menu item, but deletion by ID is usually sufficient if we trust the route or we can do a check
+  await deleteMenuItemAvailabilitySchedule(BigInt(scheduleId));
+
+  return {
+    message: 'Availability schedule deleted successfully',
+  };
+}
+
+/**
+ * ============================================================
+ * SOFT DELETE MENU ITEM
+ * ============================================================
+ */
 async function deleteMenuItemService(
   menuItemId: string
 ): Promise<IMenuItemResponse> {
@@ -334,7 +408,7 @@ async function uploadMenuItemImageService(
   await createMenuItemImages({
     menuItemId: BigInt(menuItemId),
 
-    imageUrls: [file.path],
+    imageUrls: ['/' + file.path.replace(/\\/g, '/')],
   });
 
   /**
@@ -584,6 +658,39 @@ async function importMenuItemsService(
 
 
 
+async function duplicateMenuItemService(
+  menuItemId: string
+): Promise<IMenuItemResponse> {
+  const existingItem = await findMenuItemById(BigInt(menuItemId));
+
+  if (!existingItem) {
+    throw new Error('Menu item not found');
+  }
+
+  let copySku = `${existingItem.sku}-copy`;
+  let counter = 1;
+  while (await findMenuItemBySku(copySku)) {
+    copySku = `${existingItem.sku}-copy-${counter}`;
+    counter++;
+  }
+
+  const duplicated = await createMenuItem({
+    categoryId: existingItem.categoryId,
+    sku: copySku,
+    name: `${existingItem.name} - Copy`,
+    description: existingItem.description || undefined,
+    basePrice: Number(existingItem.basePrice),
+    foodType: existingItem.foodType,
+    dietaryTags: existingItem.dietaryTags as string[] | undefined,
+    modifierGroupIds: existingItem.modifierGroups.map(mg => mg.modifierGroupId)
+  });
+
+  return {
+    message: 'Menu item duplicated successfully',
+    data: duplicated,
+  };
+}
+
 export {
   getMenuItemsByCategoryService,
   createMenuItemService,
@@ -592,6 +699,11 @@ export {
   updateMenuItemAvailabilityService,
   updateMenuItemBestsellerService,
   deleteMenuItemService,
+  duplicateMenuItemService,
+
+  getAvailabilitySchedulesService,
+  createAvailabilityScheduleService,
+  deleteAvailabilityScheduleService,
 
   uploadMenuItemImageService,
   deleteMenuItemImageService,

@@ -4,13 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | ofos - Food Ordering System</title>
+  <title>Login | epicure- Food Ordering System</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
 </head>
 
 <body>
   <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-5 sm:p-8">
       <!-- Header -->
       <div class="text-center mb-8">
         <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
@@ -36,7 +37,7 @@
           </label>
           <div class="relative">
             <input type="password" id="password" name="password" placeholder="Enter password"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
+               minlength="8" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
             <button type="button" id="togglePassword"
               class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
               Show
@@ -109,76 +110,34 @@
  Validation
 -------------------------------- */
 
-    function validateUserIdentifier(value) {
-      const trimmed = value.trim();
+    const loginRules = {
+      userIdentifier: {
+        required: true,
+        label: 'Email or Phone',
+        custom: (value) => {
+          const phoneRegex = /^[0-9]{10}$/;
+          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|io)$/i;
+          
+          if (phoneRegex.test(value)) return '';
+          if (/^[0-9]+$/.test(value) && value.length !== 10) return 'Contact number must be exactly 10 digits';
+          if (emailRegex.test(value)) return '';
+          
+          return 'Please enter a valid email address or 10-digit phone number';
+        }
+      },
+      password: { required: true, minLength: 8, label: 'Password' }
+    };
 
-      if (!trimmed) {
-        return 'please enter email or phone as userIdentifier';
-      }
-
-      const phoneRegex = /^[0-9]{10}$/;
-
-      const emailRegex =
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|io)$/;
-
-      if (phoneRegex.test(trimmed)) {
-        return '';
-      }
-
-      if (/^[0-9]+$/.test(trimmed) && trimmed.length !== 10) {
-        return 'Contact number must be exactly 10 digits';
-      }
-
-      if (emailRegex.test(trimmed)) {
-        return '';
-      }
-
-      return 'Please enter a valid email address ending in .com';
-    }
-
-    function validatePassword(value) {
-      if (!value) {
-        return 'Password is required';
-      }
-
-      if (value.length < 8) {
-        return 'Password must be at least 8 characters';
-      }
-
-      return '';
-    }
-
-    function clearErrors() {
-      userIdentifierError.textContent = '';
-      passwordError.textContent = '';
-    }
+    FormValidator.bindLiveValidation(loginRules);
 
     //  Submit
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      clearErrors();
+      if (!FormValidator.validate(loginRules)) return;
 
       const identifierValue = userIdentifier.value.trim();
       const passwordValue = password.value;
-
-      const identifierValidation = validateUserIdentifier(identifierValue);
-
-      const passwordValidation = validatePassword(passwordValue);
-
-      let hasError = false;
-
-      if (identifierValidation) {
-        userIdentifierError.textContent = identifierValidation;
-        hasError = true;
-      }
-
-      if (passwordValidation) {
-        passwordError.textContent = passwordValidation;
-        hasError = true;
-      }
-
-      if (hasError) return;
 
       loginBtn.disabled = true;
       loginBtn.textContent = 'Logging in...';
@@ -203,17 +162,8 @@
           return;
         }
 
-        const roles = data?.data?.user?.roles || [];
-
-        localStorage.setItem('roles', JSON.stringify(roles));
-        localStorage.setItem('pendingRoles', JSON.stringify(data?.data?.user?.pendingRoles));
-        localStorage.setItem('email', data?.data?.user?.email);
-
-        if (data?.data?.token) {
-          localStorage.setItem('token', data.data.token);
-        }
-
-        window.location.href = data.redirectUrl || '/';
+        // Always go through role-selection which handles setting activeRole cookie
+        window.location.href = '/role-selection';
       } catch (error) {
         showToast('Something went wrong. Please try again.', 'error');
         console.error(error);
@@ -226,78 +176,4 @@
   <%- include('../partials/toast') %>
 </body>
 
-        if (value.length < 8) {
-          return 'Password must be at least 8 characters';
-        }
-
-        return '';
-      }
-
-      function clearErrors() {
-        userIdentifierError.textContent = '';
-        passwordError.textContent = '';
-      }
-
-      //  Submit
-      loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        clearErrors();
-
-        const identifierValue = userIdentifier.value.trim();
-        const passwordValue = password.value;
-
-        const identifierValidation = validateUserIdentifier(identifierValue);
-
-        const passwordValidation = validatePassword(passwordValue);
-
-        let hasError = false;
-
-        if (identifierValidation) {
-          userIdentifierError.textContent = identifierValidation;
-          hasError = true;
-        }
-
-        if (passwordValidation) {
-          passwordError.textContent = passwordValidation;
-          hasError = true;
-        }
-
-        if (hasError) return;
-
-        loginBtn.disabled = true;
-        loginBtn.textContent = 'Logging in...';
-
-        try {
-          const response = await fetch('/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              userIdentifier: identifierValue,
-              password: passwordValue,
-              rememberMe: rememberMe.checked ? 'true' : 'false',
-            }),
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            showToast(data.message || data.error || 'Login failed', 'error');
-            return;
-          }
-
-          // console.log(data.data.user);
-          window.location.href = data.redirectUrl || '/';
-        } catch (error) {
-          showToast('Something went wrong. Please try again.', 'error');
-        } finally {
-          loginBtn.disabled = false;
-          loginBtn.textContent = 'Login';
-        }
-      });
-    </script>
-    <%- include('../partials/toast') %>
-  </body>
 </html>

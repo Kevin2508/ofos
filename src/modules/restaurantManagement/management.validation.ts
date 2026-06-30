@@ -53,6 +53,11 @@ const updateRestaurantSchema = Joi.object({
     .messages({
       "string.email": "Please enter a valid email address",
     }),
+  cuisineTags: Joi.string().optional(),
+
+  bankAccountName: Joi.string().max(255).optional(),
+  bankAccountNumber: Joi.string().max(50).optional(),
+  bankIfscCode: Joi.string().max(20).optional(),
 });
 
 const uploadDocumentSchema = Joi.object({

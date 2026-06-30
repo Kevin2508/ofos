@@ -60,6 +60,18 @@ const verifySuccessfulPayment = (paymentId: bigint, orderId: bigint, providerPay
                 }
             });
 
+            await tx.financialTransaction.create({
+                data: {
+                    transactionId: providerPaymentId || `TXN-${paymentId}-${Date.now()}`,
+                    amount: updatedPayment.amount,
+                    currency: updatedPayment.currency,
+                    gatewayResponseCode: 'SUCCESS',
+                    status: 'COMPLETED',
+                    referenceType: 'PAYMENT',
+                    referenceId: paymentId
+                }
+            });
+
             return updatedPayment
         }
     )
@@ -84,6 +96,18 @@ const verifyFailedPayment = (paymentId: bigint, orderId: bigint, failureReason: 
                 },
                 data: {
                         paymentStatus: 'FAILED'
+                }
+            });
+
+            await tx.financialTransaction.create({
+                data: {
+                    transactionId: updatedPayment.providerPaymentId || `TXN-${paymentId}-${Date.now()}`,
+                    amount: updatedPayment.amount,
+                    currency: updatedPayment.currency,
+                    gatewayResponseCode: failureReason,
+                    status: 'FAILED',
+                    referenceType: 'PAYMENT',
+                    referenceId: paymentId
                 }
             });
 

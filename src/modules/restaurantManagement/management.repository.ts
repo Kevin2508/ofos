@@ -21,6 +21,10 @@ async function createRestaurant(data: {
   primaryPhone: string;
   primaryEmail: string;
   description?: string;
+  cuisineTags?: string;
+  bankAccountNumber?: string;
+  bankIfscCode?: string;
+  bankAccountName?: string;
 }) {
   return prisma.restaurant.create({
     data: {
@@ -56,6 +60,10 @@ async function updateRestaurant(
     description?: string;
     primaryPhone?: string;
     primaryEmail?: string;
+    cuisineTags?: string;
+    bankAccountNumber?: string;
+    bankIfscCode?: string;
+    bankAccountName?: string;
   }
 ) {
   return prisma.restaurant.update({ where: { id }, data });

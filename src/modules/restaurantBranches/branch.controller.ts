@@ -15,7 +15,7 @@ import {
   replaceOperatingHours as replaceOperatingHoursService,
   updateOperatingHour as updateOperatingHourService,
   getDeliveryZone as getDeliveryZoneService,
-    upsertDeliveryZone as upsertDeliveryZoneService,
+  upsertDeliveryZone as upsertDeliveryZoneService,
 } from "./branch.service.ts";
 
 const getBranches = catchAsync(
@@ -41,7 +41,6 @@ const createBranch = catchAsync(
 
 const getBranch = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
-    console.log(req.params.restaurantId)
     const restaurantId = BigInt(req.params.restaurantId);
     const id = BigInt(req.params.id);
     const data = await getBranchService(restaurantId, id);
@@ -77,62 +76,62 @@ const getOperatingHours = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
     const branchId = BigInt(req.params.branchId);
 
-  const hours =
-    await getOperatingHoursService(branchId);
+    const hours =
+      await getOperatingHoursService(branchId);
 
-  return res.status(200).json({
-    success: true,
-    data: hours,
+    return res.status(200).json({
+      success: true,
+      data: hours,
+    });
   });
-});
 
 const replaceOperatingHours = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
     const branchId = BigInt(req.params.branchId);
 
-  await replaceOperatingHoursService(
-    branchId ,
-    req.body.hours
-  );
+    await replaceOperatingHoursService(
+      branchId,
+      req.body.hours
+    );
 
-  return res.status(200).json({
-    success: true,
-    message:
-      "Operating hours updated successfully",
+    return res.status(200).json({
+      success: true,
+      message:
+        "Operating hours updated successfully",
+    });
   });
-});
 
 const updateOperatingHour = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
     const branchId = BigInt(req.params.branchId);
 
-  const dayOfWeek =
-    Number(req.params.dayOfWeek);
+    const dayOfWeek =
+      Number(req.params.dayOfWeek);
 
-  const result =
-    await updateOperatingHourService(
-      branchId,
-      dayOfWeek,
-      req.body
-    );
+    const result =
+      await updateOperatingHourService(
+        branchId,
+        dayOfWeek,
+        req.body
+      );
 
-  return res.status(200).json({
-    success: true,
-    data: result,
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
   });
-});
 
 const getDeliveryZone = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
-const branchId = BigInt(req.params.branchId);
+    const branchId = BigInt(req.params.branchId);
 
-  const zone =
-    await getDeliveryZoneService(branchId);
+    const zone =
+      await getDeliveryZoneService(branchId);
 
-  return res.status(200).json({
-    success: true,
-    data: zone,
-  });
+    return res.status(200).json({
+      success: true,
+      data: zone,
+    });
   });
 
 
@@ -140,17 +139,17 @@ const upsertDeliveryZone = catchAsync(
   async (req: Request<branchParamsDto>, res: Response) => {
     const branchId = BigInt(req.params.branchId);
 
-  const zone =
-    await upsertDeliveryZoneService(
-      branchId,
-      req.body
-    );
+    const zone =
+      await upsertDeliveryZoneService(
+        branchId,
+        req.body
+      );
 
-  return res.status(200).json({
-    success: true,
-    data: zone,
+    return res.status(200).json({
+      success: true,
+      data: zone,
+    });
   });
-});
 
 export {
   getBranches,

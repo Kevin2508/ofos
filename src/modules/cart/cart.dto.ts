@@ -11,6 +11,11 @@ interface CartItemDTO {
   unitPrice: string;
   lineTotal: string;
   specialInstructions?: string | null;
+  menuItem?: {
+    id: bigint;
+    name: string;
+    imageUrl: string | null;
+  } | null;
   modifiers: {
     id: bigint;
     modifierOptionId: bigint;
@@ -34,11 +39,26 @@ interface CartResponseDTO {
   customerUserId: bigint;
   restaurantBranchId: bigint;
   status: string;
+  restaurantBranch?: {
+    id: bigint;
+    restaurant: {
+      businessName: string;
+    }
+  } | null;
   items: CartItemDTO[];
   priceBreakdown: PriceBreakdownDTO;
+  minimumOrderValue?: string;
+  distanceToMinimum?: string;
+  progressPercentage?: number;
   lastActivityAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  applicableCoupons?: {
+    code: string;
+    couponType: string;
+    value: number;
+    description: string;
+  }[];
 }
 
 interface AddCartItemDTO {

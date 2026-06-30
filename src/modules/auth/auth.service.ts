@@ -22,6 +22,7 @@ import {
   createUserSession,
   deleteOtp,
   deleteResetToken,
+  extendUserSession,
   getToken,
   getValidOtpByEmail,
   getValidOtpByPhone,
@@ -29,9 +30,10 @@ import {
   getValidSessionWithUserByTokenHash,
   saveOtp,
   storeResetToken,
+  getUserRole,
 } from './auth.repository.ts';
 import { createDeliveryPartner } from '../deliveryPartner/deliveryPartner.repository.ts';
-import { createRestaurantOwner } from '../restaurantManagement/management.repository.ts';
+
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const GENERIC_AUTH_ERROR = 'Invalid credentials provided';
@@ -92,9 +94,6 @@ async function loginService(
     {
       id: String(user.id),
       email: user.email,
-      roles: Array.from(roles),
-      pendingRoles: Array.from(pendingRoles),
-      permissions: Array.from(permissions),
     },
     process.env.JWT_ACCESS_SECRET!,
     { expiresIn: accessTokenLife }
@@ -383,12 +382,16 @@ async function refreshTokenService(rawRefreshToken: string) {
     {
       id: String(session.user.id),
       email: session.user.email,
-      roles: Array.from(roles),
-      permissions: Array.from(permissions),
     },
     process.env.JWT_ACCESS_SECRET!,
     { expiresIn: accessTokenLife }
   );
+
+  // Extend the session by 30 days of inactivity
+  const refreshExpiresInDays = 30;
+  const newExpiresAt = new Date();
+  newExpiresAt.setDate(newExpiresAt.getDate() + refreshExpiresInDays);
+  await extendUserSession(session.id, newExpiresAt);
 
   return {
     accessToken: newAccessToken,
@@ -401,11 +404,48 @@ async function refreshTokenService(rawRefreshToken: string) {
   };
 }
 
-async function registerService(data: registerDto) {
+async function checkPhoneService(data: { phone: string }, authUserId: bigint | null = null) {
+  const existingUser = await findUserByContact(data.phone);
+  if (existingUser) {
+    if (authUserId && existingUser.id === authUserId) {
+      return { message: 'Phone number is available' };
+    }
+    throw new Error('Phone number is already in use');
+  }
+  return { message: 'Phone number is available' };
+}
+
+async function checkEmailService(data: { email: string }, authUserId: bigint | null = null) {
+  const existingUser = await findUserByIdentifier(data.email);
+  if (existingUser) {
+    if (authUserId && existingUser.id === authUserId) {
+      return { message: 'Email address is available' };
+    }
+    throw new Error('Email address is already in use');
+  }
+  return { message: 'Email address is available' };
+}
+
+async function registerService(
+  data: registerDto,
+  reqMeta: { ipAddress?: string; userAgent?: string },
+  authUserId: bigint | null = null
+) {
   const existingUser = await findUserByContact(data.phone);
 
   if (existingUser) {
-    throw new Error('Phone number is already in use');
+    if (!authUserId || existingUser.id !== authUserId) {
+      throw new Error('Phone number is already in use');
+    }
+  }
+  
+  if (data.email) {
+    const existingEmail = await findUserByIdentifier(data.email);
+    if (existingEmail) {
+      if (!authUserId || existingEmail.id !== authUserId) {
+        throw new Error('Email address is already in use');
+      }
+    }
   }
 
   const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
@@ -413,7 +453,8 @@ async function registerService(data: registerDto) {
 
   const user = await createUser({
     firstName: data.firstName,
-    email: data.email || '',
+    lastName: data.lastName || null,
+    email: data.email || null,
     phone: data.phone,
     passwordHash: hashedPassword,
   });
@@ -425,13 +466,66 @@ async function registerService(data: registerDto) {
     roleId: role?.id || BigInt(1),
     status: 'ASSIGNED',
   });
+  
+  // Flatten Roles and Permissions for JWT Payload
+  const roles = new Set<string>(['Customer']);
+  const pendingRoles = new Set<string>();
+  const permissions = new Set<string>();
+
+  // Generate Short-Lived Access Token
+  const accessTokenLife = (process.env.JWT_ACCESS_EXPIRE ||
+    '1d') as StringValue;
+  const accessToken = jwt.sign(
+    {
+      id: String(user.id),
+      email: data.email || null,
+      roles: Array.from(roles),
+      pendingRoles: Array.from(pendingRoles),
+      permissions: Array.from(permissions),
+    },
+    process.env.JWT_ACCESS_SECRET!,
+    { expiresIn: accessTokenLife }
+  );
+
+  const refreshToken = crypto.randomBytes(40).toString('hex');
+  const refreshTokenHash = crypto
+    .createHash('sha256')
+    .update(refreshToken)
+    .digest('hex');
+
+  const refreshExpiresInDays = Number(process.env.JWT_REFRESH_EXPIRE || 5);
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + refreshExpiresInDays);
+
+  await createUserSession({
+    userId: user.id,
+    refreshTokenHash,
+    ipAddress: reqMeta.ipAddress || '',
+    userAgent: reqMeta.userAgent || '',
+    deviceName: '',
+    expiresAt,
+  });
 
   return {
     message: 'User created successfully',
+    tokens: {
+      accessToken,
+      refreshToken,
+      expiresIn: accessTokenLife,
+    },
+    user: {
+      id: String(user.id),
+      firstName: data.firstName,
+      lastName: data.lastName || null,
+      email: data.email || null,
+      roles: Array.from(roles),
+      pendingRoles: Array.from(pendingRoles),
+    },
   };
 }
 
-async function registerAdminService(data: any) {
+async function registerAdminService(data: any, authUserId: bigint | null = null) {
   let user = await findUserByIdentifier(data.email);
   if (!user) {
     user = await findUserByIdentifier(data.phone);
@@ -440,8 +534,18 @@ async function registerAdminService(data: any) {
   const isExistingUser = !!user;
 
   if (isExistingUser) {
+    if (!authUserId || !user || user.id !== authUserId) {
+      throw new Error('Phone number or email is already registered to another account');
+    }
     const role = await getRoleIdByRole({ role: 'Admin' });
     if (user && role) {
+      const { prisma } = await import('../../config/prisma.ts');
+      const existingRole = await prisma.userRole.findUnique({
+        where: { userId_roleId: { userId: user.id, roleId: role.id } }
+      });
+      if (existingRole) {
+        throw new Error('You have already applied for or possessed this role');
+      }
       await assignRole({
         userId: user.id,
         roleId: role.id,
@@ -452,7 +556,7 @@ async function registerAdminService(data: any) {
     const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    const user = await createUser({
+    const newUser = await createUser({
       firstName: data.firstName,
       // lastName: data.lastName,
       email: data.email,
@@ -462,9 +566,9 @@ async function registerAdminService(data: any) {
 
     const role = await getRoleIdByRole({ role: 'Admin' });
 
-    if (user && role) {
+    if (newUser && role) {
       await assignRole({
-        userId: user.id,
+        userId: newUser.id,
         roleId: role.id,
         status: 'REQUESTED',
       });
@@ -478,7 +582,7 @@ async function registerAdminService(data: any) {
   };
 }
 
-async function registerFleetManagerService(data: any) {
+async function registerFleetManagerService(data: any, authUserId: bigint | null = null) {
   let user = await findUserByIdentifier(data.email);
   if (!user) {
     user = await findUserByIdentifier(data.phone);
@@ -487,8 +591,18 @@ async function registerFleetManagerService(data: any) {
   const isExistingUser = !!user;
 
   if (isExistingUser) {
+    if (!authUserId || !user || user.id !== authUserId) {
+      throw new Error('Phone number or email is already registered to another account');
+    }
     const role = await getRoleIdByRole({ role: 'Fleet_manager' });
     if (user && role) {
+      const { prisma } = await import('../../config/prisma.ts');
+      const existingRole = await prisma.userRole.findUnique({
+        where: { userId_roleId: { userId: user.id, roleId: role.id } }
+      });
+      if (existingRole) {
+        throw new Error('You have already applied for or possessed this role');
+      }
       await assignRole({
         userId: user.id,
         roleId: role.id,
@@ -499,7 +613,7 @@ async function registerFleetManagerService(data: any) {
     const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    const user = await createUser({
+    const newUser = await createUser({
       firstName: data.firstName,
       // lastName: data.lastName,
       email: data.email,
@@ -509,9 +623,9 @@ async function registerFleetManagerService(data: any) {
 
     const role = await getRoleIdByRole({ role: 'Fleet_manager' });
 
-    if (user && role) {
+    if (newUser && role) {
       await assignRole({
-        userId: user.id,
+        userId: newUser.id,
         roleId: role.id,
         status: 'REQUESTED',
       });
@@ -525,58 +639,80 @@ async function registerFleetManagerService(data: any) {
   };
 }
 
-async function registerDeliveryPartnerService(data: any) {
+async function registerDeliveryPartnerService(data: any, file?: any, authUserId: bigint | null = null) {
   let user = await findUserByIdentifier(data.email);
   if (!user) {
     user = await findUserByIdentifier(data.phone);
   }
 
   const isExistingUser = !!user;
+  let targetUserId = user?.id;
 
   if (isExistingUser) {
-    if (user) {
-      await createDeliveryPartner({
-        userId: user.id,
-        vehicleType: data.vehicleType,
-        vehicleRegistrationNumber: data.vehicleRegistrationNumber,
-      });
+    if (!authUserId || !user || user.id !== authUserId) {
+      throw new Error('Phone number or email is already registered to another account');
     }
-
     const role = await getRoleIdByRole({ role: 'Delivery_partner' });
-
-    if (user && role) {
-      await assignRole({
-        userId: user.id,
-        roleId: role.id,
-        status: 'REQUESTED',
+    if (role && user) {
+      const { prisma } = await import('../../config/prisma.ts');
+      const existingRole = await prisma.userRole.findUnique({
+        where: { userId_roleId: { userId: user.id, roleId: role.id } }
       });
+      if (existingRole) {
+        throw new Error('You have already applied for or possessed this role');
+      }
     }
   } else {
     const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    const user = await createUser({
+    const newUser = await createUser({
       firstName: data.firstName,
-      // lastName: data.lastName,
+      lastName: data.lastName,
       email: data.email,
       phone: data.phone,
       passwordHash: hashedPassword,
     });
+    targetUserId = newUser.id;
+  }
 
-    await createDeliveryPartner({
-      userId: user.id,
-      vehicleType: data.vehicleType,
-      vehicleRegistrationNumber: data.vehicleRegistrationNumber,
+  if (targetUserId) {
+    const { prisma } = await import('../../config/prisma.ts');
+    const existingPartner = await prisma.deliveryPartner.findUnique({
+      where: { userId: targetUserId }
     });
+
+    if (!existingPartner) {
+      await createDeliveryPartner({
+        userId: targetUserId,
+        vehicleType: data.vehicleType,
+        vehicleRegistrationNumber: data.vehicleRegistrationNumber,
+      });
+
+      if (file) {
+        await prisma.deliveryPartnerDocument.create({
+          data: {
+            partnerUserId: targetUserId,
+            documentType: 'AADHAR',
+            documentUrl: `/uploads/deliveryPartners/documents/${file.filename}`,
+          }
+        });
+      }
+    }
 
     const role = await getRoleIdByRole({ role: 'Delivery_partner' });
 
-    if (user && role) {
-      await assignRole({
-        userId: user.id,
-        roleId: role.id,
-        status: 'REQUESTED',
+    if (role) {
+      const existingRole = await prisma.userRole.findUnique({
+        where: { userId_roleId: { userId: targetUserId, roleId: role.id } }
       });
+      if (!existingRole) {
+        await assignRole({
+          userId: targetUserId,
+          roleId: role.id,
+          status: 'REQUESTED',
+        });
+      }
     }
   }
 
@@ -587,7 +723,7 @@ async function registerDeliveryPartnerService(data: any) {
   };
 }
 
-async function registerRestaurantOwnerService(data: any) {
+async function registerRestaurantOwnerService(data: any, files: any, authUserId: bigint | null = null) {
   let user = await findUserByIdentifier(data.email);
   if (!user) {
     user = await findUserByIdentifier(data.phone);
@@ -596,12 +732,27 @@ async function registerRestaurantOwnerService(data: any) {
   const isExistingUser = !!user;
   let targetUserId = user?.id;
 
-  if (!isExistingUser) {
+  if (isExistingUser) {
+    if (!authUserId || !user || user.id !== authUserId) {
+      throw new Error('Phone number or email is already registered to another account');
+    }
+    const role = await getRoleIdByRole({ role: 'Restaurant_owner' });
+    if (role && user) {
+      const { prisma } = await import('../../config/prisma.ts');
+      const existingRole = await prisma.userRole.findUnique({
+        where: { userId_roleId: { userId: user.id, roleId: role.id } }
+      });
+      if (existingRole) {
+        throw new Error('You have already applied for or possessed this role');
+      }
+    }
+  } else {
     const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
     const newUser = await createUser({
       firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
       phone: data.phone,
       passwordHash: hashedPassword,
@@ -610,9 +761,44 @@ async function registerRestaurantOwnerService(data: any) {
   }
 
   if (targetUserId) {
-    await createRestaurantOwner({
-      userId: targetUserId,
+    const { createRestaurant, updateRestaurantLogo, updateRestaurantCover } = await import('../restaurantManagement/management.repository.ts');
+    const { createBranch } = await import('../restaurantBranches/branch.repository.ts');
+    
+    const restaurant = await createRestaurant({
+      ownerUserId: targetUserId,
+      businessName: data.businessName,
+      legalBusinessName: data.legalBusinessName,
+      primaryPhone: data.restaurantPhone,
+      primaryEmail: data.restaurantEmail,
     });
+
+    await createBranch({
+      restaurantId: restaurant.id,
+      branchName: `${data.businessName} — Main Branch`,
+      addressLine1: data.addressLine1,
+      city: data.city,
+      state: data.state,
+      postalCode: data.postalCode,
+      country: 'India',
+      latitude: 0,
+      longitude: 0,
+      contactPhone: data.restaurantPhone,
+      gstin: data.gstin || 'PENDING',
+      fssaiLicenseNumber: data.fssaiLicenseNumber || 'PENDING',
+      minimumOrderValue: 0,
+      deliveryFee: 0,
+    });
+
+    if (files) {
+      if (files.logo && files.logo.length > 0) {
+        const logoPath = `/uploads/restaurants/logos/${files.logo[0].filename}`;
+        await updateRestaurantLogo(restaurant.id, logoPath);
+      }
+      if (files.cover && files.cover.length > 0) {
+        const coverPath = `/uploads/restaurants/covers/${files.cover[0].filename}`;
+        await updateRestaurantCover(restaurant.id, coverPath);
+      }
+    }
 
     const role = await getRoleIdByRole({ role: 'Restaurant_owner' });
     if (role) {
@@ -631,7 +817,7 @@ async function registerRestaurantOwnerService(data: any) {
   };
 }
 
-async function registerRestaurantStaffService(data: any) {
+async function registerRestaurantStaffService(data: any, authUserId: bigint | null = null) {
   let user = await findUserByIdentifier(data.email);
   if (!user) {
     user = await findUserByIdentifier(data.phone);
@@ -640,8 +826,18 @@ async function registerRestaurantStaffService(data: any) {
   const isExistingUser = !!user;
 
   if (isExistingUser) {
+    if (!authUserId || !user || user.id !== authUserId) {
+      throw new Error('Phone number or email is already registered to another account');
+    }
     const role = await getRoleIdByRole({ role: 'Restaurant_staff' });
     if (user && role) {
+      const { prisma } = await import('../../config/prisma.ts');
+      const existingRole = await prisma.userRole.findUnique({
+        where: { userId_roleId: { userId: user.id, roleId: role.id } }
+      });
+      if (existingRole) {
+        throw new Error('You have already applied for or possessed this role');
+      }
       await assignRole({
         userId: user.id,
         roleId: role.id,
@@ -652,7 +848,7 @@ async function registerRestaurantStaffService(data: any) {
     const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    const user = await createUser({
+    const newUser = await createUser({
       firstName: data.firstName,
       // lastName: data.lastName,
       email: data.email,
@@ -662,9 +858,9 @@ async function registerRestaurantStaffService(data: any) {
 
     const role = await getRoleIdByRole({ role: 'Restaurant_staff' });
 
-    if (user && role) {
+    if (newUser && role) {
       await assignRole({
-        userId: user.id,
+        userId: newUser.id,
         roleId: role.id,
         status: 'REQUESTED',
       });
@@ -678,7 +874,7 @@ async function registerRestaurantStaffService(data: any) {
   };
 }
 
-async function registerFinanceManagerService(data: any) {
+async function registerFinanceManagerService(data: any, authUserId: bigint | null = null) {
   let user = await findUserByIdentifier(data.email);
   if (!user) {
     user = await findUserByIdentifier(data.phone);
@@ -687,8 +883,18 @@ async function registerFinanceManagerService(data: any) {
   const isExistingUser = !!user;
 
   if (isExistingUser) {
+    if (!authUserId || !user || user.id !== authUserId) {
+      throw new Error('Phone number or email is already registered to another account');
+    }
     const role = await getRoleIdByRole({ role: 'Finance_manager' });
     if (user && role) {
+      const { prisma } = await import('../../config/prisma.ts');
+      const existingRole = await prisma.userRole.findUnique({
+        where: { userId_roleId: { userId: user.id, roleId: role.id } }
+      });
+      if (existingRole) {
+        throw new Error('You have already applied for or possessed this role');
+      }
       await assignRole({
         userId: user.id,
         roleId: role.id,
@@ -699,7 +905,7 @@ async function registerFinanceManagerService(data: any) {
     const saltRounds = Number(process.env.PASSWORD_HASH_SALT || 10);
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    const user = await createUser({
+    const newUser = await createUser({
       firstName: data.firstName,
       // lastName: data.lastName,
       email: data.email,
@@ -709,9 +915,9 @@ async function registerFinanceManagerService(data: any) {
 
     const role = await getRoleIdByRole({ role: 'Finance_manager' });
 
-    if (user && role) {
+    if (newUser && role) {
       await assignRole({
-        userId: user.id,
+        userId: newUser.id,
         roleId: role.id,
         status: 'REQUESTED',
       });
@@ -723,6 +929,20 @@ async function registerFinanceManagerService(data: any) {
       ? 'Account found. Your request for Finance manager has been sent to administrators for review.'
       : 'Account created. Your request for Finance manager has been sent to administrators for review.',
   };
+}
+
+async function selectRoleService(userId: string, roleName: string) {
+  if (!roleName) {
+    throw new Error('Role is required');
+  }
+
+  const userRoleRecord = await getUserRole(BigInt(userId), roleName);
+
+  if (!userRoleRecord || userRoleRecord.status !== 'ASSIGNED') {
+    throw new Error('You do not have access to this role');
+  }
+
+  return { role: roleName };
 }
 
 export {
@@ -738,5 +958,8 @@ export {
   refreshTokenService,
   registerRestaurantOwnerService,
   registerRestaurantStaffService,
-  registerFinanceManagerService
+  registerFinanceManagerService,
+  checkPhoneService,
+  checkEmailService,
+  selectRoleService,
 };

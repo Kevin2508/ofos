@@ -5,7 +5,7 @@ const adminPageRouter = Router();
 
 adminPageRouter.use(authenticate);
 
-adminPageRouter.use(authorize('Admin'));
+adminPageRouter.use(authorize(['Admin']));
 
 adminPageRouter.get('/admin-dashboard', (req, res) => {
   res.render('admin/dashboard');
@@ -29,6 +29,28 @@ adminPageRouter.get('/admin-configs', (req, res) => {
 
 adminPageRouter.get('/admin-audit-logs', (req, res) => {
   res.render('admin/audit-logs');
+});
+
+adminPageRouter.get('/admin-tickets', (req, res) => {
+  res.render('admin/tickets');
+});
+
+adminPageRouter.get('/admin-coupons', (req, res) => {
+  res.render('admin/coupons');
+});
+
+adminPageRouter.get('/admin-finance-reports', (req, res) => {
+  res.render('admin/financial-reports');
+});
+
+adminPageRouter.get('/admin-heatmap', (req, res) => {
+  res.render('admin/heatmap');
+});
+
+
+
+adminPageRouter.get('/profile', (req, res) => {
+  res.render('admin/profile');
 });
 
 export { adminPageRouter };

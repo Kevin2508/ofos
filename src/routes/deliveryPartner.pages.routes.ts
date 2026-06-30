@@ -5,7 +5,7 @@ const deliveryPartnerPageRouter = Router();
 
 deliveryPartnerPageRouter.use(authenticate);
 
-deliveryPartnerPageRouter.use(authorize('Delivery_partner'));
+deliveryPartnerPageRouter.use(authorize(['Delivery_partner']));
 
 deliveryPartnerPageRouter.get('/delivery-partner-dashboard', (req, res) => {
   res.render('deliveryPartner/dashboard');
@@ -20,6 +20,12 @@ deliveryPartnerPageRouter.get('/delivery-partner-earnings', (req, res) => {
 });
 
 deliveryPartnerPageRouter.get('/delivery-partner-profile', (req, res) => {
+  res.render('deliveryPartner/profile');
+});
+
+
+
+deliveryPartnerPageRouter.get('/profile', (req, res) => {
   res.render('deliveryPartner/profile');
 });
 

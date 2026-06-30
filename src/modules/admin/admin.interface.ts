@@ -4,6 +4,8 @@ interface GetAllUsersParams {
   search?: string;
   role?: string;
   status?: UserStatus;
+  limit?: number;
+  page?: number;
 }
 
 interface UpdateUserRoleStatusPayload {
@@ -12,4 +14,10 @@ interface UpdateUserRoleStatusPayload {
   status: UserRoleStatus;
 }
 
-export { GetAllUsersParams, UpdateUserRoleStatusPayload };
+interface UpdateUserStatusPayload {
+  userId: string;
+  status: UserStatus;
+  reason: string;
+}
+
+export { GetAllUsersParams, UpdateUserRoleStatusPayload, UpdateUserStatusPayload };

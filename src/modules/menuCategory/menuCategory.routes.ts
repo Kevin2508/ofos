@@ -9,6 +9,8 @@ import {
   getMenuCategoryList,
   reorderMenuCategory,
   updateMenuCategory,
+  duplicateMenuCategory,
+  updateMenuCategoryAvailability,
 } from './menuCategory.controller.ts';
 
 import {
@@ -75,5 +77,24 @@ menuCategoryRouter.delete(
   deleteMenuCategory
 );
 
+/**
+ * POST
+ * Duplicate category
+ */
+menuCategoryRouter.post(
+  '/branches/:branchId/categories/:id/duplicate',
+  authenticate,
+  duplicateMenuCategory
+);
+
+/**
+ * PATCH
+ * Toggle category availability
+ */
+menuCategoryRouter.patch(
+  '/branches/:branchId/categories/:id/availability',
+  authenticate,
+  updateMenuCategoryAvailability
+);
 
 export { menuCategoryRouter };

@@ -42,4 +42,20 @@ authPageRouter.get('/registerPage/financeManager', (req, res) => {
   res.render('auth/register/finance-manager');
 });
 
+authPageRouter.get('/phone-otp', (req, res) => {
+  res.render('auth/phone-otp', { otp: req.query.otp });
+});
+
+authPageRouter.get('/setup-profile', (req, res) => {
+  res.render('auth/setup-profile');
+});
+
+authPageRouter.get('/role-selection', (req, res) => {
+  res.render('auth/role-selection');
+});
+
+authPageRouter.get('/apply-role', (req, res) => {
+  res.render('auth/apply-role');
+});
+
 export { authPageRouter };

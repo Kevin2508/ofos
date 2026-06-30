@@ -45,7 +45,7 @@ async function main() {
     {
       firstName: 'System',
       lastName: 'Admin',
-      email: 'admin@ofos.com',
+      email: 'admin@epicure.com',
       phone: '9999999999',
       passwordHash: defaultPasswordHash,
       status: UserStatus.ACTIVE,
@@ -53,7 +53,7 @@ async function main() {
     {
       firstName: 'Restaurant',
       lastName: 'Owner',
-      email: 'owner@ofos.com',
+      email: 'owner@epicure.com',
       phone: '8888888888',
       passwordHash: defaultPasswordHash,
       status: UserStatus.ACTIVE,
@@ -61,7 +61,7 @@ async function main() {
     {
       firstName: 'John',
       lastName: 'Customer',
-      email: 'customer@ofos.com',
+      email: 'customer@epicure.com',
       phone: '7777777777',
       passwordHash: defaultPasswordHash,
       status: UserStatus.ACTIVE,
@@ -81,17 +81,17 @@ async function main() {
   console.log('Mapping User Roles...');
   const userRolesData = [
     {
-      userId: seededUsers['admin@ofos.com'].id,
+      userId: seededUsers['admin@epicure.com'].id,
       roleId: roles['Admin'].id,
       status: UserRoleStatus.ASSIGNED,
     },
     {
-      userId: seededUsers['owner@ofos.com'].id,
+      userId: seededUsers['owner@epicure.com'].id,
       roleId: roles['Restaurant_owner'].id,
       status: UserRoleStatus.ASSIGNED,
     },
     {
-      userId: seededUsers['customer@ofos.com'].id,
+      userId: seededUsers['customer@epicure.com'].id,
       roleId: roles['Customer'].id,
       status: UserRoleStatus.ASSIGNED,
     },
@@ -114,7 +114,7 @@ async function main() {
   console.log('Seeding Restaurants...');
   const restaurantsData = [
     {
-      ownerUserId: seededUsers['owner@ofos.com'].id,
+      ownerUserId: seededUsers['owner@epicure.com'].id,
       businessName: 'Spice Hub',
       legalBusinessName: 'Spice Hub Foods Pvt. Ltd.',
       primaryPhone: '9876543210',
@@ -125,7 +125,7 @@ async function main() {
       status: RestaurantStatus.APPROVED,
     },
     {
-      ownerUserId: seededUsers['owner@ofos.com'].id,
+      ownerUserId: seededUsers['owner@epicure.com'].id,
       businessName: 'Pizza Palace',
       legalBusinessName: 'Pizza Palace Franchise',
       primaryPhone: '9876543211',
@@ -136,7 +136,7 @@ async function main() {
       status: RestaurantStatus.APPROVED,
     },
     {
-      ownerUserId: seededUsers['owner@ofos.com'].id,
+      ownerUserId: seededUsers['owner@epicure.com'].id,
       businessName: 'Burger Bistro',
       legalBusinessName: 'Burger Bistro Inc.',
       primaryPhone: '9876543212',

@@ -4,190 +4,149 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard | ofos</title>
+  <title>Admin Dashboard | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
 <body class="min-h-screen bg-orange-50 font-sans text-gray-800">
-  <div class="flex min-h-screen">
-    <!-- SIDEBAR -->
-    <aside
-      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
-      <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">ofos Admin</h1>
-      </div>
+  <div class="flex">
+    <%- include('../partials/admin/sidebar') %>
 
-      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        <a href="/a/admin-dashboard"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-            </path>
-          </svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="/a/admin-users"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-            </path>
-          </svg>
-          <span>Users</span>
-        </a>
-        <a href="/a/admin-restaurants"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-            </path>
-          </svg>
-          <span>Restaurants</span>
-        </a>
-        <a href="/a/admin-orders"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-          </svg>
-          <span>Global Orders</span>
-        </a>
-        <a href="/a/admin-configs"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-            </path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
-            </path>
-          </svg>
-          <span>Configurations</span>
-        </a>
-        <a href="/a/admin-audit-logs"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-            </path>
-          </svg>
-          <span>Audit Logs</span>
-        </a>
-      </nav>
-
-      <div class="p-4 border-t border-orange-50">
-        <button id="logoutBtn"
-          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          <span class="font-semibold">Logout</span>
-        </button>
-      </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 ml-64 p-8">
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-900">Platform Overview</h2>
-        <p class="text-gray-500 mt-2">Manage users, approve restaurants, and configure the platform.</p>
-      </div>
-
-      <!-- STAT CARDS -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-500">Total Users</p>
-            <h3 id="statUsers" class="text-3xl font-bold text-gray-900 mt-1">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-              </path>
-            </svg>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-500">Pending Restaurants</p>
-            <h3 id="statPending" class="text-3xl font-bold text-gray-900 mt-1">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-500">Active Orders</p>
-            <h3 id="statOrders" class="text-3xl font-bold text-gray-900 mt-1">0</h3>
-          </div>
-          <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-              </path>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- CONTENT -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-gray-900">Recent Users</h3>
-            <a href="/a/admin-users" class="text-orange-600 hover:text-orange-700 text-sm font-medium">View All
-              &rarr;</a>
-          </div>
-          <div class="space-y-4" id="recentUsersList">
-            <div class="animate-pulse flex space-x-4">
-              <div class="rounded-full bg-slate-200 h-10 w-10"></div>
-              <div class="flex-1 space-y-2 py-1">
-                <div class="h-4 bg-slate-200 rounded w-3/4"></div>
-                <div class="h-4 bg-slate-200 rounded w-1/2"></div>
-              </div>
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden" id="mainContentWrapper">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex flex-wrap items-start md:items-center gap-3">
+            <button onclick="toggleSidebar()"
+              class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div>
+              <h2 class="text-3xl font-bold text-gray-900">Platform Overview</h2>
+              <p class="text-gray-500 mt-2">Manage users, approve restaurants, and view KPIs.</p>
             </div>
           </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-gray-900">Action Required: Restaurants</h3>
-            <a href="/a/admin-restaurants" class="text-orange-600 hover:text-orange-700 text-sm font-medium">View All
-              &rarr;</a>
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
+            <input type="date" id="kpiStartDate"
+              class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
+            <span class="text-gray-400">to</span>
+            <input type="date" id="kpiEndDate"
+              class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white text-gray-700">
+            <button onclick="loadDashboard()"
+              class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-bold shadow hover:bg-orange-700 transition-colors">Apply
+              Filter</button>
           </div>
-          <div class="space-y-4" id="recentRestaurantsList">
-            <div class="animate-pulse flex space-x-4">
-              <div class="flex-1 space-y-2 py-1">
-                <div class="h-4 bg-slate-200 rounded w-full"></div>
-                <div class="h-4 bg-slate-200 rounded w-5/6"></div>
-              </div>
-            </div>
+        </div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6 mb-8">
+    <!-- GMV -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">GMV</p>
+      <h3 id="statGMV" class="text-2xl font-black text-gray-900 mb-1">$0</h3>
+    </div>
+
+    <!-- Total Orders -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Total Orders</p>
+      <h3 id="statOrders" class="text-2xl font-black text-gray-900 mb-1">0</h3>
+    </div>
+
+    <!-- Active Customers -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Active Customers</p>
+      <h3 id="statCustomers" class="text-2xl font-black text-gray-900 mb-1">0</h3>
+    </div>
+
+    <!-- New Restaurants -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">New Restaurants</p>
+      <h3 id="statRestaurants" class="text-2xl font-black text-gray-900 mb-1">0</h3>
+    </div>
+
+    <!-- Avg Delivery Time -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Avg Delivery</p>
+      <h3 id="statDeliveryTime" class="text-2xl font-black text-gray-900 mb-1">0 <span
+          class="text-sm font-semibold text-gray-400">mins</span></h3>
+    </div>
+
+    <!-- Cancellation Rate -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Cancel Rate</p>
+      <h3 id="statCancelRate" class="text-2xl font-black text-gray-900 mb-1">0<span
+          class="text-sm font-semibold text-gray-400">%</span></h3>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gray-900">Recent Users</h3>
+        <a href="/a/admin-users" class="text-orange-600 hover:text-orange-700 text-sm font-medium">View All
+          &rarr;</a>
+      </div>
+      <div class="space-y-4" id="recentUsersList">
+        <div class="animate-pulse flex space-x-4">
+          <div class="rounded-full bg-slate-200 h-10 w-10"></div>
+          <div class="flex-1 space-y-2 py-1">
+            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+            <div class="h-4 bg-slate-200 rounded w-1/2"></div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gray-900">Action Required: Restaurants</h3>
+        <a href="/a/admin-restaurants" class="text-orange-600 hover:text-orange-700 text-sm font-medium">View All
+          &rarr;</a>
+      </div>
+      <div class="space-y-4" id="recentRestaurantsList">
+        <div class="animate-pulse flex space-x-4">
+          <div class="flex-1 space-y-2 py-1">
+            <div class="h-4 bg-slate-200 rounded w-full"></div>
+            <div class="h-4 bg-slate-200 rounded w-5/6"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </main>
   </div>
 
   <script>
     async function loadDashboard() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const headers = { 'Authorization': `Bearer ${token}` };
+        const headers = {};
+
+        // Load KPIs
+        const sDate = document.getElementById('kpiStartDate').value;
+        const eDate = document.getElementById('kpiEndDate').value;
+        let kpiUrl = '/admin/kpis?';
+        if (sDate) kpiUrl += `startDate=${sDate}&`;
+        if (eDate) kpiUrl += `endDate=${eDate}`;
+
+        const kpiRes = await fetch(kpiUrl, { headers });
+        if (kpiRes.ok) {
+          const data = await kpiRes.json();
+          const kpi = data.data;
+          document.getElementById('statGMV').innerText = `$${kpi.gmv.toFixed(2)}`;
+          document.getElementById('statOrders').innerText = kpi.totalOrders;
+          document.getElementById('statCustomers').innerText = kpi.activeCustomers;
+          document.getElementById('statRestaurants').innerText = kpi.newRestaurants;
+          document.getElementById('statDeliveryTime').innerHTML = `${kpi.averageDeliveryTimeMins.toFixed(1)} <span class="text-sm font-semibold text-gray-400">mins</span>`;
+          document.getElementById('statCancelRate').innerHTML = `${kpi.cancellationRate.toFixed(1)}<span class="text-sm font-semibold text-gray-400">%</span>`;
+        }
 
         // Load Users
         const usersRes = await fetch('/admin/users', { headers });
         if (usersRes.ok) {
           const usersData = await usersRes.json();
           const users = usersData.data?.users || [];
-          document.getElementById('statUsers').innerText = users.length;
 
           const uList = document.getElementById('recentUsersList');
           if (users.length === 0) {
@@ -210,16 +169,14 @@
           }
         }
 
-        // Load Pending Restaurants
         const restRes = await fetch('/admin/restaurants/pending', { headers });
         if (restRes.ok) {
           const restData = await restRes.json();
           const pending = restData.data?.restaurants || [];
-          document.getElementById('statPending').innerText = pending.length;
 
           const rList = document.getElementById('recentRestaurantsList');
           if (pending.length === 0) {
-            rList.innerHTML = '<div class="text-center py-8"><p class="text-gray-500 text-sm">No pending restaurants!</p><span class="text-3xl mt-2 block">🎉</span></div>';
+            rList.innerHTML = '<div class="text-center py-8"><p class="text-gray-500 text-sm">No pending restaurants!</p></div>';
           } else {
             rList.innerHTML = pending.slice(0, 5).map(r => `
               <div class="p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow">
@@ -235,12 +192,7 @@
           }
         }
 
-        // Load Orders
-        const ordRes = await fetch('/admin/orders', { headers });
-        if (ordRes.ok) {
-          const ordData = await ordRes.json();
-          document.getElementById('statOrders').innerText = ordData.data?.orders?.length || 0;
-        }
+
 
       } catch (err) {
         console.error(err);
@@ -249,11 +201,10 @@
 
     loadDashboard();
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();
@@ -261,7 +212,7 @@
       window.location.href = '/loginPage';
     });;
   </script>
-  <%- include('../partials/floating-role-switcher') %>
+
 </body>
 
 </html>

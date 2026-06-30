@@ -4,86 +4,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Restaurant Owner Dashboard | ofos</title>
+  <title>Restaurant Owner Dashboard | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="min-h-screen bg-orange-50 font-sans">
   <div class="flex min-h-screen">
-    <!-- SIDEBAR -->
-    <aside
-      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
-      <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">ofos Partner</h1>
-      </div>
-
-      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        <a href="/ro/restaurant-owner-dashboard"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-            </path>
-          </svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="/ro/restaurant-owner-restaurants"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-            </path>
-          </svg>
-          <span>Restaurants</span>
-        </a>
-        <a href="/ro/restaurant-owner-menu"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-            </path>
-          </svg>
-          <span>Menu Management</span>
-        </a>
-        <a href="/ro/restaurant-owner-orders"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-          </svg>
-          <span>Orders</span>
-        </a>
-        <a href="/ro/restaurant-owner-profile"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-          <span>Profile</span>
-        </a>
-      </nav>
-
-      <div class="p-4 border-t border-orange-50">
-        <button id="logoutBtn"
-          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          <span class="font-semibold">Logout</span>
-        </button>
-      </div>
-    </aside>
+    <%- include('../partials/restaurantOwner/sidebar') %>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 ml-64 p-8">
+    <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden" id="mainContentWrapper">
       <div
-        class="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col md:flex-row md:justify-between md:items-center">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-800">Welcome, Restaurant Owner</h2>
-          <p class="text-gray-500 mt-1">
-            Here is what's happening with your business today.
-          </p>
+        class="mb-8 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col md:flex-row md:justify-between md:items-center">
+        <div class="flex flex-wrap items-start md:items-center gap-3">
+          <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800">Welcome, Restaurant Owner</h2>
+            <p class="text-gray-500 mt-1">
+              Here is what's happening with your business today.
+            </p>
+          </div>
         </div>
         <div class="mt-4 md:mt-0">
           <a href="/ro/restaurant-owner-restaurants"
@@ -94,66 +37,63 @@
       </div>
 
       <!-- STAT CARDS -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-6">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-gray-500 text-sm font-medium">Total Restaurants</p>
-              <h3 id="statRestaurants" class="text-3xl font-extrabold text-gray-800 mt-2">0</h3>
+              <p class="text-gray-500 text-sm font-medium">Orders Today</p>
+              <h3 id="statOrdersToday" class="text-3xl font-extrabold text-gray-800 mt-2">0</h3>
             </div>
             <div class="p-3 bg-orange-100 text-orange-600 rounded-lg">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-                </path>
-              </svg>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
             </div>
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-gray-500 text-sm font-medium">Pending Approvals</p>
-              <h3 id="statPending" class="text-3xl font-extrabold text-gray-800 mt-2">0</h3>
-            </div>
-            <div class="p-3 bg-yellow-100 text-yellow-600 rounded-lg">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-gray-500 text-sm font-medium">Active Branches</p>
-              <h3 id="statActive" class="text-3xl font-extrabold text-gray-800 mt-2">0</h3>
-            </div>
-            <div class="p-3 bg-green-100 text-green-600 rounded-lg">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-gray-500 text-sm font-medium">Today's Revenue</p>
-              <h3 id="statRevenue" class="text-3xl font-extrabold text-gray-800 mt-2">₹0</h3>
+              <p class="text-gray-500 text-sm font-medium">Revenue Today</p>
+              <h3 id="statRevenueToday" class="text-3xl font-extrabold text-gray-800 mt-2">₹0</h3>
             </div>
             <div class="p-3 bg-purple-100 text-purple-600 rounded-lg">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                </path>
-              </svg>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
           </div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Average Order Value</p>
+              <h3 id="statAvgOrderValue" class="text-3xl font-extrabold text-gray-800 mt-2">₹0</h3>
+            </div>
+            <div class="p-3 bg-green-100 text-green-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Acceptance Rate</p>
+              <h3 id="statAcceptanceRate" class="text-3xl font-extrabold text-gray-800 mt-2">0%</h3>
+            </div>
+            <div class="p-3 bg-yellow-100 text-yellow-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REVENUE TREND GRAPH -->
+      <div class="mt-10 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-800">Revenue Trend (Last 7 Days)</h3>
+        </div>
+        <div class="relative h-72 w-full">
+          <canvas id="revenueChart"></canvas>
         </div>
       </div>
 
@@ -193,21 +133,49 @@
   <script>
     async function loadDashboard() {
       try {
-        const token = localStorage.getItem('token') || '';
         const res = await fetch('/restaurant-management/mine', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
 
         if (res.ok) {
           const data = await res.json();
           const restaurants = data.restaurants || [];
-
-          document.getElementById('statRestaurants').innerText = restaurants.length;
-          document.getElementById('statPending').innerText = restaurants.filter(r => r.status === 'PENDING_VERIFICATION').length;
-          document.getElementById('statActive').innerText = restaurants.filter(r => r.status === 'ACTIVE').length;
-          // Revenue would be fetched from an orders endpoint, leaving at ₹0 for now
-
           const list = document.getElementById('restaurantsList');
+
+          // Fetch Stats
+          const statsRes = await fetch('/restaurant-management/dashboard-stats', { headers: {} });
+          if (statsRes.ok) {
+             const statsData = await statsRes.json();
+             document.getElementById('statOrdersToday').innerText = statsData.data.ordersToday;
+             document.getElementById('statRevenueToday').innerText = `₹${statsData.data.revenueToday.toFixed(2)}`;
+             document.getElementById('statAvgOrderValue').innerText = `₹${statsData.data.averageOrderValue.toFixed(2)}`;
+             document.getElementById('statAcceptanceRate').innerText = `${statsData.data.acceptanceRate.toFixed(1)}%`;
+             
+             // Render Chart
+             const ctx = document.getElementById('revenueChart').getContext('2d');
+             new Chart(ctx, {
+               type: 'line',
+               data: {
+                 labels: statsData.data.revenueTrends.map(t => t.date),
+                 datasets: [{
+                   label: 'Revenue (₹)',
+                   data: statsData.data.revenueTrends.map(t => t.revenue),
+                   borderColor: '#f97316',
+                   backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                   borderWidth: 2,
+                   fill: true,
+                   tension: 0.3
+                 }]
+               },
+               options: {
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 plugins: { legend: { display: false } },
+                 scales: { y: { beginAtZero: true } }
+               }
+             });
+          }
+
           if (restaurants.length === 0) {
             list.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No restaurants found. Start by adding one!</td></tr>`;
           } else {
@@ -238,9 +206,8 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();
@@ -249,7 +216,7 @@
     });;
   </script>
   <%- include('../partials/toast') %>
-    <%- include('../partials/floating-role-switcher') %>
+
 </body>
 
 </html>

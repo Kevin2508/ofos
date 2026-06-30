@@ -17,17 +17,31 @@ import {
   sendOtp,
   verigyOtp,
   getMe,
+  checkPhone,
+  checkEmail,
+  selectRole,
+  updateProfile,
+  changePassword,
+  getSessions,
+  revokeSession,
+  deleteAccount
 } from './auth.controller.ts';
+import { upload } from '../../middlewares/upload.middleware.ts';
 import {
   forgotPasswordSchema,
   loginSchema,
   registerAdminSchema,
   registerDeliveryPartnerSchema,
   registerFleetManagerSchema,
+  registerRestaurantOwnerSchema,
   registerSchema,
   resetPasswordSchema,
   sendOtpSchema,
   verifyOtpSchema,
+  checkPhoneSchema,
+  checkEmailSchema,
+  updateProfileSchema,
+  changePasswordSchema
 } from './auth.validation.ts';
 
 const authRouter = Router();
@@ -49,10 +63,23 @@ authRouter.post(
 authRouter.post('/send-otp', validate(sendOtpSchema), sendOtp);
 authRouter.post('/verify-otp', validate(verifyOtpSchema), verigyOtp);
 
+authRouter.post('/check-phone', validate(checkPhoneSchema), checkPhone);
+authRouter.post('/check-email', validate(checkEmailSchema), checkEmail);
+
 authRouter.get('/logout', authenticate, logout);
 authRouter.get('/me', authenticate, getMe);
 
 authRouter.post('/refresh', refresh);
+
+// Role Selection
+authRouter.post('/select-role', authenticate, selectRole);
+
+// Profile & Sessions
+authRouter.patch('/profile', authenticate, validate(updateProfileSchema), updateProfile);
+authRouter.post('/change-password', authenticate, validate(changePasswordSchema), changePassword);
+authRouter.get('/sessions', authenticate, getSessions);
+authRouter.delete('/sessions/:id', authenticate, revokeSession);
+authRouter.delete('/delete-account', authenticate, deleteAccount);
 
 // Customer
 authRouter.post('/register', validate(registerSchema), register);
@@ -67,7 +94,8 @@ authRouter.post(
 // Restaurant Owner
 authRouter.post(
   '/register/restaurant-owner',
-  validate(registerSchema),
+  upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'cover', maxCount: 1 }]),
+  validate(registerRestaurantOwnerSchema),
   registerRestaurantOwner
 );
 
@@ -81,6 +109,7 @@ authRouter.post(
 // Delivery Partner
 authRouter.post(
   '/register/delivery-partner',
+  upload.single('governmentId'),
   validate(registerDeliveryPartnerSchema),
   registerDeliveryPartner
 );

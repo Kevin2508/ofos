@@ -21,7 +21,7 @@ export const updateBranchSchema = Joi.object({
   branchName: Joi.string(),
   contactPhone: Joi.string().max(20),
   addressLine1: Joi.string().max(255),
-  addressLine2: Joi.string().max(255),
+  addressLine2: Joi.string().max(255).allow("", null),
   city: Joi.string().max(100),
   state: Joi.string().max(100),
   postalCode: Joi.string().max(20),
@@ -30,4 +30,6 @@ export const updateBranchSchema = Joi.object({
   longitude: Joi.number().min(-180).max(180),
   minimumOrderValue: Joi.number().min(0),
   deliveryFee: Joi.number().min(0),
+  isAcceptingOrders: Joi.boolean(),
+  autoResumeAt: Joi.date().allow(null),
 }).min(1);

@@ -3,8 +3,7 @@ import { CartStatus, OrderStatus, PaymentStatus } from '../../generated/prisma/b
 import {
   ICheckoutSessionData,
   ICartData,
-  IPlaceOrderRequest,
-  IPlaceOrderResult
+
 } from './order.interface.ts';
 // import { CartStatus, OrderStatus, PaymentStatus } from '@prisma/client';
 
@@ -38,7 +37,7 @@ async function getOrders({ customerUserId, page, limit }: GetOrdersParams) {
           city: true,
         },
       },
-      
+
       items: true,
     },
 
@@ -89,10 +88,16 @@ async function getOrderById(orderId: bigint, customerUserId: bigint) {
       items: {
         include: {
           modifiers: true,
+          menuItem: {
+            select: {
+              isAvailable: true,
+            }
+          }
         },
       },
 
       payments: true,
+      refunds: true,
 
       statusHistory: {
         orderBy: {
@@ -111,13 +116,23 @@ async function getOrderTrackingData(orderId: bigint, customerUserId: bigint) {
     },
 
     include: {
+      branch: {
+        select: {
+          latitude: true,
+          longitude: true,
+        },
+      },
+      address: {
+        select: {
+          latitude: true,
+          longitude: true,
+        },
+      },
       deliveryAssignments: {
         orderBy: {
           assignedAt: 'desc',
         },
-
         take: 1,
-
         include: {
           partner: {
             include: {
@@ -131,12 +146,10 @@ async function getOrderTrackingData(orderId: bigint, customerUserId: bigint) {
               },
             },
           },
-
           trackingPoints: {
             orderBy: {
               recordedAt: 'desc',
             },
-
             take: 1,
           },
         },
@@ -154,13 +167,19 @@ async function findOrderForCancellation(
       id: orderId,
       customerUserId,
     },
+    include: {
+      payments: true,
+    }
   });
 }
 
 async function cancelOrder(
   orderId: bigint,
   customerUserId: bigint,
-  reason: string
+  reason: string,
+  refundEligible: boolean,
+  refundAmount: number,
+  paymentId?: bigint
 ) {
   return prisma.$transaction(async (tx) => {
     const order = await tx.order.update({
@@ -178,9 +197,23 @@ async function cancelOrder(
         orderId,
         cancelledByUserId: customerUserId,
         cancellationReason: reason,
-        refundEligible: true,
+        refundEligible,
+        refundAmount,
       },
     });
+
+    if (refundEligible && refundAmount > 0 && paymentId) {
+      await tx.refund.create({
+        data: {
+          orderId,
+          paymentId,
+          amount: refundAmount,
+          reason: 'Order cancelled: ' + reason,
+          status: 'INITIATED',
+          refundReference: `REF-${orderId}-${Date.now()}`
+        }
+      });
+    }
 
     await tx.orderStatusHistory.create({
       data: {
@@ -188,6 +221,47 @@ async function cancelOrder(
         status: 'CANCELLED',
         changedByUserId: customerUserId,
         remarks: reason,
+      },
+    });
+
+    await tx.orderEvent.create({
+      data: {
+        orderId,
+        eventType: 'ORDER_STATUS_CHANGED',
+        payload: { status: 'CANCELLED', changedByUserId: customerUserId.toString(), remarks: reason },
+      },
+    });
+
+    return order;
+  });
+}
+
+export async function updateOrderStatus(
+  orderId: bigint,
+  status: OrderStatus,
+  changedByUserId: bigint | null,
+  remarks: string
+) {
+  return prisma.$transaction(async (tx) => {
+    const order = await tx.order.update({
+      where: { id: orderId },
+      data: { orderStatus: status },
+    });
+
+    await tx.orderStatusHistory.create({
+      data: {
+        orderId,
+        status,
+        changedByUserId,
+        remarks,
+      },
+    });
+
+    await tx.orderEvent.create({
+      data: {
+        orderId,
+        eventType: 'ORDER_STATUS_CHANGED',
+        payload: { status, changedByUserId: changedByUserId ? changedByUserId.toString() : 'SYSTEM', remarks },
       },
     });
 
@@ -199,7 +273,6 @@ export const findCheckoutSession = async (
   sessionId: bigint,
   customerUserId: bigint
 ): Promise<ICheckoutSessionData | null> => {
-  console.log(sessionId, customerUserId);
   const session = await prisma.checkoutSession.findFirst({
     where: { id: sessionId, customerUserId },
     select: {
@@ -228,8 +301,7 @@ export const findCheckoutSession = async (
       },
     },
   })
-  // console.log(session);
-  
+
   return session as ICheckoutSessionData | null;
 };
 
@@ -282,6 +354,7 @@ export const findActiveCart = async (
           id: true,
           isActive: true,
           deliveryFee: true,
+          minimumOrderValue: true,
           restaurant: {
             select: {
               id: true,
@@ -321,6 +394,7 @@ export const createOrder = async (params: {
   totalAmount: number;
   estimatedDeliveryAt: Date | null;
   specialInstructions?: string;
+  otpHash?: string;
 }) => {
   const {
     customerUserId,
@@ -332,7 +406,8 @@ export const createOrder = async (params: {
     taxAmount,
     totalAmount,
     estimatedDeliveryAt,
-    specialInstructions,
+
+    otpHash,
   } = params;
 
   return await prisma.$transaction(async (tx) => {
@@ -352,6 +427,7 @@ export const createOrder = async (params: {
         taxAmount,
         totalAmount,
         estimatedDeliveryAt,
+        otpHash,
       },
     });
 
@@ -422,20 +498,123 @@ export const createOrder = async (params: {
       },
     });
 
-    // ── 6. Cart → CHECKED_OUT ────────────────────────────────
+    // ── 6. Empty cart items, then Cart → CHECKED_OUT ─────────
+    const cartItemIds = cart.items.map((item) => item.id);
+    if (cartItemIds.length > 0) {
+      await tx.cartItemModifier.deleteMany({
+        where: {
+          cartItemId: {
+            in: cartItemIds,
+          },
+        },
+      });
+
+      await tx.cartItem.deleteMany({
+        where: { cartId: cart.id },
+      });
+    }
+
     await tx.cart.update({
       where: { id: cart.id },
-      data: { status: CartStatus.CHECKED_OUT },
+      data: {
+        status: CartStatus.CHECKED_OUT,
+        subtotalAmount: 0,
+        totalAmount: 0,
+      },
     });
 
     return order;
   });
 };
 
+export const createDisputeTicket = async (
+  orderId: bigint,
+  customerUserId: bigint,
+  category: any,
+  description: string
+) => {
+  const ticketNumber = `TKT-${orderId}-${Date.now()}`;
+  return prisma.supportTicket.create({
+    data: {
+      ticketNumber,
+      orderId,
+      customerUserId,
+      category,
+      priority: 'HIGH',
+      status: 'OPEN',
+      subject: 'Order Dispute',
+      description,
+    }
+  });
+};
+
+export async function markItemUnavailable(orderId: bigint, itemId: bigint) {
+  return prisma.$transaction(async (tx) => {
+    const orderItem = await tx.orderItem.findFirst({ where: { id: itemId, orderId } });
+    if (!orderItem || orderItem.isUnavailable) throw new Error('Item not found or already unavailable');
+
+    await tx.orderItem.update({
+      where: { id: itemId },
+      data: { isUnavailable: true }
+    });
+
+    const order = await tx.order.findUnique({ where: { id: orderId }, include: { payments: true } });
+
+    if (order?.paymentStatus === 'PAID') {
+      const payment = order.payments?.find(p => p.status === 'CAPTURED' || p.status === 'PARTIALLY_REFUNDED');
+      if (payment) {
+        await tx.refund.create({
+          data: {
+            orderId,
+            paymentId: payment.id,
+            refundReference: `REF-${orderId}-${itemId}-${Date.now()}`,
+            amount: orderItem.lineTotal,
+            reason: `Item ${orderItem.itemName} unavailable`,
+            status: 'COMPLETED'
+          }
+        });
+
+        await tx.payment.update({
+          where: { id: payment.id },
+          data: { status: 'PARTIALLY_REFUNDED' }
+        });
+      }
+    }
+
+    return tx.order.findUnique({
+      where: { id: orderId },
+      include: { items: true, payments: true }
+    });
+  });
+}
+
+export async function getRestaurantOrderById(orderId: bigint, ownerUserId: bigint) {
+  // ensure order belongs to owner's branch
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      branch: {
+        restaurant: {
+          ownerUserId
+        }
+      }
+    },
+    include: {
+      customer: { include: { customerProfile: true } },
+      items: { include: { modifiers: true } },
+      payments: true,
+      address: true,
+      branch: true,
+    }
+  });
+  return order;
+}
+
 export default {
   getOrders,
   countOrders,
   getOrderById,
+  getRestaurantOrderById,
   getOrderTrackingData,
   findOrderForCancellation,
   cancelOrder,
@@ -443,4 +622,7 @@ export default {
   findActiveCart,
   findExistingOrderBySession,
   createOrder,
+  updateOrderStatus,
+  createDisputeTicket,
+  markItemUnavailable,
 };

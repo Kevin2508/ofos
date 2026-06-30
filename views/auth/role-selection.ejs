@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Role | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+  <style>
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #fed7aa;
+      border-top-color: #f97316;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: auto;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-5 sm:p-8 text-center" id="mainContainer">
+    <h2 class="text-3xl font-bold text-gray-800 mb-2" id="pageTitle">Select Your Role</h2>
+    <p class="text-gray-500 text-sm mb-6" id="pageSubtitle">Choose how you'd like to access epicuretoday</p>
+
+    <!-- Loading -->
+    <div id="loadingState" class="py-12">
+      <div class="spinner mb-4"></div>
+      <p class="text-gray-500 font-medium">Loading your roles...</p>
+    </div>
+
+    <!-- Content -->
+    <div id="rolesContent" class="hidden space-y-4">
+      <div id="assignedRolesList" class="space-y-3"></div>
+
+      <div id="pendingRolesSection" class="hidden mt-6 pt-6 border-t border-gray-100">
+        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Pending Requests</h3>
+        <div id="pendingRolesList" class="space-y-2"></div>
+      </div>
+
+      <!-- Only pending roles (no assigned) -->
+      <div id="pendingOnlySection" class="hidden py-6">
+        <div class="text-4xl mb-4">⏳</div>
+        <div id="pendingOnlyList" class="space-y-3"></div>
+        <p class="text-sm text-gray-400 mt-4">You'll be notified once your role is approved.</p>
+      </div>
+
+      <div id="noRolesMessage" class="hidden py-8">
+        <div class="text-4xl mb-3">🔒</div>
+        <p class="text-gray-600 font-medium">No roles available.</p>
+        <p class="text-sm text-gray-400 mt-1">Please apply for a role to access the platform.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ROLE_CONFIG = {
+      'Customer': { name: 'Customer', icon: '🍔', path: '/' },
+      'Platform Admin': { name: 'Admin', icon: '🛡️', path: '/' },
+      'Restaurant Owner': { name: 'Restaurant Owner', icon: '🏪', path: '/' },
+      'Restaurant Staff': { name: 'Restaurant Staff', icon: '👨‍🍳', path: '/' },
+      'Delivery Partner': { name: 'Delivery Partner', icon: '🛵', path: '/' },
+      'Fleet Manager': { name: 'Fleet Manager', icon: '🚚', path: '/' },
+      'Finance Manager': { name: 'Finance Manager', icon: '💰', path: '/' },
+    };
+
+    loadRoles();
+    async function loadRoles() {
+      try {
+        const res = await fetch('/auth/me');
+        if (!res.ok) {
+          if (res.status === 401) window.location.href = '/loginPage';
+          else throw new Error('Failed to load roles');
+          return;
+        }
+
+        const json = await res.json();
+        const user = json.data.user;
+        const roles = user.roles || [];
+        const pendingRoles = user.pendingRoles || [];
+
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('rolesContent').classList.remove('hidden');
+
+        const assignedContainer = document.getElementById('assignedRolesList');
+        const pendingContainer = document.getElementById('pendingRolesList');
+        const pendingSection = document.getElementById('pendingRolesSection');
+        const pendingOnlySection = document.getElementById('pendingOnlySection');
+        const pendingOnlyList = document.getElementById('pendingOnlyList');
+        const noRoles = document.getElementById('noRolesMessage');
+        const pageTitle = document.getElementById('pageTitle');
+        const pageSubtitle = document.getElementById('pageSubtitle');
+
+        // Case 1: Only 1 assigned role and no pending → auto-select and redirect
+        if (roles.length === 1 && pendingRoles.length === 0) {
+          await selectRole(roles[0]);
+          return;
+        }
+
+        // Case 2: No assigned roles, no pending → show no roles message
+        if (roles.length === 0 && pendingRoles.length === 0) {
+          pageTitle.textContent = 'No Roles Found';
+          pageSubtitle.textContent = 'You don\'t have any roles assigned yet';
+          noRoles.classList.remove('hidden');
+          return;
+        }
+
+        // Case 3: No assigned roles, only pending → show pending-only UI
+        if (roles.length === 0 && pendingRoles.length > 0) {
+          pageTitle.textContent = 'Role Under Review';
+          pageSubtitle.textContent = 'Your role request is being reviewed by the admin';
+          pendingOnlySection.classList.remove('hidden');
+          pendingOnlyList.innerHTML = pendingRoles.map(role => {
+            const config = ROLE_CONFIG[role] || { name: role, icon: '👤' };
+            return `
+              <div class="flex flex-wrap items-center gap-3 p-4 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-xl text-left">
+                <svg class="w-6 h-6 flex-shrink-0 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Your request for <strong>${config.name}</strong> is sent to admin for review.</span>
+              </div>
+            `;
+          }).join('');
+          return;
+        }
+
+        // Case 4: Multiple roles or mix of assigned + pending → show full selection UI
+
+        // Render Assigned Roles
+        if (roles.length > 0) {
+          assignedContainer.innerHTML = roles.map(role => {
+            const config = ROLE_CONFIG[role] || { name: role, icon: '👤', path: '/' };
+            return `
+              <button onclick="selectRole('${role}')" class="w-full flex items-center justify-between p-4 border-2 border-gray-100 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all text-left group">
+                <div class="flex flex-wrap items-center gap-3">
+                  <span class="text-2xl">${config.icon}</span>
+                  <span class="font-bold text-gray-700 group-hover:text-orange-600">${config.name}</span>
+                </div>
+                <svg class="w-5 h-5 text-gray-300 group-hover:text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            `;
+          }).join('');
+        }
+
+        // Render Pending Roles
+        if (pendingRoles.length > 0) {
+          pendingSection.classList.remove('hidden');
+          pendingContainer.innerHTML = pendingRoles.map(role => {
+            const config = ROLE_CONFIG[role] || { name: role };
+            return `
+              <div class="flex flex-wrap items-center gap-3 p-3 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg text-sm text-left">
+                <svg class="w-5 h-5 flex-shrink-0 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Your request for <strong>${config.name}</strong> is sent to admin for review.</span>
+              </div>
+            `;
+          }).join('');
+        }
+
+      } catch (err) {
+        document.getElementById('loadingState').innerHTML = '<p class="text-red-500">Error loading roles. Please refresh.</p>';
+      }
+    }
+
+    async function selectRole(role) {
+      // Disable UI during selection
+      document.getElementById('mainContainer').style.opacity = '0.7';
+      document.body.style.pointerEvents = 'none';
+
+      try {
+        const res = await fetch('/auth/select-role', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role })
+        });
+
+        if (res.ok) {
+          const config = ROLE_CONFIG[role];
+          window.location.href = config ? config.path : '/';
+        } else {
+          showToast('Failed to select role', 'error');
+          document.getElementById('mainContainer').style.opacity = '1';
+          document.body.style.pointerEvents = 'auto';
+        }
+      } catch {
+        showToast('Network error', 'error');
+        document.getElementById('mainContainer').style.opacity = '1';
+        document.body.style.pointerEvents = 'auto';
+      }
+    }
+
+  </script>
+  <%- include('../partials/toast') %>
+</body>
+
+</html>

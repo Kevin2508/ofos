@@ -22,6 +22,7 @@ const reassignDeliverySchema = Joi.object({
   partnerUserId: Joi.string().pattern(/^\d+$/).required().messages({
     'string.pattern.base': 'New partnerUserId must be a numeric string',
   }),
+  reason: Joi.string().optional().allow("", null),
 });
 
 export {

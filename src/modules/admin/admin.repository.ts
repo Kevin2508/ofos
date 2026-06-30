@@ -7,10 +7,13 @@ interface GetAllUsersParams {
   search?: string;
   role?: string;
   status?: UserStatus;
+  limit?: number
+  page?: number
 }
 
 async function getAllUsersRepo(params: GetAllUsersParams) {
-  const { search, role, status } = params;
+  const { search, role, status, limit = 20, page = 1 } = params;
+  const skip = (page - 1) * limit;
 
   const where: UserWhereInput = {
     deletedAt: null,
@@ -71,6 +74,8 @@ async function getAllUsersRepo(params: GetAllUsersParams) {
       orderBy: {
         createdAt: 'desc',
       },
+      take: limit,
+      skip: skip,
     }),
 
     prisma.user.count({
@@ -145,6 +150,19 @@ async function updateUserRoleStatusRepo(payload: UpdateUserRoleStatusPayload) {
   };
 }
 
+async function updateUserStatusRepo(payload: { userId: string; status: UserStatus; reason: string }) {
+  const { userId, status, reason } = payload;
+  const user = await prisma.user.findFirst({ where: { id: BigInt(userId) } });
+  if (!user) throw new Error('User not found');
+
+  const updatedUser = await prisma.user.update({
+    where: { id: BigInt(userId) },
+    data: { status }
+  });
+
+  return { user: updatedUser, reason };
+}
+
 async function getPendingRestaurantsRepo() {
   const [restaurants, totalCount] = await prisma.$transaction([
     prisma.restaurant.findMany({
@@ -154,6 +172,9 @@ async function getPendingRestaurantsRepo() {
       },
       orderBy: {
         createdAt: 'desc',
+      },
+      include: {
+        documents: true,
       },
     }),
 
@@ -176,11 +197,14 @@ async function getAllRestaurantsRepo(status?: string) {
   if (status) {
     where.status = status;
   }
-  
+
   const [restaurants, totalCount] = await prisma.$transaction([
     prisma.restaurant.findMany({
       where,
       orderBy: { createdAt: 'desc' },
+      include: {
+        documents: true,
+      },
     }),
     prisma.restaurant.count({ where }),
   ]);
@@ -227,6 +251,23 @@ async function updateRestaurantStatusRepo({
   return {
     restaurant: updatedRestaurant,
   };
+}
+
+async function updateRestaurantDocumentStatusRepo(payload: {
+  documentId: string;
+  status: 'APPROVED' | 'REJECTED';
+  remark?: string;
+}) {
+  const { documentId, status, remark } = payload;
+  const document = await prisma.restaurantDocument.update({
+    where: { id: BigInt(documentId) },
+    data: {
+      verificationStatus: status,
+      remarks: remark,
+    }
+  });
+
+  return { document };
 }
 
 import { Prisma } from '../../generated/prisma/client.ts';
@@ -299,26 +340,24 @@ async function getAllSystemConfigsRepo() {
 
 async function updateSystemConfigRepo(
   key: string,
-  value: string,
-  updatedBy: bigint
+  updatedBy: bigint,
+  dataToUpdate: { value?: string; newKey?: string; description?: string }
 ) {
-  const config = await prisma.systemConfiguration.updateMany({
-    where: { configKey: key },
-    data: {
-      configValue: value,
-      updatedBy: updatedBy,
-    },
-  });
+  const data: any = { updatedBy: updatedBy };
+  if (dataToUpdate.value !== undefined) data.configValue = dataToUpdate.value;
+  if (dataToUpdate.newKey !== undefined) data.configKey = dataToUpdate.newKey;
+  if (dataToUpdate.description !== undefined) data.description = dataToUpdate.description;
 
-  if (config.count === 0) {
+  try {
+    const updatedConfig = await prisma.systemConfiguration.update({
+      where: { configKey: key },
+      data,
+    });
+    return updatedConfig;
+  } catch (error) {
+    // If record not found, Prisma throws a specific error, we can just return null
     return null;
   }
-
-  const updatedConfig = await prisma.systemConfiguration.findUnique({
-    where: { configKey: key },
-  });
-
-  return updatedConfig;
 }
 
 async function createSystemConfigRepo(
@@ -408,13 +447,177 @@ async function createAuditLogRepo(data: {
   });
 }
 
+async function getSupportTicketsRepo(status?: string) {
+  const where: any = {};
+  if (status) {
+    where.status = status;
+  }
+  const tickets = await prisma.supportTicket.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    include: {
+      customer: true,
+      partner: true,
+      order: true,
+      messages: { orderBy: { createdAt: 'asc' } },
+    },
+  });
+  return { tickets };
+}
+
+async function respondToSupportTicketRepo(ticketId: string, message: string, adminUserId: string) {
+  const ticketMessage = await prisma.supportMessage.create({
+    data: {
+      ticketId: BigInt(ticketId),
+      senderUserId: BigInt(adminUserId),
+      message,
+    },
+  });
+
+  const updatedTicket = await prisma.supportTicket.update({
+    where: { id: BigInt(ticketId) },
+    data: { status: 'IN_PROGRESS' },
+  });
+
+  return { ticketMessage, updatedTicket };
+}
+
+async function resolveSupportTicketRepo(ticketId: string, resolutionMessage?: string, adminUserId?: string) {
+  if (resolutionMessage && adminUserId) {
+    await prisma.supportMessage.create({
+      data: {
+        ticketId: BigInt(ticketId),
+        senderUserId: BigInt(adminUserId),
+        message: resolutionMessage,
+      },
+    });
+  }
+
+  const updatedTicket = await prisma.supportTicket.update({
+    where: { id: BigInt(ticketId) },
+    data: { status: 'RESOLVED' },
+  });
+
+  return { updatedTicket };
+}
+
+async function getCouponsRepo() {
+  const coupons = await prisma.coupon.findMany({ orderBy: { createdAt: 'desc' } });
+  return { coupons };
+}
+
+async function createCouponRepo(data: any) {
+  return prisma.coupon.create({ data });
+}
+
+async function updateCouponRepo(id: string, data: any) {
+  return prisma.coupon.update({ where: { id: BigInt(id) }, data });
+}
+
+async function overrideMenuItemRepo(itemId: string, isAvailable: boolean) {
+  return prisma.menuItem.update({
+    where: { id: BigInt(itemId) },
+    data: { isAvailable }
+  });
+}
+
+async function overrideOperatingHourRepo(hourId: string, isClosed: boolean, openingTime?: Date, closingTime?: Date) {
+  const data: any = { isClosed };
+  if (openingTime) data.openingTime = openingTime;
+  if (closingTime) data.closingTime = closingTime;
+
+  return prisma.restaurantOperatingHour.update({
+    where: { id: BigInt(hourId) },
+    data
+  });
+}
+
+async function getKpisRepo(startDate?: Date, endDate?: Date) {
+  const whereClause: any = {};
+  if (startDate && endDate) {
+    whereClause.createdAt = { gte: startDate, lte: endDate };
+  }
+
+  const [totalOrders, cancelledOrders, newRestaurants, orders] = await Promise.all([
+    prisma.order.count({ where: whereClause }),
+    prisma.order.count({ where: { ...whereClause, orderStatus: 'CANCELLED' } }), // Simplifying cancellation
+    prisma.restaurant.count({ where: whereClause }),
+    prisma.order.findMany({
+      where: whereClause,
+      select: { totalAmount: true, orderStatus: true, createdAt: true, deliveredAt: true, customerUserId: true }
+    })
+  ]);
+
+  let gmv = 0;
+  let activeCustomers = new Set();
+  let totalDeliveryTimeMs = 0;
+  let deliveredCount = 0;
+
+  orders.forEach(o => {
+    if (o.orderStatus === 'DELIVERED') {
+      gmv += Number(o.totalAmount);
+      if (o.deliveredAt) {
+        totalDeliveryTimeMs += o.deliveredAt.getTime() - o.createdAt.getTime();
+        deliveredCount++;
+      }
+    }
+    activeCustomers.add(o.customerUserId);
+  });
+
+  return {
+    gmv,
+    totalOrders,
+    activeCustomers: activeCustomers.size,
+    newRestaurants,
+    averageDeliveryTimeMins: deliveredCount > 0 ? (totalDeliveryTimeMs / deliveredCount / 60000) : 0,
+    cancellationRate: totalOrders > 0 ? (cancelledOrders / totalOrders) * 100 : 0
+  };
+}
+
+async function getFinanceReportsRepo(startDate?: Date, endDate?: Date) {
+  const whereClause: any = {};
+  if (startDate && endDate) {
+    whereClause.createdAt = { gte: startDate, lte: endDate };
+  }
+
+  // Simplified version: real version would sum payments and payouts
+  const payments = await prisma.payment.findMany({
+    where: { ...whereClause, status: 'SUCCESS' },
+    select: { amount: true }
+  });
+  const grossSales = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+
+  // Assuming a generic 10% platform commission for this simplified mock
+  const platformCommission = grossSales * 0.10;
+  const restaurantPayouts = grossSales * 0.70;
+  const deliveryPartnerPayouts = grossSales * 0.20;
+
+  return { grossSales, platformCommission, restaurantPayouts, deliveryPartnerPayouts };
+}
+
+async function getHeatmapRepo(startDate?: Date, endDate?: Date) {
+  const whereClause: any = {};
+  if (startDate && endDate) {
+    whereClause.createdAt = { gte: startDate, lte: endDate };
+  }
+
+  const addresses = await prisma.orderAddress.findMany({
+    where: { order: whereClause },
+    select: { latitude: true, longitude: true }
+  });
+
+  return addresses.map(a => ({ lat: Number(a.latitude), lng: Number(a.longitude), weight: 1 }));
+}
+
 export {
   getAllUsersRepo,
   getUserByIdRepo,
   updateUserRoleStatusRepo,
+  updateUserStatusRepo,
   getPendingRestaurantsRepo,
   getAllRestaurantsRepo,
   updateRestaurantStatusRepo,
+  updateRestaurantDocumentStatusRepo,
   getAdminOrdersRepo,
   getAllSystemConfigsRepo,
   updateSystemConfigRepo,
@@ -422,4 +625,15 @@ export {
   createAuditLogRepo,
   createSystemConfigRepo,
   deleteSystemConfigRepo,
+  getSupportTicketsRepo,
+  respondToSupportTicketRepo,
+  resolveSupportTicketRepo,
+  getCouponsRepo,
+  createCouponRepo,
+  updateCouponRepo,
+  overrideMenuItemRepo,
+  overrideOperatingHourRepo,
+  getKpisRepo,
+  getFinanceReportsRepo,
+  getHeatmapRepo,
 };

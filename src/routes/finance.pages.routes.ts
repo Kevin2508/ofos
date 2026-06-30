@@ -5,7 +5,7 @@ const financePageRouter = Router();
 
 financePageRouter.use(authenticate);
 
-financePageRouter.use(authorize('Finance_manager'));
+financePageRouter.use(authorize(['Finance_manager']));
 
 financePageRouter.get('/finance-dashboard', (req, res) => {
   res.render('finance/dashboard');
@@ -24,6 +24,12 @@ financePageRouter.get('/finance-refunds', (req, res) => {
 });
 
 financePageRouter.get('/finance-profile', (req, res) => {
+  res.render('finance/profile');
+});
+
+
+
+financePageRouter.get('/profile', (req, res) => {
   res.render('finance/profile');
 });
 

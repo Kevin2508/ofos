@@ -4,87 +4,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Earnings | Delivery Partner | ofos</title>
+  <title>Earnings | Delivery Partner | epicure</title>
   <link rel="stylesheet" href="/styles/build.css" />
 </head>
 
 <body class="min-h-screen bg-orange-50 font-sans">
   <div class="flex min-h-screen">
-    <!-- SIDEBAR -->
-    <aside
-      class="w-64 bg-white border-r border-orange-100 shadow-lg flex flex-col fixed h-full z-10 transition-transform duration-300">
-      <div class="p-6 text-center border-b border-orange-50">
-        <h1 class="text-3xl font-extrabold text-orange-500">ofos Delivery</h1>
-      </div>
-
-      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        <a href="/d/delivery-partner-dashboard"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-            </path>
-          </svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="/d/delivery-partner-assignments"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-            </path>
-          </svg>
-          <span>My Assignments</span>
-        </a>
-        <a href="/d/delivery-partner-earnings"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-orange-100 text-orange-600 font-semibold transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-            </path>
-          </svg>
-          <span>Earnings</span>
-        </a>
-        <a href="/d/delivery-partner-profile"
-          class="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-          <span>Profile</span>
-        </a>
-      </nav>
-
-      <div class="p-4 border-t border-orange-50">
-        <button id="logoutBtn"
-          class="flex items-center justify-center space-x-2 w-full bg-orange-500 text-white rounded-xl py-3 hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          <span class="font-semibold">Logout</span>
-        </button>
-      </div>
-    </aside>
+    <%- include('../partials/deliveryPartner/sidebar') %>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 ml-64 p-8">
-      <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-800">Earnings</h2>
+    <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+      <div class="mb-8 flex flex-wrap items-start md:items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">Earnings</h2>
         <p class="text-gray-500 mt-1">Track your payout and financial history.</p>
+      
+        </div>
       </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 mb-8 flex items-center justify-between">
-        <div>
-          <p class="text-gray-500 font-medium">Total Lifetime Earnings</p>
-          <h3 id="totalEarnings" class="text-4xl font-extrabold text-orange-600 mt-1">₹0</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
+        <!-- Today -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col justify-center">
+          <p class="text-gray-500 font-medium text-sm">Today</p>
+          <h3 id="earnToday" class="text-3xl font-extrabold text-orange-600 mt-1">₹0</h3>
+          <p class="text-xs text-gray-400 mt-2"><span id="delToday">0</span> Deliveries</p>
         </div>
-        <div class="p-4 bg-orange-50 text-orange-500 rounded-2xl">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-            </path>
-          </svg>
+        <!-- This Week -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col justify-center">
+          <p class="text-gray-500 font-medium text-sm">This Week</p>
+          <h3 id="earnWeekly" class="text-3xl font-extrabold text-orange-600 mt-1">₹0</h3>
+          <p class="text-xs text-gray-400 mt-2"><span id="delWeekly">0</span> Deliveries</p>
+        </div>
+        <!-- This Month -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col justify-center">
+          <p class="text-gray-500 font-medium text-sm">This Month</p>
+          <h3 id="earnMonthly" class="text-3xl font-extrabold text-orange-600 mt-1">₹0</h3>
+          <p class="text-xs text-gray-400 mt-2"><span id="delMonthly">0</span> Deliveries</p>
+        </div>
+        <!-- Tips -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col justify-center">
+          <p class="text-gray-500 font-medium text-sm">Total Tips (Month)</p>
+          <h3 id="tipsMonthly" class="text-3xl font-extrabold text-green-600 mt-1">₹0</h3>
+          <p class="text-xs text-gray-400 mt-2">Awesome work!</p>
         </div>
       </div>
 
@@ -96,6 +60,7 @@
               <tr class="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm uppercase tracking-wider">
                 <th class="px-6 py-4 font-semibold">Date</th>
                 <th class="px-6 py-4 font-semibold">Amount</th>
+                <th class="px-6 py-4 font-semibold">Breakdown</th>
                 <th class="px-6 py-4 font-semibold">Type</th>
                 <th class="px-6 py-4 font-semibold">Description</th>
               </tr>
@@ -116,14 +81,31 @@
   <script>
     async function loadEarnings() {
       try {
-        const token = localStorage.getItem('token') || '';
-        const headers = { 'Authorization': `Bearer ${token}` };
+        const headers = {};
 
-        // Fetch Total
-        const resEarnings = await fetch('/delivery-partner/earnings?period=monthly', { headers });
-        if (resEarnings.ok) {
-          const earnData = await resEarnings.json();
-          document.getElementById('totalEarnings').innerText = '₹' + (earnData.earnings?.totalEarning || 0);
+        // Fetch Today
+        const resToday = await fetch('/delivery-partner/earnings?period=today', { headers });
+        if (resToday.ok) {
+          const data = await resToday.json();
+          document.getElementById('earnToday').innerText = '₹' + (data.earnings?.totalEarning || 0);
+          document.getElementById('delToday').innerText = data.earnings?.totalDeliveries || 0;
+        }
+
+        // Fetch Weekly
+        const resWeekly = await fetch('/delivery-partner/earnings?period=weekly', { headers });
+        if (resWeekly.ok) {
+          const data = await resWeekly.json();
+          document.getElementById('earnWeekly').innerText = '₹' + (data.earnings?.totalEarning || 0);
+          document.getElementById('delWeekly').innerText = data.earnings?.totalDeliveries || 0;
+        }
+
+        // Fetch Monthly
+        const resMonthly = await fetch('/delivery-partner/earnings?period=monthly', { headers });
+        if (resMonthly.ok) {
+          const data = await resMonthly.json();
+          document.getElementById('earnMonthly').innerText = '₹' + (data.earnings?.totalEarning || 0);
+          document.getElementById('delMonthly').innerText = data.earnings?.totalDeliveries || 0;
+          document.getElementById('tipsMonthly').innerText = '₹' + (data.earnings?.tipAmount || 0);
         }
 
         // Fetch History
@@ -140,7 +122,8 @@
             list.innerHTML = history.map(e => `
                 <tr class="hover:bg-orange-50 transition-colors">
                   <td class="px-6 py-4 text-gray-500 text-sm">${new Date(e.createdAt).toLocaleString()}</td>
-                  <td class="px-6 py-4 font-medium text-green-600">+₹${e.totalEarning || 0}</td>
+                  <td class="px-6 py-4 font-bold text-green-600">+₹${e.totalEarning || 0}</td>
+                  <td class="px-6 py-4 text-xs text-gray-500 whitespace-pre-wrap">Base: ₹${e.baseEarning || 0}<br/>Dist: ₹${e.distanceBonus || 0}<br/>Tip: ₹${e.tipAmount || 0}</td>
                   <td class="px-6 py-4"><span class="bg-gray-100 px-2 py-1 rounded text-xs font-semibold">${e.status || 'PROCESSED'}</span></td>
                   <td class="px-6 py-4 text-gray-600">Order #${e.orderId}</td>
                 </tr>
@@ -154,14 +137,15 @@
         document.getElementById('earningsList').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Failed to load data.</td></tr>`;
       }
     }
-
     loadEarnings();
+    
+    // Real-time polling for earnings
+    setInterval(loadEarnings, 15000);
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       try {
-        const token = localStorage.getItem('token') || '';
         await fetch('/auth/logout', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {}
         });
       } catch (e) { console.error(e); }
       localStorage.clear();

@@ -63,6 +63,11 @@ export class FinanceService {
 
   async updatePartnerPayout(id: string, status: PayoutStatus) {
     const payout = await this.repository.updatePartnerPayoutStatus(BigInt(id), status);
+    
+    if (status === 'PAID') {
+      console.log(`[SMS/PUSH NOTIFICATION] To Delivery Partner ${payout.partnerUserId}: Your weekly payout of ₹${payout.netAmount} has been processed and sent to your verified bank account.`);
+    }
+
     return {
       ...payout,
       id: payout.id.toString(),
@@ -71,6 +76,22 @@ export class FinanceService {
       incentiveAmount: Number(payout.incentiveAmount),
       netAmount: Number(payout.netAmount)
     };
+  }
+
+  async processWeeklyPartnerPayouts() {
+    const processedCount = await this.repository.processWeeklyPartnerPayouts();
+    if (processedCount > 0) {
+      console.log(`[SYSTEM] Processed ${processedCount} weekly partner payouts and dispatched funds to verified bank accounts.`);
+    }
+    return { message: `Processed ${processedCount} weekly partner payouts successfully.` };
+  }
+
+  async processWeeklyRestaurantPayouts() {
+    const processedCount = await this.repository.processWeeklyRestaurantPayouts();
+    if (processedCount > 0) {
+      console.log(`[SYSTEM] Processed ${processedCount} weekly restaurant payouts and dispatched funds.`);
+    }
+    return { message: `Processed ${processedCount} weekly restaurant payouts successfully.` };
   }
 
   async getFormattedRefunds() {

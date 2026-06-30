@@ -4,256 +4,584 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Restaurant Owner Registration | ofos - Food Ordering System</title>
+  <title>Restaurant Owner Registration | epicure- Food Ordering System</title>
   <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
+  <style>
+    /* Hide all steps by default */
+    .step-content {
+      display: none;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    /* Stepper UI styles */
+    .step-indicator {
+      transition: all 0.3s;
+    }
+
+    .step-indicator.active .step-circle {
+      background-color: #f97316;
+      color: white;
+      border-color: #f97316;
+    }
+
+    .step-indicator.completed .step-circle {
+      background-color: #f97316;
+      color: white;
+      border-color: #f97316;
+    }
+  </style>
 </head>
 
-<body>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-      <!-- Header -->
-      <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold text-gray-800 mb-2">Register Restaurant Owner</h2>
-        <p class="text-gray-500 text-sm">Create an account to manage your restaurant</p>
-      </div>
+<body class="bg-gray-50 font-sans text-gray-800">
+  <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-3xl">
+      <h2 class="text-center text-3xl font-extrabold text-gray-900">
+        Register as a Restaurant Owner
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        Partner with epicureto grow your business
+      </p>
+    </div>
 
-      <!-- Form -->
-      <form id="restaurantOwnerRegisterForm" class="space-y-5">
-        <!-- Name Fields Row -->
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              First Name <span class="text-red-500">*</span>
-            </label>
-            <input type="text" id="firstName" name="firstName" placeholder="John"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-3xl">
+      <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+
+        <!-- Stepper Header -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between">
+
+            <div class="step-indicator active w-1/4 text-center" id="indicator-1">
+              <div
+                class="step-circle mx-auto w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-gray-500 mb-2">
+                1</div>
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Owner Info</div>
+            </div>
+
+            <div class="w-1/4 flex items-center">
+              <div class="w-full bg-gray-200 h-1 rounded-full"></div>
+            </div>
+
+            <div class="step-indicator w-1/4 text-center" id="indicator-2">
+              <div
+                class="step-circle mx-auto w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-gray-500 mb-2">
+                2</div>
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Restaurant Info</div>
+            </div>
+
+            <div class="w-1/4 flex items-center">
+              <div class="w-full bg-gray-200 h-1 rounded-full"></div>
+            </div>
+
+            <div class="step-indicator w-1/4 text-center" id="indicator-3">
+              <div
+                class="step-circle mx-auto w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-gray-500 mb-2">
+                3</div>
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Branch Details</div>
+            </div>
+
+            <div class="w-1/4 flex items-center">
+              <div class="w-full bg-gray-200 h-1 rounded-full"></div>
+            </div>
+
+            <div class="step-indicator w-1/4 text-center" id="indicator-4">
+              <div
+                class="step-circle mx-auto w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-gray-500 mb-2">
+                4</div>
+              <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Media Upload</div>
+            </div>
+
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Last Name
-            </label>
-            <input type="text" id="lastName" name="lastName" placeholder="Doe"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
-          </div>
         </div>
 
-        <!-- Email -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Email <span class="text-red-500">*</span>
-          </label>
-          <input type="email" id="email" name="email" placeholder="owner@example.com"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
-        </div>
+        <!-- Multi-step Form -->
+        <form id="restaurantOwnerRegisterForm" enctype="multipart/form-data">
 
-        <!-- Phone -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Phone <span class="text-red-500">*</span>
-          </label>
-          <input type="text" id="phone" name="phone" placeholder="10 digit number"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
-        </div>
+          <!-- STEP 1: Owner Info -->
+          <div class="step-content active" id="step-1">
+            <h3 class="text-xl font-bold mb-6 border-b pb-2">Owner Information</h3>
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+              <div>
+                <label for="firstName" class="block text-sm font-medium text-gray-700">First Name <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="firstName" id="firstName"
+                     minlength="2" maxlength="100" pattern="^[A-Za-z]+$" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="firstNameError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
 
-        <!-- Password & Confirm Password -->
-        <div class="space-y-4">
-          <!-- Password -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Password <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <input type="password" id="password" name="password" placeholder="Min 8 characters"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-12" />
-              <button type="button" id="togglePassword"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
-                <!-- Eye Icon (Visible) -->
-                <svg id="eyeIcon1" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <!-- Eye Slash Icon (Hidden) -->
-                <svg id="eyeSlashIcon1" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                </svg>
-              </button>
+              <div>
+                <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                <div class="mt-1">
+                  <input type="text" name="lastName" id="lastName"
+                     maxlength="100" pattern="^[A-Za-z]+$" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="lastNameError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
+
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email Address <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="email" name="email" id="email"
+                     pattern="^[^\s@]+@[^\s@]+\.(com|net|org|io)$" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="emailError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
+
+              <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="phone" id="phone" placeholder="10 digits"
+                     pattern="^[0-9]{10}$" minlength="10" maxlength="10" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="phoneError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
+
+              <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="password" name="password" id="password"
+                     minlength="8" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="passwordError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
+
+              <div>
+                <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="password" name="confirmPassword" id="confirmPassword"
+                     minlength="8" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="confirmPasswordError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Confirm Password -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Confirm Password <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-12" />
-              <button type="button" id="toggleConfirmPassword"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
-                <!-- Eye Icon (Visible) -->
-                <svg id="eyeIcon2" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <!-- Eye Slash Icon (Hidden) -->
-                <svg id="eyeSlashIcon2" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                </svg>
-              </button>
+          <!-- STEP 2: Restaurant Info -->
+          <div class="step-content" id="step-2">
+            <h3 class="text-xl font-bold mb-6 border-b pb-2">Restaurant Information</h3>
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <label for="businessName" class="block text-sm font-medium text-gray-700">Business Name (Display Name)
+                  <span class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="businessName" id="businessName"
+                     minlength="2" maxlength="100" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="businessNameError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label for="legalBusinessName" class="block text-sm font-medium text-gray-700">Legal Business Name <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="legalBusinessName" id="legalBusinessName"
+                     minlength="2" maxlength="100" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="legalBusinessNameError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
+
+              <div>
+                <label for="restaurantEmail" class="block text-sm font-medium text-gray-700">Restaurant Email <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="email" name="restaurantEmail" id="restaurantEmail"
+                     pattern="^[^\s@]+@[^\s@]+\.(com|net|org|io)$" class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="restaurantEmailError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
+
+              <div>
+                <label for="restaurantPhone" class="block text-sm font-medium text-gray-700">Restaurant Phone <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="restaurantPhone" id="restaurantPhone" placeholder="10 digits"
+                     pattern="^[0-9]{10}$" minlength="10" maxlength="10" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                  <p id="restaurantPhoneError" class="mt-1 text-sm text-red-500"></p>
+                </div>
+              </div>
+
+              <div class="sm:col-span-2 mt-4 pt-4 border-t border-gray-100">
+                <h4 class="text-lg font-semibold mb-4">Additional Details</h4>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label for="cuisineTags" class="block text-sm font-medium text-gray-700">Cuisine Tags (comma separated)</label>
+                <div class="mt-1">
+                  <input type="text" name="cuisineTags" id="cuisineTags" placeholder="e.g. Italian, Chinese, Fast Food"
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
+
+              <div>
+                <label for="bankAccountName" class="block text-sm font-medium text-gray-700">Bank Account Name</label>
+                <div class="mt-1">
+                  <input type="text" name="bankAccountName" id="bankAccountName"
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
+
+              <div>
+                <label for="bankAccountNumber" class="block text-sm font-medium text-gray-700">Bank Account Number</label>
+                <div class="mt-1">
+                  <input type="text" name="bankAccountNumber" id="bankAccountNumber"
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
+
+              <div>
+                <label for="bankIfscCode" class="block text-sm font-medium text-gray-700">Bank IFSC Code</label>
+                <div class="mt-1">
+                  <input type="text" name="bankIfscCode" id="bankIfscCode"
+                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
             </div>
           </div>
+
+          <!-- STEP 3: Branch Info -->
+          <div class="step-content" id="step-3">
+            <h3 class="text-xl font-bold mb-6 border-b pb-2">Main Branch Details</h3>
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <label for="addressLine1" class="block text-sm font-medium text-gray-700">Address Line 1 <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="addressLine1" id="addressLine1"
+                     required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
+
+              <div>
+                <label for="city" class="block text-sm font-medium text-gray-700">City <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="city" id="city"
+                     required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
+
+              <div>
+                <label for="state" class="block text-sm font-medium text-gray-700">State <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="state" id="state"
+                     required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
+
+              <div>
+                <label for="postalCode" class="block text-sm font-medium text-gray-700">Postal Code <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="postalCode" id="postalCode"
+                     required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
+
+              <div class="sm:col-span-2 mt-4 pt-4 border-t border-gray-100">
+                <h4 class="text-lg font-semibold mb-4">Legal Identifiers</h4>
+              </div>
+
+              <div>
+                <label for="fssaiLicenseNumber" class="block text-sm font-medium text-gray-700">FSSAI License Number
+                  <span class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="fssaiLicenseNumber" id="fssaiLicenseNumber"
+                     required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
+
+              <div>
+                <label for="gstin" class="block text-sm font-medium text-gray-700">GSTIN <span
+                    class="text-red-500">*</span></label>
+                <div class="mt-1">
+                  <input type="text" name="gstin" id="gstin"
+                     required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 4: Media Upload -->
+          <div class="step-content" id="step-4">
+            <h3 class="text-xl font-bold mb-6 border-b pb-2">Restaurant Media</h3>
+            <p class="text-sm text-gray-500 mb-6">Upload your restaurant's logo and cover photo to make it stand out.
+              These are optional and can be uploaded later.</p>
+
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Restaurant Logo</label>
+                <div
+                  class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors">
+                  <div class="space-y-1 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48"
+                      aria-hidden="true">
+                      <path
+                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="flex text-sm text-gray-600 justify-center">
+                      <label for="logo"
+                        class="relative cursor-pointer bg-white rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500">
+                        <span>Upload a file</span>
+                        <input id="logo" name="logo" type="file" accept="image/*" class="sr-only">
+                      </label>
+                    </div>
+                    <p class="text-xs text-gray-500" id="logoFileName">PNG, JPG up to 5MB</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Cover Photo</label>
+                <div
+                  class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors">
+                  <div class="space-y-1 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48"
+                      aria-hidden="true">
+                      <path
+                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="flex text-sm text-gray-600 justify-center">
+                      <label for="cover"
+                        class="relative cursor-pointer bg-white rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500">
+                        <span>Upload a file</span>
+                        <input id="cover" name="cover" type="file" accept="image/*" class="sr-only">
+                      </label>
+                    </div>
+                    <p class="text-xs text-gray-500" id="coverFileName">PNG, JPG up to 10MB</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="mt-8 flex justify-between border-t border-gray-200 pt-5">
+            <button type="button" id="prevBtn"
+              class="hidden bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+              Previous
+            </button>
+            <button type="button" id="nextBtn"
+              class="ml-auto bg-orange-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+              Next Step
+            </button>
+            <button type="submit" id="submitBtn"
+              class="hidden ml-auto bg-green-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+              Complete Registration
+            </button>
+          </div>
+
+        </form>
+
+        <div class="text-center mt-6 pt-6 border-t border-gray-200">
+          <p class="text-sm text-gray-600">
+            Already have an account?
+            <a href="/loginPage" class="font-medium text-orange-600 hover:text-orange-500 transition-colors">
+              Login
+            </a>
+          </p>
         </div>
-
-        <!-- Register Restaurant Owner Button -->
-        <button type="submit" id="submitBtn"
-          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg mt-2">
-          Register Restaurant Owner
-        </button>
-      </form>
-
-      <!-- Footer -->
-      <div class="text-center mt-6 pt-6 border-t border-gray-200">
-        <p class="text-sm text-gray-600">
-          Already have an account?
-          <a href="/loginPage" class="font-medium text-orange-500 hover:text-orange-600 transition-colors">
-            Login
-          </a>
-        </p>
       </div>
     </div>
   </div>
 
-  <script>
-    function setupPasswordToggle(
-      toggleBtnId,
-      inputId,
-      eyeIconId,
-      eyeSlashIconId
-    ) {
-      const toggleBtn = document.getElementById(toggleBtnId);
-      const input = document.getElementById(inputId);
-      const eyeIcon = document.getElementById(eyeIconId);
-      const eyeSlashIcon = document.getElementById(eyeSlashIconId);
+  <%- include('../../partials/toast') %>
 
-      toggleBtn.addEventListener('click', function () {
-        const type =
-          input.getAttribute('type') === 'password' ? 'text' : 'password';
-        input.setAttribute('type', type);
-        eyeIcon.classList.toggle('hidden');
-        eyeSlashIcon.classList.toggle('hidden');
+    <script>
+      async function checkAndPrefill() {
+        try {
+          const res = await fetch('/auth/me');
+          if (res.ok) {
+            const json = await res.json();
+            const u = json.data.user;
+            if (u) {
+              if (document.getElementById('firstName')) {
+                document.getElementById('firstName').value = u.firstName || '';
+                document.getElementById('firstName').readOnly = true;
+              }
+              if (document.getElementById('lastName')) {
+                document.getElementById('lastName').value = u.lastName || '';
+                document.getElementById('lastName').readOnly = true;
+              }
+              if (document.getElementById('email')) {
+                document.getElementById('email').value = u.email || '';
+                document.getElementById('email').readOnly = true;
+              }
+              if (document.getElementById('phone')) {
+                document.getElementById('phone').value = u.phone || '';
+                document.getElementById('phone').readOnly = true;
+              }
+              const pwInput = document.getElementById('password');
+              if (pwInput) {
+                pwInput.value = 'ExistingUserPassword123';
+                const pwGroup = pwInput.closest('div')?.parentElement;
+                if (pwGroup) pwGroup.style.display = 'none';
+              }
+              const cpwInput = document.getElementById('confirmPassword');
+              if (cpwInput) {
+                cpwInput.value = 'ExistingUserPassword123';
+                const cpwGroup = cpwInput.closest('div')?.parentElement;
+                if (cpwGroup) cpwGroup.style.display = 'none';
+              }
+            }
+          }
+        } catch (e) {
+          console.error('Error pre-filling profile', e);
+        }
+      }
+      checkAndPrefill();
+
+      let currentStep = 1;
+      const totalSteps = 4;
+
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const submitBtn = document.getElementById('submitBtn');
+
+      // Update file name displays
+      document.getElementById('logo').addEventListener('change', function (e) {
+        if (e.target.files.length > 0) {
+          document.getElementById('logoFileName').textContent = e.target.files[0].name;
+        }
       });
-    }
 
-    setupPasswordToggle(
-      'togglePassword',
-      'password',
-      'eyeIcon1',
-      'eyeSlashIcon1'
-    );
-    setupPasswordToggle(
-      'toggleConfirmPassword',
-      'confirmPassword',
-      'eyeIcon2',
-      'eyeSlashIcon2'
-    );
+      document.getElementById('cover').addEventListener('change', function (e) {
+        if (e.target.files.length > 0) {
+          document.getElementById('coverFileName').textContent = e.target.files[0].name;
+        }
+      });
 
-    document
-      .getElementById('restaurantOwnerRegisterForm')
-      .addEventListener('submit', async function (event) {
-        event.preventDefault();
+      function showStep(step) {
+        document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+        document.getElementById(`step-${step}`).classList.add('active');
 
-        const submitBtn = document.getElementById('submitBtn');
-
-        const firstName = document.getElementById('firstName').value.trim();
-        const lastName = document.getElementById('lastName').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const password = document.getElementById('password').value;
-        const confirmPassword =
-          document.getElementById('confirmPassword').value;
-
-        const phoneRegex = /^[0-9]{10}$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|io)$/i;
-
-        if (!firstName || firstName.length > 100) {
-          showToast('First name is required and cannot exceed 100 characters.', 'error');
-          return;
+        // Update indicators
+        for (let i = 1; i <= totalSteps; i++) {
+          const indicator = document.getElementById(`indicator-${i}`);
+          if (i < step) {
+            indicator.classList.add('completed');
+            indicator.classList.add('active');
+          } else if (i === step) {
+            indicator.classList.remove('completed');
+            indicator.classList.add('active');
+          } else {
+            indicator.classList.remove('completed');
+            indicator.classList.remove('active');
+          }
         }
 
-        if (lastName.length > 100) {
-          showToast('Last name cannot exceed 100 characters.', 'error');
-          return;
+        // Buttons
+        if (step === 1) {
+          prevBtn.classList.add('hidden');
+        } else {
+          prevBtn.classList.remove('hidden');
         }
 
-        if (!email || !emailRegex.test(email)) {
-          showToast('Please enter a valid email address ending in .com, .net, .org, or .io.', 'error');
-          return;
+        if (step === totalSteps) {
+          nextBtn.classList.add('hidden');
+          submitBtn.classList.remove('hidden');
+        } else {
+          nextBtn.classList.remove('hidden');
+          submitBtn.classList.add('hidden');
         }
+      }
 
-        if (!phone || !phoneRegex.test(phone)) {
-          showToast('Contact number must be exactly 10 digits and contain only numbers.', 'error');
-          return;
-        }
+      // Step-specific validation rules
+      const step1Rules = {
+        firstName: { required: true, maxLength: 100, label: 'First name' },
+        lastName: { maxLength: 100, label: 'Last name' },
+        email: { required: true, isEmail: true, emailTlds: ['com','net','org','io'], label: 'Email' },
+        phone: { required: true, exactLength: 10, pattern: /^[0-9]+$/, patternMsg: 'Phone must only contain digits', label: 'Phone' },
+        password: { required: true, minLength: 8, label: 'Password' },
+        confirmPassword: { required: true, minLength: 8, matchField: 'password', matchMsg: 'Passwords do not match', label: 'Confirm password' },
+      };
+      const step2Rules = {
+        businessName: { required: true, minLength: 2, maxLength: 100, label: 'Business name' },
+        legalBusinessName: { required: true, minLength: 2, maxLength: 100, label: 'Legal business name' },
+        restaurantEmail: { required: true, isEmail: true, label: 'Restaurant email' },
+        restaurantPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/, patternMsg: 'Phone must only contain digits', label: 'Restaurant phone' },
+      };
+      const step3Rules = {
+        addressLine1: { required: true, label: 'Address' },
+        city: { required: true, label: 'City' },
+        state: { required: true, label: 'State' },
+        postalCode: { required: true, label: 'Postal code' },
+        fssaiLicenseNumber: { required: true, label: 'FSSAI License Number' },
+        gstin: { required: true, label: 'GSTIN' },
+      };
 
-        if (password.length < 8) {
-          showToast('Password must be at least 8 characters long.', 'error');
-          return;
-        }
+      FormValidator.bindLiveValidation(step1Rules);
+      FormValidator.bindLiveValidation(step2Rules);
+      FormValidator.bindLiveValidation(step3Rules);
 
-        if (password !== confirmPassword) {
-          showToast('Passwords do not match.', 'error');
-          return;
+      function validateStep(step) {
+        if (step === 1) return FormValidator.validate(step1Rules);
+        if (step === 2) return FormValidator.validate(step2Rules);
+        if (step === 3) return FormValidator.validate(step3Rules);
+        return true;
+      }
+
+      nextBtn.addEventListener('click', () => {
+        if (validateStep(currentStep)) {
+          currentStep++;
+          showStep(currentStep);
         }
+      });
+
+      prevBtn.addEventListener('click', () => {
+        currentStep--;
+        showStep(currentStep);
+      });
+
+      document.getElementById('restaurantOwnerRegisterForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        if (!validateStep(currentStep)) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Registering...';
+
+        const formData = new FormData(this);
 
         try {
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Registering Restaurant Owner...';
-
-          const payload = {
-            firstName,
-            email,
-            phone,
-            password,
-            confirmPassword,
-          };
-
-          if (lastName) {
-            payload.lastName = lastName;
-          }
-
           const response = await fetch('/auth/register/restaurant-owner', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
+            body: formData
+            // Note: don't set Content-Type header manually when sending FormData, 
+            // fetch will automatically set it to multipart/form-data with the correct boundary
           });
 
           const data = await response.json();
 
           if (!response.ok) {
-            throw new Error(
-              data.message || 'Restaurant Owner registration failed. Please try again.'
-            );
+            throw new Error(data.message || 'Registration failed');
           }
 
-          showToast('Restaurant Owner account created successfully! Redirecting...', 'success');
-          document.getElementById('restaurantOwnerRegisterForm').reset();
-        } catch (error) {
-          showToast(error.message, 'error');
-        } finally {
+          showToast('Restaurant created successfully! Redirecting...', 'success');
+
+          // Wait a bit to show the toast, then redirect to login page
+          setTimeout(() => {
+            window.location.href = '/loginPage';
+          }, 1500);
+
+        } catch (err) {
+          showToast(err.message, 'error');
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Register Restaurant Owner';
+          submitBtn.textContent = 'Complete Registration';
         }
       });
-  </script>
-  <%- include('../../partials/toast') %>
+    </script>
 </body>
 
 </html>

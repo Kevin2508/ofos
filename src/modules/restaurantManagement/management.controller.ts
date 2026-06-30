@@ -17,6 +17,8 @@ import {
   uploadCoverService,
   uploadDocumentService,
   uploadLogoService,
+  getDashboardStatsService,
+  getFinanceStatsService,
 } from './management.service.ts';
 
 export const registerRestaurant = catchAsync(
@@ -31,6 +33,20 @@ export const registerRestaurant = catchAsync(
 export const getMyRestaurants = catchAsync(async (req: Request, res: Response) => {
   const ownerUserId = BigInt((req as any).user.id);
   const data = await getMyRestaurantsService(ownerUserId);
+
+  res.status(200).json({ status: 'success', ...data });
+});
+
+export const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
+  const ownerUserId = BigInt((req as any).user.id);
+  const data = await getDashboardStatsService(ownerUserId);
+
+  res.status(200).json({ status: 'success', data });
+});
+
+export const getFinanceStats = catchAsync(async (req: Request, res: Response) => {
+  const ownerUserId = BigInt((req as any).user.id);
+  const data = await getFinanceStatsService(ownerUserId);
 
   res.status(200).json({ status: 'success', ...data });
 });
@@ -53,7 +69,10 @@ export const uploadLogo = catchAsync(
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
 
-    const logoUrl: string | undefined = req.file?.path;
+    let logoUrl: string | undefined = req.file?.path ? '/' + req.file.path.replace(/\\/g, '/') : undefined;
+    if (logoUrl && !logoUrl.startsWith('/')) {
+      logoUrl = '/' + logoUrl;
+    }
     if (!logoUrl) {
       return res
         .status(400)
@@ -61,7 +80,7 @@ export const uploadLogo = catchAsync(
     }
 
     const data = await uploadLogoService(id, ownerUserId, logoUrl);
-    res.status(200).json({ status: 'success', ...data });
+    return res.status(200).json({ status: 'success', ...data });
   }
 );
 
@@ -70,7 +89,10 @@ export const uploadCover = catchAsync(
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
 
-    const coverImageUrl: string | undefined = req.file?.path;
+    let coverImageUrl: string | undefined = req.file?.path ? '/' + req.file.path.replace(/\\/g, '/') : undefined;
+    if (coverImageUrl && !coverImageUrl.startsWith('/')) {
+      coverImageUrl = '/' + coverImageUrl;
+    }
     if (!coverImageUrl) {
       return res
         .status(400)
@@ -78,7 +100,7 @@ export const uploadCover = catchAsync(
     }
 
     const data = await uploadCoverService(id, ownerUserId, coverImageUrl);
-    res.status(200).json({ status: 'success', ...data });
+    return res.status(200).json({ status: 'success', ...data });
   }
 );
 
@@ -90,7 +112,10 @@ export const uploadDocument = catchAsync(
     const ownerUserId = BigInt((req as any).user.id);
     const id = BigInt(req.params.id);
 
-    const documentUrl: string | undefined = req.file?.path;
+    let documentUrl: string | undefined = req.file?.path ? '/' + req.file.path.replace(/\\/g, '/') : undefined;
+    if (documentUrl && !documentUrl.startsWith('/')) {
+      documentUrl = '/' + documentUrl;
+    }
     if (!documentUrl) {
       return res
         .status(400)
@@ -103,7 +128,7 @@ export const uploadDocument = catchAsync(
       req.body,
       documentUrl
     );
-    res.status(201).json({ status: 'success', ...data });
+    return res.status(201).json({ status: 'success', ...data });
   }
 );
 

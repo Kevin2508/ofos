@@ -58,7 +58,7 @@ export const updateCartItem = catchAsync(
     if (!user) throw new Error('User not found');
 
     const userId = BigInt(user.id);
-    const cartItemId = BigInt(req.params.itemId);
+    const cartItemId = BigInt(req.params.itemId as string);
     const { quantity, specialInstructions } = req.body;
 
     const cart = await updateCartItemService(userId, cartItemId, {
@@ -80,7 +80,7 @@ export const removeCartItem = catchAsync(
     if (!user) throw new Error('User not found');
 
     const userId = BigInt(user.id);
-    const cartItemId = BigInt(req.params.itemId);
+    const cartItemId = BigInt(req.params.itemId as string);
 
     const cart = await removeCartItemService(userId, cartItemId);
 

@@ -33,10 +33,7 @@ import {
 } from './menuItem.service.ts';
 
 /**
- * ============================================================
  * GET CATEGORY ITEMS
- * ============================================================
- *
  * GET /categories/:categoryId/items
  */
 const getMenuItemsByCategory = catchAsync(
@@ -58,10 +55,6 @@ const getMenuItemsByCategory = catchAsync(
 );
 
 /**
- * ============================================================
- * CREATE MENU ITEM
- * ============================================================
- *
  * POST /categories/:categoryId/items
  */
 const createMenuItem = catchAsync(
@@ -88,10 +81,6 @@ const createMenuItem = catchAsync(
 );
 
 /**
- * ============================================================
- * GET SINGLE MENU ITEM
- * ============================================================
- *
  * GET /menu-items/:id
  */
 const getMenuItemById = catchAsync(
@@ -113,10 +102,6 @@ const getMenuItemById = catchAsync(
 );
 
 /**
- * ============================================================
- * UPDATE MENU ITEM
- * ============================================================
- *
  * PATCH /menu-items/:id
  */
 const updateMenuItem = catchAsync(
@@ -143,10 +128,6 @@ const updateMenuItem = catchAsync(
 );
 
 /**
- * ============================================================
- * TOGGLE AVAILABILITY
- * ============================================================
- *
  * PATCH /menu-items/:id/availability
  */
 const updateMenuItemAvailability =
@@ -174,10 +155,6 @@ const updateMenuItemAvailability =
   );
 
 /**
- * ============================================================
- * AVAILABILITY SCHEDULES
- * ============================================================
- *
  * GET /menu-items/:id/availability-schedules
  */
 const getAvailabilitySchedules = catchAsync(
@@ -231,10 +208,6 @@ const deleteAvailabilitySchedule = catchAsync(
 );
 
 /**
- * ============================================================
- * TOGGLE BESTSELLER
- * ============================================================
- *
  * PATCH /menu-items/:id/bestseller
  */
 const updateMenuItemBestseller =
@@ -262,10 +235,6 @@ const updateMenuItemBestseller =
   );
 
 /**
- * ============================================================
- * DELETE MENU ITEM
- * ============================================================
- *
  * DELETE /menu-items/:id
  */
 const deleteMenuItem = catchAsync(
@@ -287,10 +256,6 @@ const deleteMenuItem = catchAsync(
 
 
 /**
- * ============================================================
- * UPLOAD MENU ITEM IMAGE
- * ============================================================
- *
  * POST /menu-items/:id/images
  */
 const uploadMenuItemImage = catchAsync(
@@ -298,9 +263,7 @@ const uploadMenuItemImage = catchAsync(
     req: Request<menuItemIdParamsDto>,
     res: Response
   ) => {
-    /**
-     * Multer should always provide file
-     */
+   
     if (!req.file) {
       throw new Error(
         'Image file is required'
@@ -322,10 +285,6 @@ const uploadMenuItemImage = catchAsync(
 );
 
 /**
- * ============================================================
- * DELETE MENU ITEM IMAGE
- * ============================================================
- *
  * DELETE /menu-items/:id/images/:imageId
  */
 const deleteMenuItemImage = catchAsync(
@@ -352,10 +311,6 @@ const deleteMenuItemImage = catchAsync(
 );
 
 /**
- * ============================================================
- * IMPORT MENU ITEMS CSV
- * ============================================================
- *
  * POST /branches/:branchId/menu-items/import
  */
 const importMenuItems = catchAsync(
@@ -363,9 +318,7 @@ const importMenuItems = catchAsync(
     req: Request<branchIdParamsDto>,
     res: Response
   ) => {
-    /**
-     * CSV file required
-     */
+    
     if (!req.file) {
       throw new Error(
         'CSV file is required'

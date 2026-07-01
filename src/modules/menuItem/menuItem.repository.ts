@@ -4,15 +4,6 @@ import {
   FoodType,
 } from '../../generated/prisma/enums.ts';
 
-/**
- * ============================================================
- * CATEGORY
- * ============================================================
- */
-
-/**
- * Verify category exists and is active.
- */
 async function findCategoryById(
   categoryId: bigint
 ) {
@@ -24,9 +15,7 @@ async function findCategoryById(
   });
 }
 
-/**
- * Verify category belongs to branch.
- */
+
 async function findCategoryByBranch(
   categoryId: bigint,
   branchId: bigint
@@ -40,15 +29,6 @@ async function findCategoryByBranch(
   });
 }
 
-/**
- * ============================================================
- * MODIFIER GROUPS
- * ============================================================
- */
-
-/**
- * Fetch modifier groups with options.
- */
 async function findModifierGroupsByIds(
   ids: bigint[]
 ) {
@@ -65,15 +45,6 @@ async function findModifierGroupsByIds(
   });
 }
 
-/**
- * ============================================================
- * MENU ITEMS
- * ============================================================
- */
-
-/**
- * Find menu item by id.
- */
 async function findMenuItemById(id: bigint) {
   return prisma.menuItem.findFirst({
     where: {
@@ -105,9 +76,6 @@ async function findMenuItemById(id: bigint) {
   });
 }
 
-/**
- * Find menu item using SKU.
- */
 async function findMenuItemBySku(
   sku: string
 ) {
@@ -119,9 +87,6 @@ async function findMenuItemBySku(
   });
 }
 
-/**
- * Fetch all items under category.
- */
 async function getMenuItemsByCategory(
   categoryId: bigint
 ) {
@@ -141,9 +106,6 @@ async function getMenuItemsByCategory(
   });
 }
 
-/**
- * Create menu item.
- */
 async function createMenuItem({
   categoryId,
   sku,
@@ -200,9 +162,6 @@ async function createMenuItem({
   );
 }
 
-/**
- * Update menu item.
- */
 async function updateMenuItem({
   id,
   name,
@@ -241,9 +200,6 @@ async function updateMenuItem({
   });
 }
 
-/**
- * Toggle availability.
- */
 async function updateMenuItemAvailability({
   id,
   isAvailable,
@@ -262,9 +218,6 @@ async function updateMenuItemAvailability({
   });
 }
 
-/**
- * Toggle bestseller.
- */
 async function updateMenuItemBestseller({
   id,
   isBestseller,
@@ -282,12 +235,6 @@ async function updateMenuItemBestseller({
     },
   });
 }
-
-/**
- * ============================================================
- * AVAILABILITY SCHEDULES
- * ============================================================
- */
 
 async function getMenuItemAvailabilitySchedules(menuItemId: bigint) {
   return prisma.menuItemAvailability.findMany({
@@ -329,9 +276,6 @@ async function deleteMenuItemAvailabilitySchedule(scheduleId: bigint) {
   });
 }
 
-/**
- * Soft delete menu item.
- */
 async function softDeleteMenuItem(
   id: bigint
 ) {
@@ -346,15 +290,6 @@ async function softDeleteMenuItem(
   });
 }
 
-/**
- * ============================================================
- * IMAGES
- * ============================================================
- */
-
-/**
- * Add gallery images.
- */
 async function createMenuItemImages({
   menuItemId,
   imageUrls,
@@ -373,9 +308,6 @@ async function createMenuItemImages({
   });
 }
 
-/**
- * Find image by id.
- */
 async function findMenuItemImageById(
   imageId: bigint
 ) {
@@ -386,9 +318,6 @@ async function findMenuItemImageById(
   });
 }
 
-/**
- * Delete image.
- */
 async function deleteMenuItemImage(
   imageId: bigint
 ) {
@@ -399,15 +328,6 @@ async function deleteMenuItemImage(
   });
 }
 
-/**
- * ============================================================
- * BRANCH
- * ============================================================
- */
-
-/**
- * Verify branch exists.
- */
 async function findBranchById(
   branchId: bigint
 ) {
@@ -419,17 +339,6 @@ async function findBranchById(
   });
 }
 
-
-
-/**
- * ============================================================
- * CSV IMPORT
- * ============================================================
- */
-
-/**
- * Bulk insert items.
- */
 async function bulkCreateMenuItems(
   items: {
     categoryId: bigint;

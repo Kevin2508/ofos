@@ -35,11 +35,6 @@ import {
 
 import { IMenuItemResponse } from './menuItem.interface.ts';
 
-/**
- * ============================================================
- * GET ALL ITEMS OF CATEGORY
- * ============================================================
- */
 async function getMenuItemsByCategoryService(
   categoryId: string
 ): Promise<IMenuItemResponse> {
@@ -63,18 +58,11 @@ async function getMenuItemsByCategoryService(
   };
 }
 
-/**
- * ============================================================
- * CREATE MENU ITEM
- * ============================================================
- */
 async function createMenuItemService(
   categoryId: string,
   data: createMenuItemDto
 ): Promise<IMenuItemResponse> {
-  /**
-   * Validate category exists
-   */
+ 
   const category = await findCategoryById(
     BigInt(categoryId)
   );
@@ -83,9 +71,6 @@ async function createMenuItemService(
     throw new Error('Category not found');
   }
 
-  /**
-   * SKU must be unique
-   */
   const existingSku =
     await findMenuItemBySku(data.sku);
 
@@ -95,9 +80,6 @@ async function createMenuItemService(
     );
   }
 
-  /**
-   * Validate modifier groups
-   */
   if (
     data.modifierGroupIds &&
     data.modifierGroupIds.length > 0
@@ -144,11 +126,6 @@ async function createMenuItemService(
   };
 }
 
-/**
- * ============================================================
- * GET SINGLE MENU ITEM
- * ============================================================
- */
 async function getMenuItemByIdService(
   menuItemId: string
 ): Promise<IMenuItemResponse> {
@@ -169,11 +146,6 @@ async function getMenuItemByIdService(
   };
 }
 
-/**
- * ============================================================
- * UPDATE MENU ITEM
- * ============================================================
- */
 async function updateMenuItemService(
   menuItemId: string,
   data: updateMenuItemDto
@@ -209,11 +181,6 @@ async function updateMenuItemService(
   };
 }
 
-/**
- * ============================================================
- * TOGGLE AVAILABILITY
- * ============================================================
- */
 async function updateMenuItemAvailabilityService(
   menuItemId: string,
   data: updateAvailabilityDto
@@ -244,11 +211,6 @@ async function updateMenuItemAvailabilityService(
   };
 }
 
-/**
- * ============================================================
- * TOGGLE BESTSELLER
- * ============================================================
- */
 async function updateMenuItemBestsellerService(
   menuItemId: string,
   data: updateBestsellerDto
@@ -279,18 +241,6 @@ async function updateMenuItemBestsellerService(
   };
 }
 
-/**
- * ============================================================
- * SOFT DELETE MENU ITEM
- * ============================================================
- */
-
-/**
- * ============================================================
- * MENU ITEM AVAILABILITY SCHEDULES
- * ============================================================
- */
-
 async function getAvailabilitySchedulesService(menuItemId: string): Promise<IMenuItemResponse> {
   const existingItem = await findMenuItemById(BigInt(menuItemId));
   if (!existingItem) {
@@ -314,7 +264,6 @@ async function createAvailabilityScheduleService(
     throw new Error('Menu item not found');
   }
 
-  // Convert "HH:mm" to Date objects for Prisma
   const now = new Date();
   const startTimeObj = new Date(now.toDateString() + ' ' + data.startTime);
   const endTimeObj = new Date(now.toDateString() + ' ' + data.endTime);
@@ -341,7 +290,6 @@ async function deleteAvailabilityScheduleService(
     throw new Error('Menu item not found');
   }
 
-  // Optionally verify schedule belongs to menu item, but deletion by ID is usually sufficient if we trust the route or we can do a check
   await deleteMenuItemAvailabilitySchedule(BigInt(scheduleId));
 
   return {
@@ -349,11 +297,6 @@ async function deleteAvailabilityScheduleService(
   };
 }
 
-/**
- * ============================================================
- * SOFT DELETE MENU ITEM
- * ============================================================
- */
 async function deleteMenuItemService(
   menuItemId: string
 ): Promise<IMenuItemResponse> {
@@ -378,19 +321,11 @@ async function deleteMenuItemService(
   };
 }
 
-
-/**
- * ============================================================
- * UPLOAD MENU ITEM IMAGE
- * ============================================================
- */
 async function uploadMenuItemImageService(
   menuItemId: string,
   file: Express.Multer.File
 ): Promise<IMenuItemResponse> {
-  /**
-   * Validate menu item exists
-   */
+
   const menuItem =
     await findMenuItemById(
       BigInt(menuItemId)
@@ -402,18 +337,12 @@ async function uploadMenuItemImageService(
     );
   }
 
-  /**
-   * Create image record
-   */
   await createMenuItemImages({
     menuItemId: BigInt(menuItemId),
 
     imageUrls: ['/' + file.path.replace(/\\/g, '/')],
   });
 
-  /**
-   * Return latest item
-   */
   const updatedItem =
     await findMenuItemById(
       BigInt(menuItemId)
@@ -426,18 +355,10 @@ async function uploadMenuItemImageService(
   };
 }
 
-/**
- * ============================================================
- * DELETE MENU ITEM IMAGE
- * ============================================================
- */
 async function deleteMenuItemImageService(
   menuItemId: string,
   imageId: string
 ): Promise<IMenuItemResponse> {
-  /**
-   * Validate menu item exists
-   */
   const menuItem =
     await findMenuItemById(
       BigInt(menuItemId)
@@ -449,9 +370,6 @@ async function deleteMenuItemImageService(
     );
   }
 
-  /**
-   * Validate image exists
-   */
   const image =
     await findMenuItemImageById(
       BigInt(imageId)
@@ -462,10 +380,6 @@ async function deleteMenuItemImageService(
       'Menu item image not found'
     );
   }
-
-  /**
-   * Ensure image belongs to menu item
-   */
   if (
     image.menuItemId !==
     BigInt(menuItemId)
@@ -474,10 +388,6 @@ async function deleteMenuItemImageService(
       'Image does not belong to this menu item'
     );
   }
-
-  /**
-   * Delete physical file
-   */
   if (
     image.imageUrl &&
     fs.existsSync(
@@ -488,10 +398,6 @@ async function deleteMenuItemImageService(
       image.imageUrl
     );
   }
-
-  /**
-   * Delete DB record
-   */
   await deleteMenuItemImage(
     BigInt(imageId)
   );
@@ -502,18 +408,10 @@ async function deleteMenuItemImageService(
   };
 }
 
-/**
- * ============================================================
- * IMPORT MENU ITEMS FROM CSV
- * ============================================================
- */
 async function importMenuItemsService(
   branchId: string,
   file: Express.Multer.File
 ): Promise<IMenuItemResponse> {
-  /**
-   * Validate branch
-   */
   const branch =
     await findBranchById(
       BigInt(branchId)
@@ -524,10 +422,6 @@ async function importMenuItemsService(
       'Branch not found'
     );
   }
-
-  /**
-   * Parse CSV
-   */
   const rows: importMenuItemsDto[] =
     [];
 
@@ -558,10 +452,6 @@ async function importMenuItemsService(
         );
     }
   );
-
-  /**
-   * Empty CSV
-   */
   if (rows.length === 0) {
     throw new Error(
       'CSV file is empty'
@@ -578,10 +468,6 @@ async function importMenuItemsService(
   }[] = [];
 
   let skipped = 0;
-
-  /**
-   * Validate rows
-   */
   for (const row of rows) {
     const category =
       await findCategoryByBranch(
@@ -617,18 +503,10 @@ async function importMenuItemsService(
         row.foodType,
     });
   }
-
-  /**
-   * Bulk insert
-   */
   const result =
     await bulkCreateMenuItems(
       validItems
     );
-
-  /**
-   * Delete uploaded CSV
-   */
   if (
     fs.existsSync(
       file.path

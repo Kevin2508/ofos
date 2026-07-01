@@ -1,8 +1,5 @@
 import { FoodType } from '../../generated/prisma/enums.ts';
 
-/**
- * Route Params
- */
 
 interface categoryIdParamsDto {
   categoryId: string;
@@ -22,13 +19,10 @@ interface branchIdParamsDto {
 }
 
 interface scheduleParamsDto {
-  id: string; // menuItemId
+  id: string; 
   scheduleId: string;
 }
 
-/**
- * Create Menu Item
- */
 
 interface createMenuItemDto {
   sku: string;
@@ -37,16 +31,9 @@ interface createMenuItemDto {
   basePrice: number;
   foodType: FoodType;
   dietaryTags?: string[];
-
-  /**
-   * Optional Modifier Groups
-   */
   modifierGroupIds?: string[];
 }
 
-/**
- * Update Menu Item
- */
 
 interface updateMenuItemDto {
   name?: string;
@@ -56,35 +43,23 @@ interface updateMenuItemDto {
   dietaryTags?: string[];
 }
 
-/**
- * Availability Toggle
- */
 
 interface updateAvailabilityDto {
   isAvailable: boolean;
 }
 
-/**
- * Availability Schedule
- */
-
 interface createAvailabilityScheduleDto {
   dayOfWeek: number;
-  startTime: string; // ISO or HH:mm:ss
+  startTime: string; 
   endTime: string;
 }
 
-/**
- * Bestseller Toggle
- */
 
 interface updateBestsellerDto {
   isBestseller: boolean;
 }
 
-/**
- * CSV Import DTO
- */
+
 
 interface importMenuItemsDto {
   categoryId: string;
@@ -95,11 +70,7 @@ interface importMenuItemsDto {
   foodType: FoodType;
 }
 
-/**
- * CSV Import Result
- *
- * Returned after bulk import completes.
- */
+
 interface importMenuItemsResultDto {
   totalRows: number;
   inserted: number;

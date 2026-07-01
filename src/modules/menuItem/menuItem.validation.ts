@@ -1,9 +1,5 @@
 import Joi from 'joi';
 
-/**
- * Create Menu Item
- */
-
 const createMenuItemSchema = Joi.object({
   sku: Joi.string().max(50).required(),
 
@@ -34,10 +30,6 @@ const createMenuItemSchema = Joi.object({
     .optional(),
 });
 
-/**
- * Update Menu Item
- */
-
 const updateMenuItemSchema = Joi.object({
   name: Joi.string().max(255),
 
@@ -58,17 +50,9 @@ const updateMenuItemSchema = Joi.object({
     .optional(),
 }).min(1);
 
-/**
- * Availability Toggle
- */
-
 const updateAvailabilitySchema = Joi.object({
   isAvailable: Joi.boolean().required(),
 });
-
-/**
- * Availability Schedule Create
- */
 
 const createAvailabilityScheduleSchema = Joi.object({
   dayOfWeek: Joi.number().integer().min(0).max(6).required(),
@@ -80,20 +64,9 @@ const createAvailabilityScheduleSchema = Joi.object({
   }),
 });
 
-/**
- * Bestseller Toggle
- */
-
 const updateBestsellerSchema = Joi.object({
   isBestseller: Joi.boolean().required(),
 });
-
-/**
- * Upload Menu Item Image
- *
- * Validation for:
- * POST /menu-items/:id/images
- */
 
 const uploadMenuItemImageSchema =
   Joi.object({

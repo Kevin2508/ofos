@@ -148,7 +148,6 @@ export async function getOrderDetails(orderId: bigint, customerUserId: bigint) {
 export async function getRestaurantOrderDetails(orderId: bigint, userId: bigint, role: string) {
   let order;
   if (role === 'Restaurant_staff') {
-    // Check if the order belongs to a branch the staff is assigned to
     const staff = await prisma.restaurantStaff.findMany({
       where: { userId },
       select: { branchId: true }
@@ -213,13 +212,12 @@ export async function getOrderTracking(
     let eta = await redisService.get(cacheKey);
 
     if (!eta) {
-      // Recalculate ETA based on Haversine distance
       const lat1 = Number(latestLocation.latitude);
       const lon1 = Number(latestLocation.longitude);
       const lat2 = Number(order.address.latitude);
       const lon2 = Number(order.address.longitude);
 
-      const R = 6371; // Radius of the earth in km
+      const R = 6371; 
       const dLat = (lat2 - lat1) * (Math.PI / 180);
       const dLon = (lon2 - lon1) * (Math.PI / 180);
       const a =
@@ -229,17 +227,14 @@ export async function getOrderTracking(
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       const distanceKm = R * c;
 
-      // Calculate mins: e.g. 15km/h avg speed -> 4 mins per km + 2 mins buffer
       const mins = Math.ceil(distanceKm * 4) + 2;
       const calculatedEta = new Date(Date.now() + mins * 60000).toISOString();
 
-      // Store in redis for 2 minutes (120 seconds)
       await redisService.set(cacheKey, calculatedEta, 120);
       eta = calculatedEta;
     }
     payload.estimatedDeliveryAt = eta;
   } else {
-    // Fallback if no location data available yet
     payload.estimatedDeliveryAt = order.estimatedDeliveryAt ? order.estimatedDeliveryAt.toISOString() : null;
   }
 
@@ -285,20 +280,16 @@ export async function cancelOrder(
   let refundEligible = false;
   let refundAmount = 0;
 
-  // Find completed payment
   const completedPayment = order.payments?.find((p: any) => p.status === 'COMPLETED');
 
   if (completedPayment) {
     if (order.orderStatus === 'PLACED') {
-      // 100% refund
       refundEligible = true;
       refundAmount = Number(order.totalAmount);
     } else if (order.orderStatus === 'ACCEPTED') {
-      // 50% refund penalty
       refundEligible = true;
       refundAmount = Number(order.totalAmount) * 0.5;
     } else if (order.orderStatus === 'PREPARING') {
-      // 0% refund
       refundEligible = false;
       refundAmount = 0;
     }
@@ -331,10 +322,6 @@ export async function markItemUnavailable(orderId: bigint, itemId: bigint, staff
 
 const TAX_RATE = 0.05;
 
-// ─────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────
-
 const generateOrderNumber = (): string => {
   const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -344,15 +331,10 @@ const generateOrderNumber = (): string => {
   return `ORD-${datePart}-${randomPart}`;
 };
 
-// ─────────────────────────────────────────────────────────────
-// PLACE ORDER
-// ─────────────────────────────────────────────────────────────
-
 export const placeOrder = async (
   customerUserId: bigint,
   req: IPlaceOrderRequest
 ): Promise<IPlaceOrderResult> => {
-  // ── 1. Load & validate checkout session ───────────────────
   const session = await findCheckoutSession(
     req.checkoutSessionId,
     customerUserId
@@ -360,14 +342,6 @@ export const placeOrder = async (
   if (!session) {
     throw new Error('Checkout session not found.');
   }
-
-  // if (new Date() > session.expiresAt) {
-  //   throw new Error(
-  //     'Checkout session has expired. Please start checkout again.'
-  //   );
-  // }
-
-  // ── 2. Prevent double submission ──────────────────────────
   const alreadyPlaced = await findExistingOrderBySession(req.checkoutSessionId);
 
   if (alreadyPlaced) {
@@ -375,8 +349,6 @@ export const placeOrder = async (
       'An order has already been placed for this checkout session.'
     );
   }
-
-  // ── 3. Load & validate cart ───────────────────────────────
   const cart = await findActiveCart(session.cartId, customerUserId);
 
   if (!cart) {
@@ -387,14 +359,12 @@ export const placeOrder = async (
     throw new Error('Cannot place an order with an empty cart.');
   }
 
-  // ── 4. Validate branch & restaurant ───────────────────────
   if (!cart.branch.isActive) {
     throw new Error(
       'This restaurant branch is currently not accepting orders.'
     );
   }
 
-  // ── 5. Compute price breakdown ────────────────────────────
   const subtotal = parseFloat(cart.subtotalAmount.toString());
 
   if (cart.branch.minimumOrderValue && subtotal < Number(cart.branch.minimumOrderValue)) {
@@ -407,17 +377,13 @@ export const placeOrder = async (
     (subtotal + taxAmount + deliveryFee).toFixed(2)
   );
 
-  // ── 6. Compute estimated delivery time ────────────────────
   const estimatedDeliveryAt = session.estimatedDeliveryMinutes
     ? new Date(Date.now() + session.estimatedDeliveryMinutes * 60 * 1000)
     : null;
 
-  // ── 7. Generate order number & OTP ────────────────────────
   const orderNumber = generateOrderNumber();
   const rawOtp = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP
   const otpHash = await bcrypt.hash(rawOtp, 10);
-
-  // ── 8. Run atomic DB transaction ─────────────────────────
   const order = await createOrder({
     customerUserId,
     session,
@@ -460,7 +426,6 @@ export async function reorderPastOrder(
     throw new Error('Order not found');
   }
 
-  // Check current cart
   const currentCart = await getActiveCartByUser(customerUserId);
   if (currentCart && currentCart.restaurantBranchId !== order.branch!.id) {
     if (!forceClear) {
@@ -482,7 +447,7 @@ export async function reorderPastOrder(
           restaurantBranchId: order.branch!.id,
           quantity: item.quantity,
           specialInstructions: item.specialInstructions || undefined,
-          modifiers: [] // Modifiers are skipped for reorder due to missing option ID mapping
+          modifiers: [] 
         });
         addedItems.push(item.itemName);
       } catch (err) {
@@ -511,7 +476,6 @@ export async function raiseDispute(
     throw new Error('ORDER_NOT_FOUND');
   }
 
-  // Validate category
   const validCategories = ['MISSING_ITEM', 'WRONG_ITEM', 'POOR_QUALITY', 'LATE_DELIVERY', 'REFUND_REQUEST', 'OTHER'];
   if (!validCategories.includes(category)) {
     throw new Error('INVALID_CATEGORY');
@@ -533,7 +497,6 @@ export async function processPendingOrderTimeouts() {
   });
 
   for (const order of timedOutOrders) {
-    // null is used as staffUserId for system actions
     try {
       await rejectOrder(order.id, null, 'Auto-rejected: No action taken within 5 minutes');
     } catch (err) {

@@ -379,9 +379,6 @@ export const findExistingOrderBySession = async (
   return order !== null;
 };
 
-// ─────────────────────────────────────────────────────────────
-// WRITE — atomic transaction
-// ─────────────────────────────────────────────────────────────
 
 export const createOrder = async (params: {
   customerUserId: bigint;
@@ -411,7 +408,6 @@ export const createOrder = async (params: {
   } = params;
 
   return await prisma.$transaction(async (tx) => {
-    // ── 1. Order ─────────────────────────────────────────────
     const order = await tx.order.create({
       data: {
         orderNumber,
@@ -431,7 +427,6 @@ export const createOrder = async (params: {
       },
     });
 
-    // ── 2. Order Address snapshot ────────────────────────────
     await tx.orderAddress.create({
       data: {
         orderId: order.id,
@@ -448,7 +443,6 @@ export const createOrder = async (params: {
       },
     });
 
-    // ── 3. Order Items + Modifiers snapshot ──────────────────
     for (const item of cart.items) {
       const orderItem = await tx.orderItem.create({
         data: {
@@ -475,7 +469,6 @@ export const createOrder = async (params: {
       }
     }
 
-    // ── 4. Order Status History — first entry ────────────────
     await tx.orderStatusHistory.create({
       data: {
         orderId: order.id,
@@ -485,7 +478,6 @@ export const createOrder = async (params: {
       },
     });
 
-    // ── 5. Order Event ───────────────────────────────────────
     await tx.orderEvent.create({
       data: {
         orderId: order.id,
@@ -498,7 +490,6 @@ export const createOrder = async (params: {
       },
     });
 
-    // ── 6. Empty cart items, then Cart → CHECKED_OUT ─────────
     const cartItemIds = cart.items.map((item) => item.id);
     if (cartItemIds.length > 0) {
       await tx.cartItemModifier.deleteMany({
@@ -589,7 +580,6 @@ export async function markItemUnavailable(orderId: bigint, itemId: bigint) {
 }
 
 export async function getRestaurantOrderById(orderId: bigint, ownerUserId: bigint) {
-  // ensure order belongs to owner's branch
   const order = await prisma.order.findFirst({
     where: {
       id: orderId,

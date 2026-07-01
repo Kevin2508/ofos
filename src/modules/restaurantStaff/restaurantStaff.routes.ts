@@ -17,20 +17,12 @@ import {
 
 const restaurantStaffRouter = Router();
 
-/**
- * GET /branches/:branchId/staff
- * List all staff members for a branch
- */
 restaurantStaffRouter.get(
   '/branches/:branchId/staff',
   authenticate,
   getRestaurantStaffList
 );
 
-/**
- * POST /branches/:branchId/staff
- * Add staff member to branch
- */
 restaurantStaffRouter.post(
   '/branches/:branchId/staff',
   authenticate,
@@ -38,10 +30,6 @@ restaurantStaffRouter.post(
   createRestaurantStaff
 );
 
-/**
- * PATCH /branches/:branchId/staff/:id
- * Update designation/status
- */
 restaurantStaffRouter.patch(
   '/branches/:branchId/staff/:id',
   authenticate,
@@ -49,10 +37,6 @@ restaurantStaffRouter.patch(
   updateRestaurantStaff
 );
 
-/**
- * DELETE /branches/:branchId/staff/:id
- * Remove staff member from branch
- */
 restaurantStaffRouter.delete(
   '/branches/:branchId/staff/:id',
   authenticate,

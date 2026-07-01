@@ -25,19 +25,10 @@ export interface CancelOrderBody {
 }
 
 
-
-// ─────────────────────────────────────────────────────────────
-// REQUEST
-// ─────────────────────────────────────────────────────────────
-
 export interface IPlaceOrderRequest {
   checkoutSessionId: bigint;
   specialInstructions?: string;
 }
-
-// ─────────────────────────────────────────────────────────────
-// DB DATA SHAPES  (raw Prisma results)
-// ─────────────────────────────────────────────────────────────
 
 export interface ICheckoutSessionData {
   id: bigint;
@@ -104,10 +95,6 @@ export interface ICartData {
     };
   };
 }
-
-// ─────────────────────────────────────────────────────────────
-// RESULT
-// ─────────────────────────────────────────────────────────────
 
 export interface IPlaceOrderResult {
   orderId: bigint;

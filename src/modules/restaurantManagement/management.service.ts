@@ -26,7 +26,6 @@ async function registerRestaurantService(
 ) {
   const restaurant = await createRestaurant({ ownerUserId, ...data });
 
-  // Automatically create a default branch so the restaurant is usable immediately
   await createBranch({
     restaurantId: restaurant.id,
     branchName: `${data.businessName} — Main Branch`,
@@ -286,7 +285,6 @@ async function getFinanceStatsService(ownerUserId: bigint) {
   };
 }
 
-// ─── Serialise BigInt fields ──────────────────────────────────────────────────
 
 function serializeRestaurant(r: any) {
   return {

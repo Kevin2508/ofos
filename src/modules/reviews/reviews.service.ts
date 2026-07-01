@@ -7,28 +7,22 @@ export async function submitReview(
   data: CreateReviewRequest,
   imageUrls: string[]
 ) {
-  // 1. Verify order belongs to customer
   const order = await orderRepository.getOrderById(data.orderId, customerUserId);
   if (!order) {
     throw new Error("Order not found or does not belong to this customer.");
   }
 
-  // 2. Verify order status is DELIVERED
   if (order.orderStatus !== "DELIVERED") {
     throw new Error("Reviews can only be submitted for delivered orders.");
   }
 
-  // 3. Check if already reviewed
   const existingReview = await reviewsRepo.getReviewByOrderId(data.orderId);
   if (existingReview) {
     throw new Error("This order has already been reviewed.");
   }
-
-  // 4. Calculate overall rating (simple average)
   const avg = (data.foodRating + data.deliveryRating + data.packagingRating) / 3;
   const overallRating = Math.round(avg * 10) / 10; // Round to 1 decimal place
 
-  // 5. Create Review
   const review = await reviewsRepo.createReview(
     {
       orderId: data.orderId,
@@ -76,7 +70,6 @@ export async function replyToReview(
     throw new Error("Review not found.");
   }
 
-  // Validate owner
   if (review.restaurant.ownerUserId !== ownerUserId) {
     throw new Error("You do not have permission to reply to this review.");
   }

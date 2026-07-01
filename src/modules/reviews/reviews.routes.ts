@@ -5,10 +5,8 @@ import { upload } from "../../middlewares/upload.middleware.ts";
 
 const router = Router();
 
-// Public / Customer endpoint to get reviews
 router.get("/restaurants/:restaurantId", reviewsController.getRestaurantReviewsController);
 
-// Customer endpoint to submit a review (up to 3 images)
 router.post(
   "/orders/:orderId",
   authenticate,
@@ -17,7 +15,6 @@ router.post(
   reviewsController.submitReviewController
 );
 
-// Restaurant Owner endpoint to view their own reviews
 router.get(
   "/owner",
   authenticate,
@@ -25,7 +22,6 @@ router.get(
   reviewsController.getOwnerReviewsController
 );
 
-// Restaurant Owner endpoint to reply
 router.post(
   "/:reviewId/reply",
   authenticate,

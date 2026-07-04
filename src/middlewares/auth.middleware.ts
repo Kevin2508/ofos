@@ -1,46 +1,108 @@
 import { NextFunction, Request, Response } from 'express';
-// import { env } from '../config/env.ts';
 import jwt from 'jsonwebtoken';
+import { prisma } from '../config/prisma.ts';
 
-const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+import { refreshTokenService } from '../modules/auth/auth.service.ts';
+import ms from 'ms';
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new Error('Not authenticated. No access token provided.');
+const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+  const token = req.cookies.accessToken;
+  const secret = process.env.JWT_ACCESS_SECRET as string;
+
+  if (!secret) {
+    throw new Error('Server configuration error: JWT_ACCESS_SECRET is missing.');
   }
 
-  const token = authHeader.split(' ')[1];
-
-  if (!token) throw new Error('Not authenticated');
-  // if (!token) res.redirect('/not-authenticated');
-
-  try {
-    const secret = process.env.JWT_ACCESS_SECRET as string;
-
-    if (!secret) {
-      throw new Error(
-        'Server configuration error: JWT_ACCESS_SECRET is missing.'
-      );
+  // Helper to handle silent token refresh
+  const handleSilentRefresh = async () => {
+    const rawRefreshToken = req.signedCookies.refreshToken;
+    if (!rawRefreshToken) {
+      return res.status(401).render('default/notAuthenticated');
     }
 
+    try {
+      const data = await refreshTokenService(rawRefreshToken);
+
+      const accessTokenLifeMs = ms(data.expiresIn);
+      res.cookie('accessToken', data.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: accessTokenLifeMs,
+        path: '/',
+      });
+
+      req.user = data.user as any;
+      return next();
+    } catch (refreshErr) {
+      res.clearCookie('refreshToken', { signed: true, httpOnly: true, path: '/' });
+      res.clearCookie('accessToken', { httpOnly: true, path: '/' });
+      return res.status(401).render('default/notAuthenticated');
+    }
+  };
+
+  if (!token) {
+    // Attempt to silently refresh if access token is missing but refresh token might exist
+    return await handleSilentRefresh();
+  }
+
+  try {
     const decoded = jwt.verify(token, secret);
-
-    req.user = decoded;
-
-    next();
+    req.user = decoded as any;
+    return next();
   } catch (err) {
     if (err instanceof Error) {
       if (err.name === 'TokenExpiredError') {
-        // CRITICAL: The frontend looks for this specific error to know
-        // it's time to quietly hit your /refresh-token endpoint!
-        throw new Error('Access token has expired.');
-      }
-      if (err.name === 'JsonWebTokenError') {
-        throw new Error('Invalid access token.');
+        // Access token expired, attempt silent refresh
+        return await handleSilentRefresh();
       }
     }
-    throw new Error('Not authenticated.');
+    return res.status(401).render('default/notAuthenticated');
   }
 };
 
-export { authenticate };
+const authorize = (requiredRoles: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !req.user.id) {
+      return res.render('default/notAuthenticated');
+    }
+
+    const activeRole = req.cookies.activeRole;
+
+    // Check if active role is one of the allowed roles
+    if (!activeRole || !requiredRoles.includes(activeRole)) {
+      return res.render('default/notAuthorize');
+    }
+
+    // Verify against DB
+    const userRoleRecord = await prisma.userRole.findFirst({
+      where: {
+        userId: BigInt(req.user.id),
+        role: {
+          name: {
+            in: requiredRoles
+          }
+        }
+      },
+      include: {
+        role: true
+      }
+    });
+
+    if (!userRoleRecord) {
+      return res.render('default/notAuthorize');
+    }
+
+    if (userRoleRecord.status === 'REQUESTED') {
+      return res.redirect('/default/pendingVerification');
+    }
+
+    if (userRoleRecord.status !== 'ASSIGNED') {
+      return res.render('default/notAuthorize');
+    }
+
+    next();
+  };
+};
+
+export { authenticate, authorize };

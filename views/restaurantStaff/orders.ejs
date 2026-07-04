@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Active Orders | Restaurant Staff | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans">
+  <div class="flex min-h-screen">
+    <%- include('../partials/restaurantStaff/sidebar') %>
+
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+        <div class="mb-8 flex justify-between items-center">
+          <div class="flex flex-wrap items-start md:items-center gap-3">
+            <button onclick="toggleSidebar()"
+              class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">Order Queue</h2>
+              <p class="text-gray-500 mt-1">Manage daily orders and update statuses.</p>
+            </div>
+          </div>
+          <button
+            class="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+            onclick="loadOrders()">
+            Refresh 🔄
+          </button>
+        </div>
+
+        <!-- TABS -->
+        <div class="flex space-x-1 mb-6 border-b border-gray-200 overflow-x-auto" id="orderTabs">
+          <button onclick="switchTab('PENDING')"
+            class="tab-btn active px-4 py-3 text-sm font-medium border-b-2 border-orange-500 text-orange-600 whitespace-nowrap">
+            Pending <span id="badge-PENDING"
+              class="ml-1 bg-orange-100 text-orange-600 py-0.5 px-2 rounded-full text-xs">0</span>
+          </button>
+          <button onclick="switchTab('IN_PROGRESS')"
+            class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+            In Progress <span id="badge-IN_PROGRESS"
+              class="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">0</span>
+          </button>
+          <button onclick="switchTab('READY')"
+            class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+            Ready <span id="badge-READY"
+              class="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">0</span>
+          </button>
+          <button onclick="switchTab('COMPLETED')"
+            class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+            Completed <span id="badge-COMPLETED"
+              class="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">0</span>
+          </button>
+          <button onclick="switchTab('CANCELLED')"
+            class="tab-btn px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap">
+            Cancelled <span id="badge-CANCELLED"
+              class="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">0</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left whitespace-nowrap">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm uppercase tracking-wider">
+                  <th class="px-6 py-4 font-semibold">Order</th>
+                  <th class="px-6 py-4 font-semibold">Customer</th>
+                  <th class="px-6 py-4 font-semibold">Type</th>
+                  <th class="px-6 py-4 font-semibold">Status</th>
+                  <th class="px-6 py-4 font-semibold">Timer / Date</th>
+                  <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ordersList" class="divide-y divide-gray-50 text-gray-700">
+                <tr>
+                  <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                    <div class="animate-pulse flex justify-center">Loading orders...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+  </div>
+
+  <!-- ORDER DETAILS MODAL -->
+  <div id="orderDetailsModal" class="fixed inset-0 z-50 hidden bg-gray-900/50 backdrop-blur-sm overflow-y-auto p-4">
+    <div class="min-h-screen px-4 text-center flex items-center justify-center">
+      <div
+        class="inline-block w-full max-w-2xl bg-white rounded-2xl text-left align-middle shadow-xl transform transition-all my-8 relative overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="border-b border-gray-100 px-6 py-4 flex justify-between items-center bg-gray-50">
+          <h3 class="text-xl font-bold text-gray-900" id="modalOrderTitle">Order Details</h3>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="px-6 py-4 overflow-y-auto flex-1" id="modalOrderContent">
+          <!-- Populated via JS -->
+        </div>
+        <div class="border-t border-gray-100 px-6 py-4 bg-gray-50 flex justify-end space-x-3" id="modalOrderActions">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allOrders = [];
+    let currentTab = 'PENDING';
+    let timerInterval = null;
+
+    function switchTab(tab) {
+      currentTab = tab;
+
+      // Update tab UI
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-orange-500', 'text-orange-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+      });
+      event.currentTarget.classList.remove('border-transparent', 'text-gray-500');
+      event.currentTarget.classList.add('border-orange-500', 'text-orange-600');
+
+      renderOrders();
+    }
+
+    async function loadOrders() {
+      try {
+        // Date filter to only get today's orders (or you can fetch all active ones)
+        const res = await fetch('/orders/restaurant');
+
+        if (res.ok) {
+          const data = await res.json();
+          allOrders = data.data || [];
+          updateBadges();
+          renderOrders();
+        } else {
+          document.getElementById('ordersList').innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Failed to load orders.</td></tr>`;
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('ordersList').innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">Error loading data.</td></tr>`;
+      }
+    }
+
+    function updateBadges() {
+      const counts = {
+        PENDING: 0,
+        IN_PROGRESS: 0,
+        READY: 0,
+        COMPLETED: 0,
+        CANCELLED: 0
+      };
+
+      allOrders.forEach(o => {
+        if (o.orderStatus === 'PLACED') counts.PENDING++;
+        else if (['ACCEPTED', 'PREPARING'].includes(o.orderStatus)) counts.IN_PROGRESS++;
+        else if (o.orderStatus === 'READY_FOR_PICKUP') counts.READY++;
+        else if (['PICKED_UP', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(o.orderStatus)) counts.COMPLETED++;
+        else if (['CANCELLED', 'REJECTED'].includes(o.orderStatus)) counts.CANCELLED++;
+      });
+
+      for (const [key, value] of Object.entries(counts)) {
+        const badge = document.getElementById(`badge-${key}`);
+        if (badge) badge.textContent = value;
+      }
+    }
+
+    function renderOrders() {
+      if (timerInterval) clearInterval(timerInterval);
+
+      const list = document.getElementById('ordersList');
+
+      let filtered = allOrders.filter(o => {
+        if (currentTab === 'PENDING') return o.orderStatus === 'PLACED';
+        if (currentTab === 'IN_PROGRESS') return ['ACCEPTED', 'PREPARING'].includes(o.orderStatus);
+        if (currentTab === 'READY') return o.orderStatus === 'READY_FOR_PICKUP';
+        if (currentTab === 'COMPLETED') return ['PICKED_UP', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(o.orderStatus);
+        if (currentTab === 'CANCELLED') return ['CANCELLED', 'REJECTED'].includes(o.orderStatus);
+        return false;
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-gray-500 bg-white">No orders in this queue.</td></tr>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(o => {
+        const statusColors = {
+          PLACED: 'bg-yellow-100 text-yellow-800',
+          ACCEPTED: 'bg-blue-100 text-blue-800',
+          PREPARING: 'bg-purple-100 text-purple-800',
+          READY_FOR_PICKUP: 'bg-orange-100 text-orange-800',
+          PICKED_UP: 'bg-green-100 text-green-800',
+          OUT_FOR_DELIVERY: 'bg-green-100 text-green-800',
+          DELIVERED: 'bg-gray-100 text-gray-800',
+          REJECTED: 'bg-red-100 text-red-800',
+          CANCELLED: 'bg-red-100 text-red-800'
+        };
+
+        const custName = o.customer?.customerProfile ?
+          `${o.customer.firstName} ${o.customer.lastName ? o.customer.lastName.charAt(0) + '.' : ''}` : 'Guest';
+
+        // Action buttons
+        let actionButtons = `<button onclick="viewOrder('${o.id}')" class="text-orange-600 hover:text-orange-800 text-sm font-medium">View Details</button>`;
+
+        // Timer column
+        let timerDisplay = new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (currentTab === 'PENDING') {
+          timerDisplay = `<span class="font-mono text-red-600 font-bold" id="timer-${o.id}">--:--</span>`;
+        }
+
+        const itemsSummary = o.items ? o.items.map(i => `${i.quantity}x ${i.itemName}`).join(', ') : '';
+
+        return `
+          <tr class="hover:bg-orange-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="font-bold text-gray-900">#${o.orderNumber}</div>
+              <div class="text-xs text-gray-500 truncate max-w-[200px]" title="${itemsSummary}">${itemsSummary}</div>
+            </td>
+            <td class="px-6 py-4 text-gray-700">${custName}</td>
+            <td class="px-6 py-4 text-gray-600 text-sm">
+              ${o.deliveryType || 'ASAP'}<br>
+              <span class="text-xs ${o.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'}">${o.paymentStatus}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[o.orderStatus] || 'bg-gray-100 text-gray-800'}">
+                ${o.orderStatus.replace(/_/g, ' ')}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm">${timerDisplay}</td>
+            <td class="px-6 py-4 text-right">${actionButtons}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Start timer if in PENDING tab
+      if (currentTab === 'PENDING') {
+        updateTimers(filtered);
+        timerInterval = setInterval(() => updateTimers(filtered), 1000);
+      }
+    }
+
+    function updateTimers(orders) {
+      const now = Date.now();
+      orders.forEach(o => {
+        const el = document.getElementById(`timer-${o.id}`);
+        if (!el) return;
+
+        const createdTime = new Date(o.createdAt).getTime();
+        const elapsed = now - createdTime;
+        const remaining = (5 * 60 * 1000) - elapsed;
+
+        if (remaining <= 0) {
+          el.textContent = "00:00";
+          el.classList.remove('text-red-600');
+          el.classList.add('text-gray-500');
+          // Optionally reload to fetch auto-reject status
+        } else {
+          const mins = Math.floor(remaining / 60000);
+          const secs = Math.floor((remaining % 60000) / 1000);
+          el.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+      });
+    }
+
+    function viewOrder(id) {
+      const order = allOrders.find(o => o.id == id);
+      if (!order) return;
+
+      document.getElementById('modalOrderTitle').textContent = `Order #${order.orderNumber}`;
+
+      const custName = order.customer ? `${order.customer.firstName} ${order.customer.lastName || ''}` : 'Guest';
+
+      let itemsHtml = order.items.map(item => {
+        let modsHtml = item.modifiers && item.modifiers.length > 0
+          ? `<ul class="text-xs text-gray-500 list-disc list-inside ml-2 mt-1">
+              ${item.modifiers.map(m => `<li>${m.optionName} (+₹${m.additionalPrice})</li>`).join('')}
+             </ul>`
+          : '';
+
+        let specialIns = item.specialInstructions
+          ? `<p class="text-xs text-orange-600 italic mt-1">Note: ${item.specialInstructions}</p>`
+          : '';
+
+        let unavailableBtn = '';
+        if (!item.isUnavailable && ['PLACED', 'ACCEPTED', 'PREPARING'].includes(order.orderStatus)) {
+          unavailableBtn = `<button onclick="markItemUnavailable('${order.id}', '${item.id}')" class="text-xs text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded ml-auto border border-red-100 shrink-0">Mark Unavailable</button>`;
+        } else if (item.isUnavailable) {
+          unavailableBtn = `<span class="text-xs text-red-500 font-medium ml-auto shrink-0">Unavailable (Refunded)</span>`;
+        }
+
+        return `
+          <div class="py-3 border-b border-gray-50 flex items-start gap-4">
+            <div class="flex-shrink-0 w-8 text-center font-semibold text-gray-500">${item.quantity}x</div>
+            <div class="flex-1 ${item.isUnavailable ? 'opacity-50 line-through' : ''}">
+              <div class="font-medium text-gray-900">${item.itemName}</div>
+              ${modsHtml}
+              ${specialIns}
+            </div>
+            ${unavailableBtn}
+          </div>
+        `;
+      }).join('');
+
+      let contentHtml = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
+          <div class="bg-orange-50 p-3 rounded-lg">
+            <span class="block text-gray-500 mb-1">Customer</span>
+            <span class="font-semibold text-gray-900">${custName}</span>
+          </div>
+          <div class="bg-orange-50 p-3 rounded-lg">
+            <span class="block text-gray-500 mb-1">Phone</span>
+            <span class="font-semibold text-gray-900">${order.address?.recipientPhone || order.customer?.phone || 'N/A'}</span>
+          </div>
+          <div class="bg-orange-50 p-3 rounded-lg">
+            <span class="block text-gray-500 mb-1">Type</span>
+            <span class="font-semibold text-gray-900">${order.deliveryType || 'ASAP'}</span>
+          </div>
+          <div class="bg-orange-50 p-3 rounded-lg">
+            <span class="block text-gray-500 mb-1">Payment</span>
+            <span class="font-semibold ${order.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'}">${order.paymentStatus}</span>
+          </div>
+        </div>
+
+        <h4 class="font-bold text-gray-800 mb-2 border-b pb-2">Order Items</h4>
+        <div class="mb-6">
+          ${itemsHtml}
+        </div>
+        
+        <div class="text-right">
+          <p class="text-sm text-gray-500">Total Amount</p>
+          <p class="text-2xl font-bold text-gray-900">₹${order.totalAmount}</p>
+        </div>
+      `;
+
+      document.getElementById('modalOrderContent').innerHTML = contentHtml;
+
+      let actionsHtml = `<button onclick="closeModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">Close</button>`;
+
+      if (order.orderStatus === 'PLACED') {
+        actionsHtml = `
+          <button onclick="updateStatus('${order.id}', 'reject')" class="px-4 py-2 border border-red-500 text-red-500 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors">Reject Order</button>
+          <button onclick="updateStatus('${order.id}', 'accept')" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors">Accept Order</button>
+        `;
+      } else if (order.orderStatus === 'ACCEPTED') {
+        actionsHtml += `<button onclick="updateStatus('${order.id}', 'preparing')" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm font-medium transition-colors">Start Preparing</button>`;
+      } else if (order.orderStatus === 'PREPARING') {
+        actionsHtml += `<button onclick="updateStatus('${order.id}', 'ready')" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors">Mark Ready for Pickup</button>`;
+      } else if (order.orderStatus === 'READY_FOR_PICKUP') {
+        actionsHtml += `<button onclick="updateStatus('${order.id}', 'handover')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors">Handover to Partner</button>`;
+      }
+
+      document.getElementById('modalOrderActions').innerHTML = actionsHtml;
+
+      document.getElementById('orderDetailsModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('orderDetailsModal').classList.add('hidden');
+    }
+
+    async function updateStatus(orderId, action) {
+      if (!confirm(`Are you sure you want to ${action} this order?`)) return;
+      try {
+        const res = await fetch(`/orders/${orderId}/${action}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Order updated successfully!`, 'success');
+          closeModal();
+          loadOrders();
+        } else {
+          showToast(data.message || 'Failed to update order', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Error updating order', 'error');
+      }
+    }
+
+    async function markItemUnavailable(orderId, itemId) {
+      if (!confirm(`Mark this item as unavailable? A refund will be initiated if paid.`)) return;
+      try {
+        const res = await fetch(`/orders/${orderId}/items/${itemId}/unavailable`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Item marked unavailable.`, 'success');
+          // Reload local state to reflect UI instantly
+          loadOrders().then(() => {
+            viewOrder(orderId); // Re-open modal with updated data
+          });
+        } else {
+          showToast(data.message || 'Failed to update item', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Error updating item', 'error');
+      }
+    }
+
+    // Initial load
+    loadOrders();
+    // Refresh entirely every 10 seconds to catch new orders
+    setInterval(loadOrders, 10000);
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/auth/logout', {
+          headers: {}
+        });
+      } catch (e) { console.error(e); }
+      localStorage.clear();
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.href = '/loginPage';
+    });
+  </script>
+  <%- include('../partials/toast') %>
+</body>
+
+</html>

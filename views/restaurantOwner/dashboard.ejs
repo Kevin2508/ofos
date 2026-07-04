@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant Owner Dashboard | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans">
+  <div class="flex min-h-screen">
+    <%- include('../partials/restaurantOwner/sidebar') %>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden" id="mainContentWrapper">
+      <div
+        class="mb-8 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col md:flex-row md:justify-between md:items-center">
+        <div class="flex flex-wrap items-start md:items-center gap-3">
+          <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800">Welcome, Restaurant Owner</h2>
+            <p class="text-gray-500 mt-1">
+              Here is what's happening with your business today.
+            </p>
+          </div>
+        </div>
+        <div class="mt-4 md:mt-0">
+          <a href="/ro/restaurant-owner-restaurants"
+            class="px-5 py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-colors shadow-sm inline-block">
+            + New Restaurant
+          </a>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-6">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Orders Today</p>
+              <h3 id="statOrdersToday" class="text-3xl font-extrabold text-gray-800 mt-2">0</h3>
+            </div>
+            <div class="p-3 bg-orange-100 text-orange-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Revenue Today</p>
+              <h3 id="statRevenueToday" class="text-3xl font-extrabold text-gray-800 mt-2">₹0</h3>
+            </div>
+            <div class="p-3 bg-purple-100 text-purple-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Average Order Value</p>
+              <h3 id="statAvgOrderValue" class="text-3xl font-extrabold text-gray-800 mt-2">₹0</h3>
+            </div>
+            <div class="p-3 bg-green-100 text-green-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Acceptance Rate</p>
+              <h3 id="statAcceptanceRate" class="text-3xl font-extrabold text-gray-800 mt-2">0%</h3>
+            </div>
+            <div class="p-3 bg-yellow-100 text-yellow-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REVENUE TREND GRAPH -->
+      <div class="mt-10 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-800">Revenue Trend (Last 7 Days)</h3>
+        </div>
+        <div class="relative h-72 w-full">
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+
+      <!-- RECENT RESTAURANTS -->
+      <div class="mt-10">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-800">Your Restaurants</h3>
+          <a href="/ro/restaurant-owner-restaurants"
+            class="text-orange-500 hover:text-orange-600 font-medium text-sm">View
+            All &rarr;</a>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left whitespace-nowrap">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm uppercase tracking-wider">
+                  <th class="px-6 py-4 font-semibold">Restaurant Name</th>
+                  <th class="px-6 py-4 font-semibold">Legal Name</th>
+                  <th class="px-6 py-4 font-semibold">Contact</th>
+                  <th class="px-6 py-4 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody id="restaurantsList" class="divide-y divide-gray-50 text-gray-700">
+                <tr>
+                  <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                    <div class="animate-pulse flex justify-center">Loading...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/restaurant-management/mine', {
+          headers: {}
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const restaurants = data.restaurants || [];
+          const list = document.getElementById('restaurantsList');
+
+          // Fetch Stats
+          const statsRes = await fetch('/restaurant-management/dashboard-stats', { headers: {} });
+          if (statsRes.ok) {
+             const statsData = await statsRes.json();
+             document.getElementById('statOrdersToday').innerText = statsData.data.ordersToday;
+             document.getElementById('statRevenueToday').innerText = `₹${statsData.data.revenueToday.toFixed(2)}`;
+             document.getElementById('statAvgOrderValue').innerText = `₹${statsData.data.averageOrderValue.toFixed(2)}`;
+             document.getElementById('statAcceptanceRate').innerText = `${statsData.data.acceptanceRate.toFixed(1)}%`;
+             
+             // Render Chart
+             const ctx = document.getElementById('revenueChart').getContext('2d');
+             new Chart(ctx, {
+               type: 'line',
+               data: {
+                 labels: statsData.data.revenueTrends.map(t => t.date),
+                 datasets: [{
+                   label: 'Revenue (₹)',
+                   data: statsData.data.revenueTrends.map(t => t.revenue),
+                   borderColor: '#f97316',
+                   backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                   borderWidth: 2,
+                   fill: true,
+                   tension: 0.3
+                 }]
+               },
+               options: {
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 plugins: { legend: { display: false } },
+                 scales: { y: { beginAtZero: true } }
+               }
+             });
+          }
+
+          if (restaurants.length === 0) {
+            list.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No restaurants found. Start by adding one!</td></tr>`;
+          } else {
+            list.innerHTML = restaurants.slice(0, 5).map(r => `
+                <tr class="hover:bg-orange-50 transition-colors cursor-pointer" onclick="window.location.href='/restaurant-owner-restaurants'">
+                  <td class="px-6 py-4 font-medium text-gray-900">${r.businessName || 'Unnamed'}</td>
+                  <td class="px-6 py-4 text-gray-600">${r.legalBusinessName || '-'}</td>
+                  <td class="px-6 py-4 text-gray-500 text-sm">${r.primaryEmail}<br>${r.primaryPhone}</td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${r.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                r.status === 'PENDING_VERIFICATION' ? 'bg-yellow-100 text-yellow-800' :
+                  r.status === 'PAUSED' ? 'bg-gray-100 text-gray-800' :
+                    'bg-red-100 text-red-800'
+              }">
+                      ${r.status}
+                    </span>
+                  </td>
+                </tr>
+              `).join('');
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadDashboard();
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/auth/logout', {
+          headers: {}
+        });
+      } catch (e) { console.error(e); }
+      localStorage.clear();
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.href = '/loginPage';
+    });;
+  </script>
+  <%- include('../partials/toast') %>
+
+</body>
+
+</html>

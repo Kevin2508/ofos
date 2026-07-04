@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Finance & Payouts | Restaurant Owner | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css">
+</head>
+<body class="min-h-screen bg-orange-50 font-sans">
+  <div class="flex min-h-screen">
+    <%- include('../partials/restaurantOwner/sidebar') %>
+    <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+      <div class="mb-8 flex flex-wrap items-start md:items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">Finance & Payouts</h2>
+        <p class="text-gray-500 mt-1">View revenue reports, payout history, and pending amounts.</p>
+      
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 mb-8">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <p class="text-gray-500 text-sm font-medium">Pending Payout Amount</p>
+          <h3 class="text-3xl font-bold text-gray-800 mt-2" id="pendingAmount">₹0</h3>
+          <p class="text-sm text-gray-400 mt-2">Next scheduled payout: <span id="nextPayoutDate">N/A</span></p>
+        </div>
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <p class="text-gray-500 text-sm font-medium">Total Paid Out</p>
+          <h3 class="text-3xl font-bold text-gray-800 mt-2" id="totalPaid">₹0</h3>
+        </div>
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <p class="text-gray-500 text-sm font-medium">Platform Commission Deducted</p>
+          <h3 class="text-3xl font-bold text-gray-800 mt-2" id="totalCommission">₹0</h3>
+        </div>
+      </div>
+
+      <!-- Transaction History -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+          <h3 class="font-bold text-gray-800">Payout History</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left whitespace-nowrap">
+            <thead class="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm uppercase">
+              <tr>
+                <th class="px-6 py-4 font-semibold">Reference</th>
+                <th class="px-6 py-4 font-semibold">Period</th>
+                <th class="px-6 py-4 font-semibold">Gross Amount</th>
+                <th class="px-6 py-4 font-semibold">Commission</th>
+                <th class="px-6 py-4 font-semibold">Net Payout</th>
+                <th class="px-6 py-4 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody id="payoutList" class="divide-y divide-gray-50">
+              <tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Loading payouts...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    async function loadFinance() {
+      try {
+        const res = await fetch('/restaurant-management/finance-stats', { headers: {} });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('pendingAmount').innerText = `₹${data.pendingAmount || 0}`;
+          document.getElementById('totalPaid').innerText = `₹${data.totalPaid || 0}`;
+          document.getElementById('totalCommission').innerText = `₹${data.totalCommission || 0}`;
+          document.getElementById('nextPayoutDate').innerText = data.nextPayoutDate || 'Weekly on Mondays';
+          
+          const list = document.getElementById('payoutList');
+          if (data.payouts && data.payouts.length > 0) {
+            list.innerHTML = data.payouts.map(p => `
+              <tr class="hover:bg-orange-50">
+                <td class="px-6 py-4">#${p.referenceId}</td>
+                <td class="px-6 py-4 text-gray-500">${new Date(p.periodStart).toLocaleDateString()} - ${new Date(p.periodEnd).toLocaleDateString()}</td>
+                <td class="px-6 py-4 font-semibold">₹${p.grossAmount}</td>
+                <td class="px-6 py-4 text-red-500">-₹${p.commissionAmount}</td>
+                <td class="px-6 py-4 font-bold text-green-600">₹${p.netAmount}</td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 bg-${p.status==='COMPLETED'?'green':'yellow'}-100 text-${p.status==='COMPLETED'?'green':'yellow'}-800 rounded-full text-xs">${p.status}</span>
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            list.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No payouts found.</td></tr>';
+          }
+        }
+      } catch (err) { console.error(err); }
+    }
+    loadFinance();
+  </script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Reviews | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans">
+  <div class="flex min-h-screen">
+    <%- include('../partials/restaurantOwner/sidebar') %>
+
+    <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+      <div class="mb-8 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100">
+        <h2 class="text-2xl font-bold text-gray-800">Customer Reviews</h2>
+        <p class="text-gray-500 mt-1">Manage and respond to feedback from your customers.</p>
+      </div>
+
+      <div class="space-y-6" id="reviewsContainer">
+        <div class="animate-pulse space-y-4">
+          <div class="bg-white p-4 sm:p-6 rounded-2xl h-32 w-full"></div>
+          <div class="bg-white p-4 sm:p-6 rounded-2xl h-32 w-full"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Reply Modal -->
+  <div id="replyModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] px-4 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-4 sm:p-6 shadow-2xl transform scale-95 transition-transform duration-300 relative">
+      <button onclick="closeReplyModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+      
+      <h3 class="text-xl font-bold text-gray-900 mb-2">Reply to Review</h3>
+      <p class="text-gray-500 text-sm mb-6">Your reply will be public and visible to all customers.</p>
+      
+      <form id="replyForm" class="space-y-4">
+        <input type="hidden" id="replyReviewId" />
+        
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Your Response</label>
+          <textarea id="replyText" rows="4" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:outline-none resize-none" placeholder="Thank the customer or address their concerns..." required></textarea>
+          <p id="replyTextError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+        </div>
+        
+        <div class="flex gap-3 justify-end mt-6">
+          <button type="button" onclick="closeReplyModal()" class="px-5 py-2.5 rounded-xl text-gray-600 font-bold hover:bg-gray-100 transition-colors">Cancel</button>
+          <button type="submit" id="submitReplyBtn" class="px-5 py-2.5 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-colors shadow-sm">Post Reply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let allReviews = [];
+
+    const replyRules = {
+      replyText: { required: true, minLength: 2, maxLength: 500, label: 'Your Response' }
+    };
+    
+    FormValidator.bindLiveValidation(replyRules);
+
+    async function loadReviews() {
+      const container = document.getElementById('reviewsContainer');
+      
+      try {
+        const res = await fetch('/reviews/owner', {
+          headers: {}
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          allReviews = data.data;
+          renderReviews();
+        } else {
+          container.innerHTML = `<p class="text-red-500 bg-white p-4 sm:p-6 rounded-xl border border-red-100 text-center">${data.message || 'Failed to load reviews'}</p>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<p class="text-red-500 bg-white p-4 sm:p-6 rounded-xl border border-red-100 text-center">An error occurred while fetching reviews.</p>`;
+      }
+    }
+
+    function renderReviews() {
+      const container = document.getElementById('reviewsContainer');
+      
+      if (allReviews.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white p-12 text-center rounded-3xl border border-gray-100 shadow-sm">
+            <div class="text-6xl mb-4">⭐</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">No Reviews Yet</h3>
+            <p class="text-gray-500 max-w-md mx-auto">When customers leave reviews for your restaurants, they will appear here.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = allReviews.map(r => `
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">${r.restaurant.businessName}</span>
+                <span class="text-sm text-gray-400">•</span>
+                <span class="text-sm text-gray-500">${new Date(r.createdAt).toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'})}</span>
+              </div>
+              <h3 class="font-bold text-lg text-gray-900">${r.customer.firstName} ${r.customer.lastName}</h3>
+            </div>
+            <div class="flex items-center gap-1 bg-orange-50 text-orange-700 px-3 py-1 rounded-xl font-bold border border-orange-100">
+              ${r.overallRating} <span class="text-orange-500">★</span>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 bg-gray-50 p-4 rounded-xl text-sm border border-gray-100">
+             <div><span class="text-gray-500 block mb-1">Food Quality</span> <span class="font-bold text-gray-800">${r.foodRating} / 5</span></div>
+             <div><span class="text-gray-500 block mb-1">Delivery</span> <span class="font-bold text-gray-800">${r.deliveryRating} / 5</span></div>
+             <div><span class="text-gray-500 block mb-1">Packaging</span> <span class="font-bold text-gray-800">${r.packagingRating} / 5</span></div>
+          </div>
+          
+          ${r.reviewText ? `<p class="text-gray-700 mb-4 leading-relaxed">${r.reviewText}</p>` : ''}
+          
+          ${r.images && r.images.length > 0 ? `
+            <div class="flex gap-3 mb-4 overflow-x-auto">
+              ${r.images.map(img => `<img src="${img.imageUrl}" class="w-24 h-24 rounded-xl object-cover border border-gray-200 shadow-sm shrink-0" />`).join('')}
+            </div>
+          ` : ''}
+          
+          ${r.reply ? `
+            <div class="mt-4 bg-orange-50 p-4 rounded-xl border border-orange-100">
+              <p class="text-xs font-black text-orange-600 uppercase tracking-wider mb-2">Your Reply</p>
+              <p class="text-orange-900 text-sm leading-relaxed">${r.reply.replyText}</p>
+            </div>
+          ` : `
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <button onclick="openReplyModal('${r.id}')" class="text-orange-500 font-bold hover:text-orange-600 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                Reply to Customer
+              </button>
+            </div>
+          `}
+        </div>
+      `).join('');
+    }
+
+    function openReplyModal(id) {
+      document.getElementById('replyReviewId').value = id;
+      document.getElementById('replyText').value = '';
+      const modal = document.getElementById('replyModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => {
+        modal.querySelector('div').classList.remove('scale-95');
+        modal.querySelector('div').classList.add('scale-100');
+      }, 10);
+    }
+
+    function closeReplyModal() {
+      const modal = document.getElementById('replyModal');
+      modal.querySelector('div').classList.remove('scale-100');
+      modal.querySelector('div').classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }, 300);
+    }
+
+    document.getElementById('replyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!FormValidator.validate(replyRules)) return;
+      
+      const id = document.getElementById('replyReviewId').value;
+      const text = document.getElementById('replyText').value;
+      const btn = document.getElementById('submitReplyBtn');
+      
+      btn.disabled = true;
+      btn.textContent = 'Posting...';
+      
+      try {
+        const res = await fetch(`/reviews/${id}/reply`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ replyText: text })
+        });
+        
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('Reply posted successfully!', 'success');
+          closeReplyModal();
+          loadReviews(); // Refresh the list
+        } else {
+          showToast(data.message || 'Failed to post reply', 'error');
+        }
+      } catch (err) {
+        showToast('An error occurred', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Post Reply';
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadReviews);
+  </script>
+  
+  <%- include('../partials/toast') %>
+</body>
+</html>

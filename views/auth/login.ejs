@@ -2,171 +2,178 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-  <link rel="stylesheet" href="/styles/build.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | epicure- Food Ordering System</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center font-sans">
-
-  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-bold text-center text-white bg-red-500 py-2 rounded mb-6">Login</h2>
-
-    <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm"
-      role="alert"></div>
-
-    <div id="successMessage"
-      class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 text-sm" role="alert">
-    </div>
-
-    <form id="loginForm" class="space-y-4">
-
-      <div>
-        <label for="userIdentifier" class="block text-sm font-medium text-gray-700 mb-1">Email or Phone Number</label>
-        <input type="text" id="userIdentifier" name="userIdentifier" placeholder="Enter email or 10-digit phone"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-          required>
+<body>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-5 sm:p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
+        <p class="text-gray-500 text-sm">Log in to continue ordering your favorites</p>
       </div>
 
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <div class="relative">
-          <input type="password" id="password" name="password" placeholder="••••••••"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 pr-10"
-            required>
-          <button type="button" id="togglePassword"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-red-500 focus:outline-none">
-            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-            <svg id="eyeSlashIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="hidden w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <input type="checkbox" id="rememberMe" name="rememberMe"
-            class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-          <label for="rememberMe" class="ml-2 block text-sm text-gray-900">
-            Remember me
+      <!-- Form -->
+      <form id="loginForm" class="space-y-6">
+        <!-- Email/Phone Field -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Email or Phone Number
           </label>
+          <input type="text" id="userIdentifier" name="userIdentifier" placeholder="Enter email or 10 digit phone"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          <p id="userIdentifierError" class="mt-1 text-sm text-red-500"></p>
         </div>
 
-        <div class="text-sm">
-          <a href="/forgotPasswordPage" class="font-medium text-red-600 hover:text-red-500">
-            Forgot your password?
+        <!-- Password Field -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Password
+          </label>
+          <div class="relative">
+            <input type="password" id="password" name="password" placeholder="Enter password"
+               minlength="8" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
+            <button type="button" id="togglePassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
+              Show
+            </button>
+          </div>
+          <p id="passwordError" class="mt-1 text-sm text-red-500"></p>
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="flex items-center justify-between">
+          <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="checkbox" id="rememberMe" name="rememberMe" value="true"
+              class="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500" />
+            <span class="text-sm text-gray-600">Remember Me</span>
+          </label>
+          <a href="/forgotPasswordPage"
+            class="text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
+            Forgot Password?
           </a>
         </div>
+
+        <!-- Login Button -->
+        <button type="submit" id="loginBtn"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg">
+          Login
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="text-center mt-6 pt-6 border-t border-gray-200">
+        <p class="text-sm text-gray-600">
+          Don't have an account?
+          <a href="/registerPage" class="font-medium text-orange-500 hover:text-orange-600 transition-colors">
+            Create Account
+          </a>
+        </p>
       </div>
-
-      <button type="submit" id="submitBtn"
-        class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
-        Sign In
-      </button>
-
-    </form>
-
-    <p class="mt-6 text-center text-sm text-gray-600">
-      Don't have an account?
-      <a href="/registerPage" class="font-medium text-red-600 hover:text-red-500 transition duration-150 ease-in-out">
-        Sign up
-      </a>
-    </p>
-
+    </div>
   </div>
 
   <script>
-    const togglePasswordBtn = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    const eyeIcon = document.getElementById('eyeIcon');
-    const eyeSlashIcon = document.getElementById('eyeSlashIcon');
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
 
-    togglePasswordBtn.addEventListener('click', function () {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
+    const userIdentifier = document.getElementById('userIdentifier');
+    const password = document.getElementById('password');
+    const rememberMe = document.getElementById('rememberMe');
 
-      eyeIcon.classList.toggle('hidden');
-      eyeSlashIcon.classList.toggle('hidden');
+    const userIdentifierError = document.getElementById(
+      'userIdentifierError'
+    );
+    const passwordError = document.getElementById('passwordError');
+
+    const togglePassword = document.getElementById('togglePassword');
+
+    /* -------------------------------
+ Show / Hide Password
+-------------------------------- */
+    togglePassword.addEventListener('click', () => {
+      if (password.type === 'password') {
+        password.type = 'text';
+        togglePassword.textContent = 'Hide';
+      } else {
+        password.type = 'password';
+        togglePassword.textContent = 'Show';
+      }
     });
 
-    document.getElementById('loginForm').addEventListener('submit', async function (event) {
-      event.preventDefault();
+    /* -------------------------------
+ Validation
+-------------------------------- */
 
-      const errorMessageDiv = document.getElementById('errorMessage');
-      const successMessageDiv = document.getElementById('successMessage');
-      const submitBtn = document.getElementById('submitBtn');
+    const loginRules = {
+      userIdentifier: {
+        required: true,
+        label: 'Email or Phone',
+        custom: (value) => {
+          const phoneRegex = /^[0-9]{10}$/;
+          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|io)$/i;
+          
+          if (phoneRegex.test(value)) return '';
+          if (/^[0-9]+$/.test(value) && value.length !== 10) return 'Contact number must be exactly 10 digits';
+          if (emailRegex.test(value)) return '';
+          
+          return 'Please enter a valid email address or 10-digit phone number';
+        }
+      },
+      password: { required: true, minLength: 8, label: 'Password' }
+    };
 
-      errorMessageDiv.classList.add('hidden');
-      successMessageDiv.classList.add('hidden');
-      errorMessageDiv.textContent = '';
+    FormValidator.bindLiveValidation(loginRules);
 
-      const userIdentifier = document.getElementById('userIdentifier').value.trim();
-      const password = passwordInput.value;
+    //  Submit
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-      const rememberMe = document.getElementById('rememberMe').checked ? 'true' : 'false';
+      if (!FormValidator.validate(loginRules)) return;
 
-      const phoneRegex = /^[0-9]{10}$/;
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const identifierValue = userIdentifier.value.trim();
+      const passwordValue = password.value;
 
-      if (!phoneRegex.test(userIdentifier) && !emailRegex.test(userIdentifier)) {
-        showError('Please enter a valid exactly 10-digit phone number or a valid email address.');
-        return;
-      }
-
-      if (password.length < 8) {
-        showError('Password must be at least 8 characters long.');
-        return;
-      }
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
 
       try {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Signing in...';
-
         const response = await fetch('/auth/login', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            userIdentifier,
-            password,
-            rememberMe
-          })
+            userIdentifier: identifierValue,
+            password: passwordValue,
+            rememberMe: rememberMe.checked ? 'true' : 'false',
+          }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || 'Login failed. Please check your credentials.');
+          showToast(data.message || data.error || 'Login failed', 'error');
+          return;
         }
 
-        successMessageDiv.textContent = 'Login successful! Redirecting...';
-        successMessageDiv.classList.remove('hidden');
-
-
+        // Always go through role-selection which handles setting activeRole cookie
+        window.location.href = '/role-selection';
       } catch (error) {
-        showError(error.message);
+        showToast('Something went wrong. Please try again.', 'error');
+        console.error(error);
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Sign In';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
       }
     });
-
-    function showError(message) {
-      const errorMessageDiv = document.getElementById('errorMessage');
-      errorMessageDiv.textContent = message;
-      errorMessageDiv.classList.remove('hidden');
-    }
   </script>
+  <%- include('../partials/toast') %>
 </body>
 
 </html>

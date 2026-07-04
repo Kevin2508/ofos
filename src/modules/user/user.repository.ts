@@ -1,5 +1,6 @@
 import { prisma } from '../../config/prisma.ts';
 import { Prisma } from '../../generated/prisma/client.ts';
+import { UserRoleStatus } from '../../generated/prisma/enums.ts';
 
 async function findUserByEmailOrContact(email: string, phone: string) {
   return prisma.user.findFirst({
@@ -46,16 +47,50 @@ async function findUserByContact(phone: string) {
 
 async function createUser(data: {
   firstName: string;
-  email: string;
+  lastName?: string | null;
+  email?: string | null;
   phone: string;
   passwordHash: string;
 }) {
   return prisma.user.create({
     data: {
       firstName: data.firstName,
-      email: data.email,
+      lastName: data.lastName,
+      email: data.email as string,
       phone: data.phone,
       passwordHash: data.passwordHash,
+    },
+    select: {
+      id: true,
+    },
+  });
+}
+
+async function getRoleIdByRole(data: { role: string }) {
+  return await prisma.role.findUnique({
+    where: {
+      name: data.role,
+    },
+    select: {
+      id: true,
+    },
+  });
+}
+
+async function assignRole(data: {
+  userId: bigint;
+  roleId: bigint;
+  status: UserRoleStatus;
+}) {
+  return await prisma.userRole.upsert({
+    where: {
+      userId_roleId: { userId: data.userId, roleId: data.roleId },
+    },
+    update: {},
+    create: {
+      userId: data.userId,
+      roleId: data.roleId,
+      status: data.status,
     },
   });
 }
@@ -91,6 +126,10 @@ async function findUserForAuth(identifier: string) {
     },
     include: {
       userRoles: {
+        where: {
+          // Fetches roles matching either condition
+          status: { in: ['ASSIGNED', 'REQUESTED'] },
+        },
         include: {
           role: {
             include: {
@@ -163,18 +202,20 @@ async function assignRoleToUser(userId: bigint, roleId: bigint) {
 }
 
 export {
+  assignRole,
+  assignRoleToUser,
   createUser,
+  findUserByContact,
   findUserByEmail,
   findUserByEmailOrContact,
   findUserById,
   findUserByIdentifier,
   findUserForAuth,
+  getRoleIdByRole,
   handleSuccessfulLogin,
   incrementFailedLoginAttempts,
-  findUserByContact,
   lockUserAccount,
   markUserIsVerified,
-  assignRoleToUser,
   revokeAllUserSessions,
   updateUser,
 };

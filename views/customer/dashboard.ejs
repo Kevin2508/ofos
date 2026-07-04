@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50">
+  <div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen" id="mainContentWrapper">
+    <!-- NAVBAR -->
+    <nav class="bg-white border-b border-orange-100 shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <!-- Hamburger & Logo -->
+        <div class="flex flex-wrap items-center gap-2 md:gap-3">
+          <button onclick="toggleSidebar()" id="hamburgerBtn"
+            class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <h1 class="text-3xl font-extrabold text-orange-500 lg:hidden">epicure</h1>
+        </div>
+
+        <!-- Search removed from Navbar to feature in Hero section -->
+        <div class="flex-1 mx-6 hidden lg:block"></div>
+
+        <!-- Auth Section -->
+        <div id="authSection" class="flex flex-wrap items-center gap-2 md:gap-3">
+          <!-- Guest Buttons -->
+          <a href="/loginPage" class="text-sm font-semibold text-orange-500 hover:text-orange-600" id="loginBtn">
+            Login
+          </a>
+
+          <a href="/registerPage"
+            class="text-sm font-semibold bg-orange-500 text-white px-4 py-2 rounded-xl hover:bg-orange-600"
+            id="registerBtn">
+            Register
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="max-w-6xl mx-auto px-4 py-8">
+      <!-- HERO SECTION -->
+      <div
+        class="mb-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-[2rem] p-5 sm:p-8 md:p-12 shadow-xl text-white relative border border-orange-400">
+        <!-- Abstract Background Shapes -->
+        <div class="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none">
+          <svg
+            class="absolute top-0 right-0 opacity-20 w-[95%] max-w-sm sm:w-96 h-96 transform translate-x-32 -translate-y-16"
+            fill="currentColor" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="50" />
+          </svg>
+          <svg class="absolute bottom-0 left-0 opacity-10 w-64 h-64 transform -translate-x-24 translate-y-24"
+            fill="currentColor" viewBox="0 0 100 100">
+            <polygon points="50 15, 100 100, 0 100" />
+          </svg>
+        </div>
+
+        <div class="relative z-10">
+          <h2 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Craving something?</h2>
+          <p class="text-orange-50 text-lg md:text-xl mb-10 max-w-2xl font-medium opacity-90">
+            Discover top-rated restaurants, explore exquisite menus, and order your favorite meals directly to your
+            door.
+          </p>
+
+          <!-- Unified Search Bar -->
+          <div
+            class="relative max-w-2xl bg-white rounded-2xl shadow-2xl flex items-center p-2 transition-all focus-within:ring-4 focus-within:ring-orange-300/50">
+            <div class="pl-5 text-orange-500">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input id="searchInput" autocomplete="off" type="text"
+              placeholder="Search for 'Pizza', 'Burger', or a restaurant..."
+              class="w-full px-4 py-3 text-gray-800 text-lg focus:outline-none bg-transparent font-semibold placeholder-gray-400" />
+            <button
+              class="bg-gray-900 hover:bg-black text-white px-4 sm:px-8 py-3 rounded-xl font-bold transition-colors shadow-md">Search</button>
+
+            <!-- Predictive Suggestions Dropdown -->
+            <div id="searchSuggestions"
+              class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden hidden z-50">
+              <!-- Populated dynamically via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATEGORY FILTERS (INLINE ROW) -->
+      <div id="categoryFilters"
+        class="flex flex-wrap gap-3 items-center mb-10 overflow-x-auto hide-scrollbar pb-2 pt-2 -mx-2 px-2 snap-x">
+        <div class="flex items-center gap-1.5 pr-3 border-r border-gray-300 flex-shrink-0 snap-start">
+          <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          <span class="text-xs font-black text-gray-800 uppercase tracking-wider">Filter</span>
+        </div>
+
+        <label class="group relative flex items-center justify-center cursor-pointer flex-shrink-0 snap-start">
+          <input type="checkbox" class="peer sr-only food-type-filter" value="VEG">
+          <div
+            class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-gray-200 bg-white text-gray-600 text-sm font-bold transition-all peer-checked:border-green-500 peer-checked:bg-green-50 peer-checked:text-green-700 hover:bg-gray-50 shadow-sm">
+            <!-- Indian Veg Mark -->
+            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="14" height="14" border="1" stroke="#166534" stroke-width="1.5" rx="2" />
+              <circle cx="8" cy="8" r="4" fill="#166534" />
+            </svg>
+            Veg
+          </div>
+        </label>
+
+        <label class="group relative flex items-center justify-center cursor-pointer flex-shrink-0 snap-start">
+          <input type="checkbox" class="peer sr-only food-type-filter" value="NON_VEG">
+          <div
+            class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-gray-200 bg-white text-gray-600 text-sm font-bold transition-all peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-gray-50 shadow-sm">
+            <!-- Indian Non-Veg Mark -->
+            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="14" height="14" border="1" stroke="#991b1b" stroke-width="1.5" rx="2" />
+              <path d="M8 4L12 11H4L8 4Z" fill="#991b1b" />
+            </svg>
+            Non-Veg
+          </div>
+        </label>
+
+        <label class="group relative flex items-center justify-center cursor-pointer flex-shrink-0 snap-start">
+          <input type="checkbox" class="peer sr-only food-type-filter" value="VEGAN">
+          <div
+            class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-gray-200 bg-white text-gray-600 text-sm font-bold transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 hover:bg-gray-50 shadow-sm">
+            <!-- Vegan Icon -->
+            <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M4.083 9h11.834C17.068 9 18 9.895 18 11c0 1.105-.932 2-2.083 2H4.083C2.932 13 2 12.105 2 11c0-1.105.932-2 2.083-2zm0-4h11.834C17.068 5 18 5.895 18 7c0 1.105-.932 2-2.083 2H4.083C2.932 9 2 8.105 2 7c0-1.105.932-2 2.083-2z"
+                clip-rule="evenodd" />
+            </svg>
+            Vegan
+          </div>
+        </label>
+      </div>
+
+      <style>
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      </style>
+
+      <!-- RECENT ORDERS (Hidden by default, shown if logged in and has orders) -->
+      <div id="orderAgainSection" class="mb-14 hidden">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
+            <div class="p-2.5 bg-blue-100 text-blue-600 rounded-xl shadow-inner">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                </path>
+              </svg>
+            </div>
+            <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Order Again</h3>
+          </div>
+        </div>
+        <!-- Wrapped Container -->
+        <div class="flex flex-wrap gap-3 sm:gap-6 pb-6 pt-2" id="orderAgainList">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- TRENDING SECTION -->
+      <div id="trendingSection" class="mb-14 hidden">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          <div class="p-2.5 bg-red-100 text-red-600 rounded-xl shadow-inner">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6">
+              </path>
+            </svg>
+          </div>
+          <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Trending This Week</h3>
+        </div>
+        <div class="flex flex-wrap gap-3 sm:gap-6 pb-6 pt-2" id="trendingList">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- RESTAURANTS SECTION -->
+      <div class="mb-14" id="restaurantsSection">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
+            <div class="p-2.5 bg-orange-100 text-orange-600 rounded-xl">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight" id="mainRestaurantsTitle">Top Picks Near
+              You</h3>
+          </div>
+
+          <select id="sortSelect"
+            class="bg-white border border-gray-300 text-gray-700 text-sm rounded-xl focus:ring-orange-500 focus:border-orange-500 block p-2.5 font-semibold">
+            <option value="RELEVANCE">Relevance</option>
+            <option value="RATING">Rating (High to Low)</option>
+            <option value="DELIVERY_TIME">Delivery Time (Fastest)</option>
+            <option value="PRICE_LOW">Price (Low to High)</option>
+            <option value="PRICE_HIGH">Price (High to Low)</option>
+          </select>
+        </div>
+        <div id="restaurantGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <!-- Cards will be populated here -->
+        </div>
+      </div>
+
+      <!-- MENU ITEMS SECTION -->
+      <div class="mb-8">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          <div class="p-2.5 bg-orange-100 text-orange-600 rounded-xl">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Explore Dishes</h3>
+        </div>
+        <div id="menuItemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+          <!-- Item Cards will be populated here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MENU MODAL -->
+    <div id="menuModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-lg rounded-2xl p-4 sm:p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">Menu</h3>
+
+          <button onclick="closeMenu()" class="text-gray-500">✕</button>
+        </div>
+
+        <div id="menuList" class="space-y-3">
+          <!-- Example item -->
+          <div class="flex justify-between border-b pb-2">
+            <span>Paneer Butter Masala</span>
+            <span class="text-orange-500 font-semibold">₹250</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ---------------------------
+      AUTH CHECK (Frontend only)
+      ---------------------------- */
+
+      async function checkAuth() {
+        try {
+          const res = await fetch('/auth/me');
+          if (res.ok) {
+            const result = await res.json();
+            const user = result.data.user;
+
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('registerBtn').style.display = 'none';
+
+            const authSection = document.getElementById('authSection');
+            const profile = document.createElement('div');
+            profile.className = 'w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-lg overflow-hidden border-2 border-orange-200 cursor-pointer hover:shadow-md transition-shadow';
+            profile.onclick = () => { window.location.href = '/c/profile'; };
+
+            if (user.profileImageUrl) {
+              profile.innerHTML = `<img src="${user.profileImageUrl}" class="w-full h-full object-cover" />`;
+            } else {
+              profile.innerText = user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U';
+            }
+            authSection.appendChild(profile);
+
+            // show sidebar logic (already default)
+            const sidebar = document.getElementById('customerSidebar');
+            if (sidebar) sidebar.style.display = '';
+
+            // Fetch recent orders for logged-in user
+            fetchRecentOrders();
+
+          } else {
+            handleGuest();
+          }
+        } catch (err) {
+          console.error('Auth check failed:', err);
+          handleGuest();
+        }
+      }
+
+      function handleGuest() {
+        const sidebar = document.getElementById('customerSidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        const wrapper = document.getElementById('mainContentWrapper');
+        if (wrapper) wrapper.classList.remove('lg:ml-72');
+        const hamburger = document.getElementById('hamburgerBtn');
+        if (hamburger) hamburger.style.display = 'none';
+      }
+
+      checkAuth();
+
+      /* ---------------------------
+      SEARCH & FILTER
+      ---------------------------- */
+
+      let currentSearch = '';
+      const searchSuggestionsDiv = document.getElementById('searchSuggestions');
+      let suggestionTimeout;
+
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        currentSearch = e.target.value.trim();
+        fetchRestaurants();
+        fetchGlobalMenuItems();
+
+        clearTimeout(suggestionTimeout);
+        suggestionTimeout = setTimeout(async () => {
+          if (currentSearch.length >= 2) {
+            try {
+              const res = await fetch(`/customer/search/suggestions?query=${encodeURIComponent(currentSearch)}`);
+              if (res.ok) {
+                const { data } = await res.json();
+                if (data && (data.restaurants?.length > 0 || data.dishes?.length > 0)) {
+                  let html = '';
+
+                  if (data.restaurants && data.restaurants.length > 0) {
+                    html += `<div class="px-4 py-2 bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">Restaurants</div>`;
+                    html += data.restaurants.map(r => `
+                             <div class="px-4 py-3 hover:bg-orange-50 cursor-pointer flex flex-wrap items-center gap-3 border-b border-gray-100 last:border-0 transition-colors" onclick="window.location.href='/c/restaurants/${r.id}'">
+                               <img src="${formatImgUrl(r.logoUrl)}" onerror="this.src='https://placehold.co/100x100?text=Logo'" class="w-10 h-10 rounded-lg object-cover shadow-sm border border-gray-100" />
+                               <div>
+                                 <div class="font-bold text-gray-900">${r.name}</div>
+                                 <div class="text-xs text-gray-500 line-clamp-1">${r.cuisineTags || ''}</div>
+                               </div>
+                             </div>
+                           `).join('');
+                  }
+
+                  if (data.dishes && data.dishes.length > 0) {
+                    html += `<div class="px-4 py-2 bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-t border-gray-100">Dishes</div>`;
+                    html += data.dishes.map(d => `
+                             <div class="px-4 py-3 hover:bg-orange-50 cursor-pointer flex items-center justify-between border-b border-gray-100 last:border-0 transition-colors" onclick="window.location.href='/c/restaurants/${d.restaurantId}'">
+                               <div class="flex flex-wrap items-center gap-2 md:gap-3">
+                                 <img src="${formatImgUrl(d.imageUrl)}" onerror="this.src='https://placehold.co/100x100?text=Dish'" class="w-10 h-10 rounded-lg object-cover shadow-sm border border-gray-100" />
+                                 <div>
+                                   <div class="font-bold text-gray-900">${d.name}</div>
+                                   <div class="text-xs text-gray-500">from ${d.restaurantName}</div>
+                                 </div>
+                               </div>
+                               <div class="text-orange-500 font-bold whitespace-nowrap">₹${d.basePrice}</div>
+                             </div>
+                           `).join('');
+                  }
+
+                  searchSuggestionsDiv.innerHTML = html;
+                  searchSuggestionsDiv.classList.remove('hidden');
+                } else {
+                  searchSuggestionsDiv.classList.add('hidden');
+                }
+              }
+            } catch (err) {
+              console.error('Failed to fetch suggestions', err);
+            }
+          } else {
+            searchSuggestionsDiv.classList.add('hidden');
+          }
+        }, 300); // Debounce
+      });
+
+      // (applySuggestion removed as navigation is handled directly now)
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#searchInput') && !e.target.closest('#searchSuggestions')) {
+          searchSuggestionsDiv.classList.add('hidden');
+        }
+      });
+
+      document.querySelectorAll('.food-type-filter').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          fetchRestaurants();
+          fetchGlobalMenuItems();
+        });
+      });
+
+      function getSelectedFoodTypes() {
+        const checkboxes = document.querySelectorAll('.food-type-filter:checked');
+        const types = Array.from(checkboxes).map(cb => cb.value);
+        return types.join(',');
+      }
+
+      async function fetchRestaurants() {
+        try {
+          const foodTypes = getSelectedFoodTypes();
+          let url = '/customer/search?';
+          if (currentSearch && currentSearch.length >= 2) url += `query=${encodeURIComponent(currentSearch)}&`;
+          if (foodTypes) url += `cuisine=${encodeURIComponent(foodTypes)}&`;
+
+          const sortVal = document.getElementById('sortSelect')?.value;
+          if (sortVal) url += `sort=${encodeURIComponent(sortVal)}&`;
+
+          const res = await fetch(url);
+          const { data } = await res.json();
+
+          const mapped = (data || []).map(b => ({
+            id: b.restaurant?.id,
+            coverImageUrl: b.restaurant?.coverImageUrl,
+            logoUrl: b.restaurant?.logoUrl,
+            averageRating: b.avgRating ? Number(b.avgRating).toFixed(1) : 0,
+            businessName: b.restaurant?.businessName,
+            description: b.restaurant?.description,
+            applicableCoupons: b.restaurant?.applicableCoupons
+          }));
+
+          renderRestaurants(mapped);
+        } catch (err) {
+          console.error('Failed to load restaurants', err);
+        }
+      }
+
+      function renderRestaurants(restaurants) {
+        const grid = document.getElementById('restaurantGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        if (!restaurants || restaurants.length === 0) {
+          grid.innerHTML = '<div class="col-span-full py-8 text-center text-gray-500">No restaurants found.</div>';
+          return;
+        }
+
+        restaurants.forEach((restaurant) => {
+          const card = document.createElement('div');
+          card.onclick = () => { window.location.href = '/c/restaurants/' + restaurant.id; };
+          card.className = 'group bg-white rounded-[2rem] p-4 border border-orange-100 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col h-full relative';
+
+          let offerHtml = '';
+          if (restaurant.applicableCoupons && restaurant.applicableCoupons.length > 0) {
+            offerHtml = `<div class="absolute top-6 -left-2 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-black px-3 py-1.5 rounded-r-lg shadow-lg z-10 tracking-wider">
+               ${restaurant.applicableCoupons[0].description}
+            </div>`;
+          }
+
+          card.innerHTML = `
+            ${offerHtml}
+            <div class="h-48 rounded-[1.5rem] overflow-hidden relative bg-gray-100 mb-4">
+               <img src="${formatImgUrl(restaurant.coverImageUrl)}" onerror="this.src='https://placehold.co/600x400?text=Restaurant'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+               <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
+               <div class="absolute bottom-4 left-4 flex items-center gap-2">
+                 <div class="w-12 h-12 rounded-xl bg-white p-1 shadow-md">
+                   <img src="${formatImgUrl(restaurant.logoUrl)}" onerror="this.src='https://placehold.co/100x100?text=Logo'" class="w-full h-full object-cover rounded-lg" />
+                 </div>
+               </div>
+               <div class="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-sm font-bold shadow-md flex items-center gap-1">
+                 <span class="text-orange-500">★</span> ${restaurant.averageRating > 0 ? restaurant.averageRating : 'New'}
+               </div>
+            </div>
+            <div class="px-2 flex flex-col flex-grow">
+               <div class="flex justify-between items-start mb-1">
+                 <h3 class="text-xl font-extrabold text-gray-900 line-clamp-1 group-hover:text-orange-500 transition-colors">${restaurant.businessName}</h3>
+               </div>
+               <p class="text-gray-500 text-sm font-medium line-clamp-2 mb-4 flex-grow">${restaurant.description || 'Delicious food'}</p>
+               <div class="flex items-center gap-4 text-xs font-bold text-gray-400 pt-3 border-t border-gray-50 mt-auto">
+                 <span class="flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 30-45 mins</span>
+                 <span class="flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> ₹200 for two</span>
+               </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      let currentCart = null;
+      let lastMenuItems = [];
+
+      async function loadCart() {
+        try {
+          const res = await fetch('/cart');
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("text/html")) return;
+          const data = await res.json();
+          if (data.data && data.data.items) {
+            currentCart = data.data;
+          } else {
+            currentCart = null;
+          }
+        } catch (err) { console.error(err); }
+
+        if (lastMenuItems.length > 0) {
+          renderGlobalMenuItems(lastMenuItems);
+        }
+      }
+
+      async function fetchGlobalMenuItems() {
+        try {
+          const foodTypes = getSelectedFoodTypes();
+          let url = '/restaurant/global-menu-items?';
+          if (currentSearch && currentSearch.length >= 2) url += `search=${encodeURIComponent(currentSearch)}&`;
+          if (foodTypes) url += `foodType=${encodeURIComponent(foodTypes)}&`;
+
+          const res = await fetch(url);
+          const { data } = await res.json();
+          lastMenuItems = data?.data || data || [];
+          renderGlobalMenuItems(lastMenuItems);
+        } catch (err) {
+          console.error('Failed to load menu items', err);
+        }
+      }
+
+      // Utility for formatting image URLs from DB (converting backslashes and ensuring absolute paths)
+      const formatImgUrl = (url) => {
+        if (!url) return '';
+        return (url.startsWith('/') ? url : '/' + url).replace(/\\/g, '/');
+      };
+
+      // Initial fetch
+      loadCart().then(() => {
+        fetchRestaurants();
+        fetchGlobalMenuItems();
+        fetchTrending();
+      });
+
+      async function fetchTrending() {
+        try {
+          const res = await fetch('/restaurant/featured');
+          if (!res.ok) return;
+          const { data } = await res.json();
+          const trending = data?.trending || [];
+          if (trending.length > 0) {
+            document.getElementById('trendingSection').classList.remove('hidden');
+            renderTrending(trending);
+          }
+        } catch (e) { console.error('Failed to load trending', e); }
+      }
+
+      function renderTrending(trending) {
+        const list = document.getElementById('trendingList');
+        if (!list) return;
+        list.innerHTML = '';
+
+        trending.forEach(restaurant => {
+          const card = document.createElement('div');
+          card.onclick = () => window.location.href = `/c/restaurants/${restaurant.id}`;
+          card.className = 'w-full sm:w-80 bg-white rounded-3xl p-5 border border-orange-100 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group flex flex-col h-full';
+
+          card.innerHTML = `
+            <div class="h-32 rounded-2xl overflow-hidden mb-4 relative bg-gray-100 flex-shrink-0">
+               <img src="${formatImgUrl(restaurant.logoUrl)}" onerror="this.src='https://placehold.co/400x300?text=Trending'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+               <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
+               <div class="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold shadow-md text-red-600 flex items-center gap-1">
+                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                 Trending #${restaurant.totalOrders || 'Hot'}
+               </div>
+            </div>
+            <div class="flex-grow flex flex-col justify-center">
+              <h4 class="text-xl font-extrabold text-gray-900 truncate mb-1">${restaurant.businessName}</h4>
+              <p class="text-sm font-medium text-gray-500 line-clamp-1">Discover what everyone is loving</p>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      }
+
+      async function fetchRecentOrders() {
+        try {
+          const res = await fetch('/orders');
+          if (!res.ok) return;
+          const { data } = await res.json();
+          const orders = data || [];
+          if (orders.length > 0) {
+            document.getElementById('orderAgainSection').classList.remove('hidden');
+            renderRecentOrders(orders.slice(0, 5)); // Show top 5
+          }
+        } catch (e) { console.error('Failed to load recent orders', e); }
+      }
+
+      function renderRecentOrders(orders) {
+        const list = document.getElementById('orderAgainList');
+        list.innerHTML = '';
+
+        orders.forEach(order => {
+          const restaurantName = order.restaurant?.businessName || order.restaurantBranch?.restaurant?.businessName || 'Restaurant';
+          const itemsCount = (order.items || []).length;
+          const total = order.totalAmount || order.total || 0;
+          const status = order.orderStatus || order.status || 'PENDING';
+          const date = new Date(order.createdAt || order.placedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+          let statusColor = 'bg-gray-100 text-gray-800';
+          if (status === 'DELIVERED') statusColor = 'bg-green-100 text-green-800';
+          if (status === 'PENDING' || status === 'PREPARING') statusColor = 'bg-yellow-100 text-yellow-800';
+          if (status === 'OUT_FOR_DELIVERY' || status === 'PICKED_UP') statusColor = 'bg-blue-100 text-blue-800';
+
+          const card = document.createElement('div');
+          card.onclick = () => window.location.href = `/c/orders/${order.id || order.orderId}`;
+          card.className = 'w-full sm:w-80 bg-white rounded-3xl p-5 border border-orange-100 shadow-sm cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group';
+
+          card.innerHTML = `
+            <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
+            <div class="relative z-10 flex flex-col h-full">
+              <div class="flex justify-between items-start mb-3">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${statusColor}">${status.replace(/_/g, ' ')}</span>
+                <span class="text-xs font-bold text-gray-400">${date}</span>
+              </div>
+              <h4 class="text-xl font-extrabold text-gray-900 truncate mb-1">${restaurantName}</h4>
+              <p class="text-sm font-medium text-gray-500 mb-4">${itemsCount} item${itemsCount !== 1 ? 's' : ''}</p>
+              
+              <div class="mt-auto flex justify-between items-end border-t border-gray-100 pt-4">
+                <p class="font-black text-2xl text-orange-500">₹${Number(total).toFixed(2)}</p>
+                <div class="bg-gray-900 text-white p-2 rounded-xl group-hover:bg-orange-500 transition-colors shadow-md">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </div>
+              </div>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      }
+
+      function renderGlobalMenuItems(items) {
+        const grid = document.getElementById('menuItemsGrid');
+        grid.innerHTML = '';
+
+        if (!items || items.length === 0) {
+          grid.innerHTML = '<div class="col-span-full py-8 text-center text-gray-500">No menu items found.</div>';
+          return;
+        }
+
+        items.forEach((item) => {
+          const card = document.createElement('div');
+          card.className = 'group bg-white rounded-3xl shadow-sm border border-transparent hover:border-orange-200 overflow-hidden flex flex-col h-full hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2';
+
+          const defaultFoodImg = 'https://placehold.co/400x300?text=Delicious+Food';
+          const imgUrl = item.images && item.images.length > 0 ? formatImgUrl(item.images[0].imageUrl) : defaultFoodImg;
+
+          let foodTypeIcon = '';
+          if (item.foodType === 'VEG') foodTypeIcon = '<span class="flex items-center gap-1 text-green-700 font-extrabold text-xs tracking-wider"><svg class="w-3.5 h-3.5 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>VEG</span>';
+          else if (item.foodType === 'NON_VEG') foodTypeIcon = '<span class="flex items-center gap-1 text-red-700 font-extrabold text-xs tracking-wider"><svg class="w-3.5 h-3.5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>NON-VEG</span>';
+          else if (item.foodType === 'VEGAN') foodTypeIcon = '<span class="flex items-center gap-1 text-emerald-700 font-extrabold text-xs tracking-wider"><svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.083 9h11.834C17.068 9 18 9.895 18 11c0 1.105-.932 2-2.083 2H4.083C2.932 13 2 12.105 2 11c0-1.105.932-2 2.083-2zm0-4h11.834C17.068 5 18 5.895 18 7c0 1.105-.932 2-2.083 2H4.083C2.932 9 2 8.105 2 7c0-1.105.932-2 2.083-2z" clip-rule="evenodd"/></svg>VEGAN</span>';
+
+          const branchName = item.category?.branch?.branchName || 'Local Branch';
+          const restaurantName = item.category?.branch?.restaurant?.businessName || 'Gourmet Kitchen';
+
+          const cartItem = currentCart?.items?.find(ci => ci.menuItemId === item.id);
+          const qty = cartItem ? cartItem.quantity : 0;
+          const cartItemId = cartItem ? cartItem.id : null;
+
+          let cartBtnHtml = '';
+          if (qty > 0) {
+            cartBtnHtml = `
+              <div class="flex items-center justify-between bg-orange-50 rounded-xl px-2 py-1.5 border border-orange-200 shadow-inner w-full">
+                <button onclick="updateCartQty('${cartItemId}', ${qty - 1})" class="w-8 h-8 flex items-center justify-center text-orange-600 hover:bg-orange-100 rounded-lg font-bold text-xl transition-colors shadow-sm bg-white">-</button>
+                <span class="font-black text-gray-900 text-lg mx-2">${qty}</span>
+                <button onclick="updateCartQty('${cartItemId}', ${qty + 1})" class="w-8 h-8 flex items-center justify-center text-orange-600 hover:bg-orange-100 rounded-lg font-bold text-xl transition-colors shadow-sm bg-white">+</button>
+              </div>
+            `;
+          } else {
+            cartBtnHtml = `
+              <button onclick="addToCart('${item.id}', '${item.category?.branch?.id}', this)" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 text-sm shadow-md hover:shadow-orange-500/30">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                Add to Cart
+              </button>
+            `;
+          }
+
+          let modifiersHtml = '';
+          if (item.modifierGroups && item.modifierGroups.length > 0) {
+            modifiersHtml = `<div class="mt-3 space-y-2 border-t border-gray-100 pt-3">` + item.modifierGroups.map(mg => {
+              const group = mg.modifierGroup;
+              return `
+                <div>
+                  <h4 class="text-xs font-bold text-gray-700">${group.name} ${group.isRequired ? '<span class="text-red-500">*</span>' : ''}</h4>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    ${group.options.map(opt => `<span class="text-[10px] bg-gray-50 px-2 py-0.5 rounded border border-gray-200 text-gray-600">${opt.optionName} <span class="text-orange-500 font-semibold">+₹${opt.price}</span></span>`).join('')}
+                  </div>
+                </div>
+              `;
+            }).join('') + `</div>`;
+          }
+
+          card.innerHTML = `
+            <div class="h-48 relative flex-shrink-0 overflow-hidden bg-gray-100">
+                <img src="${imgUrl}" onerror="this.src='https://placehold.co/400x300?text=Delicious+Food'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+                <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md flex items-center gap-1 border border-white border-opacity-50">
+                  ${foodTypeIcon}
+                </div>
+                <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+                   <div class="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
+                     <span class="text-xl font-black text-white">₹${item.basePrice}</span>
+                   </div>
+                </div>
+            </div>
+            <div class="p-5 flex flex-col flex-grow bg-white z-10 relative rounded-t-[2rem] -mt-4">
+              <h3 class="text-xl font-extrabold text-gray-900 line-clamp-2 leading-tight group-hover:text-orange-500 transition-colors mb-2">${item.name}</h3>
+              <p class="text-gray-500 text-sm mb-3 line-clamp-2 flex-grow font-medium leading-relaxed">${item.description || 'A delightful dish prepared with love.'}</p>
+              ${modifiersHtml}
+              
+              <div class="mt-auto flex flex-col gap-2 pt-3">
+                <div class="flex items-center justify-between gap-2 text-xs text-gray-600 font-semibold bg-orange-50/50 py-1.5 px-2.5 rounded-lg border border-orange-100/50">
+                  <div class="flex items-center gap-1.5 truncate">
+                    <svg class="w-3.5 h-3.5 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    <span class="truncate"><b>${restaurantName}</b></span>
+                  </div>
+                </div>
+                ${cartBtnHtml}
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      /* ---------------------------
+      MENU HANDLING
+      ---------------------------- */
+
+      async function viewMenu(restaurantId) {
+        try {
+          const res = await fetch(`/restaurants/${restaurantId}/menu`);
+          const data = await res.json();
+
+          const menuList = document.getElementById('menuList');
+          menuList.innerHTML = '';
+
+          data.menu.forEach((item) => {
+            const div = document.createElement('div');
+            div.className = 'flex justify-between border-b pb-2';
+
+            div.innerHTML = `
+              <span>${item.name}</span>
+              <span class="text-orange-500 font-semibold">₹${item.price}</span>
+            `;
+
+            menuList.appendChild(div);
+          });
+
+          document.getElementById('menuModal').classList.remove('hidden');
+        } catch (err) {
+          showToast('Failed to load menu', 'error');
+        }
+      }
+
+      function closeMenu() {
+        document.getElementById('menuModal').classList.add('hidden');
+      }
+
+      async function addToCart(menuItemId, branchId, btn) {
+        if (!branchId || branchId === 'undefined') {
+          showToast('Restaurant branch is unavailable', 'error');
+          return;
+        }
+
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'ADDING...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch('/cart/items', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              menuItemId: Number(menuItemId),
+              restaurantBranchId: Number(branchId),
+              quantity: 1
+            })
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            if (data.message === 'DIFFERENT_RESTAURANT_CART_EXISTS') {
+              if (confirm('Your cart contains items from a different restaurant. Would you like to clear the cart and add this item instead?')) {
+                btn.innerHTML = 'CLEARING...';
+                await fetch('/cart', { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+                btn.innerHTML = 'ADDING...';
+                const retryRes = await fetch('/cart/items', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    menuItemId: Number(menuItemId),
+                    restaurantBranchId: Number(branchId),
+                    quantity: 1
+                  })
+                });
+                if (!retryRes.ok) throw new Error('Failed to add item after clearing cart');
+                await loadCart();
+                showToast('Cart cleared and new item added', 'success');
+                return;
+              }
+              return;
+            }
+            throw new Error(data.message || 'Failed to add item');
+          }
+
+          await loadCart();
+          showToast('Added to cart', 'success');
+        } catch (err) {
+          console.error(err);
+          showToast(err.message, 'error');
+        } finally {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      }
+
+      async function updateCartQty(cartItemId, newQty) {
+        if (newQty < 1) {
+          try {
+            await fetch(`/cart/items/${cartItemId}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+          } catch (e) { }
+        } else {
+          try {
+            await fetch(`/cart/items/${cartItemId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ quantity: newQty })
+            });
+          } catch (e) { }
+        }
+        await loadCart();
+      }
+    </script>
+  </div> <!-- End of main wrapper -->
+  <%- include('../partials/toast') %>
+    <%- include('../partials/customer-sidebar') %>
+</body>
+
+</html>

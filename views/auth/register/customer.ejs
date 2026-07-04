@@ -2,222 +2,359 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
-  <link rel="stylesheet" href="/styles/build.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | epicure- Food Ordering System</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center font-sans py-10">
+<body>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-5 sm:p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
+        <p class="text-gray-500 text-sm" id="stepDescription">Step 1: Enter your mobile number</p>
+      </div>
 
-  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-bold text-center text-white bg-red-500 py-2 rounded mb-6">Create an Account</h2>
+      <!-- Step 1: Phone Number -->
+      <form id="step1Form" class="space-y-5 block">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Phone Number <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="phone" name="phone" placeholder="10 digit number"
+             pattern="^[0-9]{10}$" minlength="10" maxlength="10" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          <p id="phoneError" class="mt-1 text-sm text-red-500"></p>
+        </div>
+        <button type="submit" id="step1Btn"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg mt-2">
+          Verify Phone
+        </button>
+      </form>
 
-    <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm"
-      role="alert"></div>
+      <!-- Step 2: OTP -->
+      <form id="step2Form" class="space-y-5 hidden">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Enter OTP <span class="text-red-500">*</span>
+          </label>
+          <input type="text" id="otp" name="otp" placeholder="6 digit OTP"
+             pattern="^[0-9]{6}$" minlength="6" maxlength="6" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors tracking-widest text-center text-lg" />
+          <p id="otpError" class="mt-1 text-sm text-red-500"></p>
+        </div>
+        <button type="submit" id="step2Btn"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg mt-2">
+          Submit OTP
+        </button>
+        <div class="text-center mt-4">
+          <button type="button" onclick="goToStep(1)"
+            class="text-sm font-medium text-gray-500 hover:text-gray-700">Change Phone Number</button>
+        </div>
+      </form>
 
-    <div id="successMessage"
-      class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 text-sm" role="alert">
+      <!-- Step 3: Details -->
+      <form id="step3Form" class="space-y-5 hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              First Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="firstName" name="firstName" placeholder="John"
+               minlength="2" maxlength="100" pattern="^[A-Za-z]+$" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+            <p id="firstNameError" class="mt-1 text-sm text-red-500"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Last Name
+            </label>
+            <input type="text" id="lastName" name="lastName" placeholder="Doe"
+               maxlength="100" pattern="^[A-Za-z]+$" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+            <p id="lastNameError" class="mt-1 text-sm text-red-500"></p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Email <span class="text-gray-400 font-normal text-xs">(Optional)</span>
+          </label>
+          <input type="email" id="email" name="email" placeholder="you@example.com"
+             pattern="^[^\s@]+@[^\s@]+\.(com|net|org|io)$" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors" />
+          <p id="emailError" class="mt-1 text-sm text-red-500"></p>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Password <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input type="password" id="password" name="password" placeholder="Min 8 characters"
+                 minlength="8" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
+              <button type="button" id="togglePassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">Show</button>
+            </div>
+            <p id="passwordError" class="mt-1 text-sm text-red-500"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Confirm Password <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat password"
+                 minlength="8" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors pr-16" />
+              <button type="button" id="toggleConfirmPassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">Show</button>
+            </div>
+            <p id="confirmPasswordError" class="mt-1 text-sm text-red-500"></p>
+          </div>
+        </div>
+
+        <button type="submit" id="step3Btn"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg mt-2">
+          Create Account
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="text-center mt-6 pt-6 border-t border-gray-200">
+        <p class="text-sm text-gray-600">
+          Already have an account?
+          <a href="/loginPage" class="font-medium text-orange-500 hover:text-orange-600 transition-colors">Login</a>
+        </p>
+      </div>
     </div>
-
-    <form id="registerForm" class="space-y-4">
-
-      <div>
-        <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-        <input type="text" id="firstName" name="firstName" placeholder="John"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-          required>
-      </div>
-
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-        <input type="email" id="email" name="email" placeholder="john@example.com"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-      </div>
-
-      <div>
-        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span
-            class="text-gray-400 text-xs">(Optional)</span></label>
-        <input type="tel" id="phone" name="phone" placeholder="10-digit number"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-      </div>
-
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <div class="relative">
-          <input type="password" id="password" name="password" placeholder="Min. 8 characters"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 pr-10"
-            required>
-          <button type="button" id="togglePassword"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-red-500 focus:outline-none">
-            <svg id="eyeIcon1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-            <svg id="eyeSlashIcon1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-              stroke-width="1.5" stroke="currentColor" class="hidden w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div>
-        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-        <div class="relative">
-          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 pr-10"
-            required>
-          <button type="button" id="toggleConfirmPassword"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-red-500 focus:outline-none">
-            <svg id="eyeIcon2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-            <svg id="eyeSlashIcon2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-              stroke-width="1.5" stroke="currentColor" class="hidden w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <button type="submit" id="submitBtn"
-        class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out mt-2">
-        Sign Up
-      </button>
-
-    </form>
-
-    <p class="mt-6 text-center text-sm text-gray-600">
-      Already have an account?
-      <a href="/loginPage" class="font-medium text-red-600 hover:text-red-500 transition duration-150 ease-in-out">
-        Log in
-      </a>
-    </p>
-
   </div>
 
   <script>
-    function setupPasswordToggle(toggleBtnId, inputId, eyeIconId, eyeSlashIconId) {
-      const toggleBtn = document.getElementById(toggleBtnId);
-      const input = document.getElementById(inputId);
-      const eyeIcon = document.getElementById(eyeIconId);
-      const eyeSlashIcon = document.getElementById(eyeSlashIconId);
+    const step1Form = document.getElementById('step1Form');
+    const step2Form = document.getElementById('step2Form');
+    const step3Form = document.getElementById('step3Form');
+    const stepDescription = document.getElementById('stepDescription');
 
-      toggleBtn.addEventListener('click', function () {
-        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-        input.setAttribute('type', type);
-        eyeIcon.classList.toggle('hidden');
-        eyeSlashIcon.classList.toggle('hidden');
+    const phone = document.getElementById('phone');
+    const otp = document.getElementById('otp');
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+
+    function togglePassword(buttonId, input) {
+      document.getElementById(buttonId).addEventListener('click', () => {
+        if (input.type === 'password') {
+          input.type = 'text';
+          document.getElementById(buttonId).textContent = 'Hide';
+        } else {
+          input.type = 'password';
+          document.getElementById(buttonId).textContent = 'Show';
+        }
       });
     }
 
-    setupPasswordToggle('togglePassword', 'password', 'eyeIcon1', 'eyeSlashIcon1');
-    setupPasswordToggle('toggleConfirmPassword', 'confirmPassword', 'eyeIcon2', 'eyeSlashIcon2');
+    togglePassword('togglePassword', password);
+    togglePassword('toggleConfirmPassword', confirmPassword);
 
-    document.getElementById('registerForm').addEventListener('submit', async function (event) {
-      event.preventDefault();
+    function goToStep(step) {
+      step1Form.classList.add('hidden');
+      step2Form.classList.add('hidden');
+      step3Form.classList.add('hidden');
 
-      const errorMessageDiv = document.getElementById('errorMessage');
-      const successMessageDiv = document.getElementById('successMessage');
-      const submitBtn = document.getElementById('submitBtn');
-
-      errorMessageDiv.classList.add('hidden');
-      successMessageDiv.classList.add('hidden');
-      errorMessageDiv.textContent = '';
-
-      const firstName = document.getElementById('firstName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-
-      const nameRegex = /^[A-Za-z]+$/;
-      const phoneRegex = /^[0-9]{10}$/;
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (firstName.length < 2 || firstName.length > 50 || !nameRegex.test(firstName)) {
-        showError('First name must be between 2 and 50 characters and contain only letters.');
-        return;
+      if (step === 1) {
+        step1Form.classList.remove('hidden');
+        stepDescription.textContent = 'Step 1: Enter your mobile number';
+      } else if (step === 2) {
+        step2Form.classList.remove('hidden');
+        stepDescription.textContent = 'Step 2: Verify your phone number';
+      } else if (step === 3) {
+        step3Form.classList.remove('hidden');
+        stepDescription.textContent = 'Step 3: Setup your account details';
       }
+    }
 
-      if (email && !emailRegex.test(email)) {
-        showError('Please enter a valid email address.');
-        return;
-      }
+    // --- Form Validator Rules ---
+    const step1Rules = {
+      phone: { required: true, exactLength: 10, pattern: /^[0-9]+$/, patternMsg: 'Contact number must only contain digits', label: 'Phone Number' }
+    };
 
-      if (phone && !phoneRegex.test(phone)) {
-        showError('Contact number must be exactly 10 digits and contain only numbers.');
-        return;
-      }
+    const step2Rules = {
+      otp: { required: true, exactLength: 6, pattern: /^[0-9]+$/, patternMsg: 'OTP must only contain numbers', label: 'OTP' }
+    };
 
-      if (!email && !phone) {
-        showError('Please provide an email address or a phone number.');
-        return;
-      }
+    const step3Rules = {
+      firstName: { required: true, minLength: 2, maxLength: 50, pattern: /^[A-Za-z]+$/, patternMsg: 'First name can only contain letters', label: 'First Name' },
+      lastName: { maxLength: 50, pattern: /^[A-Za-z]+$/, patternMsg: 'Last name can only contain letters', label: 'Last Name' },
+      email: { isEmail: true, label: 'Email' },
+      password: { required: true, minLength: 8, label: 'Password' },
+      confirmPassword: { required: true, minLength: 8, matchField: 'password', matchMsg: 'Passwords do not match', label: 'Confirm Password' }
+    };
 
-      if (password.length < 8) {
-        showError('Password must be at least 8 characters long.');
-        return;
-      }
+    FormValidator.bindLiveValidation(step1Rules);
+    FormValidator.bindLiveValidation(step2Rules);
+    FormValidator.bindLiveValidation(step3Rules);
 
-      if (password !== confirmPassword) {
-        showError('Passwords do not match.');
-        return;
-      }
+    // --- STEP 1: Phone Verification ---
+    step1Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!FormValidator.validate(step1Rules)) return;
+      
+      const phoneValue = phone.value.trim();
+
+      const btn = document.getElementById('step1Btn');
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
 
       try {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating Account...';
-
-        const response = await fetch('/auth/register', {
+        // Check if phone is available
+        const checkRes = await fetch('/auth/check-phone', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            firstName,
-            email,
-            phone,
-            password,
-            confirmPassword
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phoneValue })
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Registration failed. Please try again.');
+        if (!checkRes.ok) {
+          const data = await checkRes.json();
+          document.getElementById('phoneError').textContent = data.message || 'Phone number check failed';
+          return;
         }
 
-        successMessageDiv.textContent = 'Account created successfully! Redirecting to login...';
-        successMessageDiv.classList.remove('hidden');
+        // Send OTP
+        const otpRes = await fetch('/auth/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phoneValue })
+        });
 
-        setTimeout(() => {
-          window.location.href = '/loginPage';
-        }, 2000);
-
-      } catch (error) {
-        showError(error.message);
+        const otpData = await otpRes.json();
+        if (otpRes.ok) {
+          // Open new tab to show OTP as requested
+          window.open(`/phone-otp?otp=${otpData.otp}`, '_blank');
+          goToStep(2);
+        } else {
+          document.getElementById('phoneError').textContent = otpData.message || 'Failed to send OTP';
+        }
+      } catch (err) {
+        document.getElementById('phoneError').textContent = 'An error occurred. Try again.';
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Sign Up';
+        btn.disabled = false;
+        btn.textContent = 'Verify Phone';
       }
     });
 
-    function showError(message) {
-      const errorMessageDiv = document.getElementById('errorMessage');
-      errorMessageDiv.textContent = message;
-      errorMessageDiv.classList.remove('hidden');
-    }
+    // --- STEP 2: OTP Verification ---
+    step2Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!FormValidator.validate(step2Rules)) return;
+
+      const otpValue = otp.value.trim();
+
+      const btn = document.getElementById('step2Btn');
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+
+      try {
+        const res = await fetch('/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phone.value.trim(), otp: otpValue })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Phone verified successfully', 'success');
+          goToStep(3);
+        } else {
+          document.getElementById('otpError').textContent = data.message || 'Invalid OTP';
+        }
+      } catch (err) {
+        document.getElementById('otpError').textContent = 'An error occurred. Try again.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit OTP';
+      }
+    });
+
+    // --- STEP 3: Details & Final Registration ---
+    step3Form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!FormValidator.validate(step3Rules)) return;
+
+      const fName = firstName.value.trim();
+      const lName = lastName.value.trim();
+      const emailVal = email.value.trim();
+      const pass = password.value;
+      const cPass = confirmPassword.value;
+
+      const btn = document.getElementById('step3Btn');
+      btn.disabled = true;
+      btn.textContent = 'Creating Account...';
+
+      try {
+        // Optional: Check email uniqueness if provided
+        if (emailVal) {
+          const emailCheck = await fetch('/auth/check-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailVal })
+          });
+          if (!emailCheck.ok) {
+            const data = await emailCheck.json();
+            document.getElementById('emailError').textContent = data.message || 'Email already taken';
+            btn.disabled = false;
+            btn.textContent = 'Create Account';
+            return;
+          }
+        }
+
+        // Final registration
+        const payload = {
+          firstName: fName,
+          lastName: lName || undefined,
+          email: emailVal || undefined,
+          phone: phone.value.trim(),
+          password: pass,
+          confirmPassword: cPass
+        };
+
+        const regRes = await fetch('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const regData = await regRes.json();
+        if (regRes.ok) {
+          // Store token if needed
+          if (regData?.data?.token) {
+            localStorage.setItem('token', regData.data.token);
+          }
+          if (regData?.data?.user) {
+            localStorage.setItem('roles', JSON.stringify(regData.data.user.roles || []));
+            localStorage.setItem('pendingRoles', JSON.stringify(regData.data.user.pendingRoles || []));
+            if (regData.data.user.email) localStorage.setItem('email', regData.data.user.email);
+          }
+
+          showToast('Account created successfully!', 'success');
+          setTimeout(() => {
+            window.location.href = '/setup-profile';
+          }, 1500);
+        } else {
+          showToast(regData.message || 'Registration failed', 'error');
+        }
+      } catch (err) {
+        showToast('An error occurred. Try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    });
+
   </script>
+  <%- include('../../partials/toast') %>
 </body>
 
 </html>

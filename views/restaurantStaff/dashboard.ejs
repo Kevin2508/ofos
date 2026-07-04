@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant Staff Dashboard | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans">
+  <div class="flex min-h-screen">
+    <%- include('../partials/restaurantStaff/sidebar') %>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 lg:ml-72 p-4 md:p-6 lg:p-8 transition-all duration-300 w-full overflow-hidden" id="mainContentWrapper">
+      <div
+        class="mb-8 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col md:flex-row md:justify-between md:items-center">
+        <div class="flex flex-wrap items-start md:items-center gap-3">
+          <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </button>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800">Welcome, Staff Member</h2>
+            <p class="text-gray-500 mt-1">
+              Manage current orders and kitchen flow today.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">New Orders</p>
+              <h3 id="statNewOrders" class="text-3xl font-extrabold text-gray-800 mt-2">0</h3>
+            </div>
+            <div class="p-3 bg-blue-100 text-blue-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                </path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Preparing</p>
+              <h3 id="statPreparing" class="text-3xl font-extrabold text-gray-800 mt-2">0</h3>
+            </div>
+            <div class="p-3 bg-yellow-100 text-yellow-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01">
+                </path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-gray-500 text-sm font-medium">Ready / Dispatched</p>
+              <h3 id="statReady" class="text-3xl font-extrabold text-gray-800 mt-2">0</h3>
+            </div>
+            <div class="p-3 bg-green-100 text-green-600 rounded-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT ORDERS SNAPSHOT -->
+      <div class="mt-10">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-800">Latest Active Orders</h3>
+          <a href="/rs/restaurant-staff-orders" class="text-orange-500 hover:text-orange-600 font-medium text-sm">View
+            All
+            &rarr;</a>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left whitespace-nowrap">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm uppercase tracking-wider">
+                  <th class="px-6 py-4 font-semibold">Order ID</th>
+                  <th class="px-6 py-4 font-semibold">Status</th>
+                  <th class="px-6 py-4 font-semibold">Date</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardOrdersList" class="divide-y divide-gray-50 text-gray-700">
+                <tr>
+                  <td colspan="3" class="px-6 py-8 text-center text-gray-500">
+                    <div class="animate-pulse flex justify-center">Loading...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/orders', {
+          headers: {}
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const orders = data.data || [];
+
+          document.getElementById('statNewOrders').innerText = orders.filter(o => o.status === 'PENDING').length;
+          document.getElementById('statPreparing').innerText = orders.filter(o => o.status === 'PREPARING').length;
+          document.getElementById('statReady').innerText = orders.filter(o => ['READY_FOR_PICKUP', 'OUT_FOR_DELIVERY'].includes(o.status)).length;
+
+          const list = document.getElementById('dashboardOrdersList');
+          if (orders.length === 0) {
+            list.innerHTML = `<tr><td colspan="3" class="px-6 py-8 text-center text-gray-500">No active orders right now.</td></tr>`;
+          } else {
+            list.innerHTML = orders.slice(0, 5).map(o => `
+                <tr class="hover:bg-orange-50 transition-colors cursor-pointer" onclick="window.location.href='/restaurant-staff-orders'">
+                  <td class="px-6 py-4 font-medium text-gray-900">#${o.id}</td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${o.status === 'PENDING' ? 'bg-blue-100 text-blue-800' :
+                o.status === 'PREPARING' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-green-100 text-green-800'
+              }">
+                      ${o.status || 'PENDING'}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-gray-500 text-sm">${new Date(o.createdAt).toLocaleString()}</td>
+                </tr>
+              `).join('');
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loadDashboard();
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/auth/logout', {
+          headers: {}
+        });
+      } catch (e) { console.error(e); }
+      localStorage.clear();
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.href = '/loginPage';
+    });;
+  </script>
+  <%- include('../partials/toast') %>
+
+</body>
+
+</html>

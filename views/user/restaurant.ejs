@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+  <style>
+    /* Smooth scrolling for category navigation */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .category-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-nav {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gray-50 font-sans">
+  <div class="lg:ml-72 transition-all duration-300 flex flex-col min-h-screen">
+    <!-- NAVBAR -->
+    <nav class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <button onclick="window.history.back()"
+            class="p-2 rounded-full hover:bg-gray-100 transition-colors lg:hidden">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+              </path>
+            </svg>
+          </button>
+          <button onclick="toggleSidebar()"
+            class="p-2 -ml-2 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <a href="/"
+            class="text-3xl font-extrabold text-orange-500 hover:text-orange-600 transition-colors lg:hidden">epicure
+          </a>
+        </div>
+
+        <!-- Cart Icon -->
+        <a href="/cart" class="relative p-2 text-gray-600 hover:text-orange-500 transition-colors">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+            </path>
+          </svg>
+          <!-- Badge -->
+          <span id="cartBadge"
+            class="hidden absolute top-0 right-0 bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">
+            0
+          </span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- RESTAURANT HEADER SKELETON -->
+    <div id="headerSkeleton" class="animate-pulse bg-white">
+      <div class="h-64 bg-gray-200 w-full"></div>
+      <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+        <div class="h-4 bg-gray-200 rounded w-1/5"></div>
+      </div>
+    </div>
+
+    <!-- RESTAURANT HEADER -->
+    <div id="restaurantHeader" class="hidden bg-white shadow-sm pb-8">
+      <!-- Cover Image -->
+      <div class="w-full h-48 md:h-72 bg-gray-100 relative overflow-hidden">
+        <img id="coverImage" src="" alt="Restaurant Cover" class="w-full h-full object-cover hidden" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-4 -mt-16 relative z-10">
+        <div
+          class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 flex flex-wrap flex-col md:flex-row gap-3 sm:gap-6 items-start md:items-center justify-between">
+          <div class="flex flex-wrap items-center gap-3 sm:gap-6">
+            <div class="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-md bg-gray-50 flex-shrink-0">
+              <img id="logoImage" src="" alt="Logo" class="w-full h-full object-cover hidden" />
+            </div>
+            <div>
+              <h1 id="restaurantName" class="text-3xl font-extrabold text-gray-900 mb-1">...</h1>
+              <p id="restaurantDesc" class="text-gray-500 text-sm mb-3">...</p>
+              <div class="flex flex-wrap items-center gap-4 text-sm font-medium">
+                <div class="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded-lg">
+                  <span>⭐</span> <span id="restaurantRating">...</span>
+                </div>
+                <div class="flex items-center gap-1 text-gray-500">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span>30-40 mins</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- OFFERS SECTION -->
+    <div id="restaurantOffers" class="hidden bg-orange-50 border-b border-orange-100">
+      <div class="max-w-6xl mx-auto px-4 py-4">
+        <h3 class="text-sm font-bold text-orange-800 uppercase tracking-wider mb-3">Available Offers</h3>
+        <div id="offersList" class="flex gap-4 overflow-x-auto pb-2">
+           <!-- Offers injected here -->
+        </div>
+      </div>
+    </div>
+    <!-- TABS -->
+    <div class="max-w-6xl mx-auto px-4 mt-8 flex gap-3 sm:gap-6 border-b border-gray-200">
+      <button id="tab-menu" onclick="switchTab('menu')" class="px-2 py-3 font-bold text-orange-600 border-b-2 border-orange-500 text-lg transition-colors">Menu</button>
+      <button id="tab-reviews" onclick="switchTab('reviews')" class="px-2 py-3 font-bold text-gray-500 hover:text-gray-800 text-lg transition-colors">Reviews</button>
+    </div>
+
+    <!-- MENU SECTION -->
+    <div id="section-menu" class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8">
+
+      <!-- CATEGORY SIDEBAR -->
+      <div class="md:w-1/4">
+        <div class="sticky top-24 bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">Menu</h3>
+          <nav id="categoryNav" class="category-nav flex md:flex-col gap-2 overflow-x-auto pb-2 md:pb-0">
+            <!-- Categories populated here -->
+            <div class="animate-pulse flex flex-col gap-3 w-full">
+              <div class="h-8 bg-gray-100 rounded w-full"></div>
+              <div class="h-8 bg-gray-100 rounded w-5/6"></div>
+              <div class="h-8 bg-gray-100 rounded w-4/6"></div>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- MENU ITEMS -->
+      <div class="md:w-3/4">
+        <div id="menuContainer" class="space-y-10">
+          <!-- Menu skeleton -->
+          <div class="animate-pulse space-y-6">
+            <div class="h-6 bg-gray-200 rounded w-1/4"></div>
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 h-32"></div>
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 h-32"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- REVIEWS SECTION -->
+    <div id="section-reviews" class="max-w-6xl mx-auto px-4 py-8 hidden">
+      <div class="flex flex-col md:flex-row gap-4 sm:gap-6 lg:gap-8">
+         <!-- Filters & Sorting -->
+         <div class="md:w-1/4 space-y-8">
+            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+              <h3 class="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wider">Sort By</h3>
+              <select id="reviewSort" onchange="fetchReviews()" class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400 font-medium text-gray-700 cursor-pointer">
+                 <option value="recent">Most Recent</option>
+                 <option value="highest">Highest Rating</option>
+                 <option value="lowest">Lowest Rating</option>
+              </select>
+            </div>
+            
+            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+              <h3 class="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wider">Filter by Rating</h3>
+              <div class="flex flex-col gap-3">
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="" onchange="fetchReviews()" checked class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 group-hover:text-gray-900 transition-colors">All Ratings</span>
+                 </label>
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="5" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">5 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="4" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">4 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="3" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">3 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="2" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">2 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+                 <label class="flex flex-wrap items-center gap-3 cursor-pointer group">
+                   <input type="radio" name="ratingFilter" value="1" onchange="fetchReviews()" class="w-4 h-4 text-orange-500 focus:ring-orange-400 border-gray-300"> 
+                   <span class="font-medium text-gray-700 flex items-center gap-1 group-hover:text-gray-900 transition-colors">1 <span class="text-yellow-400 text-lg leading-none">★</span></span>
+                 </label>
+              </div>
+            </div>
+         </div>
+         
+         <!-- Reviews List -->
+         <div class="md:w-3/4 space-y-6" id="reviewsList">
+            <div class="animate-pulse space-y-6">
+              <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 h-32"></div>
+              <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 h-32"></div>
+            </div>
+         </div>
+      </div>
+    </div>
+
+    <!-- VIEW CART FLOATING BAR -->
+    <div id="floatingCartBar"
+      class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 transform translate-y-full transition-transform duration-300 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+      <div class="max-w-6xl mx-auto flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-500 font-medium">Your Cart</p>
+          <p id="floatingCartText" class="text-lg font-bold text-gray-900">0 items added</p>
+        </div>
+        <a href="/c/cart"
+          class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-bold transition-colors flex items-center gap-2 shadow-sm">
+          View Cart
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <%- include('../partials/toast') %>
+
+      <script>
+        // Extract ID from URL
+        const urlParts = window.location.pathname.split('/');
+        const restaurantId = urlParts[urlParts.length - 1];
+        let branchId = null; // Will be set after fetching details
+
+        async function init() {
+          await fetchRestaurantDetails();
+          await fetchRestaurantMenu();
+          checkActiveCart();
+        }
+
+        async function fetchRestaurantDetails() {
+          try {
+            const res = await fetch(`/restaurants/${restaurantId}`);
+            const result = await res.json();
+
+            if (!result.success) throw new Error('Failed to load restaurant details');
+
+            const r = result.data;
+
+            // Hide skeleton, show header
+            document.getElementById('headerSkeleton').classList.add('hidden');
+            document.getElementById('restaurantHeader').classList.remove('hidden');
+
+            // Populate header
+            document.getElementById('restaurantName').textContent = r.businessName;
+            document.getElementById('restaurantDesc').textContent = r.description || 'Amazing food delivered to you';
+            document.getElementById('restaurantRating').textContent = r.averageRating > 0 ? r.averageRating : 'New';
+
+            if (r.coverImageUrl) {
+              const cover = document.getElementById('coverImage');
+              cover.src = r.coverImageUrl;
+              cover.classList.remove('hidden');
+            }
+
+            if (r.logoUrl) {
+              const logo = document.getElementById('logoImage');
+              logo.src = r.logoUrl;
+              logo.classList.remove('hidden');
+            }
+
+            // Get the first active branch to use for ordering
+            if (r.branches && r.branches.length > 0) {
+              branchId = r.branches[0].id;
+            }
+
+            // Render applicable coupons
+            if (r.applicableCoupons && r.applicableCoupons.length > 0) {
+              const offersDiv = document.getElementById('restaurantOffers');
+              const offersList = document.getElementById('offersList');
+              offersList.innerHTML = r.applicableCoupons.map(c => `
+                <div class="bg-white border border-orange-200 rounded-xl p-3 min-w-[200px] shrink-0 shadow-sm flex flex-col justify-center">
+                   <div class="font-extrabold text-orange-600 text-lg border-2 border-dashed border-orange-300 px-2 py-1 text-center rounded-lg mb-2">${c.code}</div>
+                   <p class="text-sm text-gray-700 font-medium text-center">${c.description}</p>
+                </div>
+              `).join('');
+              offersDiv.classList.remove('hidden');
+            }
+
+          } catch (error) {
+            showToast('Error loading restaurant details', 'error');
+            console.error(error);
+          }
+        }
+
+        async function fetchRestaurantMenu() {
+          try {
+            const res = await fetch(`/restaurants/${restaurantId}/menu`);
+            const result = await res.json();
+
+            if (!result.success || !result.data || !result.data.categories) {
+              throw new Error('Menu data not found');
+            }
+
+            const categories = result.data.categories.filter(c => c.items && c.items.length > 0);
+
+            renderCategoryNav(categories);
+            renderMenu(categories);
+
+          } catch (error) {
+            document.getElementById('menuContainer').innerHTML = '<p class="text-center text-gray-500 py-8">Menu is currently unavailable.</p>';
+            console.error(error);
+          }
+        }
+
+        function renderCategoryNav(categories) {
+          const nav = document.getElementById('categoryNav');
+          nav.innerHTML = '';
+
+          categories.forEach(cat => {
+            const link = document.createElement('a');
+            link.href = `#category-${cat.id}`;
+            link.className = 'whitespace-nowrap md:whitespace-normal px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-colors cursor-pointer text-left';
+            link.textContent = cat.name;
+
+            link.onclick = (e) => {
+              e.preventDefault();
+              document.getElementById(`category-${cat.id}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+
+            nav.appendChild(link);
+          });
+        }
+
+        function renderMenu(categories) {
+          const container = document.getElementById('menuContainer');
+          container.innerHTML = '';
+
+          if (categories.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-center py-8">No menu items found.</p>';
+            return;
+          }
+
+          categories.forEach(category => {
+            const section = document.createElement('section');
+            section.id = `category-${category.id}`;
+            section.className = 'scroll-mt-24'; // Offset for sticky navbar
+
+            // Section Title
+            section.innerHTML = `
+          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            ${category.name}
+            <span class="text-sm font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">${category.items.length}</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="grid-${category.id}"></div>
+        `;
+
+            container.appendChild(section);
+
+            const grid = section.querySelector(`#grid-${category.id}`);
+
+            category.items.forEach(item => {
+              // Food type icon
+              let foodIcon = '';
+              if (item.foodType === 'VEG') {
+                foodIcon = '<span class="inline-block w-4 h-4 border-2 border-green-600 rounded-sm flex items-center justify-center" title="Veg"><span class="w-2 h-2 bg-green-600 rounded-full"></span></span>';
+              } else if (item.foodType === 'NON_VEG') {
+                foodIcon = '<span class="inline-block w-4 h-4 border-2 border-red-600 rounded-sm flex items-center justify-center" title="Non-Veg"><span class="w-2 h-2 bg-red-600 rounded-full"></span></span>';
+              } else if (item.foodType === 'VEGAN') {
+                foodIcon = '<span class="inline-block w-4 h-4 border-2 border-green-400 rounded-sm flex items-center justify-center" title="Vegan"><span class="w-2 h-2 bg-green-400 rounded-full"></span></span>';
+              }
+
+              const card = document.createElement('div');
+              card.className = 'bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between h-full';
+
+              card.innerHTML = `
+            <div>
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                  ${foodIcon}
+                  <h3 class="font-bold text-gray-900 mt-1">${item.name}</h3>
+                  <p class="font-bold text-gray-700 mt-1">₹${item.basePrice}</p>
+                </div>
+                ${item.images && item.images.length > 0 ? `
+                  <div class="w-28 h-28 rounded-xl overflow-hidden flex-shrink-0 relative bg-gray-100">
+                    <img src="${item.images[0].url}" alt="${item.name}" class="w-full h-full object-cover" />
+                  </div>
+                ` : ''}
+              </div>
+              ${item.description ? `<p class="text-sm text-gray-500 mt-3 line-clamp-2">${item.description}</p>` : ''}
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+              <button onclick="addToCart('${item.id}', this)" class="add-to-cart-btn bg-orange-50 text-orange-600 border border-orange-200 font-bold px-6 py-2 rounded-xl hover:bg-orange-100 hover:border-orange-300 transition-colors shadow-sm">
+                ADD
+              </button>
+            </div>
+          `;
+
+              grid.appendChild(card);
+            });
+          });
+        }
+
+        async function addToCart(menuItemId, btn) {
+          if (!branchId) {
+            showToast('Restaurant is currently unavailable for ordering', 'error');
+            return;
+          }
+
+          if (!token) {
+            // Redirect to login but save intent
+            localStorage.setItem('redirectAfterLogin', window.location.pathname);
+            window.location.href = '/loginPage';
+            return;
+          }
+
+          // Visual feedback
+          const originalText = btn.textContent;
+          btn.textContent = 'ADDING...';
+          btn.disabled = true;
+
+          try {
+            const res = await fetch('/cart/items', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                menuItemId: Number(menuItemId),
+                restaurantBranchId: Number(branchId),
+                quantity: 1
+              })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              throw new Error(data.message || 'Failed to add item');
+            }
+
+            showToast('Added to cart', 'success');
+            updateCartUI(data.data); // data.data is usually the updated cart or item
+
+          } catch (err) {
+            console.error(err);
+            showToast(err.message, 'error');
+          } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }
+        }
+
+        // Function to check cart size and show floating bar
+        async function checkActiveCart() {
+          if (!token) return;
+
+          try {
+            const res = await fetch('/cart', {
+              headers: {}
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data.status === 'success' && data.data) {
+                updateCartUI(data.data);
+              }
+            }
+          } catch (err) {
+            console.error('Could not fetch cart', err);
+          }
+        }
+
+        function updateCartUI(cart) {
+          if (!cart || !cart.items) return;
+
+          const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+          const badge = document.getElementById('cartBadge');
+          const floatingBar = document.getElementById('floatingCartBar');
+          const floatingText = document.getElementById('floatingCartText');
+
+          if (totalItems > 0) {
+            badge.textContent = totalItems;
+            badge.classList.remove('hidden');
+
+            floatingText.textContent = `${totalItems} item${totalItems > 1 ? 's' : ''} added`;
+            floatingBar.classList.remove('translate-y-full');
+          } else {
+            badge.classList.add('hidden');
+            floatingBar.classList.add('translate-y-full');
+          }
+        }
+
+        function switchTab(tab) {
+          if (tab === 'menu') {
+            document.getElementById('section-menu').classList.remove('hidden');
+            document.getElementById('section-reviews').classList.add('hidden');
+            document.getElementById('tab-menu').className = 'px-2 py-3 font-bold text-orange-600 border-b-2 border-orange-500 text-lg transition-colors';
+            document.getElementById('tab-reviews').className = 'px-2 py-3 font-bold text-gray-500 hover:text-gray-800 text-lg transition-colors border-b-2 border-transparent';
+          } else {
+            document.getElementById('section-menu').classList.add('hidden');
+            document.getElementById('section-reviews').classList.remove('hidden');
+            document.getElementById('tab-reviews').className = 'px-2 py-3 font-bold text-orange-600 border-b-2 border-orange-500 text-lg transition-colors';
+            document.getElementById('tab-menu').className = 'px-2 py-3 font-bold text-gray-500 hover:text-gray-800 text-lg transition-colors border-b-2 border-transparent';
+            fetchReviews();
+          }
+        }
+
+        async function fetchReviews() {
+          const sort = document.getElementById('reviewSort').value;
+          const ratingElement = document.querySelector('input[name="ratingFilter"]:checked');
+          const rating = ratingElement ? ratingElement.value : '';
+          const container = document.getElementById('reviewsList');
+
+          try {
+            const res = await fetch(`/reviews/restaurants/${restaurantId}?sort=${sort}&rating=${rating}`);
+            const data = await res.json();
+            
+            if (!res.ok) throw new Error('Failed to load reviews');
+            
+            const reviews = data.data.reviews;
+            if (reviews.length === 0) {
+              container.innerHTML = `
+                <div class="bg-white p-6 sm:p-10 text-center rounded-2xl border border-gray-100">
+                  <div class="text-4xl mb-4">😶</div>
+                  <h3 class="text-lg font-bold text-gray-800 mb-1">No reviews yet</h3>
+                  <p class="text-gray-500">There are no reviews matching your filters.</p>
+                </div>
+              `;
+              return;
+            }
+
+            container.innerHTML = reviews.map(r => `
+              <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-bold text-gray-900 text-lg">${r.customer.firstName} ${r.customer.lastName}</h4>
+                    <div class="flex flex-wrap items-center gap-3 mt-1">
+                      <div class="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 rounded-lg text-sm font-bold border border-green-100">
+                        <span>${r.overallRating}</span> <span class="text-green-500">★</span>
+                      </div>
+                      <span class="text-sm text-gray-400">•</span>
+                      <span class="text-sm text-gray-500">${new Date(r.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                ${r.reviewText ? `<p class="text-gray-700 leading-relaxed">${r.reviewText}</p>` : ''}
+                
+                ${r.images && r.images.length > 0 ? `
+                  <div class="flex gap-3 overflow-x-auto py-2">
+                    ${r.images.map(img => `
+                      <img src="${img.imageUrl}" class="w-24 h-24 rounded-xl object-cover shadow-sm border border-gray-200 shrink-0" />
+                    `).join('')}
+                  </div>
+                ` : ''}
+
+                ${r.reply ? `
+                  <div class="mt-2 bg-gray-50 p-4 rounded-xl border border-gray-100 flex gap-4 relative">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-300 rounded-l-xl"></div>
+                    <div>
+                      <h5 class="font-bold text-sm text-gray-900 mb-1 flex items-center gap-2">
+                        Response from Owner
+                        <span class="bg-orange-100 text-orange-700 text-[10px] uppercase font-black px-2 py-0.5 rounded-full">Official</span>
+                      </h5>
+                      <p class="text-gray-600 text-sm leading-relaxed">${r.reply.replyText}</p>
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('');
+
+          } catch (error) {
+            container.innerHTML = '<p class="text-red-500 p-4 sm:p-6 bg-white rounded-2xl border border-red-100">Failed to load reviews.</p>';
+          }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+      </script>
+  </div>
+  <%- include('../partials/customer-sidebar') %>
+</body>
+
+</html>

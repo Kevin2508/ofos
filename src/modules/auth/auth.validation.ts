@@ -134,10 +134,23 @@ const registerSchema = Joi.object({
       'string.pattern.base': 'First name can only contain letters',
     }),
 
+  lastName: Joi.string()
+    .trim()
+    .max(50)
+    .pattern(/^[A-Za-z]+$/)
+    .optional()
+    .allow(null, '')
+    .messages({
+      'string.max': 'Last name cannot exceed 50 characters',
+      'string.pattern.base': 'Last name can only contain letters',
+    }),
+
   email: Joi.string()
     .email({
       minDomainSegments: 2,
     })
+    .optional()
+    .allow(null, '')
     .messages({ 'string.email': 'Please enter valid email address' }),
 
   phone: Joi.string()
@@ -177,12 +190,157 @@ const registerAdminSchema = Joi.object({
   confirmPassword: Joi.string().valid(Joi.ref('password')).min(8).required(),
 });
 
+
+
+const registerFleetManagerSchema = Joi.object({
+  firstName: Joi.string().max(100).required(),
+  lastName: Joi.string().max(100).allow('', null).optional(),
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ['com', 'net', 'org', 'io'] },
+    })
+    .required()
+    .messages({ 'string.email': 'Please enter a valid email address' }),
+  phone: Joi.string()
+    .length(10)
+    .pattern(/^[0-9]+$/)
+    .required()
+    .messages({
+      'string.length': 'Contact number must be exactly 10 digits',
+      'string.pattern.base': 'Contact number must only contain digits',
+    }),
+  password: Joi.string().min(8).required(),
+  confirmPassword: Joi.string().valid(Joi.ref('password')).min(8).required(),
+});
+
+const registerDeliveryPartnerSchema = Joi.object({
+  firstName: Joi.string()
+    .trim()
+    .min(2)
+    .max(50)
+    .pattern(/^[A-Za-z]+$/)
+    .required()
+    .messages({
+      'string.min': 'First name must be at least 2 characters',
+      'string.max': 'First name cannot exceed 100 characters',
+      'string.pattern.base': 'First name can only contain letters',
+    }),
+
+  lastName: Joi.string()
+    .trim()
+    .min(2)
+    .max(50)
+    .pattern(/^[A-Za-z]+$/)
+    .optional().allow(null, '')
+    .messages({
+      'string.min': 'First name must be at least 2 characters',
+      'string.max': 'First name cannot exceed 100 characters',
+      'string.pattern.base': 'First name can only contain letters',
+    }),
+
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+    })
+    .required()
+    .messages({ 'string.email': 'Please enter valid email address' }),
+
+  phone: Joi.string()
+    .length(10)
+    .pattern(/^[0-9]+$/)
+    .allow('')
+    .required()
+    .messages({
+      'string.length': 'Contact number must be exactly 10 digits',
+      'string.pattern.base': 'Contact number must only contain digits',
+    }),
+
+  vehicleType: Joi.string().valid('BICYCLE', 'MOTORCYCLE', 'CAR').required(),
+
+  vehicleRegistrationNumber: Joi.string().max(50).required(),
+
+  password: Joi.string().min(8).required(),
+
+  confirmPassword: Joi.string().valid(Joi.ref('password')).min(8).required(),
+});
+
+const checkPhoneSchema = Joi.object({
+  phone: Joi.string()
+    .length(10)
+    .pattern(/^[0-9]+$/)
+    .required()
+    .messages({
+      'string.length': 'Contact number must be exactly 10 digits',
+      'string.pattern.base': 'Contact number must only contain digits',
+      'any.required': 'Phone number is required',
+    }),
+});
+
+const checkEmailSchema = Joi.object({
+  email: Joi.string()
+    .email({ minDomainSegments: 2 })
+    .required()
+    .messages({
+      'string.email': 'Please enter a valid email address',
+      'any.required': 'Email is required',
+    }),
+});
+
+const registerRestaurantOwnerSchema = Joi.object({
+  firstName: Joi.string().max(100).required(),
+  lastName: Joi.string().max(100).allow('', null).optional(),
+  email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org', 'io'] } }).required().messages({ 'string.email': 'Please enter a valid email address' }),
+  phone: Joi.string().length(10).pattern(/^[0-9]+$/).required().messages({
+    'string.length': 'Contact number must be exactly 10 digits',
+    'string.pattern.base': 'Contact number must only contain digits',
+  }),
+  password: Joi.string().min(8).required(),
+  confirmPassword: Joi.string().valid(Joi.ref('password')).min(8).required(),
+  businessName: Joi.string().min(2).max(100).required(),
+  legalBusinessName: Joi.string().min(2).max(100).required(),
+  restaurantPhone: Joi.string().length(10).pattern(/^[0-9]+$/).required(),
+  restaurantEmail: Joi.string().email().required(),
+  addressLine1: Joi.string().required(),
+  city: Joi.string().required(),
+  state: Joi.string().required(),
+  postalCode: Joi.string().required(),
+  gstin: Joi.string().required(),
+  fssaiLicenseNumber: Joi.string().required(),
+  cuisineTags: Joi.string().allow('', null).optional(),
+  bankAccountNumber: Joi.string().allow('', null).optional(),
+  bankIfscCode: Joi.string().allow('', null).optional(),
+  bankAccountName: Joi.string().allow('', null).optional(),
+});
+
+const updateProfileSchema = Joi.object({
+  firstName: Joi.string().min(2).max(50).optional(),
+  lastName: Joi.string().allow('', null).optional(),
+  email: Joi.string().email().allow('', null).optional(),
+  phone: Joi.string().pattern(/^[0-9]{10}$/).allow('', null).optional(),
+});
+
+const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string().required(),
+  newPassword: Joi.string().min(8).required(),
+  confirmPassword: Joi.string().valid(Joi.ref('newPassword')).required().messages({
+    'any.only': 'Passwords do not match',
+  }),
+});
+
 export {
   forgotPasswordSchema,
   loginSchema,
   sendOtpSchema,
   registerSchema,
   resetPasswordSchema,
+  registerDeliveryPartnerSchema,
   verifyOtpSchema,
   registerAdminSchema,
+  registerFleetManagerSchema,
+  registerRestaurantOwnerSchema,
+  checkPhoneSchema,
+  checkEmailSchema,
+  updateProfileSchema,
+  changePasswordSchema,
 };

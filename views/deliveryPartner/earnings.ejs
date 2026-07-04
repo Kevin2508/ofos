@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Earnings | Delivery Partner | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans">
+  <div class="flex min-h-screen">
+    <%- include('../partials/deliveryPartner/sidebar') %>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+      <div class="mb-8 flex flex-wrap items-start md:items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 -ml-2 mt-1 md:mt-0 text-gray-600 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800">Earnings</h2>
+        <p class="text-gray-500 mt-1">Track your payout and financial history.</p>
+      
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
+        <!-- Today -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col justify-center">
+          <p class="text-gray-500 font-medium text-sm">Today</p>
+          <h3 id="earnToday" class="text-3xl font-extrabold text-orange-600 mt-1">₹0</h3>
+          <p class="text-xs text-gray-400 mt-2"><span id="delToday">0</span> Deliveries</p>
+        </div>
+        <!-- This Week -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col justify-center">
+          <p class="text-gray-500 font-medium text-sm">This Week</p>
+          <h3 id="earnWeekly" class="text-3xl font-extrabold text-orange-600 mt-1">₹0</h3>
+          <p class="text-xs text-gray-400 mt-2"><span id="delWeekly">0</span> Deliveries</p>
+        </div>
+        <!-- This Month -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col justify-center">
+          <p class="text-gray-500 font-medium text-sm">This Month</p>
+          <h3 id="earnMonthly" class="text-3xl font-extrabold text-orange-600 mt-1">₹0</h3>
+          <p class="text-xs text-gray-400 mt-2"><span id="delMonthly">0</span> Deliveries</p>
+        </div>
+        <!-- Tips -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col justify-center">
+          <p class="text-gray-500 font-medium text-sm">Total Tips (Month)</p>
+          <h3 id="tipsMonthly" class="text-3xl font-extrabold text-green-600 mt-1">₹0</h3>
+          <p class="text-xs text-gray-400 mt-2">Awesome work!</p>
+        </div>
+      </div>
+
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Earnings History</h3>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left whitespace-nowrap">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm uppercase tracking-wider">
+                <th class="px-6 py-4 font-semibold">Date</th>
+                <th class="px-6 py-4 font-semibold">Amount</th>
+                <th class="px-6 py-4 font-semibold">Breakdown</th>
+                <th class="px-6 py-4 font-semibold">Type</th>
+                <th class="px-6 py-4 font-semibold">Description</th>
+              </tr>
+            </thead>
+            <tbody id="earningsList" class="divide-y divide-gray-50 text-gray-700">
+              <tr>
+                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                  <div class="animate-pulse flex justify-center">Loading earnings...</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    async function loadEarnings() {
+      try {
+        const headers = {};
+
+        // Fetch Today
+        const resToday = await fetch('/delivery-partner/earnings?period=today', { headers });
+        if (resToday.ok) {
+          const data = await resToday.json();
+          document.getElementById('earnToday').innerText = '₹' + (data.earnings?.totalEarning || 0);
+          document.getElementById('delToday').innerText = data.earnings?.totalDeliveries || 0;
+        }
+
+        // Fetch Weekly
+        const resWeekly = await fetch('/delivery-partner/earnings?period=weekly', { headers });
+        if (resWeekly.ok) {
+          const data = await resWeekly.json();
+          document.getElementById('earnWeekly').innerText = '₹' + (data.earnings?.totalEarning || 0);
+          document.getElementById('delWeekly').innerText = data.earnings?.totalDeliveries || 0;
+        }
+
+        // Fetch Monthly
+        const resMonthly = await fetch('/delivery-partner/earnings?period=monthly', { headers });
+        if (resMonthly.ok) {
+          const data = await resMonthly.json();
+          document.getElementById('earnMonthly').innerText = '₹' + (data.earnings?.totalEarning || 0);
+          document.getElementById('delMonthly').innerText = data.earnings?.totalDeliveries || 0;
+          document.getElementById('tipsMonthly').innerText = '₹' + (data.earnings?.tipAmount || 0);
+        }
+
+        // Fetch History
+        const resHistory = await fetch('/delivery-partner/earnings/history', { headers });
+        const list = document.getElementById('earningsList');
+
+        if (resHistory.ok) {
+          const data = await resHistory.json();
+          const history = data.history || [];
+
+          if (history.length === 0) {
+            list.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No earnings history found.</td></tr>`;
+          } else {
+            list.innerHTML = history.map(e => `
+                <tr class="hover:bg-orange-50 transition-colors">
+                  <td class="px-6 py-4 text-gray-500 text-sm">${new Date(e.createdAt).toLocaleString()}</td>
+                  <td class="px-6 py-4 font-bold text-green-600">+₹${e.totalEarning || 0}</td>
+                  <td class="px-6 py-4 text-xs text-gray-500 whitespace-pre-wrap">Base: ₹${e.baseEarning || 0}<br/>Dist: ₹${e.distanceBonus || 0}<br/>Tip: ₹${e.tipAmount || 0}</td>
+                  <td class="px-6 py-4"><span class="bg-gray-100 px-2 py-1 rounded text-xs font-semibold">${e.status || 'PROCESSED'}</span></td>
+                  <td class="px-6 py-4 text-gray-600">Order #${e.orderId}</td>
+                </tr>
+              `).join('');
+          }
+        } else {
+          list.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Could not load earnings history.</td></tr>`;
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('earningsList').innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Failed to load data.</td></tr>`;
+      }
+    }
+    loadEarnings();
+    
+    // Real-time polling for earnings
+    setInterval(loadEarnings, 15000);
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/auth/logout', {
+          headers: {}
+        });
+      } catch (e) { console.error(e); }
+      localStorage.clear();
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.href = '/loginPage';
+    });;
+  </script>
+  <%- include('../partials/toast') %>
+</body>
+
+</html>

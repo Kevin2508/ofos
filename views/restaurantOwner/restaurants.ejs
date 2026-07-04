@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Restaurants | Restaurant Owner | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+  <script src="/js/form-validator.js"></script>
+  <style>
+    /* Stepper UI styles */
+    .step-content {
+      display: none;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    .step-indicator {
+      transition: all 0.3s;
+    }
+
+    .step-indicator.active .step-circle {
+      background-color: #f97316;
+      color: white;
+      border-color: #f97316;
+    }
+
+    .step-indicator.completed .step-circle {
+      background-color: #f97316;
+      color: white;
+      border-color: #f97316;
+    }
+
+    /* Tabs */
+    .tab-view {
+      display: none;
+    }
+
+    .tab-view.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-orange-50 font-sans">
+  <div class="flex min-h-screen">
+    <%- include('../partials/restaurantOwner/sidebar') %>
+
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 lg:ml-72 p-5 sm:p-8 transition-all duration-300" id="mainContentWrapper">
+        <div class="mb-2 flex justify-between items-center">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800">My Restaurants</h2>
+            <p class="text-gray-500 mt-1">Manage your restaurants and branches across all locations.</p>
+          </div>
+          <div class="flex space-x-3">
+            <button onclick="toggleModal('addRestaurantModal')"
+              class="bg-white border-2 border-orange-500 text-orange-500 hover:bg-orange-50 px-4 py-2.5 rounded-lg font-medium shadow-sm transition-colors">
+              + Add Restaurant
+            </button>
+            <button onclick="toggleModal('addBranchModal')"
+              class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm transition-colors">
+              + Add Branch
+            </button>
+          </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="mb-6 border-b border-gray-200">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <button id="tab-restaurants" onclick="switchTab('restaurants')"
+              class="border-orange-500 text-orange-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+              Restaurants
+            </button>
+            <button id="tab-branches" onclick="switchTab('branches')"
+              class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+              Branches
+            </button>
+          </nav>
+        </div>
+
+        <!-- RESTAURANTS VIEW -->
+        <div id="view-restaurants" class="tab-view active">
+          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6" id="restaurantsContainer">
+            <div class="col-span-full py-12 text-center text-gray-500">
+              Loading restaurants...
+            </div>
+          </div>
+        </div>
+
+        <!-- BRANCHES VIEW -->
+        <div id="view-branches" class="tab-view">
+          <!-- Filters & Search -->
+          <div
+            class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div class="relative w-full sm:w-1/3">
+              <input type="text" id="searchInput" placeholder="Search branches or restaurants..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <div class="flex space-x-4 w-full sm:w-auto">
+              <select id="restaurantFilter"
+                class="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                <option value="ALL">All Restaurants</option>
+                <!-- Populated dynamically -->
+              </select>
+              <select id="sortFilter"
+                class="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                <option value="BRANCH_ASC">Branch Name (A-Z)</option>
+                <option value="REST_ASC">Restaurant Name (A-Z)</option>
+                <option value="ACTIVE_FIRST">Active First</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Branches List -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6" id="branchesContainer">
+            <div class="col-span-full py-12 text-center text-gray-500">
+              Loading branches...
+            </div>
+          </div>
+        </div>
+
+      </main>
+  </div>
+
+  <!-- EDIT RESTAURANT MODAL -->
+  <div id="editRestaurantModal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <h3 class="text-xl font-bold text-gray-800">Edit Restaurant</h3>
+        <button onclick="toggleModal('editRestaurantModal')" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-6 overflow-y-auto flex-1">
+        <form id="editRestaurantForm" class="space-y-5">
+          <input type="hidden" id="editRestId" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Business Name <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="editBusinessName" required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBusinessNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Legal Business Name <span
+                  class="text-xs text-gray-400 font-normal">(Cannot be changed)</span></label>
+              <input type="text" id="editLegalBusinessName" disabled
+                class="w-full px-4 py-2 border border-gray-200 bg-gray-50 text-gray-500 rounded-lg outline-none cursor-not-allowed" />
+              <p id="editLegalBusinessNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Primary Email <span
+                  class="text-red-500">*</span></label>
+              <input type="email" id="editPrimaryEmail" required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editPrimaryEmailError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Primary Phone <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="editPrimaryPhone" required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editPrimaryPhoneError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea id="editDescription" rows="3"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
+              <p id="editDescriptionError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Cuisine Tags (comma separated)</label>
+            <input type="text" id="editCuisineTags" placeholder="e.g. Italian, Chinese"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editCuisineTagsError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Bank Account Name</label>
+              <input type="text" id="editBankAccountName"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBankAccountNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Bank Account Number</label>
+              <input type="text" id="editBankAccountNumber"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBankAccountNumberError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Bank IFSC Code</label>
+              <input type="text" id="editBankIfscCode"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBankIfscCodeError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Restaurant Logo <span
+                  class="text-xs text-gray-400 font-normal">(Optional)</span></label>
+              <input type="file" id="edit-r-logo" accept="image/*"
+                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Cover Photo <span
+                  class="text-xs text-gray-400 font-normal">(Optional)</span></label>
+              <input type="file" id="edit-r-cover" accept="image/*"
+                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-4 border-t border-gray-100 mt-6">
+            <button type="button" onclick="toggleModal('editRestaurantModal')"
+              class="mr-3 px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">Cancel</button>
+            <button type="submit" id="submitEditRestaurantBtn"
+              class="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium shadow-sm">Save
+              Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTI-STEP ADD RESTAURANT MODAL -->
+  <div id="addRestaurantModal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <h3 class="text-xl font-bold text-gray-800">Add New Restaurant</h3>
+        <button onclick="toggleModal('addRestaurantModal')" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-6 overflow-y-auto flex-1">
+        <!-- Stepper Header -->
+        <div class="mb-8">
+          <div class="flex items-center justify-center px-4 w-2/3 mx-auto">
+            <div class="step-indicator active w-1/2 text-center" id="r-indicator-1">
+              <div
+                class="step-circle mx-auto w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-gray-500 mb-1">
+                1</div>
+              <div class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Info</div>
+            </div>
+            <div class="w-full flex items-center">
+              <div class="w-full bg-gray-200 h-1 rounded-full"></div>
+            </div>
+            <div class="step-indicator w-1/2 text-center" id="r-indicator-2">
+              <div
+                class="step-circle mx-auto w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-gray-500 mb-1">
+                2</div>
+              <div class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Media</div>
+            </div>
+          </div>
+        </div>
+
+        <form id="addRestaurantForm" class="space-y-5">
+          <!-- STEP 1: Basic Info -->
+          <div class="step-content active" id="r-step-1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Business Name <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="businessName" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="businessNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Legal Business Name <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="legalBusinessName" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="legalBusinessNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Primary Email <span
+                    class="text-red-500">*</span></label>
+                <input type="email" id="primaryEmail" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="primaryEmailError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Primary Phone <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="primaryPhone" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="primaryPhoneError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea id="description" rows="3"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"></textarea>
+              <p id="descriptionError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+          </div>
+
+          <!-- STEP 2: Media Upload -->
+          <div class="step-content" id="r-step-2">
+            <p class="text-sm text-gray-500 mb-6">Upload your restaurant's logo and cover photo. These are optional and
+              can be uploaded later.</p>
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Restaurant Logo</label>
+                <input type="file" id="r-logo" accept="image/*"
+                  class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Cover Photo</label>
+                <input type="file" id="r-cover" accept="image/*"
+                  class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between pt-4 border-t border-gray-100 mt-6">
+            <button type="button" id="prevRestBtn"
+              class="hidden px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">Back</button>
+            <button type="button" id="nextRestBtn"
+              class="ml-auto px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium shadow-sm">Next
+              Step</button>
+            <button type="submit" id="submitRestaurantBtn"
+              class="hidden ml-auto px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium shadow-sm">Save
+              Restaurant</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTI-STEP ADD BRANCH MODAL -->
+  <div id="addBranchModal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <h3 class="text-xl font-bold text-gray-800">Add New Branch</h3>
+        <button type="button" onclick="toggleModal('addBranchModal')" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-6 overflow-y-auto flex-1">
+        <!-- Stepper Header -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between px-4">
+            <div class="step-indicator active w-1/3 text-center" id="b-indicator-1">
+              <div
+                class="step-circle mx-auto w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-gray-500 mb-1">
+                1</div>
+              <div class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Basics</div>
+            </div>
+            <div class="w-1/3 flex items-center">
+              <div class="w-full bg-gray-200 h-1 rounded-full"></div>
+            </div>
+            <div class="step-indicator w-1/3 text-center" id="b-indicator-2">
+              <div
+                class="step-circle mx-auto w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-gray-500 mb-1">
+                2</div>
+              <div class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Location</div>
+            </div>
+            <div class="w-1/3 flex items-center">
+              <div class="w-full bg-gray-200 h-1 rounded-full"></div>
+            </div>
+            <div class="step-indicator w-1/3 text-center" id="b-indicator-3">
+              <div
+                class="step-circle mx-auto w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center font-bold text-gray-500 mb-1">
+                3</div>
+              <div class="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Legal</div>
+            </div>
+          </div>
+        </div>
+
+        <form id="addBranchForm" class="space-y-5">
+          <!-- STEP 1: Basics -->
+          <div class="step-content active" id="b-step-1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Parent Restaurant <span
+                    class="text-red-500">*</span></label>
+                <select id="branchRestaurantId" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none bg-white">
+                  <!-- Populated dynamically -->
+                </select>
+              <p id="branchRestaurantIdError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Branch Name <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="branchName" required placeholder="e.g. Downtown Branch"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="branchNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Contact Phone <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="contactPhone" required placeholder="10 digits"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="contactPhoneError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: Location -->
+          <div class="step-content" id="b-step-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address Line 1 <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="addressLine1" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="addressLine1Error" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address Line 2</label>
+                <input type="text" id="addressLine2"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="addressLine2Error" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">City <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="city" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="cityError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">State <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="state" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="stateError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="postalCode" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="postalCodeError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: Legal -->
+          <div class="step-content" id="b-step-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">FSSAI License <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="fssaiLicenseNumber" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="fssaiLicenseNumberError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">GSTIN <span
+                    class="text-red-500">*</span></label>
+                <input type="text" id="gstin" required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="gstinError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between pt-4 border-t border-gray-100 mt-6">
+            <button type="button" id="prevBranchBtn"
+              class="hidden px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">Back</button>
+            <button type="button" id="nextBranchBtn"
+              class="ml-auto px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium shadow-sm">Next
+              Step</button>
+            <button type="submit" id="submitBranchBtn"
+              class="hidden ml-auto px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium shadow-sm">Save
+              Branch</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT BRANCH MODAL -->
+  <div id="editBranchModal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs bg-opacity-50 transition-opacity p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+        <h3 class="text-xl font-bold text-gray-800">Edit Branch</h3>
+        <button type="button" onclick="toggleModal('editBranchModal')" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-6 overflow-y-auto flex-1">
+        <form id="editBranchForm" class="space-y-5">
+          <input type="hidden" id="editBranchRestId" />
+          <input type="hidden" id="editBranchId" />
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Branch Name <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="editBranchName" required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchNameError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Contact Phone <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="editBranchContactPhone" required placeholder="10 digits"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchContactPhoneError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Address Line 1 <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="editBranchAddress1" required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchAddress1Error" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Address Line 2</label>
+              <input type="text" id="editBranchAddress2"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchAddress2Error" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">City <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="editBranchCity" required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchCityError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">State <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="editBranchState" required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchStateError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code <span
+                  class="text-red-500">*</span></label>
+              <input type="text" id="editBranchPostalCode" required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchPostalCodeError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Latitude <span
+                  class="text-red-500">*</span></label>
+              <input type="number" id="editBranchLatitude" required step="0.00000001" min="-90" max="90"
+                placeholder="e.g. 28.61390000"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchLatitudeError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Longitude <span
+                  class="text-red-500">*</span></label>
+              <input type="number" id="editBranchLongitude" required step="0.00000001" min="-180" max="180"
+                placeholder="e.g. 77.20900000"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchLongitudeError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div class="sm:col-span-2">
+              <button type="button" id="useCurrentLocationBtn"
+                class="inline-flex items-center px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg text-sm font-medium transition-colors">
+                Use Current Location
+              </button>
+              <p id="editBranchLocationStatus" class="text-xs text-gray-500 mt-2"></p>
+            </div>
+
+            <div class="sm:col-span-2 mt-4 pt-4 border-t border-gray-100">
+              <h4 class="text-lg font-semibold mb-2">Operational Controls</h4>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Accepting Orders</label>
+              <select id="editBranchIsAcceptingOrders"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                <option value="true">Yes, accepting orders</option>
+                <option value="false">No, paused</option>
+              </select>
+              <p id="editBranchIsAcceptingOrdersError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Auto-Resume Time <span
+                  class="text-xs text-gray-400">(if paused)</span></label>
+              <input type="datetime-local" id="editBranchAutoResumeAt"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" />
+              <p id="editBranchAutoResumeAtError" class="text-red-500 text-xs mt-1 hidden font-medium"></p>
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-4 border-t border-gray-100 mt-6">
+            <button type="button" onclick="toggleModal('editBranchModal')"
+              class="mr-3 px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">Cancel</button>
+            <button type="submit" id="submitEditBranchBtn"
+              class="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium shadow-sm">Save
+              Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allRestaurants = [];
+    let allBranches = [];
+
+    // Filter elements
+    const searchInput = document.getElementById('searchInput');
+    const restaurantFilter = document.getElementById('restaurantFilter');
+    const sortFilter = document.getElementById('sortFilter');
+
+    // Multi-step Branch Wizard state
+    let branchStep = 1;
+    const totalBranchSteps = 3;
+
+    // Multi-step Restaurant Wizard state
+    let restStep = 1;
+    const totalRestSteps = 2;
+
+    const restRules = {
+      businessName: { required: true, minLength: 2, maxLength: 255 },
+      legalBusinessName: { required: true, minLength: 2, maxLength: 255 },
+      primaryEmail: { required: true, isEmail: true },
+      primaryPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/ },
+      description: { maxLength: 300 }
+    };
+    const editRestRules = {
+      editBusinessName: { required: true, minLength: 2, maxLength: 255 },
+      editPrimaryEmail: { required: true, isEmail: true },
+      editPrimaryPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/ },
+      editDescription: { maxLength: 300 },
+      editBankAccountName: { maxLength: 255 },
+      editBankAccountNumber: { maxLength: 50 },
+      editBankIfscCode: { maxLength: 20 }
+    };
+    const branchRules = {
+      branchName: { required: true, minLength: 2, maxLength: 150 },
+      contactPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/ },
+      addressLine1: { required: true, maxLength: 255 },
+      city: { required: true, maxLength: 100 },
+      state: { required: true, maxLength: 100 },
+      postalCode: { required: true, maxLength: 20 },
+      fssaiLicenseNumber: { required: true, maxLength: 50 },
+      gstin: { required: true, maxLength: 50 }
+    };
+    const editBranchRules = {
+      editBranchName: { required: true, minLength: 2, maxLength: 150 },
+      editBranchContactPhone: { required: true, exactLength: 10, pattern: /^[0-9]+$/ },
+      editBranchAddress1: { required: true, maxLength: 255 },
+      editBranchCity: { required: true, maxLength: 100 },
+      editBranchState: { required: true, maxLength: 100 },
+      editBranchPostalCode: { required: true, maxLength: 20 },
+      editBranchLatitude: {
+        required: true,
+        custom: (value) => validateCoordinate(value, -90, 90, 'Latitude')
+      },
+      editBranchLongitude: {
+        required: true,
+        custom: (value) => validateCoordinate(value, -180, 180, 'Longitude')
+      }
+    };
+
+    FormValidator.bindLiveValidation(restRules);
+    FormValidator.bindLiveValidation(editRestRules);
+    FormValidator.bindLiveValidation(branchRules);
+    FormValidator.bindLiveValidation(editBranchRules);
+
+    function validateCoordinate(value, min, max, label) {
+      const num = Number(value);
+      if (!Number.isFinite(num)) return `${label} must be a valid number`;
+      if (num < min || num > max) return `${label} must be between ${min} and ${max}`;
+      return '';
+    }
+
+    function formatCoordinateValue(value) {
+      if (value === null || value === undefined || value === '') return '';
+      const num = Number(value);
+      return Number.isFinite(num) ? num.toFixed(8) : '';
+    }
+
+    function setEditBranchLocationStatus(message, type = 'info') {
+      const status = document.getElementById('editBranchLocationStatus');
+      status.textContent = message;
+      status.className = `text-xs mt-2 ${type === 'error' ? 'text-red-500' : type === 'success' ? 'text-green-600' : 'text-gray-500'}`;
+    }
+
+    document.getElementById('useCurrentLocationBtn').addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        setEditBranchLocationStatus('Current location is not supported by this browser.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('useCurrentLocationBtn');
+      btn.disabled = true;
+      btn.textContent = 'Getting Location...';
+      setEditBranchLocationStatus('Allow location permission to autofill coordinates.');
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          document.getElementById('editBranchLatitude').value = position.coords.latitude.toFixed(8);
+          document.getElementById('editBranchLongitude').value = position.coords.longitude.toFixed(8);
+          FormValidator.clearFieldError('editBranchLatitude');
+          FormValidator.clearFieldError('editBranchLongitude');
+          setEditBranchLocationStatus('Location filled from your current position.', 'success');
+          btn.disabled = false;
+          btn.textContent = 'Use Current Location';
+        },
+        (error) => {
+          const message = error.code === error.PERMISSION_DENIED
+            ? 'Location permission was denied.'
+            : 'Unable to get current location. Please enter coordinates manually.';
+          setEditBranchLocationStatus(message, 'error');
+          btn.disabled = false;
+          btn.textContent = 'Use Current Location';
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    });
+
+
+    // Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
+      document.getElementById(`view-${tabId}`).classList.add('active');
+
+      document.getElementById('tab-restaurants').className = tabId === 'restaurants'
+        ? "border-orange-500 text-orange-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm";
+
+      document.getElementById('tab-branches').className = tabId === 'branches'
+        ? "border-orange-500 text-orange-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm";
+    }
+
+    function toggleModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.toggle('hidden');
+      if (id === 'addBranchModal' && modal.classList.contains('hidden')) {
+        branchStep = 1;
+        showBranchStep(1);
+        document.getElementById('addBranchForm').reset();
+      }
+      if (id === 'addRestaurantModal' && modal.classList.contains('hidden')) {
+        restStep = 1;
+        showRestStep(1);
+        document.getElementById('addRestaurantForm').reset();
+      }
+    }
+
+    function openEditRestaurantModal(id) {
+      const rest = allRestaurants.find(r => r.id === id);
+      if (!rest) return;
+      document.getElementById('editRestId').value = rest.id;
+      document.getElementById('editBusinessName').value = rest.businessName || '';
+      document.getElementById('editLegalBusinessName').value = rest.legalBusinessName || '';
+      document.getElementById('editPrimaryEmail').value = rest.primaryEmail || '';
+      document.getElementById('editPrimaryPhone').value = rest.primaryPhone || '';
+      document.getElementById('editDescription').value = rest.description || '';
+      document.getElementById('editCuisineTags').value = rest.cuisineTags || '';
+      document.getElementById('editBankAccountName').value = rest.bankAccountName || '';
+      document.getElementById('editBankAccountNumber').value = rest.bankAccountNumber || '';
+      document.getElementById('editBankIfscCode').value = rest.bankIfscCode || '';
+      toggleModal('editRestaurantModal');
+    }
+
+    function openEditBranchModal(restId, branchId) {
+      const branch = allBranches.find(b => b.id === branchId && b.restaurantId === restId);
+      if (!branch) return;
+      document.getElementById('editBranchRestId').value = branch.restaurantId;
+      document.getElementById('editBranchId').value = branch.id;
+      document.getElementById('editBranchName').value = branch.branchName || '';
+      document.getElementById('editBranchContactPhone').value = branch.contactPhone || '';
+      document.getElementById('editBranchAddress1').value = branch.addressLine1 || '';
+      document.getElementById('editBranchAddress2').value = branch.addressLine2 || '';
+      document.getElementById('editBranchCity').value = branch.city || '';
+      document.getElementById('editBranchState').value = branch.state || '';
+      document.getElementById('editBranchPostalCode').value = branch.postalCode || '';
+      document.getElementById('editBranchLatitude').value = formatCoordinateValue(branch.latitude);
+      document.getElementById('editBranchLongitude').value = formatCoordinateValue(branch.longitude);
+      document.getElementById('editBranchIsAcceptingOrders').value = branch.isAcceptingOrders === false ? "false" : "true";
+      setEditBranchLocationStatus('');
+
+      if (branch.autoResumeAt) {
+        // Format to YYYY-MM-DDThh:mm
+        const date = new Date(branch.autoResumeAt);
+        const isoString = date.toISOString();
+        document.getElementById('editBranchAutoResumeAt').value = isoString.substring(0, 16);
+      } else {
+        document.getElementById('editBranchAutoResumeAt').value = '';
+      }
+
+      toggleModal('editBranchModal');
+    }
+
+    function showRestStep(step) {
+      document.querySelectorAll('#addRestaurantModal .step-content').forEach(el => el.classList.remove('active'));
+      document.getElementById(`r-step-${step}`).classList.add('active');
+
+      for (let i = 1; i <= totalRestSteps; i++) {
+        const indicator = document.getElementById(`r-indicator-${i}`);
+        if (i < step) {
+          indicator.classList.add('completed', 'active');
+        } else if (i === step) {
+          indicator.classList.remove('completed');
+          indicator.classList.add('active');
+        } else {
+          indicator.classList.remove('completed', 'active');
+        }
+      }
+
+      document.getElementById('prevRestBtn').classList.toggle('hidden', step === 1);
+      document.getElementById('nextRestBtn').classList.toggle('hidden', step === totalRestSteps);
+      document.getElementById('submitRestaurantBtn').classList.toggle('hidden', step !== totalRestSteps);
+    }
+
+        function validateRestStep(step) {
+      if (step === 1) {
+        return FormValidator.validate({
+          businessName: restRules.businessName,
+          legalBusinessName: restRules.legalBusinessName,
+          primaryEmail: restRules.primaryEmail,
+          primaryPhone: restRules.primaryPhone,
+          description: restRules.description
+        });
+      }
+      return true;
+    }
+
+    document.getElementById('nextRestBtn').addEventListener('click', () => {
+      if (validateRestStep(restStep)) {
+        restStep++;
+        showRestStep(restStep);
+      } else {
+        showToast('Please fill all mandatory fields.', 'error');
+      }
+    });
+
+    document.getElementById('prevRestBtn').addEventListener('click', () => {
+      restStep--;
+      showRestStep(restStep);
+    });
+
+    function showBranchStep(step) {
+      document.querySelectorAll('#addBranchModal .step-content').forEach(el => el.classList.remove('active'));
+      document.getElementById(`b-step-${step}`).classList.add('active');
+
+      // Update indicators
+      for (let i = 1; i <= totalBranchSteps; i++) {
+        const indicator = document.getElementById(`b-indicator-${i}`);
+        if (i < step) {
+          indicator.classList.add('completed', 'active');
+        } else if (i === step) {
+          indicator.classList.remove('completed');
+          indicator.classList.add('active');
+        } else {
+          indicator.classList.remove('completed', 'active');
+        }
+      }
+
+      // Buttons
+      document.getElementById('prevBranchBtn').classList.toggle('hidden', step === 1);
+      document.getElementById('nextBranchBtn').classList.toggle('hidden', step === totalBranchSteps);
+      document.getElementById('submitBranchBtn').classList.toggle('hidden', step !== totalBranchSteps);
+    }
+
+        function validateBranchStep(step) {
+      if (step === 1) {
+        if (!document.getElementById('branchRestaurantId').value) return false;
+        return FormValidator.validate({
+          branchName: branchRules.branchName,
+          contactPhone: branchRules.contactPhone
+        });
+      } else if (step === 2) {
+        return FormValidator.validate({
+          addressLine1: branchRules.addressLine1,
+          city: branchRules.city,
+          state: branchRules.state,
+          postalCode: branchRules.postalCode
+        });
+      } else if (step === 3) {
+        return FormValidator.validate({
+          fssaiLicenseNumber: branchRules.fssaiLicenseNumber,
+          gstin: branchRules.gstin
+        });
+      }
+      return true;
+    }
+
+    document.getElementById('nextBranchBtn').addEventListener('click', () => {
+      if (validateBranchStep(branchStep)) {
+        branchStep++;
+        showBranchStep(branchStep);
+      } else {
+        showToast('Please fill all mandatory fields.', 'error');
+      }
+    });
+
+    document.getElementById('prevBranchBtn').addEventListener('click', () => {
+      branchStep--;
+      showBranchStep(branchStep);
+    });
+
+    async function fetchData() {
+      try {
+        // 1. Fetch all restaurants
+        const resRest = await fetch('/restaurant-management/mine');
+
+        if (!resRest.ok) throw new Error('Failed to load restaurants');
+        const restData = await resRest.json();
+        allRestaurants = restData.restaurants || [];
+
+        renderRestaurants(); // Render the restaurants grid
+
+        // Populate Filters and Form Select
+        restaurantFilter.innerHTML = '<option value="ALL">All Restaurants</option>' +
+          allRestaurants.map(r => `<option value="${r.id}">${r.businessName}</option>`).join('');
+
+        document.getElementById('branchRestaurantId').innerHTML =
+          allRestaurants.map(r => `<option value="${r.id}">${r.businessName}</option>`).join('');
+
+        if (allRestaurants.length === 0) {
+          document.getElementById('branchesContainer').innerHTML = `<div class="col-span-full py-12 text-center text-gray-500 bg-white rounded-2xl border border-gray-100 shadow-sm">You haven't set up any restaurants yet.</div>`;
+          return;
+        }
+
+        // 2. Fetch branches for all restaurants
+        allBranches = [];
+        const branchPromises = allRestaurants.map(async (rest) => {
+          const resBranch = await fetch(`/restaurant-management/${rest.id}/branches`);
+          if (resBranch.ok) {
+            const data = await resBranch.json();
+            const branches = data.branches || [];
+            // Inject restaurant metadata into branch object
+            branches.forEach(b => {
+              b.restaurantName = rest.businessName;
+              b.restaurantId = rest.id;
+            });
+            allBranches.push(...branches);
+          }
+        });
+
+        await Promise.all(branchPromises);
+        renderBranches();
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('branchesContainer').innerHTML = `<div class="col-span-full py-12 text-center text-red-500">Failed to load data.</div>`;
+      }
+    }
+
+    function renderRestaurants() {
+      const container = document.getElementById('restaurantsContainer');
+      if (allRestaurants.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500 bg-white rounded-2xl border border-gray-100 shadow-sm">You haven't added any restaurants yet.</div>`;
+        return;
+      }
+
+      const formatImg = (url) => url ? (url.startsWith('/') ? url : '/' + url).replace(/\\/g, '/') : '';
+
+      container.innerHTML = allRestaurants.map(r => `
+        <div class="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+          <div class="h-32 bg-gray-200 relative">
+            ${r.coverImageUrl ? `<img src="${formatImg(r.coverImageUrl)}" class="w-full h-full object-cover" />` : `<div class="w-full h-full flex items-center justify-center text-gray-400">No Cover</div>`}
+            <div class="absolute -bottom-8 left-6 w-16 h-16 bg-white rounded-full border-4 border-white shadow overflow-hidden">
+              ${r.logoUrl ? `<img src="${formatImg(r.logoUrl)}" class="w-full h-full object-cover" />` : `<div class="w-full h-full bg-orange-100 flex items-center justify-center text-orange-500 font-bold">${r.businessName.charAt(0)}</div>`}
+            </div>
+            <div class="absolute top-4 right-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm ${r.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+          r.status === 'PENDING_VERIFICATION' ? 'bg-yellow-100 text-yellow-800' :
+            r.status === 'PAUSED' ? 'bg-gray-100 text-gray-800' :
+              'bg-red-100 text-red-800'
+        }">
+                ${r.status}
+              </span>
+            </div>
+          </div>
+          <div class="pt-10 px-6 pb-6 flex-1 flex flex-col">
+            <h3 class="text-xl font-bold text-gray-800 line-clamp-1">${r.businessName}</h3>
+            <p class="text-sm text-gray-500 mb-4 line-clamp-1">${r.legalBusinessName}</p>
+            
+            <div class="space-y-2 mb-6 flex-1">
+              <p class="text-sm text-gray-600 flex items-center"><svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> ${r.primaryEmail}</p>
+              <p class="text-sm text-gray-600 flex items-center"><svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg> ${r.primaryPhone}</p>
+            </div>
+            
+            <div class="flex space-x-2 mt-auto">
+              <button onclick="openEditRestaurantModal('${r.id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-medium transition-colors">Manage</button>
+              ${r.status === 'ACTIVE' ?
+          `<button onclick="updateRestaurantStatus('${r.id}', 'pause')" class="flex-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 py-2 rounded-lg text-sm font-medium transition-colors">Pause</button>` :
+          r.status === 'PAUSED' ?
+            `<button onclick="updateRestaurantStatus('${r.id}', 'resume')" class="flex-1 bg-green-100 hover:bg-green-200 text-green-700 py-2 rounded-lg text-sm font-medium transition-colors">Resume</button>` : ''
+        }
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderBranches() {
+      const container = document.getElementById('branchesContainer');
+      const searchTerm = searchInput.value.toLowerCase();
+      const filterRestId = restaurantFilter.value;
+      const sortMode = sortFilter.value;
+
+      // Filter
+      let filtered = allBranches.filter(b => {
+        const matchesSearch = b.branchName.toLowerCase().includes(searchTerm) || b.restaurantName.toLowerCase().includes(searchTerm);
+        const matchesRest = filterRestId === 'ALL' || b.restaurantId == filterRestId;
+        return matchesSearch && matchesRest;
+      });
+
+      // Sort
+      filtered.sort((a, b) => {
+        if (sortMode === 'BRANCH_ASC') {
+          return a.branchName.localeCompare(b.branchName);
+        } else if (sortMode === 'REST_ASC') {
+          return a.restaurantName.localeCompare(b.restaurantName);
+        } else if (sortMode === 'ACTIVE_FIRST') {
+          return (a.isActive === b.isActive) ? 0 : a.isActive ? -1 : 1;
+        }
+        return 0;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500 bg-white rounded-2xl border border-gray-100 shadow-sm">No branches found matching your filters.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(b => `
+        <div class="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col p-4 sm:p-6">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-600 mb-2">
+                ${b.restaurantName}
+              </span>
+              <h3 class="text-xl font-bold text-gray-800 line-clamp-1">${b.branchName}</h3>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm ${b.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+              ${b.isActive ? 'ACTIVE' : 'INACTIVE'}
+            </span>
+          </div>
+          
+          <div class="space-y-3 mb-6 flex-1 mt-2">
+            <p class="text-sm text-gray-600 flex items-start">
+              <svg class="w-4 h-4 mr-2 mt-0.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              <span>${b.addressLine1}${b.addressLine2 ? ', ' + b.addressLine2 : ''}<br/>${b.city}, ${b.state} ${b.postalCode}</span>
+            </p>
+            <p class="text-sm text-gray-600 flex items-center">
+              <svg class="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg> 
+              ${b.contactPhone}
+            </p>
+            <div class="pt-3 border-t border-gray-50 mt-3 space-y-1">
+              <p class="text-xs text-gray-500"><strong>FSSAI:</strong> ${b.fssaiLicenseNumber}</p>
+              <p class="text-xs text-gray-500"><strong>GSTIN:</strong> ${b.gstin}</p>
+            </div>
+          </div>
+          
+          <div class="flex space-x-2 mt-auto">
+            <button onclick="openEditBranchModal('${b.restaurantId}', '${b.id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-medium transition-colors">Manage</button>
+            ${b.isActive ?
+          `<button onclick="updateBranchStatus('${b.restaurantId}', '${b.id}', false)" class="flex-1 bg-red-100 hover:bg-red-200 text-red-700 py-2 rounded-lg text-sm font-medium transition-colors">Deactivate</button>` :
+          `<button onclick="updateBranchStatus('${b.restaurantId}', '${b.id}', true)" class="flex-1 bg-green-100 hover:bg-green-200 text-green-700 py-2 rounded-lg text-sm font-medium transition-colors">Activate</button>`
+        }
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter event listeners
+    searchInput.addEventListener('input', renderBranches);
+    restaurantFilter.addEventListener('change', renderBranches);
+    sortFilter.addEventListener('change', renderBranches);
+
+    // Add Restaurant form submission
+    document.getElementById('addRestaurantForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateRestStep(1)) return;
+
+      const btn = document.getElementById('submitRestaurantBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        const payload = {
+          businessName: document.getElementById('businessName').value.trim(),
+          legalBusinessName: document.getElementById('legalBusinessName').value.trim(),
+          primaryEmail: document.getElementById('primaryEmail').value.trim(),
+          primaryPhone: document.getElementById('primaryPhone').value.trim(),
+          description: document.getElementById('description').value.trim(),
+        };
+
+        const res = await fetch('/restaurant-management', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          const restaurantId = data.restaurant?.id || data.data?.id || data.id; // Extract ID
+
+          // Upload Logo if provided
+          const logoFile = document.getElementById('r-logo').files[0];
+          if (logoFile && restaurantId) {
+            const logoData = new FormData();
+            logoData.append('logo', logoFile);
+            await fetch(`/restaurant-management/${restaurantId}/logo`, {
+              method: 'POST',
+              body: logoData
+            });
+          }
+
+          // Upload Cover if provided
+          const coverFile = document.getElementById('r-cover').files[0];
+          if (coverFile && restaurantId) {
+            const coverData = new FormData();
+            coverData.append('cover', coverFile);
+            await fetch(`/restaurant-management/${restaurantId}/cover`, {
+              method: 'POST',
+              body: coverData
+            });
+          }
+
+          showToast('Restaurant created successfully! Pending verification.', 'success');
+          toggleModal('addRestaurantModal');
+          fetchData(); // reload everything
+        } else {
+          throw new Error(data.message || 'Failed to create restaurant');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Restaurant';
+      }
+    });
+
+    // Edit Restaurant form submission
+    document.getElementById('editRestaurantForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!FormValidator.validate(editRestRules)) return;
+
+      const btn = document.getElementById('submitEditRestaurantBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const restId = document.getElementById('editRestId').value;
+
+      try {
+        const payload = {
+          businessName: document.getElementById('editBusinessName').value.trim(),
+          primaryEmail: document.getElementById('editPrimaryEmail').value.trim(),
+          primaryPhone: document.getElementById('editPrimaryPhone').value.trim(),
+          description: document.getElementById('editDescription').value.trim(),
+          cuisineTags: document
+            .getElementById('editCuisineTags')
+            .value
+            .split(',')
+            .map(v => v.trim())
+            .filter(Boolean)
+            .join(','),
+          bankAccountName: document.getElementById('editBankAccountName').value.trim(),
+          bankAccountNumber: document.getElementById('editBankAccountNumber').value.trim(),
+          bankIfscCode: document.getElementById('editBankIfscCode').value.trim(),
+        };
+
+        const res = await fetch(`/restaurant-management/${restId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        console.log(data);
+        if (res.ok) {
+          // Upload Logo if provided
+          const logoFile = document.getElementById('edit-r-logo').files[0];
+          if (logoFile && restId) {
+            const logoData = new FormData();
+            logoData.append('logo', logoFile);
+            await fetch(`/restaurant-management/${restId}/logo`, {
+              method: 'POST',
+              body: logoData
+            });
+          }
+
+          // Upload Cover if provided
+          const coverFile = document.getElementById('edit-r-cover').files[0];
+          if (coverFile && restId) {
+            const coverData = new FormData();
+            coverData.append('cover', coverFile);
+            await fetch(`/restaurant-management/${restId}/cover`, {
+              method: 'POST',
+              body: coverData
+            });
+          }
+
+          showToast('Restaurant updated successfully!', 'success');
+          toggleModal('editRestaurantModal');
+          fetchData(); // reload everything
+        } else {
+          throw new Error(data.message || 'Failed to update restaurant');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Changes';
+      }
+    });
+
+    // Add Branch form submission
+    document.getElementById('addBranchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const restId = document.getElementById('branchRestaurantId').value;
+      if (!restId) {
+        showToast('Please select a restaurant.', 'error');
+        return;
+      }
+
+      if (!validateBranchStep(3)) {
+        showToast('Please fill all mandatory fields.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('submitBranchBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      try {
+        const payload = {
+          branchName: document.getElementById('branchName').value.trim(),
+          contactPhone: document.getElementById('contactPhone').value.trim(),
+          addressLine1: document.getElementById('addressLine1').value.trim(),
+          addressLine2: document.getElementById('addressLine2').value.trim(),
+          city: document.getElementById('city').value.trim(),
+          state: document.getElementById('state').value.trim(),
+          postalCode: document.getElementById('postalCode').value.trim(),
+          country: 'India',
+          fssaiLicenseNumber: document.getElementById('fssaiLicenseNumber').value.trim(),
+          gstin: document.getElementById('gstin').value.trim(),
+          latitude: 0,
+          longitude: 0,
+        };
+
+        const res = await fetch(`/restaurant-management/${restId}/branches`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Branch added successfully!', 'success');
+          toggleModal('addBranchModal');
+          fetchData(); // reload everything
+        } else {
+          throw new Error(data.message || 'Failed to create branch');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Branch';
+      }
+    });
+
+    // Edit Branch form submission
+    document.getElementById('editBranchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!FormValidator.validate(editBranchRules)) return;
+
+      const btn = document.getElementById('submitEditBranchBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const restId = document.getElementById('editBranchRestId').value;
+      const branchId = document.getElementById('editBranchId').value;
+
+      try {
+        const payload = {
+          branchName: document.getElementById('editBranchName').value.trim(),
+          contactPhone: document.getElementById('editBranchContactPhone').value.trim(),
+          addressLine1: document.getElementById('editBranchAddress1').value.trim(),
+          addressLine2: document.getElementById('editBranchAddress2').value.trim(),
+          city: document.getElementById('editBranchCity').value.trim(),
+          state: document.getElementById('editBranchState').value.trim(),
+          postalCode: document.getElementById('editBranchPostalCode').value.trim(),
+          latitude: Number(document.getElementById('editBranchLatitude').value),
+          longitude: Number(document.getElementById('editBranchLongitude').value),
+          isAcceptingOrders: document.getElementById('editBranchIsAcceptingOrders').value === 'true',
+        };
+
+        const autoResumeVal = document.getElementById('editBranchAutoResumeAt').value;
+        if (autoResumeVal) {
+          payload.autoResumeAt = new Date(autoResumeVal).toISOString();
+        } else {
+          payload.autoResumeAt = null;
+        }
+
+        const res = await fetch(`/restaurant-management/${restId}/branches/${branchId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Branch updated successfully!', 'success');
+          toggleModal('editBranchModal');
+          fetchData(); // reload everything
+        } else {
+          throw new Error(data.message || 'Failed to update branch');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Changes';
+      }
+    });
+
+    async function updateRestaurantStatus(id, action) {
+      try {
+        const res = await fetch(`/restaurant-management/${id}/${action}`, {
+          method: 'PATCH',
+        });
+        if (res.ok) {
+          showToast(`Restaurant ${action}d successfully.`, 'success');
+          fetchData();
+        } else {
+          const data = await res.json();
+          throw new Error(data.message || `Failed to ${action} restaurant`);
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function updateBranchStatus(restId, branchId, isActive) {
+      try {
+        if (!isActive) {
+          const res = await fetch(`/restaurant-management/${restId}/branches/${branchId}`, {
+            method: 'DELETE',
+          });
+
+          if (res.ok) {
+            showToast(`Branch deactivated successfully.`, 'success');
+            fetchData();
+          } else {
+            const data = await res.json();
+            throw new Error(data.message || `Failed to deactivate branch`);
+          }
+        } else {
+          showToast('Activation not supported through this endpoint yet.', 'info');
+        }
+
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    fetchData();
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/auth/logout');
+      } catch (e) { console.error(e); }
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      window.location.href = '/loginPage';
+    });
+  </script>
+  <%- include('../partials/toast') %>
+</body>
+
+</html>

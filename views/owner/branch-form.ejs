@@ -1,0 +1,142 @@
+<%- include('../partials/header', { pageTitle: typeof branch !=='undefined' && branch ? 'Edit Branch' : 'Add Branch' ,
+  pageSubtitle: typeof branch !=='undefined' && branch ? 'Update branch information' : 'Add a new branch location' ,
+  activePage: 'branches' , user: user }) %>
+
+  <div class="breadcrumb">
+    <a href="/ro/restaurant-owner/dashboard">Dashboard</a>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+    <a href="/ro/restaurant-owner/branches">Branches</a>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+    <span>
+      <%= typeof branch !=='undefined' && branch ? 'Edit Branch' : 'Add Branch' %>
+    </span>
+  </div>
+
+  <div class="page-header">
+    <div class="title-group">
+      <h2>
+        <%= typeof branch !=='undefined' && branch ? 'Edit Branch' : 'Add New Branch' %>
+      </h2>
+      <p>
+        <%= typeof branch !=='undefined' && branch ? branch.branch_name : 'Provide details for the new branch location'
+          %>
+      </p>
+    </div>
+  </div>
+
+  <% if (typeof error !=='undefined' && error) { %>
+    <div class="alert alert-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="15" y1="9" x2="9" y2="15" />
+        <line x1="9" y1="9" x2="15" y2="15" />
+      </svg>
+      <%= error %>
+    </div>
+    <% } %>
+
+      <div class="card" style="max-width:760px;">
+        <div class="card-body">
+          <% const isEdit=(typeof branch !=='undefined' && branch); const actionUrl=isEdit ?
+            `/restaurant-owner/branches/${branch.id}?_method=PATCH` : '/restaurant-owner/branches' ; %>
+            <form action="<%= actionUrl %>" method="POST">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Branch Name <span class="req">*</span></label>
+                  <input type="text" name="branch_name" class="form-control" maxlength="255"
+                    placeholder="e.g. Spice Garden - Andheri West" value="<%= isEdit ? branch.branch_name : '' %>"
+                    required>
+                </div>
+                <div class="form-group">
+                  <label>Contact Number <span class="req">*</span></label>
+                  <input type="text" name="phone" class="form-control" placeholder="+91 9XXXXXXXXX" maxlength="20"
+                    value="<%= isEdit ? (branch.phone || '') : '' %>" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Full Address <span class="req">*</span></label>
+                <textarea name="address" class="form-control" rows="2" placeholder="Shop No., Street, Landmark" maxlength="255"
+                  required><%= isEdit ? (branch.address || '') : '' %></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>City <span class="req">*</span></label>
+                  <input type="text" name="city" required class="form-control" placeholder="e.g. Ahmedabad" maxlength="100"
+                    value="<%= isEdit ? (branch.city || '') : '' %>">
+                </div>
+                <div class="form-group">
+                  <label>State <span class="req">*</span></label>
+                  <input type="text" name="state" required class="form-control" placeholder="e.g. Gujarat" maxlength="100"
+                    value="<%= isEdit ? (branch.state || '') : '' %>">
+                </div>
+                <div class="form-group">
+                  <label>Pincode <span class="req">*</span></label>
+                  <input type="text" name="pincode" class="form-control" placeholder="e.g. 380001" maxlength="20"
+                    value="<%= isEdit ? (branch.pincode || '') : '' %>" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Latitude</label>
+                  <input type="number" step="any" min="-90" max="90" name="latitude" class="form-control" placeholder="e.g. 23.0225"
+                    value="<%= isEdit ? (branch.latitude || '') : '' %>" required>
+                </div>
+                <div class="form-group">
+                  <label>Longitude</label>
+                  <input type="number" step="any" min="-180" max="180" name="longitude" class="form-control" placeholder="e.g. 72.5714"
+                    value="<%= isEdit ? (branch.longitude || '') : '' %>" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Opening Time <span class="req">*</span></label>
+                  <input type="time" name="opening_time" class="form-control"
+                    value="<%= isEdit ? (branch.opening_time || '') : '09:00' %>" required>
+                </div>
+                <div class="form-group">
+                  <label>Closing Time <span class="req">*</span></label>
+                  <input type="time" name="closing_time" class="form-control"
+                    value="<%= isEdit ? (branch.closing_time || '') : '23:00' %>" required>
+                </div>
+              </div>
+
+              <% if (!isEdit) { %>
+                <div class="alert alert-warning">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  New branches will be marked <strong>active</strong> by default. You can pause order acceptance anytime
+                  from the branches page.
+                </div>
+                <% } %>
+
+                  <div style="display:flex; gap:12px; margin-top:18px;">
+                    <button type="submit" class="btn btn-primary">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                        <polyline points="17 21 17 13 7 13 7 21" />
+                      </svg>
+                      <%= isEdit ? 'Save Changes' : 'Add Branch' %>
+                    </button>
+                    <a href="/ro/restaurant-owner/branches" class="btn btn-outlined">Cancel</a>
+                  </div>
+            </form>
+        </div>
+      </div>
+
+      <%- include('../partials/footer') %>

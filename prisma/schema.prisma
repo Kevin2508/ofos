@@ -7,10 +7,1181 @@ datasource db {
   provider = "mysql"
 }
 
+model User {
+  id                          BigInt                          @id @default(autoincrement()) @db.UnsignedBigInt
+  firstName                   String                          @map("first_name") @db.VarChar(100)
+  lastName                    String?                         @map("last_name") @db.VarChar(100)
+  email                       String?                         @unique @db.VarChar(255)
+  phone                       String                          @unique @db.VarChar(20)
+  passwordHash                String?                         @map("password_hash") @db.VarChar(255)
+  profileImageUrl             String?                         @map("profile_image_url") @db.VarChar(500)
+  emailVerified               Boolean                         @default(false) @map("email_verified")
+  phoneVerified               Boolean                         @default(false) @map("phone_verified")
+  failedLoginAttempts         Int                             @default(0) @map("failed_login_attempts")
+  lastLoginAt                 DateTime?                       @map("last_login_at")
+  status                      UserStatus                      @default(ACTIVE)
+  createdAt                   DateTime                        @default(now()) @map("created_at")
+  updatedAt                   DateTime                        @updatedAt @map("updated_at")
+  deletedAt                   DateTime?                       @map("deleted_at")
+  auditLogs                   AuditLog[]
+  carts                       Cart[]
+  checkoutSessions            CheckoutSession[]
+  couponUsages                CouponUsage[]
+  customerAddresses           CustomerAddress[]
+  customerFavoriteRestaurants CustomerFavoriteRestaurant[]
+  customerNotificationPrefs   CustomerNotificationPreference?
+  customerPaymentMethods      CustomerPaymentMethod[]
+  customerPreferences         CustomerPreference?
+  referredCustomerProfiles    CustomerProfile[]               @relation("CustomerProfileReferrer")
+  customerProfile             CustomerProfile?                @relation("CustomerProfileUser")
+  deliveryPartner             DeliveryPartner?
+  loyaltyAccount              LoyaltyAccount?
+  loyaltyTransactions         LoyaltyTransaction[]
+  cancelledOrders             OrderCancellation[]
+  statusHistoryChangedBy      OrderStatusHistory[]
+  orders                      Order[]
+  referralReceived            Referral?                       @relation("ReferredUser")
+  referralsMade               Referral[]                      @relation("ReferrerUser")
+  reportExports               ReportExport[]
+  restaurantStaff             RestaurantStaff[]
+  approvedRestaurants         Restaurant[]                    @relation("RestaurantApprover")
+  ownedRestaurants            Restaurant[]                    @relation("RestaurantOwner")
+  reviewReplies               ReviewReply[]
+  reviews                     Review[]
+  supportAttachments          SupportAttachment[]
+  supportMessages             SupportMessage[]
+  supportTicketsAdmin         SupportTicket[]                 @relation("TicketAdmin")
+  supportTicketsCustomer      SupportTicket[]                 @relation("TicketCustomer")
+  systemConfigUpdates         SystemConfiguration[]
+  userRoles                   UserRole[]
+  sessions                    UserSession[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Role {
+  id              BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  name            String           @unique @db.VarChar(100)
+  description     String?          @db.VarChar(255)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id              BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  code            String           @unique @db.VarChar(150)
+  description     String?          @db.VarChar(255)
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userId     BigInt         @map("user_id") @db.UnsignedBigInt
+  roleId     BigInt         @map("role_id") @db.UnsignedBigInt
+  assignedAt DateTime       @default(now()) @map("assigned_at")
+  status     UserRoleStatus @default(REQUESTED)
+  role       Role           @relation(fields: [roleId], references: [id])
+  user       User           @relation(fields: [userId], references: [id])
+
+  @@id([userId, roleId])
+  @@index([roleId], map: "user_roles_role_id_fkey")
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       BigInt     @map("role_id") @db.UnsignedBigInt
+  permissionId BigInt     @map("permission_id") @db.UnsignedBigInt
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  role         Role       @relation(fields: [roleId], references: [id])
+
+  @@id([roleId, permissionId])
+  @@index([permissionId], map: "role_permissions_permission_id_fkey")
+  @@map("role_permissions")
+}
+
+model UserSession {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  userId           BigInt    @map("user_id") @db.UnsignedBigInt
+  refreshTokenHash String    @map("refresh_token_hash") @db.VarChar(255)
+  deviceName       String?   @map("device_name") @db.VarChar(255)
+  ipAddress        String?   @map("ip_address") @db.VarChar(100)
+  userAgent        String?   @map("user_agent") @db.Text
+  expiresAt        DateTime  @map("expires_at")
+  revokedAt        DateTime? @map("revoked_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  user             User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("user_sessions")
+}
+
+model OtpVerification {
+  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  email      String?    @db.VarChar(255)
+  phone      String?    @db.VarChar(20)
+  otpHash    String     @map("otp_code") @db.VarChar(64)
+  purpose    OtpPurpose
+  expiresAt  DateTime   @map("expires_at")
+  verifiedAt DateTime?  @map("verified_at")
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  @@map("otp_verifications")
+}
+
+model Restaurant {
+  id                BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  ownerUserId       BigInt                       @map("owner_user_id") @db.UnsignedBigInt
+  businessName      String                       @map("business_name") @db.VarChar(255)
+  legalBusinessName String                       @map("legal_business_name") @db.VarChar(255)
+  primaryPhone      String                       @map("primary_phone") @db.VarChar(20)
+  primaryEmail      String                       @map("primary_email") @db.VarChar(255)
+  logoUrl           String?                      @map("logo_url") @db.VarChar(500)
+  coverImageUrl     String?                      @map("cover_image_url") @db.VarChar(500)
+  description       String?                      @db.VarChar(300)
+  status            RestaurantStatus             @default(PENDING_VERIFICATION)
+  approvedBy        BigInt?                      @map("approved_by") @db.UnsignedBigInt
+  approvedAt        DateTime?                    @map("approved_at")
+  createdAt         DateTime                     @default(now()) @map("created_at")
+  updatedAt         DateTime                     @updatedAt @map("updated_at")
+  deletedAt         DateTime?                    @map("deleted_at")
+  bankAccountName   String?                      @map("bank_account_name") @db.VarChar(255)
+  bankAccountNumber String?                      @map("bank_account_number") @db.VarChar(50)
+  bankIfscCode      String?                      @map("bank_ifsc_code") @db.VarChar(20)
+  cuisineTags       String?                      @map("cuisine_tags") @db.VarChar(500)
+  commissionRate    Decimal?                     @map("commission_rate") @db.Decimal(5, 2)
+  couponRestaurants CouponRestaurant[]
+  customerFavorites CustomerFavoriteRestaurant[]
+  orders            Order[]
+  branches          RestaurantBranch[]
+  documents         RestaurantDocument[]
+  payouts           RestaurantPayout[]
+  approver          User?                        @relation("RestaurantApprover", fields: [approvedBy], references: [id])
+  owner             User                         @relation("RestaurantOwner", fields: [ownerUserId], references: [id])
+  reviews           Review[]
+
+  @@index([ownerUserId])
+  @@index([status])
+  @@index([approvedBy], map: "restaurants_approved_by_fkey")
+  @@map("restaurants")
+}
+
+model RestaurantBranch {
+  id                 BigInt                    @id @default(autoincrement()) @db.UnsignedBigInt
+  restaurantId       BigInt                    @map("restaurant_id") @db.UnsignedBigInt
+  branchName         String                    @map("branch_name") @db.VarChar(255)
+  gstin              String                    @db.VarChar(20)
+  fssaiLicenseNumber String                    @map("fssai_license_number") @db.VarChar(50)
+  contactPhone       String                    @map("contact_phone") @db.VarChar(20)
+  addressLine1       String                    @map("address_line_1") @db.VarChar(255)
+  addressLine2       String?                   @map("address_line_2") @db.VarChar(255)
+  city               String                    @db.VarChar(100)
+  state              String                    @db.VarChar(100)
+  postalCode         String                    @map("postal_code") @db.VarChar(20)
+  country            String                    @db.VarChar(100)
+  latitude           Decimal                   @db.Decimal(10, 8)
+  longitude          Decimal                   @db.Decimal(11, 8)
+  minimumOrderValue  Decimal                   @default(0.00) @map("minimum_order_value") @db.Decimal(10, 2)
+  deliveryFee        Decimal                   @default(0.00) @map("delivery_fee") @db.Decimal(10, 2)
+  isActive           Boolean                   @default(true) @map("is_active")
+  createdAt          DateTime                  @default(now()) @map("created_at")
+  updatedAt          DateTime                  @updatedAt @map("updated_at")
+  deletedAt          DateTime?                 @map("deleted_at")
+  autoResumeAt       DateTime?                 @map("auto_resume_at")
+  isAcceptingOrders  Boolean                   @default(true) @map("is_accepting_orders")
+  carts              Cart[]
+  menuCategories     MenuCategory[]
+  modifierGroups     ModifierGroup[]
+  orders             Order[]
+  restaurant         Restaurant                @relation(fields: [restaurantId], references: [id])
+  deliveryZone       RestaurantDeliveryZone?
+  operatingHours     RestaurantOperatingHour[]
+  staff              RestaurantStaff[]
+
+  @@index([restaurantId])
+  @@index([city])
+  @@map("restaurant_branches")
+}
+
+model RestaurantDocument {
+  id                 BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  restaurantId       BigInt             @map("restaurant_id") @db.UnsignedBigInt
+  documentType       DocumentType       @map("document_type")
+  documentUrl        String             @map("document_url") @db.VarChar(500)
+  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+  verifiedBy         BigInt?            @map("verified_by") @db.UnsignedBigInt
+  verifiedAt         DateTime?          @map("verified_at")
+  rejectionReason    String?            @map("rejection_reason") @db.VarChar(500)
+  createdAt          DateTime           @default(now()) @map("created_at")
+  restaurant         Restaurant         @relation(fields: [restaurantId], references: [id])
+
+  @@index([restaurantId])
+  @@map("restaurant_documents")
+}
+
+model RestaurantOperatingHour {
+  id          BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  branchId    BigInt           @map("branch_id") @db.UnsignedBigInt
+  dayOfWeek   Int              @map("day_of_week") @db.TinyInt
+  openingTime DateTime?        @map("opening_time") @db.Time(0)
+  closingTime DateTime?        @map("closing_time") @db.Time(0)
+  isClosed    Boolean          @default(false) @map("is_closed")
+  branch      RestaurantBranch @relation(fields: [branchId], references: [id])
+
+  @@unique([branchId, dayOfWeek])
+  @@map("restaurant_operating_hours")
+}
+
+model RestaurantDeliveryZone {
+  id                         BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  branchId                   BigInt           @unique @map("branch_id") @db.UnsignedBigInt
+  radiusKm                   Decimal          @map("radius_km") @db.Decimal(5, 2)
+  minimumDeliveryTimeMinutes Int              @map("minimum_delivery_time_minutes")
+  maximumDeliveryTimeMinutes Int              @map("maximum_delivery_time_minutes")
+  branch                     RestaurantBranch @relation(fields: [branchId], references: [id])
+
+  @@map("restaurant_delivery_zones")
+}
+
+model RestaurantStaff {
+  id          BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  branchId    BigInt           @map("branch_id") @db.UnsignedBigInt
+  userId      BigInt           @map("user_id") @db.UnsignedBigInt
+  designation StaffDesignation
+  status      StaffStatus      @default(ACTIVE)
+  joinedAt    DateTime         @default(now()) @map("joined_at")
+  branch      RestaurantBranch @relation(fields: [branchId], references: [id])
+  user        User             @relation(fields: [userId], references: [id])
+
+  @@unique([branchId, userId])
+  @@index([userId])
+  @@map("restaurant_staff")
+}
+
+model MenuCategory {
+  id           BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  branchId     BigInt           @map("branch_id") @db.UnsignedBigInt
+  name         String           @db.VarChar(150)
+  description  String?          @db.VarChar(255)
+  displayOrder Int              @default(0) @map("display_order")
+  isActive     Boolean          @default(true) @map("is_active")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+  branch       RestaurantBranch @relation(fields: [branchId], references: [id])
+  menuItems    MenuItem[]
+
+  @@index([branchId])
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id             BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  categoryId     BigInt                  @map("category_id") @db.UnsignedBigInt
+  sku            String                  @unique @db.VarChar(50)
+  name           String                  @db.VarChar(255)
+  description    String?                 @db.VarChar(200)
+  imageUrl       String?                 @map("image_url") @db.VarChar(500)
+  basePrice      Decimal                 @map("base_price") @db.Decimal(10, 2)
+  foodType       FoodType                @map("food_type")
+  isBestseller   Boolean                 @default(false) @map("is_bestseller")
+  isAvailable    Boolean                 @default(true) @map("is_available")
+  createdAt      DateTime                @default(now()) @map("created_at")
+  updatedAt      DateTime                @updatedAt @map("updated_at")
+  deletedAt      DateTime?               @map("deleted_at")
+  dietaryTags    Json?                   @map("dietary_tags")
+  cartItems      CartItem[]
+  availability   MenuItemAvailability[]
+  images         MenuItemImage[]
+  modifierGroups MenuItemModifierGroup[]
+  category       MenuCategory            @relation(fields: [categoryId], references: [id])
+  orderItems     OrderItem[]
+  reviewItems    ReviewItem[]
+
+  @@index([categoryId])
+  @@index([isAvailable])
+  @@map("menu_items")
+}
+
+model ModifierGroup {
+  id             BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  branchId       BigInt                  @map("branch_id") @db.UnsignedBigInt
+  name           String                  @db.VarChar(150)
+  isRequired     Boolean                 @default(false) @map("is_required")
+  minSelection   Int                     @default(0) @map("min_selection")
+  maxSelection   Int                     @default(1) @map("max_selection")
+  createdAt      DateTime                @default(now()) @map("created_at")
+  menuItemGroups MenuItemModifierGroup[]
+  branch         RestaurantBranch        @relation(fields: [branchId], references: [id])
+  options        ModifierOption[]
+
+  @@index([branchId])
+  @@map("modifier_groups")
+}
+
+model ModifierOption {
+  id              BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  modifierGroupId BigInt             @map("modifier_group_id") @db.UnsignedBigInt
+  optionName      String             @map("option_name") @db.VarChar(150)
+  additionalPrice Decimal            @default(0.00) @map("additional_price") @db.Decimal(10, 2)
+  displayOrder    Int                @default(0) @map("display_order")
+  cartModifiers   CartItemModifier[]
+  modifierGroup   ModifierGroup      @relation(fields: [modifierGroupId], references: [id])
+
+  @@index([modifierGroupId])
+  @@map("modifier_options")
+}
+
+model MenuItemModifierGroup {
+  menuItemId      BigInt        @map("menu_item_id") @db.UnsignedBigInt
+  modifierGroupId BigInt        @map("modifier_group_id") @db.UnsignedBigInt
+  menuItem        MenuItem      @relation(fields: [menuItemId], references: [id])
+  modifierGroup   ModifierGroup @relation(fields: [modifierGroupId], references: [id])
+
+  @@id([menuItemId, modifierGroupId])
+  @@index([modifierGroupId], map: "menu_item_modifier_groups_modifier_group_id_fkey")
+  @@map("menu_item_modifier_groups")
+}
+
+model MenuItemAvailability {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  menuItemId BigInt   @map("menu_item_id") @db.UnsignedBigInt
+  dayOfWeek  Int      @map("day_of_week") @db.TinyInt
+  startTime  DateTime @map("start_time") @db.Time(0)
+  endTime    DateTime @map("end_time") @db.Time(0)
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([menuItemId])
+  @@map("menu_item_availability")
+}
+
+model MenuItemImage {
+  id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  menuItemId   BigInt   @map("menu_item_id") @db.UnsignedBigInt
+  imageUrl     String   @map("image_url") @db.VarChar(500)
+  displayOrder Int      @default(0) @map("display_order")
+  menuItem     MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@index([menuItemId])
+  @@map("menu_item_images")
+}
+
+model CustomerProfile {
+  userId               BigInt   @id @map("user_id") @db.UnsignedBigInt
+  profilePhotoUrl      String?  @map("profile_photo_url") @db.VarChar(500)
+  loyaltyPointsBalance Int      @default(0) @map("loyalty_points_balance")
+  referralCode         String   @unique @map("referral_code") @db.VarChar(20)
+  referredByUserId     BigInt?  @map("referred_by_user_id") @db.UnsignedBigInt
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  referrer             User?    @relation("CustomerProfileReferrer", fields: [referredByUserId], references: [id])
+  user                 User     @relation("CustomerProfileUser", fields: [userId], references: [id])
+
+  @@index([referredByUserId], map: "customer_profiles_referred_by_user_id_fkey")
+  @@map("customer_profiles")
+}
+
+model CustomerAddress {
+  id               BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  customerUserId   BigInt            @map("customer_user_id") @db.UnsignedBigInt
+  label            AddressLabel
+  contactName      String            @map("contact_name") @db.VarChar(150)
+  contactPhone     String            @map("contact_phone") @db.VarChar(20)
+  addressLine1     String            @map("address_line_1") @db.VarChar(255)
+  addressLine2     String?           @map("address_line_2") @db.VarChar(255)
+  landmark         String?           @db.VarChar(255)
+  city             String            @db.VarChar(100)
+  state            String            @db.VarChar(100)
+  postalCode       String            @map("postal_code") @db.VarChar(20)
+  country          String            @db.VarChar(100)
+  latitude         Decimal           @db.Decimal(10, 8)
+  longitude        Decimal           @db.Decimal(11, 8)
+  isDefault        Boolean           @default(false) @map("is_default")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  checkoutSessions CheckoutSession[]
+  customer         User              @relation(fields: [customerUserId], references: [id])
+
+  @@index([customerUserId])
+  @@map("customer_addresses")
+}
+
+model CustomerPreference {
+  customerUserId BigInt  @id @map("customer_user_id") @db.UnsignedBigInt
+  vegetarian     Boolean @default(false)
+  vegan          Boolean @default(false)
+  glutenFree     Boolean @default(false) @map("gluten_free")
+  halal          Boolean @default(false)
+  jain           Boolean @default(false)
+  customer       User    @relation(fields: [customerUserId], references: [id])
+
+  @@map("customer_preferences")
+}
+
+model CustomerNotificationPreference {
+  customerUserId   BigInt  @id @map("customer_user_id") @db.UnsignedBigInt
+  emailEnabled     Boolean @default(true) @map("email_enabled")
+  smsEnabled       Boolean @default(true) @map("sms_enabled")
+  pushEnabled      Boolean @default(true) @map("push_enabled")
+  marketingEnabled Boolean @default(true) @map("marketing_enabled")
+  customer         User    @relation(fields: [customerUserId], references: [id])
+
+  @@map("customer_notification_preferences")
+}
+
+model CustomerPaymentMethod {
+  id               BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  customerUserId   BigInt          @map("customer_user_id") @db.UnsignedBigInt
+  provider         PaymentProvider
+  paymentType      PaymentType     @map("payment_type")
+  gatewayToken     String          @map("gateway_token") @db.VarChar(255)
+  maskedIdentifier String          @map("masked_identifier") @db.VarChar(100)
+  isDefault        Boolean         @default(false) @map("is_default")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  customer         User            @relation(fields: [customerUserId], references: [id])
+
+  @@index([customerUserId])
+  @@map("customer_payment_methods")
+}
+
+model CustomerFavoriteRestaurant {
+  customerUserId BigInt     @map("customer_user_id") @db.UnsignedBigInt
+  restaurantId   BigInt     @map("restaurant_id") @db.UnsignedBigInt
+  addedAt        DateTime   @default(now()) @map("added_at")
+  customer       User       @relation(fields: [customerUserId], references: [id])
+  restaurant     Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@id([customerUserId, restaurantId])
+  @@index([restaurantId], map: "customer_favorite_restaurants_restaurant_id_fkey")
+  @@map("customer_favorite_restaurants")
+}
+
+model Cart {
+  id                 BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  customerUserId     BigInt               @map("customer_user_id") @db.UnsignedBigInt
+  restaurantBranchId BigInt               @map("restaurant_branch_id") @db.UnsignedBigInt
+  status             CartStatus           @default(ACTIVE)
+  subtotalAmount     Decimal              @default(0.00) @map("subtotal_amount") @db.Decimal(10, 2)
+  totalAmount        Decimal              @default(0.00) @map("total_amount") @db.Decimal(10, 2)
+  lastActivityAt     DateTime             @default(now()) @map("last_activity_at")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  items              CartItem[]
+  priceBreakdowns    CartPriceBreakdown[]
+  customer           User                 @relation(fields: [customerUserId], references: [id])
+  branch             RestaurantBranch     @relation(fields: [restaurantBranchId], references: [id])
+  checkoutSessions   CheckoutSession[]
+
+  @@index([customerUserId])
+  @@index([restaurantBranchId])
+  @@map("carts")
+}
+
+model CartItem {
+  id                  BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  cartId              BigInt             @map("cart_id") @db.UnsignedBigInt
+  menuItemId          BigInt             @map("menu_item_id") @db.UnsignedBigInt
+  quantity            Int
+  unitPrice           Decimal            @map("unit_price") @db.Decimal(10, 2)
+  lineTotal           Decimal            @map("line_total") @db.Decimal(10, 2)
+  specialInstructions String?            @map("special_instructions") @db.VarChar(150)
+  createdAt           DateTime           @default(now()) @map("created_at")
+  modifiers           CartItemModifier[]
+  cart                Cart               @relation(fields: [cartId], references: [id])
+  menuItem            MenuItem           @relation(fields: [menuItemId], references: [id])
+
+  @@index([cartId])
+  @@index([menuItemId], map: "cart_items_menu_item_id_fkey")
+  @@map("cart_items")
+}
+
+model CartItemModifier {
+  id               BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  cartItemId       BigInt         @map("cart_item_id") @db.UnsignedBigInt
+  modifierOptionId BigInt         @map("modifier_option_id") @db.UnsignedBigInt
+  additionalPrice  Decimal        @default(0.00) @map("additional_price") @db.Decimal(10, 2)
+  cartItem         CartItem       @relation(fields: [cartItemId], references: [id])
+  modifierOption   ModifierOption @relation(fields: [modifierOptionId], references: [id])
+
+  @@index([cartItemId])
+  @@index([modifierOptionId], map: "cart_item_modifiers_modifier_option_id_fkey")
+  @@map("cart_item_modifiers")
+}
+
+model CheckoutSession {
+  id                       BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  cartId                   BigInt          @map("cart_id") @db.UnsignedBigInt
+  customerUserId           BigInt          @map("customer_user_id") @db.UnsignedBigInt
+  addressId                BigInt          @map("address_id") @db.UnsignedBigInt
+  paymentMethodId          BigInt?         @map("payment_method_id") @db.UnsignedBigInt
+  couponId                 BigInt?         @map("coupon_id") @db.UnsignedBigInt
+  deliveryType             DeliveryType    @map("delivery_type")
+  scheduledFor             DateTime?       @map("scheduled_for")
+  estimatedDeliveryMinutes Int?            @map("estimated_delivery_minutes")
+  expiresAt                DateTime        @map("expires_at")
+  createdAt                DateTime        @default(now()) @map("created_at")
+  address                  CustomerAddress @relation(fields: [addressId], references: [id])
+  cart                     Cart            @relation(fields: [cartId], references: [id])
+  customer                 User            @relation(fields: [customerUserId], references: [id])
+
+  @@index([customerUserId])
+  @@index([addressId], map: "checkout_sessions_address_id_fkey")
+  @@index([cartId], map: "checkout_sessions_cart_id_fkey")
+  @@map("checkout_sessions")
+}
+
+model CartPriceBreakdown {
+  id             BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  cartId         BigInt   @map("cart_id") @db.UnsignedBigInt
+  subtotal       Decimal  @db.Decimal(10, 2)
+  discountAmount Decimal  @map("discount_amount") @db.Decimal(10, 2)
+  deliveryFee    Decimal  @map("delivery_fee") @db.Decimal(10, 2)
+  taxAmount      Decimal  @map("tax_amount") @db.Decimal(10, 2)
+  totalAmount    Decimal  @map("total_amount") @db.Decimal(10, 2)
+  calculatedAt   DateTime @default(now()) @map("calculated_at")
+  cart           Cart     @relation(fields: [cartId], references: [id])
+
+  @@index([cartId])
+  @@map("cart_price_breakdowns")
+}
+
+model Order {
+  id                    BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  orderNumber           String                 @unique @map("order_number") @db.VarChar(50)
+  customerUserId        BigInt                 @map("customer_user_id") @db.UnsignedBigInt
+  restaurantId          BigInt                 @map("restaurant_id") @db.UnsignedBigInt
+  branchId              BigInt                 @map("branch_id") @db.UnsignedBigInt
+  checkoutSessionId     BigInt?                @map("checkout_session_id") @db.UnsignedBigInt
+  orderStatus           OrderStatus            @map("order_status")
+  paymentStatus         PaymentStatus          @map("payment_status")
+  subtotalAmount        Decimal                @map("subtotal_amount") @db.Decimal(10, 2)
+  discountAmount        Decimal                @map("discount_amount") @db.Decimal(10, 2)
+  deliveryFee           Decimal                @map("delivery_fee") @db.Decimal(10, 2)
+  taxAmount             Decimal                @map("tax_amount") @db.Decimal(10, 2)
+  totalAmount           Decimal                @map("total_amount") @db.Decimal(10, 2)
+  estimatedDeliveryAt   DateTime?              @map("estimated_delivery_at")
+  deliveredAt           DateTime?              @map("delivered_at")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime?              @updatedAt @map("updated_at")
+  otpHash               String?                @map("otp_hash") @db.VarChar(100)
+  couponUsages          CouponUsage[]
+  deliveryAssignments   DeliveryAssignment[]
+  deliveryEvents        DeliveryEvent[]
+  loyaltyTransactions   LoyaltyTransaction[]
+  address               OrderAddress?
+  cancellation          OrderCancellation?
+  events                OrderEvent[]
+  items                 OrderItem[]
+  statusHistory         OrderStatusHistory[]
+  branch                RestaurantBranch       @relation(fields: [branchId], references: [id])
+  customer              User                   @relation(fields: [customerUserId], references: [id])
+  restaurant            Restaurant             @relation(fields: [restaurantId], references: [id])
+  partnerEarnings       PartnerEarning[]
+  payments              Payment[]
+  referrals             Referral[]
+  refunds               Refund[]
+  restaurantPayoutItems RestaurantPayoutItem[]
+  review                Review?
+  supportTickets        SupportTicket[]
+
+  @@index([customerUserId])
+  @@index([branchId])
+  @@index([orderStatus])
+  @@index([restaurantId], map: "orders_restaurant_id_fkey")
+  @@map("orders")
+}
+
+model OrderAddress {
+  id             BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  orderId        BigInt  @unique @map("order_id") @db.UnsignedBigInt
+  recipientName  String  @map("recipient_name") @db.VarChar(150)
+  recipientPhone String  @map("recipient_phone") @db.VarChar(20)
+  addressLine1   String  @map("address_line_1") @db.VarChar(255)
+  addressLine2   String? @map("address_line_2") @db.VarChar(255)
+  landmark       String? @db.VarChar(255)
+  city           String  @db.VarChar(100)
+  state          String  @db.VarChar(100)
+  postalCode     String  @map("postal_code") @db.VarChar(20)
+  latitude       Decimal @db.Decimal(10, 8)
+  longitude      Decimal @db.Decimal(11, 8)
+  order          Order   @relation(fields: [orderId], references: [id])
+
+  @@map("order_addresses")
+}
+
+model OrderItem {
+  id                  BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  orderId             BigInt              @map("order_id") @db.UnsignedBigInt
+  menuItemId          BigInt?             @map("menu_item_id") @db.UnsignedBigInt
+  itemName            String              @map("item_name") @db.VarChar(255)
+  itemDescription     String?             @map("item_description") @db.VarChar(500)
+  quantity            Int
+  unitPrice           Decimal             @map("unit_price") @db.Decimal(10, 2)
+  lineTotal           Decimal             @map("line_total") @db.Decimal(10, 2)
+  specialInstructions String?             @map("special_instructions") @db.VarChar(150)
+  isUnavailable       Boolean             @default(false) @map("is_unavailable")
+  modifiers           OrderItemModifier[]
+  menuItem            MenuItem?           @relation(fields: [menuItemId], references: [id])
+  order               Order               @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@index([menuItemId], map: "order_items_menu_item_id_fkey")
+  @@map("order_items")
+}
+
+model OrderItemModifier {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  orderItemId     BigInt    @map("order_item_id") @db.UnsignedBigInt
+  modifierName    String    @map("modifier_name") @db.VarChar(150)
+  optionName      String    @map("option_name") @db.VarChar(150)
+  additionalPrice Decimal   @map("additional_price") @db.Decimal(10, 2)
+  orderItem       OrderItem @relation(fields: [orderItemId], references: [id])
+
+  @@index([orderItemId])
+  @@map("order_item_modifiers")
+}
+
+model OrderStatusHistory {
+  id              BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  orderId         BigInt      @map("order_id") @db.UnsignedBigInt
+  status          OrderStatus
+  changedByUserId BigInt?     @map("changed_by_user_id") @db.UnsignedBigInt
+  remarks         String?     @db.VarChar(500)
+  createdAt       DateTime    @default(now()) @map("created_at")
+  changedByUser   User?       @relation(fields: [changedByUserId], references: [id])
+  order           Order       @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@index([changedByUserId], map: "order_status_history_changed_by_user_id_fkey")
+  @@map("order_status_history")
+}
+
+model OrderCancellation {
+  id                 BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  orderId            BigInt   @unique @map("order_id") @db.UnsignedBigInt
+  cancelledByUserId  BigInt   @map("cancelled_by_user_id") @db.UnsignedBigInt
+  cancellationReason String   @map("cancellation_reason") @db.VarChar(500)
+  refundEligible     Boolean  @map("refund_eligible")
+  refundAmount       Decimal? @map("refund_amount") @db.Decimal(10, 2)
+  createdAt          DateTime @default(now()) @map("created_at")
+  cancelledByUser    User     @relation(fields: [cancelledByUserId], references: [id])
+  order              Order    @relation(fields: [orderId], references: [id])
+
+  @@index([cancelledByUserId], map: "order_cancellations_cancelled_by_user_id_fkey")
+  @@map("order_cancellations")
+}
+
+model OrderEvent {
+  id        BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  orderId   BigInt   @map("order_id") @db.UnsignedBigInt
+  eventType String   @map("event_type") @db.VarChar(100)
+  payload   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  order     Order    @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@map("order_events")
+}
+
+model Payment {
+  id                BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  orderId           BigInt               @map("order_id") @db.UnsignedBigInt
+  paymentProvider   PaymentProvider      @map("payment_provider")
+  providerOrderId   String?              @map("provider_order_id") @db.VarChar(255)
+  providerPaymentId String?              @map("provider_payment_id") @db.VarChar(255)
+  amount            Decimal              @db.Decimal(10, 2)
+  currency          String               @default("INR") @db.Char(3)
+  status            PaymentGatewayStatus
+  failureReason     String?              @map("failure_reason") @db.VarChar(500)
+  createdAt         DateTime             @default(now()) @map("created_at")
+  events            PaymentEvent[]
+  order             Order                @relation(fields: [orderId], references: [id])
+  refunds           Refund[]
+
+  @@index([orderId])
+  @@index([status])
+  @@map("payments")
+}
+
+model PaymentEvent {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  paymentId  BigInt   @map("payment_id") @db.UnsignedBigInt
+  eventType  String   @map("event_type") @db.VarChar(100)
+  payload    Json?
+  receivedAt DateTime @default(now()) @map("received_at")
+  payment    Payment  @relation(fields: [paymentId], references: [id])
+
+  @@index([paymentId])
+  @@map("payment_events")
+}
+
+model Refund {
+  id              BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  paymentId       BigInt       @map("payment_id") @db.UnsignedBigInt
+  orderId         BigInt       @map("order_id") @db.UnsignedBigInt
+  refundReference String       @map("refund_reference") @db.VarChar(100)
+  amount          Decimal      @db.Decimal(10, 2)
+  reason          String       @db.VarChar(500)
+  status          RefundStatus
+  createdAt       DateTime     @default(now()) @map("created_at")
+  order           Order        @relation(fields: [orderId], references: [id])
+  payment         Payment      @relation(fields: [paymentId], references: [id])
+
+  @@index([orderId])
+  @@index([paymentId], map: "refunds_payment_id_fkey")
+  @@map("refunds")
+}
+
+model FinancialTransaction {
+  id                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  transactionId       String   @unique @map("transaction_id") @db.VarChar(150)
+  amount              Decimal  @db.Decimal(12, 2)
+  currency            String   @default("INR") @db.Char(3)
+  gatewayResponseCode String?  @map("gateway_response_code") @db.VarChar(100)
+  status              String   @db.VarChar(50)
+  referenceType       String   @map("reference_type") @db.VarChar(50)
+  referenceId         BigInt   @map("reference_id") @db.UnsignedBigInt
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@map("financial_transactions")
+}
+
+model Coupon {
+  id                    BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  code                  String             @unique @db.VarChar(50)
+  couponType            CouponType         @map("coupon_type")
+  value                 Decimal            @db.Decimal(10, 2)
+  minimumOrderAmount    Decimal?           @map("minimum_order_amount") @db.Decimal(10, 2)
+  maximumDiscountAmount Decimal?           @map("maximum_discount_amount") @db.Decimal(10, 2)
+  usageLimit            Int?               @map("usage_limit")
+  perUserLimit          Int?               @map("per_user_limit")
+  validFrom             DateTime           @map("valid_from")
+  validUntil            DateTime           @map("valid_until")
+  isActive              Boolean            @default(true) @map("is_active")
+  createdAt             DateTime           @default(now()) @map("created_at")
+  couponRestaurants     CouponRestaurant[]
+  usages                CouponUsage[]
+
+  @@map("coupons")
+}
+
+model CouponRestaurant {
+  couponId     BigInt     @map("coupon_id") @db.UnsignedBigInt
+  restaurantId BigInt     @map("restaurant_id") @db.UnsignedBigInt
+  coupon       Coupon     @relation(fields: [couponId], references: [id])
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+
+  @@id([couponId, restaurantId])
+  @@index([restaurantId], map: "coupon_restaurants_restaurant_id_fkey")
+  @@map("coupon_restaurants")
+}
+
+model CouponUsage {
+  id             BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  couponId       BigInt   @map("coupon_id") @db.UnsignedBigInt
+  customerUserId BigInt   @map("customer_user_id") @db.UnsignedBigInt
+  orderId        BigInt   @map("order_id") @db.UnsignedBigInt
+  discountAmount Decimal  @map("discount_amount") @db.Decimal(10, 2)
+  usedAt         DateTime @default(now()) @map("used_at")
+  coupon         Coupon   @relation(fields: [couponId], references: [id])
+  customer       User     @relation(fields: [customerUserId], references: [id])
+  order          Order    @relation(fields: [orderId], references: [id])
+
+  @@index([couponId])
+  @@index([customerUserId])
+  @@index([orderId], map: "coupon_usages_order_id_fkey")
+  @@map("coupon_usages")
+}
+
+model LoyaltyAccount {
+  customerUserId BigInt @id @map("customer_user_id") @db.UnsignedBigInt
+  currentBalance Int    @default(0) @map("current_balance")
+  customer       User   @relation(fields: [customerUserId], references: [id])
+
+  @@map("loyalty_accounts")
+}
+
+model LoyaltyTransaction {
+  id              BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  customerUserId  BigInt                 @map("customer_user_id") @db.UnsignedBigInt
+  orderId         BigInt?                @map("order_id") @db.UnsignedBigInt
+  transactionType LoyaltyTransactionType @map("transaction_type")
+  points          Int
+  description     String?                @db.VarChar(255)
+  createdAt       DateTime               @default(now()) @map("created_at")
+  customer        User                   @relation(fields: [customerUserId], references: [id])
+  order           Order?                 @relation(fields: [orderId], references: [id])
+
+  @@index([customerUserId])
+  @@index([orderId], map: "loyalty_transactions_order_id_fkey")
+  @@map("loyalty_transactions")
+}
+
+model Referral {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  referrerUserId BigInt    @map("referrer_user_id") @db.UnsignedBigInt
+  referredUserId BigInt    @unique @map("referred_user_id") @db.UnsignedBigInt
+  firstOrderId   BigInt?   @map("first_order_id") @db.UnsignedBigInt
+  rewardPoints   Int       @default(0) @map("reward_points")
+  rewardedAt     DateTime? @map("rewarded_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  firstOrder     Order?    @relation(fields: [firstOrderId], references: [id])
+  referredUser   User      @relation("ReferredUser", fields: [referredUserId], references: [id])
+  referrer       User      @relation("ReferrerUser", fields: [referrerUserId], references: [id])
+
+  @@index([firstOrderId], map: "referrals_first_order_id_fkey")
+  @@index([referrerUserId], map: "referrals_referrer_user_id_fkey")
+  @@map("referrals")
+}
+
+model DeliveryPartner {
+  userId                    BigInt                    @id @map("user_id") @db.UnsignedBigInt
+  vehicleType               VehicleType               @map("vehicle_type")
+  vehicleRegistrationNumber String                    @map("vehicle_registration_number") @db.VarChar(50)
+  isOnline                  Boolean                   @default(false) @map("is_online")
+  averageRating             Decimal                   @default(0.00) @map("average_rating") @db.Decimal(3, 2)
+  totalCompletedDeliveries  Int                       @default(0) @map("total_completed_deliveries")
+  joinedAt                  DateTime                  @default(now()) @map("joined_at")
+  status                    DeliveryPartnerStatus     @default(PENDING_VERIFICATION)
+  assignments               DeliveryAssignment[]
+  documents                 DeliveryPartnerDocument[]
+  user                      User                      @relation(fields: [userId], references: [id])
+  earnings                  PartnerEarning[]
+  payouts                   PartnerPayout[]
+  statusLogs                PartnerStatusLog[]
+  reviews                   Review[]
+  supportTickets            SupportTicket[]
+
+  @@map("delivery_partners")
+}
+
+model DeliveryPartnerDocument {
+  id                 BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  partnerUserId      BigInt              @map("partner_user_id") @db.UnsignedBigInt
+  documentType       PartnerDocumentType @map("document_type")
+  documentUrl        String              @map("document_url") @db.VarChar(500)
+  verificationStatus VerificationStatus  @default(PENDING) @map("verification_status")
+  verifiedBy         BigInt?             @map("verified_by") @db.UnsignedBigInt
+  verifiedAt         DateTime?           @map("verified_at")
+  partner            DeliveryPartner     @relation(fields: [partnerUserId], references: [userId])
+
+  @@index([partnerUserId], map: "delivery_partner_documents_partner_user_id_fkey")
+  @@map("delivery_partner_documents")
+}
+
+model PartnerStatusLog {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  partnerUserId BigInt          @map("partner_user_id") @db.UnsignedBigInt
+  status        OnlineStatus
+  changedAt     DateTime        @default(now()) @map("changed_at")
+  partner       DeliveryPartner @relation(fields: [partnerUserId], references: [userId])
+
+  @@index([partnerUserId])
+  @@map("partner_status_logs")
+}
+
+model DeliveryAssignment {
+  id               BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  orderId          BigInt                  @map("order_id") @db.UnsignedBigInt
+  partnerUserId    BigInt?                 @map("partner_user_id") @db.UnsignedBigInt
+  assignedByUserId BigInt?                 @map("assigned_by_user_id") @db.UnsignedBigInt
+  assignmentType   AssignmentType          @map("assignment_type")
+  status           AssignmentStatus
+  assignedAt       DateTime                @map("assigned_at")
+  acceptedAt       DateTime?               @map("accepted_at")
+  completedAt      DateTime?               @map("completed_at")
+  order            Order                   @relation(fields: [orderId], references: [id])
+  partner          DeliveryPartner?        @relation(fields: [partnerUserId], references: [userId])
+  trackingPoints   DeliveryTrackingPoint[]
+
+  @@index([orderId])
+  @@index([partnerUserId])
+  @@map("delivery_assignments")
+}
+
+model DeliveryTrackingPoint {
+  id           BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  assignmentId BigInt             @map("assignment_id") @db.UnsignedBigInt
+  latitude     Decimal            @db.Decimal(10, 8)
+  longitude    Decimal            @db.Decimal(11, 8)
+  recordedAt   DateTime           @map("recorded_at")
+  assignment   DeliveryAssignment @relation(fields: [assignmentId], references: [id])
+
+  @@index([assignmentId, recordedAt])
+  @@map("delivery_tracking_points")
+}
+
+model DeliveryEvent {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  orderId       BigInt   @map("order_id") @db.UnsignedBigInt
+  partnerUserId BigInt?  @map("partner_user_id") @db.UnsignedBigInt
+  eventType     String   @map("event_type") @db.VarChar(100)
+  eventData     Json?    @map("event_data")
+  createdAt     DateTime @default(now()) @map("created_at")
+  order         Order    @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@map("delivery_events")
+}
+
+model PartnerEarning {
+  id                 BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  partnerUserId      BigInt              @map("partner_user_id") @db.UnsignedBigInt
+  orderId            BigInt              @map("order_id") @db.UnsignedBigInt
+  baseEarning        Decimal             @map("base_earning") @db.Decimal(10, 2)
+  incentiveAmount    Decimal             @default(0.00) @map("incentive_amount") @db.Decimal(10, 2)
+  totalEarning       Decimal             @map("total_earning") @db.Decimal(10, 2)
+  status             EarningStatus
+  createdAt          DateTime            @default(now()) @map("created_at")
+  distanceBonus      Decimal             @default(0.00) @map("distance_bonus") @db.Decimal(10, 2)
+  tipAmount          Decimal             @default(0.00) @map("tip_amount") @db.Decimal(10, 2)
+  order              Order               @relation(fields: [orderId], references: [id])
+  partner            DeliveryPartner     @relation(fields: [partnerUserId], references: [userId])
+  partnerPayoutItems PartnerPayoutItem[]
+
+  @@index([partnerUserId])
+  @@index([orderId], map: "partner_earnings_order_id_fkey")
+  @@map("partner_earnings")
+}
+
+model Review {
+  id                    BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  orderId               BigInt           @unique @map("order_id") @db.UnsignedBigInt
+  customerUserId        BigInt           @map("customer_user_id") @db.UnsignedBigInt
+  restaurantId          BigInt           @map("restaurant_id") @db.UnsignedBigInt
+  foodRating            Int              @map("food_rating") @db.TinyInt
+  deliveryRating        Int              @map("delivery_rating") @db.TinyInt
+  packagingRating       Int              @map("packaging_rating") @db.TinyInt
+  overallRating         Decimal          @map("overall_rating") @db.Decimal(3, 2)
+  reviewText            String?          @map("review_text") @db.VarChar(500)
+  isHidden              Boolean          @default(false) @map("is_hidden")
+  createdAt             DateTime         @default(now()) @map("created_at")
+  deliveryPartnerUserId BigInt?          @map("delivery_partner_user_id") @db.UnsignedBigInt
+  images                ReviewImage[]
+  items                 ReviewItem[]
+  reply                 ReviewReply?
+  customer              User             @relation(fields: [customerUserId], references: [id])
+  deliveryPartner       DeliveryPartner? @relation(fields: [deliveryPartnerUserId], references: [userId])
+  order                 Order            @relation(fields: [orderId], references: [id])
+  restaurant            Restaurant       @relation(fields: [restaurantId], references: [id])
+
+  @@index([restaurantId])
+  @@index([customerUserId], map: "reviews_customer_user_id_fkey")
+  @@index([deliveryPartnerUserId], map: "reviews_delivery_partner_user_id_fkey")
+  @@map("reviews")
+}
+
+model ReviewImage {
+  id        BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  reviewId  BigInt   @map("review_id") @db.UnsignedBigInt
+  imageUrl  String   @map("image_url") @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
+  review    Review   @relation(fields: [reviewId], references: [id])
+
+  @@index([reviewId])
+  @@map("review_images")
+}
+
+model ReviewReply {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  reviewId        BigInt   @unique @map("review_id") @db.UnsignedBigInt
+  repliedByUserId BigInt   @map("replied_by_user_id") @db.UnsignedBigInt
+  replyText       String   @map("reply_text") @db.VarChar(1000)
+  createdAt       DateTime @default(now()) @map("created_at")
+  repliedByUser   User     @relation(fields: [repliedByUserId], references: [id])
+  review          Review   @relation(fields: [reviewId], references: [id])
+
+  @@index([repliedByUserId], map: "review_replies_replied_by_user_id_fkey")
+  @@map("review_replies")
+}
+
+model SupportTicket {
+  id                  BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  ticketNumber        String              @unique @map("ticket_number") @db.VarChar(50)
+  orderId             BigInt              @map("order_id") @db.UnsignedBigInt
+  customerUserId      BigInt?             @map("customer_user_id") @db.UnsignedBigInt
+  assignedAdminUserId BigInt?             @map("assigned_admin_user_id") @db.UnsignedBigInt
+  category            TicketCategory
+  priority            TicketPriority
+  status              TicketStatus
+  subject             String              @db.VarChar(255)
+  description         String              @db.Text
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+  partnerUserId       BigInt?             @map("partner_user_id") @db.UnsignedBigInt
+  attachments         SupportAttachment[]
+  messages            SupportMessage[]
+  admin               User?               @relation("TicketAdmin", fields: [assignedAdminUserId], references: [id])
+  customer            User?               @relation("TicketCustomer", fields: [customerUserId], references: [id])
+  order               Order               @relation(fields: [orderId], references: [id])
+  partner             DeliveryPartner?    @relation(fields: [partnerUserId], references: [userId])
+
+  @@index([orderId])
+  @@index([assignedAdminUserId], map: "support_tickets_assigned_admin_user_id_fkey")
+  @@index([customerUserId], map: "support_tickets_customer_user_id_fkey")
+  @@index([partnerUserId], map: "support_tickets_partner_user_id_fkey")
+  @@map("support_tickets")
+}
+
+model SupportMessage {
+  id           BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  ticketId     BigInt        @map("ticket_id") @db.UnsignedBigInt
+  senderUserId BigInt        @map("sender_user_id") @db.UnsignedBigInt
+  message      String        @db.Text
+  createdAt    DateTime      @default(now()) @map("created_at")
+  sender       User          @relation(fields: [senderUserId], references: [id])
+  ticket       SupportTicket @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
+  @@index([senderUserId], map: "support_messages_sender_user_id_fkey")
+  @@map("support_messages")
+}
+
+model SupportAttachment {
+  id               BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  ticketId         BigInt        @map("ticket_id") @db.UnsignedBigInt
+  uploadedByUserId BigInt        @map("uploaded_by_user_id") @db.UnsignedBigInt
+  fileUrl          String        @map("file_url") @db.VarChar(500)
+  createdAt        DateTime      @default(now()) @map("created_at")
+  ticket           SupportTicket @relation(fields: [ticketId], references: [id])
+  uploadedBy       User          @relation(fields: [uploadedByUserId], references: [id])
+
+  @@index([ticketId])
+  @@index([uploadedByUserId], map: "support_attachments_uploaded_by_user_id_fkey")
+  @@map("support_attachments")
+}
+
+model RestaurantPayout {
+  id                BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  restaurantId      BigInt                 @map("restaurant_id") @db.UnsignedBigInt
+  payoutReference   String                 @unique @map("payout_reference") @db.VarChar(100)
+  payoutPeriodStart DateTime               @map("payout_period_start")
+  payoutPeriodEnd   DateTime               @map("payout_period_end")
+  grossAmount       Decimal                @map("gross_amount") @db.Decimal(12, 2)
+  commissionAmount  Decimal                @map("commission_amount") @db.Decimal(12, 2)
+  taxAmount         Decimal                @map("tax_amount") @db.Decimal(12, 2)
+  netAmount         Decimal                @map("net_amount") @db.Decimal(12, 2)
+  status            PayoutStatus
+  paidAt            DateTime?              @map("paid_at")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  items             RestaurantPayoutItem[]
+  restaurant        Restaurant             @relation(fields: [restaurantId], references: [id])
+
+  @@index([restaurantId], map: "restaurant_payouts_restaurant_id_fkey")
+  @@map("restaurant_payouts")
+}
+
+model RestaurantPayoutItem {
+  payoutId        BigInt           @map("payout_id") @db.UnsignedBigInt
+  orderId         BigInt           @map("order_id") @db.UnsignedBigInt
+  restaurantShare Decimal          @map("restaurant_share") @db.Decimal(10, 2)
+  order           Order            @relation(fields: [orderId], references: [id])
+  payout          RestaurantPayout @relation(fields: [payoutId], references: [id])
+
+  @@id([payoutId, orderId])
+  @@index([orderId], map: "restaurant_payout_items_order_id_fkey")
+  @@map("restaurant_payout_items")
+}
+
+model PartnerPayout {
+  id              BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  partnerUserId   BigInt              @map("partner_user_id") @db.UnsignedBigInt
+  payoutReference String              @unique @map("payout_reference") @db.VarChar(100)
+  grossAmount     Decimal             @map("gross_amount") @db.Decimal(12, 2)
+  incentiveAmount Decimal             @default(0.00) @map("incentive_amount") @db.Decimal(12, 2)
+  netAmount       Decimal             @map("net_amount") @db.Decimal(12, 2)
+  status          PayoutStatus
+  paidAt          DateTime?           @map("paid_at")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  items           PartnerPayoutItem[]
+  partner         DeliveryPartner     @relation(fields: [partnerUserId], references: [userId])
+
+  @@index([partnerUserId], map: "partner_payouts_partner_user_id_fkey")
+  @@map("partner_payouts")
+}
+
+model PartnerPayoutItem {
+  payoutId  BigInt         @map("payout_id") @db.UnsignedBigInt
+  earningId BigInt         @map("earning_id") @db.UnsignedBigInt
+  earning   PartnerEarning @relation(fields: [earningId], references: [id])
+  payout    PartnerPayout  @relation(fields: [payoutId], references: [id])
+
+  @@id([payoutId, earningId])
+  @@index([earningId], map: "partner_payout_items_earning_id_fkey")
+  @@map("partner_payout_items")
+}
+
+model AuditLog {
+  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  actorUserId BigInt   @map("actor_user_id") @db.UnsignedBigInt
+  entityType  String   @map("entity_type") @db.VarChar(100)
+  entityId    BigInt   @map("entity_id") @db.UnsignedBigInt
+  action      String   @db.VarChar(100)
+  oldValues   Json?    @map("old_values")
+  newValues   Json?    @map("new_values")
+  ipAddress   String?  @map("ip_address") @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at")
+  actor       User     @relation(fields: [actorUserId], references: [id])
+
+  @@index([actorUserId])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+model SystemConfiguration {
+  configKey     String   @id @map("config_key") @db.VarChar(150)
+  configValue   String   @map("config_value") @db.Text
+  description   String?  @db.VarChar(500)
+  updatedBy     BigInt?  @map("updated_by") @db.UnsignedBigInt
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  updatedByUser User?    @relation(fields: [updatedBy], references: [id])
+
+  @@index([updatedBy], map: "system_configurations_updated_by_fkey")
+  @@map("system_configurations")
+}
+
+model ReportExport {
+  id                BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  generatedByUserId BigInt   @map("generated_by_user_id") @db.UnsignedBigInt
+  reportType        String   @map("report_type") @db.VarChar(100)
+  fileUrl           String   @map("file_url") @db.VarChar(500)
+  generatedAt       DateTime @default(now()) @map("generated_at")
+  generatedByUser   User     @relation(fields: [generatedByUserId], references: [id])
+
+  @@index([generatedByUserId], map: "report_exports_generated_by_user_id_fkey")
+  @@map("report_exports")
+}
+
+model ReviewItem {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  reviewId   BigInt   @map("review_id") @db.UnsignedBigInt
+  menuItemId BigInt   @map("menu_item_id") @db.UnsignedBigInt
+  rating     Int      @db.TinyInt
+  reviewText String?  @map("review_text") @db.VarChar(500)
+  createdAt  DateTime @default(now()) @map("created_at")
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  review     Review   @relation(fields: [reviewId], references: [id])
+
+  @@index([reviewId])
+  @@index([menuItemId])
+  @@map("review_items")
+}
+
 enum UserStatus {
   ACTIVE
   INACTIVE
   LOCKED
+  SUSPENDED
+}
+
+enum UserRoleStatus {
+  REQUESTED
+  ASSIGNED
+  REJECTED
   SUSPENDED
 }
 
@@ -167,6 +1338,7 @@ enum AssignmentType {
 }
 
 enum AssignmentStatus {
+  PENDING
   ASSIGNED
   ACCEPTED
   DECLINED
@@ -208,1208 +1380,4 @@ enum PayoutStatus {
   PROCESSING
   PAID
   FAILED
-}
-
-// ─────────────────────────────────────────────────────────────
-// AUTH & USERS
-// ─────────────────────────────────────────────────────────────
-
-model User {
-  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  firstName             String    @map("first_name") @db.VarChar(100)
-  lastName              String?   @map("last_name") @db.VarChar(100)
-  email                 String    @unique @db.VarChar(255)
-  phone                 String    @unique @db.VarChar(20)
-  passwordHash          String?   @map("password_hash") @db.VarChar(255)
-  profileImageUrl       String?   @map("profile_image_url") @db.VarChar(500)
-  emailVerified         Boolean   @default(false) @map("email_verified")
-  phoneVerified         Boolean   @default(false) @map("phone_verified")
-  failedLoginAttempts   Int       @default(0) @map("failed_login_attempts")
-  lastLoginAt           DateTime? @map("last_login_at")
-  status                UserStatus @default(ACTIVE)
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
-  deletedAt             DateTime? @map("deleted_at")
-
-  // Relations
-  userRoles                     UserRole[]
-  sessions                      UserSession[]
-  ownedRestaurants              Restaurant[]             @relation("RestaurantOwner")
-  approvedRestaurants           Restaurant[]             @relation("RestaurantApprover")
-  restaurantStaff               RestaurantStaff[]
-  customerProfile               CustomerProfile?         @relation("CustomerProfileUser")
-  referredCustomerProfiles      CustomerProfile[]        @relation("CustomerProfileReferrer")
-  customerAddresses             CustomerAddress[]
-  customerPreferences           CustomerPreference?
-  customerNotificationPrefs     CustomerNotificationPreference?
-  customerPaymentMethods        CustomerPaymentMethod[]
-  customerFavoriteRestaurants   CustomerFavoriteRestaurant[]
-  carts                         Cart[]
-  checkoutSessions              CheckoutSession[]
-  orders                        Order[]
-  statusHistoryChangedBy        OrderStatusHistory[]
-  cancelledOrders               OrderCancellation[]
-  deliveryPartner               DeliveryPartner?
-  couponUsages                  CouponUsage[]
-  loyaltyAccount                LoyaltyAccount?
-  loyaltyTransactions           LoyaltyTransaction[]
-  referralsMade                 Referral[]             @relation("ReferrerUser")
-  referralReceived              Referral[]             @relation("ReferredUser")
-  reviews                       Review[]
-  reviewReplies                 ReviewReply[]
-  supportTicketsCustomer        SupportTicket[]        @relation("TicketCustomer")
-  supportTicketsAdmin           SupportTicket[]        @relation("TicketAdmin")
-  supportMessages               SupportMessage[]
-  supportAttachments            SupportAttachment[]
-  auditLogs                     AuditLog[]
-  systemConfigUpdates           SystemConfiguration[]
-  reportExports                 ReportExport[]
-
-  @@index([status])
-  @@index([createdAt])
-  @@map("users")
-}
-
-model Role {
-  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  name        String   @unique @db.VarChar(100)
-  description String?  @db.VarChar(255)
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  userRoles       UserRole[]
-  rolePermissions RolePermission[]
-
-  @@map("roles")
-}
-
-model Permission {
-  id          BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
-  code        String  @unique @db.VarChar(150)
-  description String? @db.VarChar(255)
-
-  rolePermissions RolePermission[]
-
-  @@map("permissions")
-}
-
-model UserRole {
-  userId     BigInt   @map("user_id") @db.UnsignedBigInt
-  roleId     BigInt   @map("role_id") @db.UnsignedBigInt
-  assignedAt DateTime @default(now()) @map("assigned_at")
-
-  user User @relation(fields: [userId], references: [id])
-  role Role @relation(fields: [roleId], references: [id])
-
-  @@id([userId, roleId])
-  @@map("user_roles")
-}
-
-model RolePermission {
-  roleId       BigInt @map("role_id") @db.UnsignedBigInt
-  permissionId BigInt @map("permission_id") @db.UnsignedBigInt
-
-  role       Role       @relation(fields: [roleId], references: [id])
-  permission Permission @relation(fields: [permissionId], references: [id])
-
-  @@id([roleId, permissionId])
-  @@map("role_permissions")
-}
-
-model UserSession {
-  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  userId            BigInt    @map("user_id") @db.UnsignedBigInt
-  refreshTokenHash  String    @map("refresh_token_hash") @db.VarChar(255)
-  deviceName        String?   @map("device_name") @db.VarChar(255)
-  ipAddress         String?   @map("ip_address") @db.VarChar(100)
-  userAgent         String?   @map("user_agent") @db.Text
-  expiresAt         DateTime  @map("expires_at")
-  revokedAt         DateTime? @map("revoked_at")
-  createdAt         DateTime  @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@map("user_sessions")
-}
-
-model OtpVerification {
-  id         BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
-  email      String?    @db.VarChar(255)
-  phone      String?    @db.VarChar(20)
-  otpHash    String     @map("otp_code") @db.VarChar(64)
-  purpose    OtpPurpose
-  expiresAt  DateTime   @map("expires_at")
-  verifiedAt DateTime?  @map("verified_at")
-  createdAt  DateTime   @default(now()) @map("created_at")
-
-  @@map("otp_verifications")
-}
-
-// ─────────────────────────────────────────────────────────────
-// RESTAURANTS
-// ─────────────────────────────────────────────────────────────
-
-model Restaurant {
-  id                  BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
-  ownerUserId         BigInt           @map("owner_user_id") @db.UnsignedBigInt
-  businessName        String           @map("business_name") @db.VarChar(255)
-  legalBusinessName   String           @map("legal_business_name") @db.VarChar(255)
-  primaryPhone        String           @map("primary_phone") @db.VarChar(20)
-  primaryEmail        String           @map("primary_email") @db.VarChar(255)
-  logoUrl             String?          @map("logo_url") @db.VarChar(500)
-  coverImageUrl       String?          @map("cover_image_url") @db.VarChar(500)
-  description         String?          @db.VarChar(300)
-  status              RestaurantStatus @default(PENDING_VERIFICATION)
-  approvedBy          BigInt?          @map("approved_by") @db.UnsignedBigInt
-  approvedAt          DateTime?        @map("approved_at")
-  createdAt           DateTime         @default(now()) @map("created_at")
-  updatedAt           DateTime         @updatedAt @map("updated_at")
-  deletedAt           DateTime?        @map("deleted_at")
-
-  owner    User  @relation("RestaurantOwner", fields: [ownerUserId], references: [id])
-  approver User? @relation("RestaurantApprover", fields: [approvedBy], references: [id])
-
-  branches                    RestaurantBranch[]
-  documents                   RestaurantDocument[]
-  orders                      Order[]
-  reviews                     Review[]
-  customerFavorites           CustomerFavoriteRestaurant[]
-  couponRestaurants           CouponRestaurant[]
-  payouts                     RestaurantPayout[]
-
-  @@index([ownerUserId])
-  @@index([status])
-  @@map("restaurants")
-}
-
-model RestaurantBranch {
-  id                         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  restaurantId               BigInt    @map("restaurant_id") @db.UnsignedBigInt
-  branchName                 String    @map("branch_name") @db.VarChar(255)
-  gstin                      String    @db.VarChar(20)
-  fssaiLicenseNumber         String    @map("fssai_license_number") @db.VarChar(50)
-  contactPhone               String    @map("contact_phone") @db.VarChar(20)
-  addressLine1               String    @map("address_line_1") @db.VarChar(255)
-  addressLine2               String?   @map("address_line_2") @db.VarChar(255)
-  city                       String    @db.VarChar(100)
-  state                      String    @db.VarChar(100)
-  postalCode                 String    @map("postal_code") @db.VarChar(20)
-  country                    String    @db.VarChar(100)
-  latitude                   Decimal   @db.Decimal(10, 8)
-  longitude                  Decimal   @db.Decimal(11, 8)
-  minimumOrderValue          Decimal   @default(0) @map("minimum_order_value") @db.Decimal(10, 2)
-  deliveryFee                Decimal   @default(0) @map("delivery_fee") @db.Decimal(10, 2)
-  isActive                   Boolean   @default(true) @map("is_active")
-  createdAt                  DateTime  @default(now()) @map("created_at")
-  updatedAt                  DateTime  @updatedAt @map("updated_at")
-  deletedAt                  DateTime? @map("deleted_at")
-
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-
-  staff           RestaurantStaff[]
-  operatingHours  RestaurantOperatingHour[]
-  deliveryZone    RestaurantDeliveryZone?
-  menuCategories  MenuCategory[]
-  modifierGroups  ModifierGroup[]
-  carts           Cart[]
-  orders          Order[]
-
-  @@index([restaurantId])
-  @@index([city])
-  @@map("restaurant_branches")
-}
-
-model RestaurantDocument {
-  id                 BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
-  restaurantId       BigInt             @map("restaurant_id") @db.UnsignedBigInt
-  documentType       DocumentType       @map("document_type")
-  documentUrl        String             @map("document_url") @db.VarChar(500)
-  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
-  verifiedBy         BigInt?            @map("verified_by") @db.UnsignedBigInt
-  verifiedAt         DateTime?          @map("verified_at")
-  rejectionReason    String?            @map("rejection_reason") @db.VarChar(500)
-  createdAt          DateTime           @default(now()) @map("created_at")
-
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-
-  @@index([restaurantId])
-  @@map("restaurant_documents")
-}
-
-model RestaurantOperatingHour {
-  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  branchId    BigInt   @map("branch_id") @db.UnsignedBigInt
-  dayOfWeek   Int      @map("day_of_week") @db.TinyInt
-  openingTime DateTime? @map("opening_time") @db.Time
-  closingTime DateTime? @map("closing_time") @db.Time
-  isClosed    Boolean  @default(false) @map("is_closed")
-
-  branch RestaurantBranch @relation(fields: [branchId], references: [id])
-
-  @@unique([branchId, dayOfWeek])
-  @@map("restaurant_operating_hours")
-}
-
-model RestaurantDeliveryZone {
-  id                           BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
-  branchId                     BigInt  @unique @map("branch_id") @db.UnsignedBigInt
-  radiusKm                     Decimal @map("radius_km") @db.Decimal(5, 2)
-  minimumDeliveryTimeMinutes   Int     @map("minimum_delivery_time_minutes")
-  maximumDeliveryTimeMinutes   Int     @map("maximum_delivery_time_minutes")
-
-  branch RestaurantBranch @relation(fields: [branchId], references: [id])
-
-  @@map("restaurant_delivery_zones")
-}
-
-model RestaurantStaff {
-  id          BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
-  branchId    BigInt           @map("branch_id") @db.UnsignedBigInt
-  userId      BigInt           @map("user_id") @db.UnsignedBigInt
-  designation StaffDesignation
-  status      StaffStatus      @default(ACTIVE)
-  joinedAt    DateTime         @default(now()) @map("joined_at")
-
-  branch RestaurantBranch @relation(fields: [branchId], references: [id])
-  user   User             @relation(fields: [userId], references: [id])
-
-  @@unique([branchId, userId])
-  @@index([userId])
-  @@map("restaurant_staff")
-}
-
-// ─────────────────────────────────────────────────────────────
-// MENU
-// ─────────────────────────────────────────────────────────────
-
-model MenuCategory {
-  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  branchId     BigInt    @map("branch_id") @db.UnsignedBigInt
-  name         String    @db.VarChar(150)
-  description  String?   @db.VarChar(255)
-  displayOrder Int       @default(0) @map("display_order")
-  isActive     Boolean   @default(true) @map("is_active")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-
-  branch    RestaurantBranch @relation(fields: [branchId], references: [id])
-  menuItems MenuItem[]
-
-  @@index([branchId])
-  @@map("menu_categories")
-}
-
-model MenuItem {
-  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  categoryId   BigInt    @map("category_id") @db.UnsignedBigInt
-  sku          String    @unique @db.VarChar(50)
-  name         String    @db.VarChar(255)
-  description  String?   @db.VarChar(200)
-  imageUrl     String?   @map("image_url") @db.VarChar(500)
-  basePrice    Decimal   @map("base_price") @db.Decimal(10, 2)
-  foodType     FoodType  @map("food_type")
-  isBestseller Boolean   @default(false) @map("is_bestseller")
-  isAvailable  Boolean   @default(true) @map("is_available")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  deletedAt    DateTime? @map("deleted_at")
-
-  category      MenuCategory              @relation(fields: [categoryId], references: [id])
-  modifierGroups MenuItemModifierGroup[]
-  availability  MenuItemAvailability[]
-  images        MenuItemImage[]
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
-
-  @@index([categoryId])
-  @@index([isAvailable])
-  @@map("menu_items")
-}
-
-model ModifierGroup {
-  id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  branchId     BigInt   @map("branch_id") @db.UnsignedBigInt
-  name         String   @db.VarChar(150)
-  isRequired   Boolean  @default(false) @map("is_required")
-  minSelection Int      @default(0) @map("min_selection")
-  maxSelection Int      @default(1) @map("max_selection")
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  branch         RestaurantBranch          @relation(fields: [branchId], references: [id])
-  options        ModifierOption[]
-  menuItemGroups MenuItemModifierGroup[]
-
-  @@index([branchId])
-  @@map("modifier_groups")
-}
-
-model ModifierOption {
-  id               BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
-  modifierGroupId  BigInt  @map("modifier_group_id") @db.UnsignedBigInt
-  optionName       String  @map("option_name") @db.VarChar(150)
-  additionalPrice  Decimal @default(0) @map("additional_price") @db.Decimal(10, 2)
-  displayOrder     Int     @default(0) @map("display_order")
-
-  modifierGroup   ModifierGroup      @relation(fields: [modifierGroupId], references: [id])
-  cartModifiers   CartItemModifier[]
-
-  @@index([modifierGroupId])
-  @@map("modifier_options")
-}
-
-model MenuItemModifierGroup {
-  menuItemId      BigInt @map("menu_item_id") @db.UnsignedBigInt
-  modifierGroupId BigInt @map("modifier_group_id") @db.UnsignedBigInt
-
-  menuItem      MenuItem      @relation(fields: [menuItemId], references: [id])
-  modifierGroup ModifierGroup @relation(fields: [modifierGroupId], references: [id])
-
-  @@id([menuItemId, modifierGroupId])
-  @@map("menu_item_modifier_groups")
-}
-
-model MenuItemAvailability {
-  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  menuItemId BigInt   @map("menu_item_id") @db.UnsignedBigInt
-  dayOfWeek  Int      @map("day_of_week") @db.TinyInt
-  startTime  DateTime @map("start_time") @db.Time
-  endTime    DateTime @map("end_time") @db.Time
-
-  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
-
-  @@index([menuItemId])
-  @@map("menu_item_availability")
-}
-
-model MenuItemImage {
-  id           BigInt @id @default(autoincrement()) @db.UnsignedBigInt
-  menuItemId   BigInt @map("menu_item_id") @db.UnsignedBigInt
-  imageUrl     String @map("image_url") @db.VarChar(500)
-  displayOrder Int    @default(0) @map("display_order")
-
-  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
-
-  @@index([menuItemId])
-  @@map("menu_item_images")
-}
-
-// ─────────────────────────────────────────────────────────────
-// CUSTOMERS
-// ─────────────────────────────────────────────────────────────
-
-model CustomerProfile {
-  userId              BigInt    @id @map("user_id") @db.UnsignedBigInt
-  profilePhotoUrl     String?   @map("profile_photo_url") @db.VarChar(500)
-  loyaltyPointsBalance Int      @default(0) @map("loyalty_points_balance")
-  referralCode        String    @unique @map("referral_code") @db.VarChar(20)
-  referredByUserId    BigInt?   @map("referred_by_user_id") @db.UnsignedBigInt
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
-
-  user     User  @relation("CustomerProfileUser", fields: [userId], references: [id])
-  referrer User? @relation("CustomerProfileReferrer", fields: [referredByUserId], references: [id])
-
-  @@map("customer_profiles")
-}
-
-model CustomerAddress {
-  id             BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
-  customerUserId BigInt      @map("customer_user_id") @db.UnsignedBigInt
-  label          AddressLabel
-  contactName    String      @map("contact_name") @db.VarChar(150)
-  contactPhone   String      @map("contact_phone") @db.VarChar(20)
-  addressLine1   String      @map("address_line_1") @db.VarChar(255)
-  addressLine2   String?     @map("address_line_2") @db.VarChar(255)
-  landmark       String?     @db.VarChar(255)
-  city           String      @db.VarChar(100)
-  state          String      @db.VarChar(100)
-  postalCode     String      @map("postal_code") @db.VarChar(20)
-  country        String      @db.VarChar(100)
-  latitude       Decimal     @db.Decimal(10, 8)
-  longitude      Decimal     @db.Decimal(11, 8)
-  isDefault      Boolean     @default(false) @map("is_default")
-  createdAt      DateTime    @default(now()) @map("created_at")
-  updatedAt      DateTime    @updatedAt @map("updated_at")
-
-  customer         User              @relation(fields: [customerUserId], references: [id])
-  checkoutSessions CheckoutSession[]
-
-  @@index([customerUserId])
-  @@map("customer_addresses")
-}
-
-model CustomerPreference {
-  customerUserId BigInt  @id @map("customer_user_id") @db.UnsignedBigInt
-  vegetarian     Boolean @default(false)
-  vegan          Boolean @default(false)
-  glutenFree     Boolean @default(false) @map("gluten_free")
-  halal          Boolean @default(false)
-  jain           Boolean @default(false)
-
-  customer User @relation(fields: [customerUserId], references: [id])
-
-  @@map("customer_preferences")
-}
-
-model CustomerNotificationPreference {
-  customerUserId   BigInt  @id @map("customer_user_id") @db.UnsignedBigInt
-  emailEnabled     Boolean @default(true) @map("email_enabled")
-  smsEnabled       Boolean @default(true) @map("sms_enabled")
-  pushEnabled      Boolean @default(true) @map("push_enabled")
-  marketingEnabled Boolean @default(true) @map("marketing_enabled")
-
-  customer User @relation(fields: [customerUserId], references: [id])
-
-  @@map("customer_notification_preferences")
-}
-
-model CustomerPaymentMethod {
-  id               BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
-  customerUserId   BigInt          @map("customer_user_id") @db.UnsignedBigInt
-  provider         PaymentProvider
-  paymentType      PaymentType     @map("payment_type")
-  gatewayToken     String          @map("gateway_token") @db.VarChar(255)
-  maskedIdentifier String          @map("masked_identifier") @db.VarChar(100)
-  isDefault        Boolean         @default(false) @map("is_default")
-  createdAt        DateTime        @default(now()) @map("created_at")
-
-  customer User @relation(fields: [customerUserId], references: [id])
-
-  @@index([customerUserId])
-  @@map("customer_payment_methods")
-}
-
-model CustomerFavoriteRestaurant {
-  customerUserId BigInt   @map("customer_user_id") @db.UnsignedBigInt
-  restaurantId   BigInt   @map("restaurant_id") @db.UnsignedBigInt
-  addedAt        DateTime @default(now()) @map("added_at")
-
-  customer   User       @relation(fields: [customerUserId], references: [id])
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-
-  @@id([customerUserId, restaurantId])
-  @@map("customer_favorite_restaurants")
-}
-
-// ─────────────────────────────────────────────────────────────
-// CART & CHECKOUT
-// ─────────────────────────────────────────────────────────────
-
-model Cart {
-  id                 BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
-  customerUserId     BigInt     @map("customer_user_id") @db.UnsignedBigInt
-  restaurantBranchId BigInt     @map("restaurant_branch_id") @db.UnsignedBigInt
-  status             CartStatus @default(ACTIVE)
-  subtotalAmount     Decimal    @default(0) @map("subtotal_amount") @db.Decimal(10, 2)
-  totalAmount        Decimal    @default(0) @map("total_amount") @db.Decimal(10, 2)
-  lastActivityAt     DateTime   @default(now()) @map("last_activity_at")
-  createdAt          DateTime   @default(now()) @map("created_at")
-  updatedAt          DateTime   @updatedAt @map("updated_at")
-
-  customer         User             @relation(fields: [customerUserId], references: [id])
-  branch           RestaurantBranch @relation(fields: [restaurantBranchId], references: [id])
-  items            CartItem[]
-  checkoutSessions CheckoutSession[]
-  priceBreakdowns  CartPriceBreakdown[]
-
-  @@index([customerUserId])
-  @@index([restaurantBranchId])
-  @@map("carts")
-}
-
-model CartItem {
-  id                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  cartId              BigInt   @map("cart_id") @db.UnsignedBigInt
-  menuItemId          BigInt   @map("menu_item_id") @db.UnsignedBigInt
-  quantity            Int
-  unitPrice           Decimal  @map("unit_price") @db.Decimal(10, 2)
-  lineTotal           Decimal  @map("line_total") @db.Decimal(10, 2)
-  specialInstructions String?  @map("special_instructions") @db.VarChar(150)
-  createdAt           DateTime @default(now()) @map("created_at")
-
-  cart      Cart               @relation(fields: [cartId], references: [id])
-  menuItem  MenuItem           @relation(fields: [menuItemId], references: [id])
-  modifiers CartItemModifier[]
-
-  @@index([cartId])
-  @@map("cart_items")
-}
-
-model CartItemModifier {
-  id               BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
-  cartItemId       BigInt  @map("cart_item_id") @db.UnsignedBigInt
-  modifierOptionId BigInt  @map("modifier_option_id") @db.UnsignedBigInt
-  additionalPrice  Decimal @default(0) @map("additional_price") @db.Decimal(10, 2)
-
-  cartItem       CartItem       @relation(fields: [cartItemId], references: [id])
-  modifierOption ModifierOption @relation(fields: [modifierOptionId], references: [id])
-
-  @@index([cartItemId])
-  @@map("cart_item_modifiers")
-}
-
-model CheckoutSession {
-  id                        BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
-  cartId                    BigInt       @map("cart_id") @db.UnsignedBigInt
-  customerUserId            BigInt       @map("customer_user_id") @db.UnsignedBigInt
-  addressId                 BigInt       @map("address_id") @db.UnsignedBigInt
-  paymentMethodId           BigInt?      @map("payment_method_id") @db.UnsignedBigInt
-  couponId                  BigInt?      @map("coupon_id") @db.UnsignedBigInt
-  deliveryType              DeliveryType @map("delivery_type")
-  scheduledFor              DateTime?    @map("scheduled_for")
-  estimatedDeliveryMinutes  Int?         @map("estimated_delivery_minutes")
-  expiresAt                 DateTime     @map("expires_at")
-  createdAt                 DateTime     @default(now()) @map("created_at")
-
-  cart     Cart            @relation(fields: [cartId], references: [id])
-  customer User            @relation(fields: [customerUserId], references: [id])
-  address  CustomerAddress @relation(fields: [addressId], references: [id])
-
-  @@index([customerUserId])
-  @@map("checkout_sessions")
-}
-
-model CartPriceBreakdown {
-  id             BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  cartId         BigInt   @map("cart_id") @db.UnsignedBigInt
-  subtotal       Decimal  @db.Decimal(10, 2)
-  discountAmount Decimal  @map("discount_amount") @db.Decimal(10, 2)
-  deliveryFee    Decimal  @map("delivery_fee") @db.Decimal(10, 2)
-  taxAmount      Decimal  @map("tax_amount") @db.Decimal(10, 2)
-  totalAmount    Decimal  @map("total_amount") @db.Decimal(10, 2)
-  calculatedAt   DateTime @default(now()) @map("calculated_at")
-
-  cart Cart @relation(fields: [cartId], references: [id])
-
-  @@index([cartId])
-  @@map("cart_price_breakdowns")
-}
-
-// ─────────────────────────────────────────────────────────────
-// ORDERS
-// ─────────────────────────────────────────────────────────────
-
-model Order {
-  id                  BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
-  orderNumber         String        @unique @map("order_number") @db.VarChar(50)
-  customerUserId      BigInt        @map("customer_user_id") @db.UnsignedBigInt
-  restaurantId        BigInt        @map("restaurant_id") @db.UnsignedBigInt
-  branchId            BigInt        @map("branch_id") @db.UnsignedBigInt
-  checkoutSessionId   BigInt?       @map("checkout_session_id") @db.UnsignedBigInt
-  orderStatus         OrderStatus   @map("order_status")
-  paymentStatus       PaymentStatus @map("payment_status")
-  subtotalAmount      Decimal       @map("subtotal_amount") @db.Decimal(10, 2)
-  discountAmount      Decimal       @map("discount_amount") @db.Decimal(10, 2)
-  deliveryFee         Decimal       @map("delivery_fee") @db.Decimal(10, 2)
-  taxAmount           Decimal       @map("tax_amount") @db.Decimal(10, 2)
-  totalAmount         Decimal       @map("total_amount") @db.Decimal(10, 2)
-  estimatedDeliveryAt DateTime?     @map("estimated_delivery_at")
-  deliveredAt         DateTime?     @map("delivered_at")
-  createdAt           DateTime      @default(now()) @map("created_at")
-  updatedAt           DateTime      @updatedAt @map("updated_at")
-
-  customer   User             @relation(fields: [customerUserId], references: [id])
-  restaurant Restaurant       @relation(fields: [restaurantId], references: [id])
-  branch     RestaurantBranch @relation(fields: [branchId], references: [id])
-
-  address          OrderAddress?
-  items            OrderItem[]
-  statusHistory    OrderStatusHistory[]
-  cancellation     OrderCancellation?
-  events           OrderEvent[]
-  payments         Payment[]
-  deliveryAssignments DeliveryAssignment[]
-  deliveryEvents   DeliveryEvent[]
-  review           Review?
-  supportTickets   SupportTicket[]
-  couponUsages     CouponUsage[]
-  loyaltyTransactions LoyaltyTransaction[]
-  referrals        Referral[]
-  partnerEarnings  PartnerEarning[]
-  restaurantPayoutItems RestaurantPayoutItem[]
-  refunds          Refund[]
-
-  @@index([customerUserId])
-  @@index([branchId])
-  @@index([orderStatus])
-  @@map("orders")
-}
-
-model OrderAddress {
-  id             BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
-  orderId        BigInt  @unique @map("order_id") @db.UnsignedBigInt
-  recipientName  String  @map("recipient_name") @db.VarChar(150)
-  recipientPhone String  @map("recipient_phone") @db.VarChar(20)
-  addressLine1   String  @map("address_line_1") @db.VarChar(255)
-  addressLine2   String? @map("address_line_2") @db.VarChar(255)
-  landmark       String? @db.VarChar(255)
-  city           String  @db.VarChar(100)
-  state          String  @db.VarChar(100)
-  postalCode     String  @map("postal_code") @db.VarChar(20)
-  latitude       Decimal @db.Decimal(10, 8)
-  longitude      Decimal @db.Decimal(11, 8)
-
-  order Order @relation(fields: [orderId], references: [id])
-
-  @@map("order_addresses")
-}
-
-model OrderItem {
-  id                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  orderId             BigInt   @map("order_id") @db.UnsignedBigInt
-  menuItemId          BigInt?  @map("menu_item_id") @db.UnsignedBigInt
-  itemName            String   @map("item_name") @db.VarChar(255)
-  itemDescription     String?  @map("item_description") @db.VarChar(500)
-  quantity            Int
-  unitPrice           Decimal  @map("unit_price") @db.Decimal(10, 2)
-  lineTotal           Decimal  @map("line_total") @db.Decimal(10, 2)
-  specialInstructions String?  @map("special_instructions") @db.VarChar(150)
-
-  order     Order               @relation(fields: [orderId], references: [id])
-  menuItem  MenuItem?           @relation(fields: [menuItemId], references: [id])
-  modifiers OrderItemModifier[]
-
-  @@index([orderId])
-  @@map("order_items")
-}
-
-model OrderItemModifier {
-  id              BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
-  orderItemId     BigInt  @map("order_item_id") @db.UnsignedBigInt
-  modifierName    String  @map("modifier_name") @db.VarChar(150)
-  optionName      String  @map("option_name") @db.VarChar(150)
-  additionalPrice Decimal @map("additional_price") @db.Decimal(10, 2)
-
-  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
-
-  @@index([orderItemId])
-  @@map("order_item_modifiers")
-}
-
-model OrderStatusHistory {
-  id              BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
-  orderId         BigInt      @map("order_id") @db.UnsignedBigInt
-  status          OrderStatus
-  changedByUserId BigInt?     @map("changed_by_user_id") @db.UnsignedBigInt
-  remarks         String?     @db.VarChar(500)
-  createdAt       DateTime    @default(now()) @map("created_at")
-
-  order         Order @relation(fields: [orderId], references: [id])
-  changedByUser User? @relation(fields: [changedByUserId], references: [id])
-
-  @@index([orderId])
-  @@map("order_status_history")
-}
-
-model OrderCancellation {
-  id                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  orderId             BigInt   @unique @map("order_id") @db.UnsignedBigInt
-  cancelledByUserId   BigInt   @map("cancelled_by_user_id") @db.UnsignedBigInt
-  cancellationReason  String   @map("cancellation_reason") @db.VarChar(500)
-  refundEligible      Boolean  @map("refund_eligible")
-  refundAmount        Decimal? @map("refund_amount") @db.Decimal(10, 2)
-  createdAt           DateTime @default(now()) @map("created_at")
-
-  order           Order @relation(fields: [orderId], references: [id])
-  cancelledByUser User  @relation(fields: [cancelledByUserId], references: [id])
-
-  @@map("order_cancellations")
-}
-
-model OrderEvent {
-  id        BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  orderId   BigInt   @map("order_id") @db.UnsignedBigInt
-  eventType String   @map("event_type") @db.VarChar(100)
-  payload   Json?
-  createdAt DateTime @default(now()) @map("created_at")
-
-  order Order @relation(fields: [orderId], references: [id])
-
-  @@index([orderId])
-  @@map("order_events")
-}
-
-// ─────────────────────────────────────────────────────────────
-// PAYMENTS
-// ─────────────────────────────────────────────────────────────
-
-model Payment {
-  id                BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
-  orderId           BigInt               @map("order_id") @db.UnsignedBigInt
-  paymentProvider   PaymentProvider      @map("payment_provider")
-  providerOrderId   String?              @map("provider_order_id") @db.VarChar(255)
-  providerPaymentId String?              @map("provider_payment_id") @db.VarChar(255)
-  amount            Decimal              @db.Decimal(10, 2)
-  currency          String               @default("INR") @db.Char(3)
-  status            PaymentGatewayStatus
-  failureReason     String?              @map("failure_reason") @db.VarChar(500)
-  createdAt         DateTime             @default(now()) @map("created_at")
-
-  order   Order          @relation(fields: [orderId], references: [id])
-  events  PaymentEvent[]
-  refunds Refund[]
-
-  @@index([orderId])
-  @@index([status])
-  @@map("payments")
-}
-
-model PaymentEvent {
-  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  paymentId  BigInt   @map("payment_id") @db.UnsignedBigInt
-  eventType  String   @map("event_type") @db.VarChar(100)
-  payload    Json?
-  receivedAt DateTime @default(now()) @map("received_at")
-
-  payment Payment @relation(fields: [paymentId], references: [id])
-
-  @@index([paymentId])
-  @@map("payment_events")
-}
-
-model Refund {
-  id               BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
-  paymentId        BigInt       @map("payment_id") @db.UnsignedBigInt
-  orderId          BigInt       @map("order_id") @db.UnsignedBigInt
-  refundReference  String       @map("refund_reference") @db.VarChar(100)
-  amount           Decimal      @db.Decimal(10, 2)
-  reason           String       @db.VarChar(500)
-  status           RefundStatus
-  createdAt        DateTime     @default(now()) @map("created_at")
-
-  payment Payment @relation(fields: [paymentId], references: [id])
-  order   Order   @relation(fields: [orderId], references: [id])
-
-  @@index([orderId])
-  @@map("refunds")
-}
-
-// ─────────────────────────────────────────────────────────────
-// COUPONS & LOYALTY
-// ─────────────────────────────────────────────────────────────
-
-model Coupon {
-  id                    BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
-  code                  String     @unique @db.VarChar(50)
-  couponType            CouponType @map("coupon_type")
-  value                 Decimal    @db.Decimal(10, 2)
-  minimumOrderAmount    Decimal?   @map("minimum_order_amount") @db.Decimal(10, 2)
-  maximumDiscountAmount Decimal?   @map("maximum_discount_amount") @db.Decimal(10, 2)
-  usageLimit            Int?       @map("usage_limit")
-  perUserLimit          Int?       @map("per_user_limit")
-  validFrom             DateTime   @map("valid_from")
-  validUntil            DateTime   @map("valid_until")
-  isActive              Boolean    @default(true) @map("is_active")
-  createdAt             DateTime   @default(now()) @map("created_at")
-
-  couponRestaurants CouponRestaurant[]
-  usages            CouponUsage[]
-
-  @@map("coupons")
-}
-
-model CouponRestaurant {
-  couponId     BigInt @map("coupon_id") @db.UnsignedBigInt
-  restaurantId BigInt @map("restaurant_id") @db.UnsignedBigInt
-
-  coupon     Coupon     @relation(fields: [couponId], references: [id])
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-
-  @@id([couponId, restaurantId])
-  @@map("coupon_restaurants")
-}
-
-model CouponUsage {
-  id             BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  couponId       BigInt   @map("coupon_id") @db.UnsignedBigInt
-  customerUserId BigInt   @map("customer_user_id") @db.UnsignedBigInt
-  orderId        BigInt   @map("order_id") @db.UnsignedBigInt
-  discountAmount Decimal  @map("discount_amount") @db.Decimal(10, 2)
-  usedAt         DateTime @default(now()) @map("used_at")
-
-  coupon   Coupon @relation(fields: [couponId], references: [id])
-  customer User   @relation(fields: [customerUserId], references: [id])
-  order    Order  @relation(fields: [orderId], references: [id])
-
-  @@index([couponId])
-  @@index([customerUserId])
-  @@map("coupon_usages")
-}
-
-model LoyaltyAccount {
-  customerUserId BigInt @id @map("customer_user_id") @db.UnsignedBigInt
-  currentBalance Int    @default(0) @map("current_balance")
-
-  customer User @relation(fields: [customerUserId], references: [id])
-
-  @@map("loyalty_accounts")
-}
-
-model LoyaltyTransaction {
-  id             BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
-  customerUserId BigInt                 @map("customer_user_id") @db.UnsignedBigInt
-  orderId        BigInt?                @map("order_id") @db.UnsignedBigInt
-  transactionType LoyaltyTransactionType @map("transaction_type")
-  points         Int
-  description    String?                @db.VarChar(255)
-  createdAt      DateTime               @default(now()) @map("created_at")
-
-  customer User   @relation(fields: [customerUserId], references: [id])
-  order    Order? @relation(fields: [orderId], references: [id])
-
-  @@index([customerUserId])
-  @@map("loyalty_transactions")
-}
-
-model Referral {
-  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  referrerUserId BigInt    @map("referrer_user_id") @db.UnsignedBigInt
-  referredUserId BigInt    @unique @map("referred_user_id") @db.UnsignedBigInt
-  firstOrderId   BigInt?   @map("first_order_id") @db.UnsignedBigInt
-  rewardPoints   Int       @default(0) @map("reward_points")
-  rewardedAt     DateTime? @map("rewarded_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-
-  referrer     User   @relation("ReferrerUser", fields: [referrerUserId], references: [id])
-  referredUser User   @relation("ReferredUser", fields: [referredUserId], references: [id])
-  firstOrder   Order? @relation(fields: [firstOrderId], references: [id])
-
-  @@map("referrals")
-}
-
-// ─────────────────────────────────────────────────────────────
-// DELIVERY PARTNERS
-// ─────────────────────────────────────────────────────────────
-
-model DeliveryPartner {
-  userId                     BigInt                @id @map("user_id") @db.UnsignedBigInt
-  vehicleType                VehicleType           @map("vehicle_type")
-  vehicleRegistrationNumber  String                @map("vehicle_registration_number") @db.VarChar(50)
-  status                     DeliveryPartnerStatus @default(PENDING_VERIFICATION)
-  isOnline                   Boolean               @default(false) @map("is_online")
-  averageRating              Decimal               @default(0) @map("average_rating") @db.Decimal(3, 2)
-  totalCompletedDeliveries   Int                   @default(0) @map("total_completed_deliveries")
-  joinedAt                   DateTime              @default(now()) @map("joined_at")
-
-  user User @relation(fields: [userId], references: [id])
-
-  documents   DeliveryPartnerDocument[]
-  statusLogs  PartnerStatusLog[]
-  assignments DeliveryAssignment[]
-  earnings    PartnerEarning[]
-  payouts     PartnerPayout[]
-
-  @@map("delivery_partners")
-}
-
-model DeliveryPartnerDocument {
-  id                 BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
-  partnerUserId      BigInt             @map("partner_user_id") @db.UnsignedBigInt
-  documentType       PartnerDocumentType @map("document_type")
-  documentUrl        String             @map("document_url") @db.VarChar(500)
-  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
-  verifiedBy         BigInt?            @map("verified_by") @db.UnsignedBigInt
-  verifiedAt         DateTime?          @map("verified_at")
-
-  partner DeliveryPartner @relation(fields: [partnerUserId], references: [userId])
-
-  @@map("delivery_partner_documents")
-}
-
-model PartnerStatusLog {
-  id            BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
-  partnerUserId BigInt       @map("partner_user_id") @db.UnsignedBigInt
-  status        OnlineStatus
-  changedAt     DateTime     @default(now()) @map("changed_at")
-
-  partner DeliveryPartner @relation(fields: [partnerUserId], references: [userId])
-
-  @@index([partnerUserId])
-  @@map("partner_status_logs")
-}
-
-model DeliveryAssignment {
-  id                BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
-  orderId           BigInt           @map("order_id") @db.UnsignedBigInt
-  partnerUserId     BigInt?          @map("partner_user_id") @db.UnsignedBigInt
-  assignedByUserId  BigInt?          @map("assigned_by_user_id") @db.UnsignedBigInt
-  assignmentType    AssignmentType   @map("assignment_type")
-  status            AssignmentStatus
-  assignedAt        DateTime         @map("assigned_at")
-  acceptedAt        DateTime?        @map("accepted_at")
-  completedAt       DateTime?        @map("completed_at")
-
-  order   Order            @relation(fields: [orderId], references: [id])
-  partner DeliveryPartner? @relation(fields: [partnerUserId], references: [userId])
-
-  trackingPoints DeliveryTrackingPoint[]
-
-  @@index([orderId])
-  @@index([partnerUserId])
-  @@map("delivery_assignments")
-}
-
-model DeliveryTrackingPoint {
-  id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  assignmentId BigInt   @map("assignment_id") @db.UnsignedBigInt
-  latitude     Decimal  @db.Decimal(10, 8)
-  longitude    Decimal  @db.Decimal(11, 8)
-  recordedAt   DateTime @map("recorded_at")
-
-  assignment DeliveryAssignment @relation(fields: [assignmentId], references: [id])
-
-  @@index([assignmentId, recordedAt])
-  @@map("delivery_tracking_points")
-}
-
-model DeliveryEvent {
-  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  orderId       BigInt   @map("order_id") @db.UnsignedBigInt
-  partnerUserId BigInt?  @map("partner_user_id") @db.UnsignedBigInt
-  eventType     String   @map("event_type") @db.VarChar(100)
-  eventData     Json?    @map("event_data")
-  createdAt     DateTime @default(now()) @map("created_at")
-
-  order Order @relation(fields: [orderId], references: [id])
-
-  @@index([orderId])
-  @@map("delivery_events")
-}
-
-model PartnerEarning {
-  id              BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
-  partnerUserId   BigInt        @map("partner_user_id") @db.UnsignedBigInt
-  orderId         BigInt        @map("order_id") @db.UnsignedBigInt
-  baseEarning     Decimal       @map("base_earning") @db.Decimal(10, 2)
-  incentiveAmount Decimal       @default(0) @map("incentive_amount") @db.Decimal(10, 2)
-  totalEarning    Decimal       @map("total_earning") @db.Decimal(10, 2)
-  status          EarningStatus
-  createdAt       DateTime      @default(now()) @map("created_at")
-
-  partner DeliveryPartner     @relation(fields: [partnerUserId], references: [userId])
-  order   Order               @relation(fields: [orderId], references: [id])
-  partnerPayoutItems PartnerPayoutItem[]
-
-  @@index([partnerUserId])
-  @@map("partner_earnings")
-}
-
-// ─────────────────────────────────────────────────────────────
-// REVIEWS
-// ─────────────────────────────────────────────────────────────
-
-model Review {
-  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  orderId         BigInt   @unique @map("order_id") @db.UnsignedBigInt
-  customerUserId  BigInt   @map("customer_user_id") @db.UnsignedBigInt
-  restaurantId    BigInt   @map("restaurant_id") @db.UnsignedBigInt
-  foodRating      Int      @map("food_rating") @db.TinyInt
-  deliveryRating  Int      @map("delivery_rating") @db.TinyInt
-  packagingRating Int      @map("packaging_rating") @db.TinyInt
-  overallRating   Decimal  @map("overall_rating") @db.Decimal(3, 2)
-  reviewText      String?  @map("review_text") @db.VarChar(500)
-  isHidden        Boolean  @default(false) @map("is_hidden")
-  createdAt       DateTime @default(now()) @map("created_at")
-
-  order      Order      @relation(fields: [orderId], references: [id])
-  customer   User       @relation(fields: [customerUserId], references: [id])
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-
-  images ReviewImage[]
-  reply  ReviewReply?
-
-  @@index([restaurantId])
-  @@map("reviews")
-}
-
-model ReviewImage {
-  id        BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  reviewId  BigInt   @map("review_id") @db.UnsignedBigInt
-  imageUrl  String   @map("image_url") @db.VarChar(500)
-  createdAt DateTime @default(now()) @map("created_at")
-
-  review Review @relation(fields: [reviewId], references: [id])
-
-  @@index([reviewId])
-  @@map("review_images")
-}
-
-model ReviewReply {
-  id               BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  reviewId         BigInt   @unique @map("review_id") @db.UnsignedBigInt
-  repliedByUserId  BigInt   @map("replied_by_user_id") @db.UnsignedBigInt
-  replyText        String   @map("reply_text") @db.VarChar(1000)
-  createdAt        DateTime @default(now()) @map("created_at")
-
-  review          Review @relation(fields: [reviewId], references: [id])
-  repliedByUser   User   @relation(fields: [repliedByUserId], references: [id])
-
-  @@map("review_replies")
-}
-
-// ─────────────────────────────────────────────────────────────
-// SUPPORT
-// ─────────────────────────────────────────────────────────────
-
-model SupportTicket {
-  id                  BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
-  ticketNumber        String         @unique @map("ticket_number") @db.VarChar(50)
-  orderId             BigInt         @map("order_id") @db.UnsignedBigInt
-  customerUserId      BigInt         @map("customer_user_id") @db.UnsignedBigInt
-  assignedAdminUserId BigInt?        @map("assigned_admin_user_id") @db.UnsignedBigInt
-  category            TicketCategory
-  priority            TicketPriority
-  status              TicketStatus
-  subject             String         @db.VarChar(255)
-  description         String         @db.Text
-  createdAt           DateTime       @default(now()) @map("created_at")
-  updatedAt           DateTime       @updatedAt @map("updated_at")
-
-  order    Order @relation(fields: [orderId], references: [id])
-  customer User  @relation("TicketCustomer", fields: [customerUserId], references: [id])
-  admin    User? @relation("TicketAdmin", fields: [assignedAdminUserId], references: [id])
-
-  messages    SupportMessage[]
-  attachments SupportAttachment[]
-
-  @@index([orderId])
-  @@map("support_tickets")
-}
-
-model SupportMessage {
-  id           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  ticketId     BigInt   @map("ticket_id") @db.UnsignedBigInt
-  senderUserId BigInt   @map("sender_user_id") @db.UnsignedBigInt
-  message      String   @db.Text
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  ticket SupportTicket @relation(fields: [ticketId], references: [id])
-  sender User          @relation(fields: [senderUserId], references: [id])
-
-  @@index([ticketId])
-  @@map("support_messages")
-}
-
-model SupportAttachment {
-  id               BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  ticketId         BigInt   @map("ticket_id") @db.UnsignedBigInt
-  uploadedByUserId BigInt   @map("uploaded_by_user_id") @db.UnsignedBigInt
-  fileUrl          String   @map("file_url") @db.VarChar(500)
-  createdAt        DateTime @default(now()) @map("created_at")
-
-  ticket     SupportTicket @relation(fields: [ticketId], references: [id])
-  uploadedBy User          @relation(fields: [uploadedByUserId], references: [id])
-
-  @@index([ticketId])
-  @@map("support_attachments")
-}
-
-// ─────────────────────────────────────────────────────────────
-// FINANCE / PAYOUTS
-// ─────────────────────────────────────────────────────────────
-
-model RestaurantPayout {
-  id                  BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
-  restaurantId        BigInt       @map("restaurant_id") @db.UnsignedBigInt
-  payoutReference     String       @unique @map("payout_reference") @db.VarChar(100)
-  payoutPeriodStart   DateTime     @map("payout_period_start")
-  payoutPeriodEnd     DateTime     @map("payout_period_end")
-  grossAmount         Decimal      @map("gross_amount") @db.Decimal(12, 2)
-  commissionAmount    Decimal      @map("commission_amount") @db.Decimal(12, 2)
-  taxAmount           Decimal      @map("tax_amount") @db.Decimal(12, 2)
-  netAmount           Decimal      @map("net_amount") @db.Decimal(12, 2)
-  status              PayoutStatus
-  paidAt              DateTime?    @map("paid_at")
-  createdAt           DateTime     @default(now()) @map("created_at")
-
-  restaurant Restaurant             @relation(fields: [restaurantId], references: [id])
-  items      RestaurantPayoutItem[]
-
-  @@map("restaurant_payouts")
-}
-
-model RestaurantPayoutItem {
-  payoutId        BigInt  @map("payout_id") @db.UnsignedBigInt
-  orderId         BigInt  @map("order_id") @db.UnsignedBigInt
-  restaurantShare Decimal @map("restaurant_share") @db.Decimal(10, 2)
-
-  payout RestaurantPayout @relation(fields: [payoutId], references: [id])
-  order  Order            @relation(fields: [orderId], references: [id])
-
-  @@id([payoutId, orderId])
-  @@map("restaurant_payout_items")
-}
-
-model PartnerPayout {
-  id              BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
-  partnerUserId   BigInt       @map("partner_user_id") @db.UnsignedBigInt
-  payoutReference String       @unique @map("payout_reference") @db.VarChar(100)
-  grossAmount     Decimal      @map("gross_amount") @db.Decimal(12, 2)
-  incentiveAmount Decimal      @default(0) @map("incentive_amount") @db.Decimal(12, 2)
-  netAmount       Decimal      @map("net_amount") @db.Decimal(12, 2)
-  status          PayoutStatus
-  paidAt          DateTime?    @map("paid_at")
-  createdAt       DateTime     @default(now()) @map("created_at")
-
-  partner DeliveryPartner     @relation(fields: [partnerUserId], references: [userId])
-  items   PartnerPayoutItem[]
-
-  @@map("partner_payouts")
-}
-
-model PartnerPayoutItem {
-  payoutId  BigInt @map("payout_id") @db.UnsignedBigInt
-  earningId BigInt @map("earning_id") @db.UnsignedBigInt
-
-  payout  PartnerPayout  @relation(fields: [payoutId], references: [id])
-  earning PartnerEarning @relation(fields: [earningId], references: [id])
-
-  @@id([payoutId, earningId])
-  @@map("partner_payout_items")
-}
-
-// ─────────────────────────────────────────────────────────────
-// ADMIN / SYSTEM
-// ─────────────────────────────────────────────────────────────
-
-model AuditLog {
-  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  actorUserId BigInt   @map("actor_user_id") @db.UnsignedBigInt
-  entityType  String   @map("entity_type") @db.VarChar(100)
-  entityId    BigInt   @map("entity_id") @db.UnsignedBigInt
-  action      String   @db.VarChar(100)
-  oldValues   Json?    @map("old_values")
-  newValues   Json?    @map("new_values")
-  ipAddress   String?  @map("ip_address") @db.VarChar(100)
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  actor User @relation(fields: [actorUserId], references: [id])
-
-  @@index([actorUserId])
-  @@index([entityType, entityId])
-  @@map("audit_logs")
-}
-
-model SystemConfiguration {
-  configKey   String   @id @map("config_key") @db.VarChar(150)
-  configValue String   @map("config_value") @db.Text
-  description String?  @db.VarChar(500)
-  updatedBy   BigInt?  @map("updated_by") @db.UnsignedBigInt
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  updatedByUser User? @relation(fields: [updatedBy], references: [id])
-
-  @@map("system_configurations")
-}
-
-model ReportExport {
-  id                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  generatedByUserId   BigInt   @map("generated_by_user_id") @db.UnsignedBigInt
-  reportType          String   @map("report_type") @db.VarChar(100)
-  fileUrl             String   @map("file_url") @db.VarChar(500)
-  generatedAt         DateTime @default(now()) @map("generated_at")
-
-  generatedByUser User @relation(fields: [generatedByUserId], references: [id])
-
-  @@map("report_exports")
 }

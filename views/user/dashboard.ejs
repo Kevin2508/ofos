@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | epicure</title>
+  <link rel="stylesheet" href="/styles/build.css" />
+</head>
+
+<body class="min-h-screen bg-orange-50">
+  <div class="transition-all duration-300 flex flex-col min-h-screen">
+    <!-- NAVBAR -->
+    <nav class="bg-white border-b border-orange-100 shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <!-- Logo -->
+        <div class="flex flex-wrap items-center gap-2 md:gap-3">
+          <h1 class="text-3xl font-extrabold text-orange-500">epicure</h1>
+        </div>
+
+        <!-- Search removed from Navbar to feature in Hero section -->
+        <div class="flex-1 mx-6 hidden lg:block"></div>
+
+        <!-- Auth Section -->
+        <div id="authSection" class="flex flex-wrap items-center gap-2 md:gap-3">
+          <!-- Guest Buttons -->
+          <a href="/loginPage" class="text-sm font-semibold text-orange-500 hover:text-orange-600" id="loginBtn">
+            Login
+          </a>
+
+          <a href="/registerPage"
+            class="text-sm font-semibold bg-orange-500 text-white px-4 py-2 rounded-xl hover:bg-orange-600"
+            id="registerBtn">
+            Register
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="max-w-6xl mx-auto px-4 py-8">
+      <!-- HERO SECTION -->
+      <div
+        class="mb-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-[2rem] p-5 sm:p-8 md:p-12 shadow-xl text-white relative overflow-hidden border border-orange-400">
+        <!-- Abstract Background Shapes -->
+        <svg class="absolute top-0 right-0 opacity-20 w-[95%] max-w-sm sm:w-96 h-96 transform translate-x-32 -translate-y-16"
+          fill="currentColor" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="50" />
+        </svg>
+        <svg class="absolute bottom-0 left-0 opacity-10 w-64 h-64 transform -translate-x-24 translate-y-24"
+          fill="currentColor" viewBox="0 0 100 100">
+          <polygon points="50 15, 100 100, 0 100" />
+        </svg>
+
+        <div class="relative z-10">
+          <h2 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Craving something?</h2>
+          <p class="text-orange-50 text-lg md:text-xl mb-10 max-w-2xl font-medium opacity-90">
+            Discover top-rated restaurants, explore exquisite menus, and order your favorite meals directly to your
+            door.
+          </p>
+
+          <!-- Unified Search Bar -->
+          <div
+            class="relative max-w-2xl bg-white rounded-2xl shadow-2xl flex items-center p-2 transition-all focus-within:ring-4 focus-within:ring-orange-300/50">
+            <div class="pl-5 text-orange-500">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input id="searchInput" type="text" placeholder="Search for 'Pizza', 'Burger', or a restaurant..."
+              class="w-full px-4 py-3 text-gray-800 text-lg focus:outline-none bg-transparent font-semibold placeholder-gray-400" />
+            <button
+              class="bg-gray-900 hover:bg-black text-white px-4 sm:px-8 py-3 rounded-xl font-bold transition-colors shadow-md">Search</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATEGORY FILTERS -->
+      <div id="categoryFilters"
+        class="flex gap-4 flex-wrap mb-12 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex items-center gap-2 pr-4 border-r border-gray-200">
+          <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          <span class="text-sm font-extrabold text-gray-800 uppercase tracking-widest">Filters</span>
+        </div>
+
+        <label class="group relative flex items-center justify-center cursor-pointer">
+          <input type="checkbox" class="peer sr-only food-type-filter" value="VEG">
+          <div
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-gray-100 bg-white text-gray-600 font-bold transition-all peer-checked:border-green-500 peer-checked:bg-green-50 peer-checked:text-green-700 hover:border-green-200 hover:bg-gray-50">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+            Veg
+          </div>
+        </label>
+
+        <label class="group relative flex items-center justify-center cursor-pointer">
+          <input type="checkbox" class="peer sr-only food-type-filter" value="NON_VEG">
+          <div
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-gray-100 bg-white text-gray-600 font-bold transition-all peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:text-red-700 hover:border-red-200 hover:bg-gray-50">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Non-Veg
+          </div>
+        </label>
+
+        <label class="group relative flex items-center justify-center cursor-pointer">
+          <input type="checkbox" class="peer sr-only food-type-filter" value="VEGAN">
+          <div
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-gray-100 bg-white text-gray-600 font-bold transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 hover:border-emerald-200 hover:bg-gray-50">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            Vegan
+          </div>
+        </label>
+      </div>
+
+      <!-- RESTAURANTS SECTION -->
+      <div class="mb-14">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          <div class="p-2.5 bg-orange-100 text-orange-600 rounded-xl">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Featured Restaurants</h3>
+        </div>
+        <div id="restaurantGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <!-- Cards will be populated here -->
+        </div>
+      </div>
+
+      <!-- MENU ITEMS SECTION -->
+      <div class="mb-8">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          <div class="p-2.5 bg-orange-100 text-orange-600 rounded-xl">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">Explore Dishes</h3>
+        </div>
+        <div id="menuItemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+          <!-- Item Cards will be populated here -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // This page is strictly for unauthenticated users, no auth check needed
+
+      /* ---------------------------
+      SEARCH & FILTER
+      ---------------------------- */
+
+      let currentSearch = '';
+
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        currentSearch = e.target.value.trim();
+        fetchRestaurants();
+        fetchGlobalMenuItems();
+      });
+
+      document.querySelectorAll('.food-type-filter').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          fetchRestaurants();
+          fetchGlobalMenuItems();
+        });
+      });
+
+      function getSelectedFoodTypes() {
+        const checkboxes = document.querySelectorAll('.food-type-filter:checked');
+        const types = Array.from(checkboxes).map(cb => cb.value);
+        return types.join(',');
+      }
+
+      async function fetchRestaurants() {
+        try {
+          const foodTypes = getSelectedFoodTypes();
+          let url = '/restaurant/?';
+          if (currentSearch && currentSearch.length >= 2) url += `search=${encodeURIComponent(currentSearch)}&`;
+          if (foodTypes) url += `foodType=${encodeURIComponent(foodTypes)}&`;
+
+          const res = await fetch(url);
+          const { data } = await res.json();
+          renderRestaurants(data?.data || data || []);
+        } catch (err) {
+          console.error('Failed to load restaurants', err);
+        }
+      }
+
+      async function fetchGlobalMenuItems() {
+        try {
+          const foodTypes = getSelectedFoodTypes();
+          let url = '/restaurant/global-menu-items?';
+          if (currentSearch && currentSearch.length >= 2) url += `search=${encodeURIComponent(currentSearch)}&`;
+          if (foodTypes) url += `foodType=${encodeURIComponent(foodTypes)}&`;
+
+          const res = await fetch(url);
+          const { data } = await res.json();
+          renderGlobalMenuItems(data?.data || data || []);
+        } catch (err) {
+          console.error('Failed to load menu items', err);
+        }
+      }
+
+      // Initial fetch
+      fetchRestaurants();
+      fetchGlobalMenuItems();
+
+      function renderRestaurants(restaurants) {
+        const grid = document.getElementById('restaurantGrid');
+        grid.innerHTML = '';
+
+        if (!restaurants || restaurants.length === 0) {
+          grid.innerHTML = '<div class="col-span-full py-8 text-center text-gray-500">No restaurants found.</div>';
+          return;
+        }
+
+        // Flatten branches
+        const allBranches = [];
+        restaurants.forEach(r => {
+          if (r.branches && r.branches.length > 0) {
+            r.branches.forEach(b => {
+              allBranches.push({ ...b, restaurant: r });
+            });
+          }
+        });
+
+        if (allBranches.length === 0) {
+          grid.innerHTML = '<div class="col-span-full py-8 text-center text-gray-500">No branches found.</div>';
+          return;
+        }
+
+        allBranches.forEach((branch) => {
+          const r = branch.restaurant;
+          const card = document.createElement('div');
+          card.onclick = () => window.location.href = '/branchPage/' + branch.id;
+          card.className = 'group cursor-pointer bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full';
+
+          const defaultImg = 'https://placehold.co/400x200?text=No+Image';
+          card.innerHTML = `
+            <div class="h-52 bg-gray-100 relative overflow-hidden flex-shrink-0">
+                <img src="${r.coverImageUrl ? '/' + r.coverImageUrl.replace(/\\\\/g, '/') : defaultImg}" onerror="this.src='${defaultImg}'" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-sm font-bold text-gray-900 shadow-lg flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  ${r.averageRating > 0 ? r.averageRating : 'New'}
+                </div>
+            </div>
+            <div class="p-4 sm:p-6 flex flex-col flex-grow">
+              <h3 class="text-xl font-extrabold text-gray-900 mb-1.5 line-clamp-1 group-hover:text-orange-500 transition-colors">${r.businessName} - ${branch.branchName}</h3>
+              <p class="text-gray-500 text-sm mb-5 line-clamp-2 flex-grow font-medium leading-relaxed">${r.description || r.cuisine || 'Delicious food'}</p>
+              <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                  <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  ${branch.city}
+                </div>
+                <div class="flex items-center gap-1 text-sm font-bold text-orange-500 group-hover:translate-x-1 transition-transform">
+                  View Menu 
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </div>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      function renderGlobalMenuItems(items) {
+        const grid = document.getElementById('menuItemsGrid');
+        grid.innerHTML = '';
+
+        if (!items || items.length === 0) {
+          grid.innerHTML = '<div class="col-span-full py-8 text-center text-gray-500">No menu items found.</div>';
+          return;
+        }
+
+        items.forEach((item) => {
+          const card = document.createElement('div');
+          card.className = 'group bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1';
+
+          const imgUrl = item.images && item.images.length > 0 ? '/' + item.images[0].imageUrl.replace(/\\\\/g, '/') : 'https://placehold.co/400x200?text=No+Image';
+
+          let foodTypeIcon = '';
+          if (item.foodType === 'VEG') foodTypeIcon = '<span class="flex items-center gap-1 text-green-700 font-extrabold text-[10px] tracking-wider"><svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>VEG</span>';
+          if (item.foodType === 'NON_VEG') foodTypeIcon = '<span class="flex items-center gap-1 text-red-700 font-extrabold text-[10px] tracking-wider"><svg class="w-3 h-3 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>NON-VEG</span>';
+          if (item.foodType === 'VEGAN') foodTypeIcon = '<span class="flex items-center gap-1 text-emerald-700 font-extrabold text-[10px] tracking-wider"><svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.083 9h11.834C17.068 9 18 9.895 18 11c0 1.105-.932 2-2.083 2H4.083C2.932 13 2 12.105 2 11c0-1.105.932-2 2.083-2zm0-4h11.834C17.068 5 18 5.895 18 7c0 1.105-.932 2-2.083 2H4.083C2.932 9 2 8.105 2 7c0-1.105.932-2 2.083-2z" clip-rule="evenodd"/></svg>VEGAN</span>';
+
+          const branchName = item.category?.branch?.branchName || 'Unknown Branch';
+          const restaurantName = item.category?.branch?.restaurant?.businessName || 'Unknown Restaurant';
+
+          card.innerHTML = `
+            <div class="h-44 bg-gray-50 relative flex-shrink-0 overflow-hidden">
+                <img src="${imgUrl}" onerror="this.src='https://placehold.co/400x200?text=No+Image'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2 py-1.5 rounded-lg shadow-sm flex items-center gap-1 border border-gray-100">
+                  ${foodTypeIcon}
+                </div>
+            </div>
+            <div class="p-5 flex flex-col flex-grow">
+              <div class="flex justify-between items-start mb-2 gap-4">
+                <h3 class="text-lg font-extrabold text-gray-900 line-clamp-2 leading-tight group-hover:text-orange-500 transition-colors">${item.name}</h3>
+                <span class="text-xl font-black text-orange-600 whitespace-nowrap bg-orange-50/80 px-2.5 py-1 rounded-xl">₹${item.basePrice}</span>
+              </div>
+              <p class="text-gray-500 text-sm mb-5 line-clamp-2 flex-grow font-medium leading-relaxed">${item.description || ''}</p>
+              
+              <div class="mt-auto flex flex-col gap-3">
+                <button class="w-full bg-gray-900 hover:bg-black text-white font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-md hover:shadow-xl">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                  Add to Cart
+                </button>
+                <div class="flex items-center gap-2 text-[11px] text-gray-500 font-semibold bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                  <svg class="w-4 h-4 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                  <span class="truncate"><b>${restaurantName}</b> • ${branchName}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+    </script>
+  </div>
+  <%- include('../partials/toast') %>
+</body>
+
+</html>

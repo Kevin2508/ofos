@@ -45,8 +45,5 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: ofos-backend
-          property: host
+        value: https://ofos-backend.onrender.com
 

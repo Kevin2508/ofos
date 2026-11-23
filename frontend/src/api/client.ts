@@ -1,7 +1,26 @@
 import axios from 'axios';
 
 const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim();
-const baseURL = rawApiUrl && !rawApiUrl.startsWith('http') ? `https://${rawApiUrl}` : rawApiUrl;
+let baseURL = rawApiUrl;
+
+if (baseURL) {
+  if (!baseURL.startsWith('http://') && !baseURL.startsWith('https://')) {
+    baseURL = `https://${baseURL}`;
+  }
+  // If Render or config passed a bare service name like 'ofos-backend' without domain extension
+  try {
+    const parsed = new URL(baseURL);
+    if (!parsed.hostname.includes('.')) {
+      baseURL = `https://${parsed.hostname}.onrender.com`;
+    }
+  } catch {
+    if (!baseURL.includes('.')) {
+      baseURL = `${baseURL}.onrender.com`;
+    }
+  }
+} else if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')) {
+  baseURL = 'https://ofos-backend.onrender.com';
+}
 
 export const apiClient = axios.create({
   baseURL,

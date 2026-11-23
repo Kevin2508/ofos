@@ -35,12 +35,13 @@ services:
   # -------------------------------------------------------------
   # OFOS React Single Page Application (Static Site)
   # -------------------------------------------------------------
-  - type: static
+  - type: web
     name: ofos-frontend
+    runtime: static
     plan: free
     rootDir: frontend
     buildCommand: npm ci && npm run build
-    staticPublishPath: dist
+    staticPublishPath: ./dist
     routes:
       - type: rewrite
         source: /*

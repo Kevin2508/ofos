@@ -7,7 +7,7 @@ services:
     runtime: node
     plan: free
     rootDir: backend
-    buildCommand: npm ci && npx prisma generate --config=prisma.config.ts && npm run build
+    buildCommand: npm ci --include=dev && npx prisma generate --config=prisma.config.ts && npm run build
     startCommand: npx prisma migrate deploy --config=prisma.config.ts && node dist/main.js
     healthCheckPath: /health
     envVars:
@@ -37,7 +37,7 @@ services:
     name: ofos-frontend
     runtime: static
     rootDir: frontend
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --include=dev && npm run build
     staticPublishPath: ./dist
     routes:
       - type: rewrite

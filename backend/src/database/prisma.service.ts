@@ -24,8 +24,12 @@ export class PrismaService
       connectionString?.includes('neon.tech') ||
       connectionString?.includes('pooler');
 
+    const cleanConnectionString = isRemote
+      ? connectionString?.replace(/([?&])sslmode=[^&]+(&|$)/, '$1').replace(/[?&]$/, '')
+      : connectionString;
+
     const pool = new Pool({
-      connectionString,
+      connectionString: cleanConnectionString,
       ssl: isRemote ? { rejectUnauthorized: false } : undefined,
     });
     const adapter = new PrismaPg(pool);

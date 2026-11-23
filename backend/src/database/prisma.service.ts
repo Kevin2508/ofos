@@ -18,7 +18,16 @@ export class PrismaService
       configService.get<string>('POSTGRES_DATABASE_URL') ||
       process.env.POSTGRES_DATABASE_URL;
 
-    const pool = new Pool({ connectionString });
+    const isRemote =
+      connectionString?.includes('sslmode=require') ||
+      connectionString?.includes('supabase') ||
+      connectionString?.includes('neon.tech') ||
+      connectionString?.includes('pooler');
+
+    const pool = new Pool({
+      connectionString,
+      ssl: isRemote ? { rejectUnauthorized: false } : undefined,
+    });
     const adapter = new PrismaPg(pool);
 
     super({ adapter });

@@ -22,7 +22,16 @@ if (!connectionString) {
   throw new Error('POSTGRES_DATABASE_URL is not defined');
 }
 
-const pool = new Pool({ connectionString });
+const isRemote =
+  connectionString?.includes('sslmode=require') ||
+  connectionString?.includes('supabase') ||
+  connectionString?.includes('neon.tech') ||
+  connectionString?.includes('pooler');
+
+const pool = new Pool({
+  connectionString,
+  ssl: isRemote ? { rejectUnauthorized: false } : undefined,
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 

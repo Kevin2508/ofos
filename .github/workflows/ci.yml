@@ -1,0 +1,51 @@
+name: OFOS CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  backend-verification:
+    name: Backend Build & Typecheck (NestJS + Prisma)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json'
+
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+
+      - name: Generate Prisma Client
+        run: npx --prefix backend prisma generate --config=prisma.config.ts
+
+      - name: Compile NestJS REST API
+        run: npm --prefix backend run build
+
+  frontend-verification:
+    name: Frontend Build & Typecheck (React + Vite)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install frontend dependencies
+        run: npm --prefix frontend ci
+
+      - name: Compile React Application
+        run: npm --prefix frontend run build

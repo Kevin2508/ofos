@@ -1,17 +1,56 @@
 {
-  "name": "backend",
+  "name": "ofos-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "OFOS REST API Backend in NestJS",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "nest build",
+    "start": "nest start",
+    "dev": "nest start --watch",
+    "start:prod": "node dist/main",
+    "seed": "prisma db seed --config=prisma.config.ts",
+    "prisma:generate": "prisma generate --config=prisma.config.ts",
+    "prisma:migrate": "prisma migrate dev --config=prisma.config.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
   "dependencies": {
+    "@google/genai": "^3.2.0",
+    "@nestjs/common": "^11.0.10",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.10",
+    "@nestjs/jwt": "^12.0.4",
+    "@nestjs/passport": "^12.0.1",
+    "@nestjs/platform-express": "^11.0.10",
+    "@nestjs/swagger": "^11.0.5",
+    "@nestjs/throttler": "^6.7.1",
+    "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.8.0",
-    "express": "^5.2.1"
+    "@types/compression": "^1.8.1",
+    "bcryptjs": "^3.0.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "compression": "^1.8.2",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "helmet": "^8.3.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.4",
+    "@nestjs/schematics": "^11.0.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.1",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/pg": "^8.23.1",
+    "prisma": "^7.8.0",
+    "typescript": "^5.7.2"
   }
 }

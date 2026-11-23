@@ -1,0 +1,63 @@
+services:
+  # -------------------------------------------------------------
+  # OFOS NestJS REST API Backend Service
+  # -------------------------------------------------------------
+  - type: web
+    name: ofos-backend
+    runtime: node
+    plan: starter
+    rootDir: backend
+    buildCommand: npm ci && npx prisma generate --config=prisma.config.ts && npm run build
+    startCommand: npx prisma migrate deploy --config=prisma.config.ts && node dist/main.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BACKEND_PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ofos-db
+          property: connectionString
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+
+  # -------------------------------------------------------------
+  # OFOS React Single Page Application (Static Site)
+  # -------------------------------------------------------------
+  - type: static
+    name: ofos-frontend
+    plan: free
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: ofos-backend
+          property: host
+
+databases:
+  # -------------------------------------------------------------
+  # Managed PostgreSQL Database
+  # -------------------------------------------------------------
+  - name: ofos-db
+    databaseName: ofos_platform_dev
+    user: ofos_user
+    plan: starter
+    postgresMajorVersion: 16
